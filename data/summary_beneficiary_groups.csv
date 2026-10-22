@@ -1,0 +1,15 @@
+Category,Subgroup,Average_Delay_Days,Pct_Paid_Over_7_Days_Late,Records_Count,Notes
+Poverty level,Severely poor,11.0,62.0,174,Longest delay; poverty measured post-support
+Poverty level,Moderately poor,9.7,56.0,875,Intermediate wait
+Poverty level,Not poor,8.9,50.0,2350,Shortest wait among beneficiaries
+Payment channel,Mobile money,10.4,59.0,630,Longer delay reported via mobile disbursements
+Payment channel,Bank-type SACCO,9.2,53.0,2205,Intermediate delay
+Payment channel,Umurenge SACCO,7.7,43.0,546,Fastest disbursement channel
+Area,Rural,9.3,52.0,2895,Predominantly rural beneficiary base
+Area,Urban,8.5,50.0,504,Slightly faster disbursement in urban sectors
+Sex,Female,9.2,52.0,2468,No significant disparity between sexes
+Sex,Male,9.2,52.0,931,No significant disparity between sexes
+Age,40-59,9.8,54.0,1115,Highest delay age bracket
+Age,60 and over,8.9,53.0,1317,Substantial elderly beneficiary group
+Age,25-39,8.8,49.0,810,Working age beneficiaries
+Age,Under 25,8.7,45.0,157,Small sample

@@ -1,0 +1,13 @@
+Food_Item,Middle_Price_RWF_per_Kg,Category,Recommended_Daily_Adult_Grams,Price_Fairness_Range_Low,Price_Fairness_Range_High
+Sweet potato,250,Staples,300,212,288
+Cooking banana,300,Staples,250,255,345
+Salt,400,Condiments,10,340,460
+Avocado,400,Vegetables/Fruits,100,340,460
+Irish potato,450,Staples,300,382,518
+Tomato,500,Vegetables,80,425,575
+Dry beans,800,Pulses,120,680,920
+Corn flour (factory),1000,Grains,150,850,1150
+Local rice,1200,Grains,150,1020,1380
+Onion,1667,Vegetables,30,1417,1917
+Groundnut flour,2000,Flours,50,1700,2300
+Small dry fish,3030,Protein,40,2575,3485

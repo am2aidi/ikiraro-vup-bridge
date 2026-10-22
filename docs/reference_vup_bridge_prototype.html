@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VUP Bridge – Prototype app</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#16272c;--mute:#5b6b70;--line:#d5dedb;--brand:#0e6b6f;--hot:#c2410c;--warm:#e8a33d;--ok:#2f8f6b;--tint:#e3efec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1e;--card:#162428;--ink:#e6efed;--mute:#9fb2b6;--line:#2b3d42;--brand:#4fc3c7;--hot:#fb8a54;--warm:#f0b95a;--ok:#5ccf9f;--tint:#1d3338}}
+:root[data-theme="dark"]{--bg:#0f1b1e;--card:#162428;--ink:#e6efed;--mute:#9fb2b6;--line:#2b3d42;--brand:#4fc3c7;--hot:#fb8a54;--warm:#f0b95a;--ok:#5ccf9f;--tint:#1d3338}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:18px 14px 60px}
+h1,h2,h3{font-family:"Bricolage Grotesque","Trebuchet MS",sans-serif;line-height:1.15;margin:0}
+h1{font-size:30px}h2{font-size:22px;margin:4px 0 8px}h3{font-size:17px;margin:0 0 8px}
+.top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.tag{font-size:12px;font-weight:600;background:var(--warm);color:#2a1a00;padding:3px 10px;border-radius:99px}
+.sub{color:var(--mute);margin:4px 0 12px;font-size:15px}
+.roles,.seg{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+button,select,input{font:inherit}
+.roles button,.b{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;border-radius:99px;cursor:pointer;font-weight:500}
+.roles button[aria-pressed=true],.b.p{background:var(--brand);color:#fff;border-color:var(--brand)}
+.b:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0}
+.msg{border-left:4px solid var(--warm);background:var(--tint);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:14px}
+.sim{font-size:13px;color:var(--mute);border:1px dashed var(--warm);border-radius:8px;padding:6px 10px;margin:8px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:10px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font:700 22px "Bricolage Grotesque",sans-serif}.stat span{font-size:13px;color:var(--mute)}
+.item{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}.item small{color:var(--mute)}
+.pill{font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--tint);margin-left:6px}
+.Low{color:var(--ok)}.High{color:var(--hot)}
+.f{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0}
+input,select{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 9px;max-width:100%}
+input[type=number]{width:90px}
+.buy{display:flex;gap:6px;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:left}
+.small{font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><h1>VUP Bridge</h1><span class="tag">Prototype – fake money</span></div>
+<p class="sub">Farmers sell. Families and shoppers buy. When a VUP payment is late, a donation pool pays the seller first.</p>
+<div class="roles" id="roles"></div>
+<div id="msg"></div>
+<div id="view"></div>
+<p class="small">Prices and delays come from NISR VUP survey data. Farmers, orders and money are demo entries saved only in this browser. A real launch needs accounts, a server and approval from financial regulators.</p>
+</div>
+<script>
+const M={"Dry beans":800,"Sweet potato":250,"Irish potato":450,"Tomato":500,"Onion":1667,"Cooking banana":300,"Local rice":1200};
+const DPP=261,PROG={"Direct Support":8.3,"Classic Public Works":9.7,"Expanded Public Works":11.0,"NSDS":7.7};
+const DIST=["Kirehe","Gisagara","Karongi","Gatsibo","Nyabihu","Gicumbi","Musanze","Rwamagana"];
+const seed=()=>({L:[{id:1,f:"Dry beans",d:"Kirehe",p:780,q:200,by:"Demo farmer"},{id:2,f:"Sweet potato",d:"Gisagara",p:200,q:300,by:"Demo farmer"},{id:3,f:"Tomato",d:"Karongi",p:650,q:80,by:"Demo farmer"},{id:4,f:"Irish potato",d:"Nyabihu",p:430,q:500,by:"Demo farmer"},{id:5,f:"Onion",d:"Gicumbi",p:1500,q:60,by:"Demo farmer"}],O:[],pool:{b:20000,i:20000,o:0,r:0},n:1,hs:5,days:8,prog:"Direct Support",don:2,role:"Family",msg:""});
+let S=null;try{S=JSON.parse(localStorage.getItem("vb1"))}catch(e){}
+if(!S||!S.L)S=seed();
+const $=id=>document.getElementById(id),N=n=>Math.round(n).toLocaleString();
+const save=()=>{try{localStorage.setItem("vb1",JSON.stringify(S))}catch(e){}};
+const flag=(p,f)=>{const r=p/M[f];return r<.85?"Low":r>1.15?"High":"Fair"};
+const out=()=>S.O.filter(o=>o.mode=="credit"&&!o.rep&&o.st!="Cancelled").reduce((a,o)=>a+o.tot,0);
+const limit=()=>S.days>0?S.hs*DPP*S.days:0;
+function say(t){S.msg=t;render()}
+function buy(id,mode){const l=S.L.find(x=>x.id==id),kg=+$("q"+id).value;if(!(kg>0))return say("Enter how many kg you want.");if(kg>l.q)return say("Only "+l.q+" kg are available.");
+const tot=Math.round(kg*l.p);let gift=0;
+if(mode=="credit"){if(tot>limit()-out())return say("This is over your credit limit. Credit opens only when a payment is late.")}
+else if(S.role=="Shopper"){gift=Math.round(tot*S.don/100);S.pool.b+=gift;S.pool.i+=gift}
+l.q-=kg;S.O.push({id:S.n++,f:l.f,d:l.d,kg,tot,mode,by:S.role,st:"Placed",rep:false,gift,farmer:l.by});
+say(mode=="credit"?"Order placed on bridge credit. The pool will pay the seller on delivery.":"Order placed."+(gift?" "+N(gift)+" RWF went to the pool.":""))}
+function deliver(id){const o=S.O.find(x=>x.id==id);if(o.mode=="credit"){if(S.pool.b<o.tot)return say("The pool has too little money. Shoppers can add funds by buying.");S.pool.b-=o.tot;S.pool.o+=o.tot;o.paid="pool"}else o.paid="buyer";o.st="Delivered";say("Order "+id+" delivered. Seller paid by "+(o.paid=="pool"?"the pool.":"the buyer."))}
+function repay(){let c=0;S.O.forEach(o=>{if(o.mode=="credit"&&o.st=="Delivered"&&!o.rep){o.rep=true;S.pool.b+=o.tot;S.pool.r+=o.tot;c++}});say(c?c+" family credit(s) repaid to the pool from VUP payments.":"No delivered credit to repay yet.")}
+function addL(){const p=+$("np").value,q=+$("nq").value,f=$("nf").value;if(!(p>0&&q>0))return say("Enter a price and a quantity.");S.L.push({id:S.n++,f,d:$("nd").value,p,q,by:"You (farmer)"});say("Listing added. Check the price guide: "+flag(p,f)+" against the NISR median.")}
+function reset(){S=seed();save();render()}
+function market(mode){return S.L.length?S.L.map(l=>{const g=flag(l.p,l.f),can=l.q>0;return `<div class="item"><div><b>${l.f}</b> <span class="small">${l.d} · ${l.by}</span><br><small>${N(l.p)} RWF per kg · ${l.q} kg left · NISR median ${N(M[l.f])} <span class="pill ${g}">${g}</span></small></div><div class="buy"><input id="q${l.id}" type="number" min="1" value="5" aria-label="kg"><button class="b p" ${can?"":"disabled"} onclick="buy(${l.id},'${mode}')">${mode=="credit"?"Buy on credit":"Buy"}</button></div></div>`}).join(""):"<p class=small>No listings yet.</p>"}
+function orders(list,act){return list.length?`<table>${list.map(o=>`<tr><td>#${o.id} ${o.f}, ${o.kg} kg</td><td>${N(o.tot)} RWF</td><td>${o.mode=="credit"?"Credit":"Cash"}${o.rep?" · repaid":""}</td><td>${o.st}${o.paid?" ("+o.paid+" paid)":""}</td>${act&&o.st=="Placed"?`<td><button class="b p" onclick="deliver(${o.id})">Mark delivered</button></td>`:"<td></td>"}</tr>`).join("")}</table>`:"<p class=small>No orders yet.</p>"}
+const V={
+Family(){const lim=limit(),rem=lim-out(),late=S.days>0;return `<h2>Family</h2><div class="card"><h3>My VUP payment</h3><div class="f"><label>Programme <select onchange="S.prog=this.value;if(S.days==0)S.days=0;render()">${Object.keys(PROG).map(k=>`<option ${k==S.prog?"selected":""}>${k}</option>`).join("")}</select></label><label>People at home <input type="number" min="1" max="12" value="${S.hs}" onchange="S.hs=+this.value||1;render()"></label><label>Days late <input type="number" min="0" max="30" value="${S.days}" onchange="S.days=+this.value||0;render()"></label></div>
+<p class="small">The average wait for ${S.prog} in NISR data is ${PROG[S.prog]} days.</p>
+<div class="stats"><div class="stat"><b>${late?"Late":"On time"}</b><span>payment status</span></div><div class="stat"><b>${N(Math.max(rem,0))} RWF</b><span>bridge credit left</span></div><div class="stat"><b>${N(S.hs*DPP)} RWF</b><span>basket cost per day</span></div></div></div>
+<div class="card"><h3>Buy food</h3>${market(late?"credit":"cash")}${late?"":"<p class=small>Set days late above zero to open bridge credit.</p>"}</div><div class="card"><h3>My orders</h3>${orders(S.O.filter(o=>o.by=="Family"))}</div>`},
+Shopper(){const g=S.O.filter(o=>o.by=="Shopper").reduce((a,o)=>a+o.gift,0);return `<h2>Shopper</h2><p class="sub">Buy food as normal. A small share of each purchase goes to the pool that helps waiting families.</p><div class="card"><div class="f"><label>Share to pool: ${S.don}% <input type="range" min="1" max="5" value="${S.don}" oninput="S.don=+this.value;render()"></label></div><div class="stats"><div class="stat"><b>${N(g)} RWF</b><span>you gave so far</span></div><div class="stat"><b>${(g/(5*DPP)).toFixed(1)}</b><span>days of food for a family of 5</span></div></div></div><div class="card"><h3>Buy food</h3>${market("cash")}</div><div class="card"><h3>My orders</h3>${orders(S.O.filter(o=>o.by=="Shopper"))}</div>`},
+Farmer(){return `<h2>Farmer</h2><div class="card"><h3>Add a listing</h3><div class="f"><select id="nf">${Object.keys(M).map(k=>`<option>${k}</option>`).join("")}</select><select id="nd">${DIST.map(k=>`<option>${k}</option>`).join("")}</select><input id="np" type="number" placeholder="RWF per kg"><input id="nq" type="number" placeholder="kg"><button class="b p" onclick="addL()">Add listing</button></div><p class="small">Price guide: Low below 85% of the NISR median, High above 115%.</p></div><div class="card"><h3>Orders to deliver</h3>${orders(S.O,true)}<p class="small">Credit orders are paid by the pool on delivery.</p></div><div class="card"><h3>Listings</h3>${market("cash").replace(/<div class="buy">.*?<\/div><\/div>/gs,"</div>")}</div>`},
+Planner(){const o=S.O,c=o.filter(x=>x.mode=="credit");return `<h2>Planner</h2><div class="stats"><div class="stat"><b>${o.length}</b><span>orders</span></div><div class="stat"><b>${N(c.reduce((a,x)=>a+x.tot,0))} RWF</b><span>credit given</span></div><div class="stat"><b>${N(out())}</b><span>credit still open</span></div><div class="stat"><b>${N(S.pool.b)}</b><span>pool balance</span></div></div>
+<div class="card"><h3>Pool flow</h3><p class="small">Gifts in: ${N(S.pool.i)} · Paid to sellers: ${N(S.pool.o)} · Repaid by VUP: ${N(S.pool.r)}</p><button class="b p" onclick="repay()">Simulate: VUP payments arrive</button> <button class="b" onclick="reset()">Reset demo</button></div>
+<div class="card"><h3>What NISR data says about late payments</h3><table><tr><th>Programme</th><th>Average days late</th><th>Over 7 days</th></tr><tr><td>Expanded Public Works</td><td>11.0</td><td>63%</td></tr><tr><td>Classic Public Works</td><td>9.7</td><td>50%</td></tr><tr><td>Direct Support</td><td>8.3</td><td>51%</td></tr><tr><td>NSDS</td><td>7.7</td><td>42%</td></tr></table><p class="small">Slowest places: Southern and Eastern provinces. Biggest hotspot: Expanded Public Works in the Southern Province, about 14.6 days. These patterns show where to investigate. They do not show why payments were late.</p></div><div class="card"><h3>All orders</h3>${orders(o)}</div>`}};
+function render(){$("roles").innerHTML=["Family","Shopper","Farmer","Planner"].map(r=>`<button aria-pressed="${S.role==r}" onclick="S.role='${r}';S.msg='';render()">${r}</button>`).join("");$("msg").innerHTML=S.msg?`<div class="msg">${S.msg}</div>`:"";$("view").innerHTML=V[S.role]()+`<div class="sim">Simulated: sellers, orders and money. Real NISR data: prices, delays and household size.</div>`;save()}
+render();
+</script>
+</body>
+</html>

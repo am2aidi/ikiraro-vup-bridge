@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VUP Pulse – Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5f3;--card:#fff;--ink:#16272c;--mute:#5b6b70;--line:#d5dedb;--brand:#0e6b6f;--hot:#c2410c;--warm:#e8a33d;--ok:#2f8f6b;--tint:#e3efec;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1b1e;--card:#162428;--ink:#e6efed;--mute:#9fb2b6;--line:#2b3d42;--brand:#4fc3c7;--hot:#fb8a54;--warm:#f0b95a;--ok:#5ccf9f;--tint:#1d3338}}
+:root[data-theme="dark"]{--bg:#0f1b1e;--card:#162428;--ink:#e6efed;--mute:#9fb2b6;--line:#2b3d42;--brand:#4fc3c7;--hot:#fb8a54;--warm:#f0b95a;--ok:#5ccf9f;--tint:#1d3338}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 56px}
+h1,h2,h3{font-family:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:34px;letter-spacing:-.5px}h2{font-size:24px;margin-bottom:6px}h3{font-size:18px;margin:26px 0 8px}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}
+.tag{font-size:13px;font-weight:600;background:var(--warm);color:#2a1a00;padding:3px 10px;border-radius:99px}
+.sub{color:var(--mute);margin:6px 0 14px;max-width:62ch}
+.note{border-left:4px solid var(--brand);background:var(--tint);padding:10px 14px;border-radius:0 8px 8px 0;font-size:15px;margin:0 0 16px}
+nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+nav button,.seg button{font:inherit;font-size:15px;font-weight:500;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 13px;border-radius:99px;cursor:pointer;white-space:nowrap}
+nav button[aria-selected=true],.seg button[aria-pressed=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
+button:focus-visible{outline:3px solid var(--warm);outline-offset:2px}
+.seg{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0 8px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font:700 28px "Bricolage Grotesque",sans-serif}
+.stat span{color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+.axis{display:flex;justify-content:space-between;color:var(--mute);font-size:12px;margin:0 0 2px 136px}
+.row{display:grid;grid-template-columns:130px 1fr;gap:6px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.lab{font-size:14px;font-weight:500;line-height:1.25}.lab small{display:block;color:var(--mute);font-weight:400}
+.track{position:relative;height:30px}
+.track:before{content:"";position:absolute;left:0;right:0;top:14px;height:2px;background:var(--line)}
+.stem{position:absolute;left:0;top:13px;height:4px;border-radius:2px}
+.dot{position:absolute;top:5px;width:20px;height:20px;border-radius:50%;margin-left:-10px;border:3px solid var(--card)}
+.val{position:absolute;top:-1px;font-size:13px;font-weight:600;white-space:nowrap}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left;font-weight:500}
+td.c{border-radius:6px;font-weight:600}
+ul{padding-left:20px}li{margin:6px 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:620px){.two{grid-template-columns:1fr}.row{grid-template-columns:104px 1fr}.axis{margin-left:110px}h1{font-size:28px}}
+.small{font-size:13px;color:var(--mute)}
+footer{margin-top:30px;font-size:13px;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top"><h1>VUP Pulse</h1><span class="tag">Demo values – final numbers come from the full run</span></div>
+<p class="sub">Where and for whom do VUP payments arrive late? A tool for planners, built on NISR household survey data.</p>
+<p class="note"><b>Read this first:</b> this site shows patterns in the data. It cannot tell why a payment was late. Use it to decide where to investigate.</p>
+<nav role="tablist" id="tabs"></nav>
+<main id="view"></main>
+<footer>Source: NISR VUP household survey microdata. Delay = average days late of the last payments, as reported by households. Early, unweighted values for design review only.</footer>
+</div>
+<script>
+const D={
+overall:{n:3399,avg:9.2,late:52,med:7.5},
+prog:[["Expanded Public Works",11.0,63,796],["Classic Public Works",9.7,50,925],["Direct Support",8.3,51,1003],["NSDS (nutrition)",7.7,42,675]],
+prov:[["Southern",10.7,64,675],["Eastern",10.7,59,762],["Western",9.4,55,789],["City of Kigali",8.3,47,358],["Northern",6.6,34,815]],
+groups:{
+"Poverty level":[["Severely poor",11.0,62,174],["Moderately poor",9.7,56,875],["Not poor",8.9,50,2350]],
+"Payment channel":[["Mobile money",10.4,59,630],["Bank-type SACCO",9.2,53,2205],["Umurenge SACCO",7.7,43,546]],
+"Area":[["Rural",9.3,52,2895],["Urban",8.5,50,504]],
+"Sex":[["Female",9.2,52,2468],["Male",9.2,52,931]],
+"Age":[["40–59",9.8,54,1115],["60+",8.9,53,1317],["25–39",8.8,49,810],["Under 25",8.7,45,157]]},
+slow:[["Kirehe",15.5,70],["Gisagara",14.9,77],["Karongi",13.2,100],["Kicukiro",12.4,27],["Gatsibo",12.2,92]],
+fast:[["Nyabihu",4.5,63],["Musanze",5.1,70],["Gicumbi",6.3,297],["Rwamagana",6.3,55],["Rubavu",6.6,76]],
+heat:{"Expanded Public Works":{"Southern":[14.6,79,140],"Eastern":[10.8,61,238],"Western":[11.0,63,186],"City of Kigali":[9.6,60,83],"Northern":[8.5,54,149]},
+"Classic Public Works":{"Southern":[11.4,68,157],"Eastern":[12.0,58,236],"Western":[10.0,54,190],"City of Kigali":[8.5,42,132],"Northern":[6.3,27,210]},
+"Direct Support":{"Southern":[9.7,62,210],"Eastern":[9.2,61,231],"Western":[9.2,59,185],"City of Kigali":[7.4,45,143],"Northern":[6.0,31,234]},
+"NSDS (nutrition)":{"Southern":[8.3,51,168],"Eastern":[11.4,49,57],"Western":[7.8,47,228],"City of Kigali":null,"Northern":[6.2,30,222]}},
+ask:["Why do Expanded Public Works payments in the Southern Province wait about 15 days, when the Northern Province waits about 8?","Why are mobile money payments later than Umurenge SACCO payments?","Do Kirehe, Gisagara and Karongi share a cause, such as payment lists, fund transfers or local capacity?","Why do the poorest households wait longest?","What can the Northern Province and Nyabihu teach the slower districts?"]};
+const MAX=16;
+const col=v=>v>=11?"var(--hot)":v>=8.5?"var(--warm)":"var(--ok)";
+function rows(list){let h='<div class="axis"><span>0 days</span><span>8</span><span>16 days</span></div>';
+for(const[l,a,p,n]of list){const x=Math.min(a/MAX,1)*100;
+h+=`<div class="row"><div class="lab">${l}<small>${p}% paid over 7 days late · ${n.toLocaleString()} records</small></div><div class="track"><div class="stem" style="width:${x}%;background:${col(a)};opacity:.35"></div><div class="dot" style="left:${x}%;background:${col(a)}"></div><div class="val" style="left:calc(${x}% + 16px)">${a.toFixed(1)} d</div></div></div>`}return h}
+function heatTable(m){let ps=["Southern","Eastern","Western","City of Kigali","Northern"];
+let h='<div class="scroll"><table><tr><th></th>'+ps.map(p=>`<th>${p}</th>`).join("")+'</tr>';
+for(const g in D.heat){h+=`<tr><td>${g}</td>`;for(const p of ps){const c=D.heat[g][p];
+if(!c){h+='<td class="small">no data</td>';continue}
+const v=m==="d"?c[0]:c[1],t=m==="d"?(c[0]-5)/11:(c[1]-25)/60,a=Math.max(.08,Math.min(t,1))*.85;
+h+=`<td class="c" style="background:color-mix(in srgb,var(--hot) ${Math.round(a*100)}%,var(--card))">${v}${m==="d"?" d":"%"}${c[2]<100?"*":""}</td>`}h+='</tr>'}
+return h+'</table></div><p class="small">* fewer than 100 records. Treat with care. Darker means longer waits.</p>'}
+const T={
+Overview(){return `<h2>The picture in one glance</h2><p class="sub">Across all four VUP programmes, half of beneficiaries said their last payments came more than a week late.</p>
+<div class="stats"><div class="stat"><b>${D.overall.avg} days</b><span>average delay</span></div><div class="stat"><b>${D.overall.late}%</b><span>paid more than 7 days late</span></div><div class="stat"><b>${D.overall.n.toLocaleString()}</b><span>beneficiary records</span></div></div>
+<div class="card"><h3 style="margin-top:0">Average delay by programme</h3>${rows(D.prog)}</div>
+<div class="card"><h3 style="margin-top:0">Average delay by province</h3>${rows(D.prov)}</div>`},
+Programmes(){return `<h2>Compare programmes</h2><p class="sub">Public works wait longer than direct cash support. Nutrition support is paid soonest.</p><div class="card">${rows(D.prog)}</div><p class="small">Planned in the full version: delay trend by payment round, and a test showing which gaps are larger than chance.</p>`},
+Places(){return `<h2>Compare places</h2><p class="sub">The Southern and Eastern provinces wait longest. The Northern Province waits least.</p><div class="card">${rows(D.prov)}</div>
+<div class="two"><div class="card"><h3 style="margin-top:0">Slowest districts</h3>${D.slow.map(d=>`<div class="row" style="grid-template-columns:1fr auto"><span>${d[0]}</span><b style="color:var(--hot)">${d[1]} d <small class="small">(${d[2]})</small></b></div>`).join("")}</div>
+<div class="card"><h3 style="margin-top:0">Fastest districts</h3>${D.fast.map(d=>`<div class="row" style="grid-template-columns:1fr auto"><span>${d[0]}</span><b style="color:var(--ok)">${d[1]} d <small class="small">(${d[2]})</small></b></div>`).join("")}</div></div>
+<p class="small">Numbers in brackets are records per district. Small groups can mislead.</p>`},
+Groups(){return `<h2>Compare groups of beneficiaries</h2><p class="sub">Pick a group to see who waits longest.</p><div class="seg" id="seg"></div><div class="card" id="gbox"></div><p class="small" id="gnote"></p>`},
+Hotspots(){return `<h2>Hotspots to investigate</h2><p class="sub">Each cell is one programme in one province. Dark cells need a closer look first.</p><div class="seg" id="seg2"><button data-m="d" aria-pressed="true">Average days late</button><button data-m="p" aria-pressed="false">% paid over 7 days late</button></div><div class="card" id="hbox"></div>
+<p class="note">Largest hotspot in this demo: Expanded Public Works in the Southern Province, about 14.6 days late on average and 79% paid over 7 days late.</p>`},
+Investigate(){return `<h2>Questions for officials</h2><p class="sub">The data cannot give the reasons. These questions point to where to look.</p><div class="card"><ul>${D.ask.map(q=>`<li>${q}</li>`).join("")}</ul></div>`},
+"Data notes"(){return `<h2>About the data</h2><div class="card"><ul>
+<li><b>Source:</b> NISR VUP household survey microdata (households receiving Direct Support, Public Works, NSDS and other VUP components).</li>
+<li><b>Delay:</b> average days late of the last payments, as reported by the household. These are not official payment records.</li>
+<li><b>Hotspot rule:</b> groups with fewer than 100 records are marked and shown with care.</li>
+<li><b>Poverty level</b> is measured after support is received, so it shows a link and does not show cause.</li>
+<li><b>Privacy:</b> the public site uses summary tables only. No household rows are published.</li>
+<li><b>Demo status:</b> values here are early and unweighted. The final run will replace them and add tests.</li></ul></div>
+<h3>What could come next</h3><div class="card"><ul><li>A short bridge for families while a payment is late.</li><li>Budget meal suggestions from NISR food prices.</li><li>A link between local farmers and buyers.</li></ul><p class="small">These are ideas for later. They are not part of this demo.</p></div>`}};
+const tabs=document.getElementById("tabs"),view=document.getElementById("view");
+function show(n){[...tabs.children].forEach(b=>b.setAttribute("aria-selected",b.dataset.t===n));view.innerHTML=T[n]();
+if(n==="Groups"){const seg=document.getElementById("seg");const ks=Object.keys(D.groups);
+const set=k=>{[...seg.children].forEach(b=>b.setAttribute("aria-pressed",b.textContent===k));document.getElementById("gbox").innerHTML=rows(D.groups[k]);
+document.getElementById("gnote").textContent=k==="Sex"?"No clear difference between women and men in this demo.":k==="Poverty level"?"Poorer households wait longer. This is a link, not a proven cause.":"";};
+ks.forEach(k=>{const b=document.createElement("button");b.textContent=k;b.onclick=()=>set(k);seg.appendChild(b)});set(ks[0])}
+if(n==="Hotspots"){const hb=document.getElementById("hbox"),s=document.getElementById("seg2");
+const set=m=>{[...s.children].forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===m));hb.innerHTML=heatTable(m)};
+[...s.children].forEach(b=>b.onclick=()=>set(b.dataset.m));set("d")}}
+Object.keys(T).forEach(n=>{const b=document.createElement("button");b.textContent=n;b.dataset.t=n;b.setAttribute("role","tab");b.onclick=()=>show(n);tabs.appendChild(b)});
+show("Overview");
+</script>
+</body>
+</html>
