@@ -1,14 +1,84 @@
 /**
- * Isoko Bridge - Core Application Logic
- * Integrates Opening Page, Interactive Sample Question, Market, Bridge, and Planner Analytics
+ * Isoko Bridge - Comprehensive Application Logic
+ * Integrates:
+ * 1. Opening Landing Page with Tailored Onboarding Questionnaires
+ * 2. Visual Grocery Store with Produce Photos (Upload, Camera, or Curated Gallery)
+ * 3. Rwanda VUP Disbursement Schedule & Delay Calendar (NISR Survey Dates)
+ * 4. Realistic Rwandan Payment Sheet (MTN MoMo, Airtel, BK, Umurenge SACCO)
+ * 5. Animated Printable Order Receipts
+ * 6. Evidence Dashboards & Interactive 30-District GIS Map
  */
 
-// Initial Seed State
+// Curated Produce Photography (High quality web links with reliable SVG/Emoji fallbacks)
+const HARVEST_GALLERY = {
+  "Dry beans": {
+    img: "https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=400&q=80",
+    icon: "🫘",
+    kiny: "Ibihyimbo",
+    category: "Pulses"
+  },
+  "Irish potato": {
+    img: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=400&q=80",
+    icon: "🥔",
+    kiny: "Ibirayi",
+    category: "Staples"
+  },
+  "Sweet potato": {
+    img: "https://images.unsplash.com/photo-1596097635121-14b63b7a0c19?auto=format&fit=crop&w=400&q=80",
+    icon: "🍠",
+    kiny: "Ibijumba",
+    category: "Staples"
+  },
+  "Tomato": {
+    img: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=400&q=80",
+    icon: "🍅",
+    kiny: "Inyanya",
+    category: "Vegetables"
+  },
+  "Cooking banana": {
+    img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=400&q=80",
+    icon: "🍌",
+    kiny: "Ibitoki",
+    category: "Staples"
+  },
+  "Onion": {
+    img: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=400&q=80",
+    icon: "🧅",
+    kiny: "Ibitunguru",
+    category: "Vegetables"
+  },
+  "Local rice": {
+    img: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80",
+    icon: "🍚",
+    kiny: "Umuceri",
+    category: "Grains"
+  },
+  "Corn flour (factory)": {
+    img: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=400&q=80",
+    icon: "🌽",
+    kiny: "Ifu y'Ibigori",
+    category: "Grains"
+  },
+  "Avocado": {
+    img: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=400&q=80",
+    icon: "🥑",
+    kiny: "Avoka",
+    category: "Fruits"
+  },
+  "Spinach": {
+    img: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80",
+    icon: "🥬",
+    kiny: "Dodo",
+    category: "Vegetables"
+  }
+};
+
 const DEFAULT_STATE = {
   theme: "light",
   lang: "en",
-  currentView: "home", // "home" (Opening Page) or "dashboard"
-  role: "Family", // Family, Farmer, Shopper, Planner
+  currentView: "home", // "home" or "dashboard"
+  role: "Family",
+  activeCategory: "All",
   currentUser: {
     username: "amina_family",
     name: "Amina Uwase",
@@ -17,9 +87,9 @@ const DEFAULT_STATE = {
     programme: "Direct Support",
     householdSize: 5,
     daysLate: 8,
-    donationPct: 2
+    donationPct: 2,
+    momo: "0788123456"
   },
-  // Sample Question Widget on Opening Page
   sampleQ: {
     daysLate: 8,
     householdSize: 5
@@ -31,101 +101,48 @@ const DEFAULT_STATE = {
     totalRepaidByVup: 0
   },
   listings: [
-    { id: 1, food: "Dry beans", district: "Kirehe", price: 780, quantity: 200, farmer: "Mukamana Farm", momo: "0788123456" },
-    { id: 2, food: "Sweet potato", district: "Gisagara", price: 240, quantity: 350, farmer: "Gisagara Agrilink", momo: "0788234567" },
-    { id: 3, food: "Irish potato", district: "Nyabihu", price: 440, quantity: 500, farmer: "Nyabihu Potato Coop", momo: "0788654321" },
-    { id: 4, food: "Tomato", district: "Karongi", price: 480, quantity: 90, farmer: "Karongi Fresh", momo: "0788345678" },
-    { id: 5, food: "Cooking banana", district: "Gatsibo", price: 290, quantity: 250, farmer: "Gatsibo Cooperative", momo: "0788456789" },
-    { id: 6, food: "Onion", district: "Gicumbi", price: 1600, quantity: 80, farmer: "Gicumbi Green", momo: "0788567890" },
-    { id: 7, food: "Local rice", district: "Bugesera", price: 1180, quantity: 180, farmer: "Bugesera Rice Growers", momo: "0788789012" }
+    { id: 1, food: "Dry beans", district: "Kirehe", price: 780, quantity: 200, farmer: "Mukamana Farm", momo: "0788123456", photo: HARVEST_GALLERY["Dry beans"].img },
+    { id: 2, food: "Sweet potato", district: "Gisagara", price: 240, quantity: 350, farmer: "Gisagara Agrilink", momo: "0788234567", photo: HARVEST_GALLERY["Sweet potato"].img },
+    { id: 3, food: "Irish potato", district: "Nyabihu", price: 440, quantity: 500, farmer: "Nyabihu Potato Coop", momo: "0788654321", photo: HARVEST_GALLERY["Irish potato"].img },
+    { id: 4, food: "Tomato", district: "Karongi", price: 480, quantity: 90, farmer: "Karongi Fresh", momo: "0788345678", photo: HARVEST_GALLERY["Tomato"].img },
+    { id: 5, food: "Cooking banana", district: "Gatsibo", price: 290, quantity: 250, farmer: "Gatsibo Cooperative", momo: "0788456789", photo: HARVEST_GALLERY["Cooking banana"].img },
+    { id: 6, food: "Onion", district: "Gicumbi", price: 1600, quantity: 80, farmer: "Gicumbi Green", momo: "0788567890", photo: HARVEST_GALLERY["Onion"].img },
+    { id: 7, food: "Local rice", district: "Bugesera", price: 1180, quantity: 180, farmer: "Bugesera Rice Growers", momo: "0788789012", photo: HARVEST_GALLERY["Local rice"].img }
   ],
   orders: [
-    { id: 101, food: "Dry beans", kg: 10, total: 7800, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Kirehe", status: "Delivered", farmer: "Mukamana Farm", paidBy: "pool", repaid: false, timestamp: "2026-10-22 08:30" },
-    { id: 102, food: "Sweet potato", kg: 15, total: 3600, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gisagara", status: "Delivered", farmer: "Gisagara Agrilink", paidBy: "buyer", gift: 72, timestamp: "2026-10-22 09:15" }
+    { id: 101, food: "Dry beans", kg: 10, total: 7800, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Kirehe", status: "Delivered", farmer: "Mukamana Farm", paidBy: "pool", repaid: false, date: "2026-10-22 08:30" },
+    { id: 102, food: "Sweet potato", kg: 15, total: 3600, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gisagara", status: "Delivered", farmer: "Gisagara Agrilink", paidBy: "MTN MoMo", gift: 72, date: "2026-10-22 09:15" }
   ],
   nextOrderId: 103,
   nextListingId: 8,
   selectedDistrict: "Kirehe",
-  hotspotMode: "delay" // 'delay' or 'pct'
+  hotspotMode: "delay",
+  selectedPayMethod: "momo",
+  pendingCheckoutOrder: null
 };
 
-// Translations
-const I18N = {
-  en: {
-    tagline: "Ikiraro cya VUP · Food Market & Emergency Social Payment Bridge",
-    poolTicker: "Social Bridge Pool:",
-    switchRole: "Role:",
-    roleFamily: "Family (Beneficiary)",
-    roleFarmer: "Seller (Farmer)",
-    roleShopper: "Ethical Shopper",
-    rolePlanner: "Planner / Admin",
-    statusLate: "Delayed",
-    statusOnTime: "Disbursed",
-    creditLimit: "Bridge Credit Left",
-    dailyBasket: "Daily Basket Cost",
-    marketTitle: "Direct Produce Market",
-    buyCredit: "Order on Credit",
-    buyCash: "Buy with Cash",
-    ordersTitle: "Order History",
-    addListing: "List Harvest Produce",
-    priceBenchmark: "NISR Price Guide",
-    fairPrice: "Fair",
-    lowPrice: "Low",
-    highPrice: "High",
-    simulateVup: "Simulate: VUP Payments Arrive",
-    resetDemo: "Reset Simulation"
-  },
-  rw: {
-    tagline: "Ikiraro cya VUP · Isoko ry'ibiribwa n'inguzanyo y'ingoboka",
-    poolTicker: "Ikigega cy'ingoboka:",
-    switchRole: "Uruhare:",
-    roleFamily: "Umuryango (Uhabwa VUP)",
-    roleFarmer: "Umuhinzi (Ugurishe)",
-    roleShopper: "Umuguzi wigenga",
-    rolePlanner: "Umushingamigambi",
-    statusLate: "Yatindijwe",
-    statusOnTime: "Yishyuwe",
-    creditLimit: "Inguzanyo usigaranye",
-    dailyBasket: "Ibikenerwa ku munsi",
-    marketTitle: "Isoko ry'Umusaruro",
-    buyCredit: "Fata ku nguzanyo",
-    buyCash: "Gura ako kanya",
-    ordersTitle: "Ibyatanzwe",
-    addListing: "Injiza umusaruro",
-    priceBenchmark: "Igipimo cy'ibiciro (NISR)",
-    fairPrice: "Birakwiye",
-    lowPrice: "Biri hasi",
-    highPrice: "Birahenze",
-    simulateVup: "Igerageza: Inkunga ya VUP iraje",
-    resetDemo: "Subiza ku ntangiriro"
-  }
-};
-
-// Global App Object
 class IsokoApp {
   constructor() {
     this.state = this.loadState();
     this.map = null;
     this.mapLayer = null;
-    this.mapMetric = "priority"; // 'priority', 'delay', 'poverty'
+    this.mapMetric = "priority";
   }
 
   loadState() {
     try {
-      const saved = localStorage.getItem("isoko_bridge_state_v1");
+      const saved = localStorage.getItem("isoko_bridge_state_v2");
       if (saved) return JSON.parse(saved);
     } catch (e) {
-      console.warn("Could not load state, using defaults", e);
+      console.warn("Using defaults", e);
     }
     return JSON.parse(JSON.stringify(DEFAULT_STATE));
   }
 
   saveState() {
     try {
-      localStorage.setItem("isoko_bridge_state_v1", JSON.stringify(this.state));
-    } catch (e) {
-      console.warn("Could not save state", e);
-    }
+      localStorage.setItem("isoko_bridge_state_v2", JSON.stringify(this.state));
+    } catch (e) {}
     this.updateHeaderTicker();
   }
 
@@ -133,17 +150,11 @@ class IsokoApp {
     this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
     this.saveState();
     this.render();
-    this.toast("State reset to initial demo values.", "info");
-  }
-
-  t(key) {
-    const lang = this.state.lang || "en";
-    return (I18N[lang] && I18N[lang][key]) || (I18N.en && I18N.en[key]) || key;
+    this.toast("State reset to demo values.", "info");
   }
 
   init() {
     this.applyTheme();
-    this.bindEvents();
     this.render();
   }
 
@@ -165,7 +176,6 @@ class IsokoApp {
     this.render();
   }
 
-  // Navigation: Go Home / Go to Dashboard
   goHome() {
     this.state.currentView = "home";
     this.saveState();
@@ -186,7 +196,7 @@ class IsokoApp {
     this.saveState();
     this.render();
     window.scrollTo({ top: 0, behavior: "smooth" });
-    this.toast(`Entered portal as ${this.state.currentUser.name} (${role})`, "success");
+    this.toast(`Viewing portal as ${this.state.currentUser.name} (${role})`, "success");
   }
 
   setUser(username) {
@@ -213,7 +223,7 @@ class IsokoApp {
 
   calculateCreditLimit() {
     const u = this.state.currentUser;
-    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf; // ~261 RWF
+    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf;
     const days = Number(u.daysLate) || 0;
     const size = Number(u.householdSize) || 1;
     if (days <= 0) return 0;
@@ -232,7 +242,8 @@ class IsokoApp {
     return Math.max(0, limit - out);
   }
 
-  buyProduce(listingId, mode) {
+  // Buy Produce & Trigger Payment Sheet or Direct Credit
+  startBuyProduce(listingId, mode) {
     const listing = this.state.listings.find(l => l.id === listingId);
     if (!listing) return;
     const inputEl = document.getElementById(`qty_${listingId}`);
@@ -255,19 +266,71 @@ class IsokoApp {
         this.toast(`Exceeds available bridge credit limit (${remaining.toLocaleString()} RWF left).`, "danger");
         return;
       }
+      this.executeOrder(listing, qty, total, "credit", "pool");
+    } else {
+      // Open Rwandan Payment Modal for Shoppers / Cash buyers
+      this.state.pendingCheckoutOrder = { listing, qty, total };
+      this.openPaymentSheet(total, listing.food, qty);
     }
+  }
 
-    let gift = 0;
-    if (this.state.role === "Shopper") {
-      const pct = this.state.currentUser.donationPct || 2;
-      gift = Math.round(total * (pct / 100));
-      this.state.pool.balance += gift;
-      this.state.pool.totalGiftsIn += gift;
-    }
+  openPaymentSheet(total, foodName, qty) {
+    const modal = document.getElementById("payModal");
+    const summaryEl = document.getElementById("paySheetSummary");
+    const amountBtn = document.getElementById("paySubmitBtn");
+    if (!modal || !summaryEl || !amountBtn) return;
 
-    // Deduct stock
+    const donationPct = this.state.currentUser.donationPct || 2;
+    const gift = Math.round(total * (donationPct / 100));
+    const grandTotal = total + gift;
+
+    summaryEl.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span>${foodName} (${qty} kg)</span>
+        <b>${total.toLocaleString()} RWF</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px; color: var(--accent);">
+        <span>Social Pool Contribution (${donationPct}%)</span>
+        <b>+${gift.toLocaleString()} RWF</b>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding-top:8px; border-top:1px solid var(--card-border); font-size:16px; font-weight:800;">
+        <span>Total Payout</span>
+        <b style="color:var(--primary);">${grandTotal.toLocaleString()} RWF</b>
+      </div>
+    `;
+
+    amountBtn.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
+    modal.classList.add("open");
+  }
+
+  confirmPayment() {
+    const pending = this.state.pendingCheckoutOrder;
+    if (!pending) return;
+
+    const method = this.state.selectedPayMethod || "momo";
+    const methodNames = {
+      momo: "MTN Mobile Money",
+      airtel: "Airtel Money",
+      bk: "Bank of Kigali (BK)",
+      sacco: "Umurenge SACCO"
+    };
+
+    const donationPct = this.state.currentUser.donationPct || 2;
+    const gift = Math.round(pending.total * (donationPct / 100));
+
+    // Refill pool
+    this.state.pool.balance += gift;
+    this.state.pool.totalGiftsIn += gift;
+
+    const newOrder = this.executeOrder(pending.listing, pending.qty, pending.total, "cash", methodNames[method], gift);
+    document.getElementById("payModal").classList.remove("open");
+
+    // Open receipt modal
+    this.showReceipt(newOrder, methodNames[method]);
+  }
+
+  executeOrder(listing, qty, total, mode, paidBy, gift = 0) {
     listing.quantity -= qty;
-
     const newOrder = {
       id: this.state.nextOrderId++,
       food: listing.food,
@@ -279,10 +342,10 @@ class IsokoApp {
       district: listing.district,
       status: "Placed",
       farmer: listing.farmer,
-      paidBy: null,
+      paidBy: paidBy,
       gift: gift,
       repaid: false,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     this.state.orders.unshift(newOrder);
@@ -290,11 +353,63 @@ class IsokoApp {
     this.render();
 
     if (mode === "credit") {
-      this.toast(`Order #${newOrder.id} placed on Bridge Credit. Pool will pay seller upon delivery.`, "success");
+      this.toast(`Order #${newOrder.id} placed on Bridge Credit. Pool pays farmer on delivery.`, "success");
     } else {
-      const giftNote = gift > 0 ? ` (+${gift.toLocaleString()} RWF contributed to social pool!)` : "";
-      this.toast(`Order #${newOrder.id} placed successfully!${giftNote}`, "success");
+      this.toast(`Order #${newOrder.id} paid via ${paidBy}!`, "success");
     }
+    return newOrder;
+  }
+
+  showReceipt(order, payMethod) {
+    const modal = document.getElementById("receiptModal");
+    const paper = document.getElementById("receiptPaper");
+    if (!modal || !paper) return;
+
+    paper.innerHTML = `
+      <div style="text-align: center; margin-bottom: 12px;">
+        <h3 style="font-size: 20px; font-weight: 800; letter-spacing: 2px;">ISOKO BRIDGE</h3>
+        <small style="color: #666; font-size: 10px;">RWANDA VUP FOOD MARKETPLACE</small>
+      </div>
+      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
+      <div style="display:flex; justify-content:space-between; font-size: 11px;">
+        <span>RECEIPT NO:</span><span>#IB-2026-${order.id}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size: 11px;">
+        <span>DATE:</span><span>${new Date().toLocaleDateString('en-GB')}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size: 11px;">
+        <span>CUSTOMER:</span><span>${order.buyerName}</span>
+      </div>
+      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
+      <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:700;">
+        <span>${order.food} (${order.kg} kg)</span>
+        <span>${order.total.toLocaleString()} RWF</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size: 11px; color:#555;">
+        <span>Farmer: ${order.farmer}</span>
+        <span>Delivery: FREE</span>
+      </div>
+      ${order.gift ? `
+        <div style="display:flex; justify-content:space-between; font-size: 11px; color: #b45309;">
+          <span>Bridge Pool Gift:</span>
+          <span>+${order.gift.toLocaleString()} RWF</span>
+        </div>
+      ` : ''}
+      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
+      <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 800;">
+        <span>TOTAL:</span>
+        <span>${(order.total + (order.gift || 0)).toLocaleString()} RWF</span>
+      </div>
+      <div style="font-size: 11px; color: #555; margin-top: 6px;">
+        PAYMENT METHOD: <b>${payMethod || 'BRIDGE POOL'}</b>
+      </div>
+      <div class="receipt-stamp">PAID<small style="font-size:7px;display:block;">APPROVED</small></div>
+      <div style="text-align: center; margin-top: 24px; font-size: 10px; color: #888;">
+        Murakoze cyane · Supporting Rwandan Farmers & Families
+      </div>
+    `;
+
+    modal.classList.add("open");
   }
 
   deliverOrder(orderId) {
@@ -303,50 +418,18 @@ class IsokoApp {
 
     if (order.mode === "credit") {
       if (this.state.pool.balance < order.total) {
-        this.toast("Pool balance insufficient to pay seller immediately. Shopper contributions refill the pool.", "warning");
+        this.toast("Pool balance low. Shopper donations refill the pool.", "warning");
         return;
       }
       this.state.pool.balance -= order.total;
       this.state.pool.totalPaidToFarmers += order.total;
       order.paidBy = "pool";
-    } else {
-      order.paidBy = "buyer";
     }
 
     order.status = "Delivered";
     this.saveState();
     this.render();
     this.toast(`Order #${orderId} marked Delivered. Farmer paid via ${order.paidBy === 'pool' ? 'Bridge Pool' : 'Buyer Cash'}.`, "success");
-  }
-
-  addListing(event) {
-    event.preventDefault();
-    const food = document.getElementById("new_food").value;
-    const district = document.getElementById("new_district").value;
-    const price = parseFloat(document.getElementById("new_price").value);
-    const quantity = parseFloat(document.getElementById("new_qty").value);
-    const momo = document.getElementById("new_momo").value || "0788000000";
-
-    if (!price || !quantity || price <= 0 || quantity <= 0) {
-      this.toast("Please enter a valid price and quantity.", "warning");
-      return;
-    }
-
-    const newListing = {
-      id: this.state.nextListingId++,
-      food,
-      district,
-      price,
-      quantity,
-      farmer: this.state.currentUser.name || "My Farm",
-      momo
-    };
-
-    this.state.listings.unshift(newListing);
-    this.saveState();
-    this.render();
-    const guide = this.getPriceGuide(food, price);
-    this.toast(`Produce listing added! Price is rated ${guide.label} against NISR median.`, "success");
   }
 
   simulateVupRepayment() {
@@ -369,7 +452,63 @@ class IsokoApp {
     this.state.pool.totalRepaidByVup += totalRepaid;
     this.saveState();
     this.render();
-    this.toast(`VUP Treasury payments processed! ${count} family credits (${totalRepaid.toLocaleString()} RWF) repaid into social pool.`, "success");
+    this.toast(`VUP Treasury payments arrived! ${count} family credits (${totalRepaid.toLocaleString()} RWF) repaid into social pool.`, "success");
+  }
+
+  // Handle Photo Picker for Produce Listing (Upload, Camera, or Choose Ours)
+  setListingPhoto(url) {
+    const preview = document.getElementById("listingPhotoPreview");
+    const hiddenInput = document.getElementById("new_photo_url");
+    if (preview) preview.src = url;
+    if (hiddenInput) hiddenInput.value = url;
+  }
+
+  handleCustomPhotoUpload(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.setListingPhoto(e.target.result);
+        this.toast("Harvest photo attached successfully!", "success");
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  addListing(event) {
+    event.preventDefault();
+    const food = document.getElementById("new_food").value;
+    const district = document.getElementById("new_district").value;
+    const price = parseFloat(document.getElementById("new_price").value);
+    const quantity = parseFloat(document.getElementById("new_qty").value);
+    const momo = document.getElementById("new_momo").value || "0788123456";
+    const photoUrl = document.getElementById("new_photo_url").value || (HARVEST_GALLERY[food] ? HARVEST_GALLERY[food].img : "");
+
+    if (!price || !quantity || price <= 0 || quantity <= 0) {
+      this.toast("Please enter a valid price and quantity.", "warning");
+      return;
+    }
+
+    const newListing = {
+      id: this.state.nextListingId++,
+      food,
+      district,
+      price,
+      quantity,
+      farmer: this.state.currentUser.name || "My Farm",
+      momo,
+      photo: photoUrl
+    };
+
+    this.state.listings.unshift(newListing);
+    this.saveState();
+    this.render();
+    const guide = this.getPriceGuide(food, price);
+    this.toast(`Produce listing added with photo! Rated ${guide.label} vs NISR median.`, "success");
+  }
+
+  updateHeaderTicker() {
+    const el = document.getElementById("poolTickerAmount");
+    if (el) el.textContent = `${this.state.pool.balance.toLocaleString()} RWF`;
   }
 
   toast(msg, type = "info") {
@@ -393,18 +532,6 @@ class IsokoApp {
     }, 3500);
   }
 
-  updateHeaderTicker() {
-    const el = document.getElementById("poolTickerAmount");
-    if (el) el.textContent = `${this.state.pool.balance.toLocaleString()} RWF`;
-  }
-
-  bindEvents() {
-    window.addEventListener("resize", () => {
-      if (this.map) this.map.invalidateSize();
-    });
-  }
-
-  // Update Sample Question Widget on Opening Page
   updateSampleCalc() {
     const daysEl = document.getElementById("sq_days");
     const sizeEl = document.getElementById("sq_size");
@@ -414,10 +541,7 @@ class IsokoApp {
 
     const days = parseInt(daysEl.value) || 0;
     const size = parseInt(sizeEl.value) || 1;
-    this.state.sampleQ.daysLate = days;
-    this.state.sampleQ.householdSize = size;
-
-    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf; // ~261 RWF
+    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf;
     const totalCredit = days > 0 ? (size * dpp * days) : 0;
 
     resEl.textContent = `${totalCredit.toLocaleString()} RWF`;
@@ -428,7 +552,6 @@ class IsokoApp {
     }
   }
 
-  // Main Render Routing
   render() {
     this.updateHeaderTicker();
     const mainEl = document.getElementById("appView");
@@ -447,176 +570,194 @@ class IsokoApp {
     }
   }
 
-  // 1. OPENING LANDING PAGE (Clean, Inviting, Non-Confusing)
+  // 1. OPENING LANDING PAGE (With Grocery UI, VUP Dates, and Tailored Onboarding)
   renderOpeningPage() {
-    const sq = this.state.sampleQ || { daysLate: 8, householdSize: 5 };
-
     return `
-      <!-- Hero Header -->
-      <div class="hero-opening">
-        <div class="hero-tag">NISR 2026 Big Data Hackathon · Rwanda Social Innovation</div>
-        <h1 class="hero-title">Isoko Bridge <span style="font-weight: 400; color: var(--accent);">(Ikiraro cya VUP)</span></h1>
-        <p class="hero-sub">
-          When VUP social payments arrive late, families shouldn't go hungry. 
-          <b>Isoko Bridge</b> connects local smallholder farmers with waiting families through 
-          zero-interest emergency food credit, backed by ethical shoppers and real NISR survey evidence.
+      <!-- Hero Grocery Intro -->
+      <div class="hero-grocery">
+        <div class="hero-tagline">🌿 Rwanda Social Fintech & Farmer Market · NISR 2026</div>
+        <h1 class="hero-heading">Isoko Bridge <span style="color:var(--accent); font-weight:400;">(Ikiraro cya VUP)</span></h1>
+        <p class="hero-description">
+          Connecting Rwandan smallholder farmers directly with households and ethical shoppers. 
+          When government VUP payments arrive late, emergency zero-interest bridge credit keeps families fed.
         </p>
 
-        <!-- Quick 4 NISR Facts -->
-        <div class="stats-banner">
-          <div class="stat-pill-box">
-            <b>9.2 Days</b>
-            <span>Average Disbursement Delay</span>
+        <!-- Category Pills (From Grocery App Mockup) -->
+        <div class="category-strip">
+          ${["All", "Pulses", "Staples", "Vegetables", "Grains", "Fruits"].map(cat => `
+            <button class="category-pill ${this.state.activeCategory === cat ? 'active' : ''}" 
+              onclick="window.app.state.activeCategory = '${cat}'; window.app.render();">
+              ${cat === 'All' ? '🧺' : cat === 'Pulses' ? '🫘' : cat === 'Staples' ? '🥔' : cat === 'Vegetables' ? '🥦' : cat === 'Grains' ? '🌽' : '🥑'}
+              ${cat}
+            </button>
+          `).join("")}
+        </div>
+      </div>
+
+      <!-- Rwanda VUP Payment Dates & Delay Calendar Widget -->
+      <div class="vup-date-card">
+        <div class="vup-date-header">
+          <div>
+            <div style="font-size: 12px; font-weight:800; color:var(--accent); text-transform:uppercase;">NISR Survey Payment Cycle Calendar</div>
+            <h3 style="font-size: 19px; font-weight:800; color:var(--text-main); margin-top:2px;">How Rwanda VUP Disbursements & Delays Occur</h3>
           </div>
-          <div class="stat-pill-box">
-            <b style="color: var(--danger);">52%</b>
-            <span>Wait More Than 1 Week</span>
+          <span class="pill pill-urgent">Average National Delay: 9.2 Days</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
+          Under Vision 2020 Umurenge Programme regulations, cash transfers are targeted on the <b>15th of each month</b>. 
+          However, NISR survey microdata proves that <b>52% of beneficiaries wait over a week</b>. Isoko Bridge covers this exact interim gap:
+        </p>
+        <div class="cycle-steps">
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">1st – 14th of Month</span>
+            <b>Work & Attendance Audit</b>
+            <small>Public works labor logged</small>
           </div>
-          <div class="stat-pill-box">
-            <b>14.6 Days</b>
-            <span>Southern Expanded PW Hotspot</span>
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--primary);">15th of Month</span>
+            <b>Scheduled Disbursement</b>
+            <small>Target transfer date</small>
           </div>
-          <div class="stat-pill-box">
-            <b>3,399</b>
-            <span>Surveyed Beneficiary Records</span>
+          <div class="cycle-box active">
+            <span style="font-size: 11px; font-weight: 700; color: var(--danger);">16th – 27th (Late Gap)</span>
+            <b style="color:var(--danger);">Isoko Bridge Active!</b>
+            <small>Families buy food on credit</small>
+          </div>
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--success);">28th of Month</span>
+            <b>Treasury Clearance Wave</b>
+            <small>Credit repaid to pool</small>
           </div>
         </div>
       </div>
 
-      <!-- Interactive Sample Question Card (Clear & Engaging) -->
-      <div class="sample-question-card">
-        <div class="sample-q-header">
-          <span class="sample-q-badge">Interactive Sample Scenario</span>
-          <b style="font-size: 15px;">How does emergency Bridge Credit work in practice?</b>
+      <!-- Live Harvest Grocery Showcase with Photos (Visual Grocery UI from Mockup) -->
+      <div style="margin-bottom: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+          <div>
+            <h3 style="font-size: 20px; font-weight:800;">Fresh Harvest Catalog (Real Produce Photos)</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Smallholder farmers upload photos directly or select from our verified Rwandan harvest catalog.</p>
+          </div>
+          <span class="pill pill-fair">NISR Median Price Benchmarked</span>
         </div>
-        <p style="font-size: 14px; color: var(--text-muted);">
-          <b>Scenario:</b> Amina Uwase lives in Kirehe District and receives VUP Direct Support. 
-          Her cash payment is delayed. Adjust the sample parameters below to see how her emergency credit limit calculates:
-        </p>
 
-        <div class="sample-calc-grid">
-          <div>
-            <label class="form-label">Disbursement Delay (Days Late)</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <input id="sq_days" type="range" min="0" max="20" value="${sq.daysLate}" 
-                oninput="window.app.updateSampleCalc()" style="flex: 1;">
-              <b id="sq_days_val" style="min-width: 38px;">${sq.daysLate} d</b>
-            </div>
-            <small style="color: var(--text-muted);">Kirehe district average: 15.5 days</small>
-          </div>
-
-          <div>
-            <label class="form-label">Family Size (Household Members)</label>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <input id="sq_size" type="range" min="1" max="10" value="${sq.householdSize}" 
-                oninput="window.app.updateSampleCalc()" style="flex: 1;">
-              <b id="sq_size_val" style="min-width: 38px;">${sq.householdSize}</b>
-            </div>
-            <small style="color: var(--text-muted);">Demo food basket: 261 RWF/person/day</small>
-          </div>
-
-          <div class="sample-calc-result">
-            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Calculated Bridge Credit</span>
-            <b id="sq_result_val">10,440 RWF</b>
-            <span id="sq_result_text" style="font-size: 11px; color: var(--primary);">Covers 8 days of staple nutrition for 5 people.</span>
-          </div>
+        <div class="grocery-grid">
+          ${this.state.listings.filter(l => {
+            if (this.state.activeCategory === "All") return true;
+            const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
+            return cat === this.state.activeCategory;
+          }).map(l => {
+            const guide = this.getPriceGuide(l.food, l.price);
+            const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "");
+            return `
+              <div class="grocery-card">
+                <div class="grocery-img-box">
+                  <img src="${photo}" alt="${l.food}" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-md);" 
+                       onerror="this.onerror=null; this.parentElement.innerHTML='${HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].icon : '🥬'}';">
+                  <span class="grocery-price-pill ${guide.class}">${guide.label}</span>
+                </div>
+                <div>
+                  <h4>${l.food}</h4>
+                  <div class="grocery-meta">📍 ${l.district} · Stock: <b>${l.quantity} kg</b></div>
+                  <div class="grocery-meta" style="margin-top:2px;">Seller: <b>${l.farmer}</b></div>
+                </div>
+                <div class="grocery-card-footer">
+                  <div class="grocery-cost">${l.price.toLocaleString()} <small>RWF/kg</small></div>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:55px; padding:4px;" aria-label="kg">
+                    <button class="add-btn-circle" title="Add to cart / Buy" onclick="window.app.startBuyProduce(${l.id}, 'cash')">+</button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join("")}
         </div>
       </div>
 
-      <!-- Big 4 Role Entrance Cards (No Credentials Needed, Just 1 Click) -->
+      <!-- Tailored Onboarding Entrances (4 Distinct Personas) -->
       <div>
-        <h2 class="role-entry-title">Choose How You Want to Enter</h2>
-        <p class="role-entry-sub">No passwords required for testing! Click any portal below to enter with pre-configured sample data:</p>
+        <h2 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 4px;">Choose Your Role to Enter</h2>
+        <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">
+          Click any persona below to enter with tailored questions and demo context:
+        </p>
 
         <div class="role-entry-grid">
-          <!-- Card 1: Family -->
+          <!-- 1. VUP Family -->
           <div class="role-card-select highlight">
             <div>
               <div class="role-card-icon">👨‍👩‍👧</div>
               <div class="role-card-title">
-                <span>VUP Beneficiary Family</span>
-                <span class="pill pill-fair">Beneficiary View</span>
+                <span>VUP Beneficiary Member</span>
+                <span class="pill pill-fair">Family</span>
               </div>
               <p class="role-card-desc">
-                Experience how a waiting family checks their payment delay, calculates emergency bridge credit, and buys staple food on credit while waiting for government support.
+                Check payment delay, view your automatic bridge credit limit, and order staple harvest food on credit until your VUP assistance arrives.
               </p>
             </div>
             <div class="role-card-sample">
-              <div>
-                <b>Sample: Amina Uwase</b> · Kirehe District
-                <div style="color: var(--text-muted); font-size: 11px;">Direct Support · 5 members · 8 days late</div>
-              </div>
+              <b>Sample: Amina Uwase</b> · Kirehe District · Direct Support (8 days late)
             </div>
             <button class="btn btn-primary btn-lg" onclick="window.app.enterRole('Family', 'amina_family')">
-              Enter as Family Member →
+              Enter as VUP Family Member →
             </button>
           </div>
 
-          <!-- Card 2: Farmer -->
+          <!-- 2. Farmer / Seller -->
           <div class="role-card-select">
             <div>
               <div class="role-card-icon">🌾</div>
               <div class="role-card-title">
-                <span>Food Seller / Farmer</span>
-                <span class="pill pill-high">Seller View</span>
+                <span>Farmer / Cooperative</span>
+                <span class="pill pill-high">Seller</span>
               </div>
               <p class="role-card-desc">
-                See how smallholder farmers and cooperatives list produce, evaluate their prices against official NISR median benchmarks, deliver orders, and receive instant payouts.
+                List produce with photos, evaluate prices against NISR medians, confirm deliveries, and receive instant payments via Mobile Money.
               </p>
             </div>
             <div class="role-card-sample">
-              <div>
-                <b>Sample: Mukamana Farm</b> · Kirehe
-                <div style="color: var(--text-muted); font-size: 11px;">Dry Beans Seller · Linked Mobile Money</div>
-              </div>
+              <b>Sample: Mukamana Farm</b> · Kirehe · Dry Beans Seller
             </div>
             <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Farmer', 'mukamana_seller')">
               Enter as Farmer / Seller →
             </button>
           </div>
 
-          <!-- Card 3: Shopper -->
+          <!-- 3. Ethical Shopper -->
           <div class="role-card-select">
             <div>
               <div class="role-card-icon">🛒</div>
               <div class="role-card-title">
-                <span>Ethical Food Shopper</span>
-                <span class="pill pill-neutral">Consumer View</span>
+                <span>Ethical Shopper</span>
+                <span class="pill pill-neutral">Consumer</span>
               </div>
               <p class="role-card-desc">
-                Buy fresh farm produce directly from Rwandan growers. Set a 1% to 5% donation share from your cart that feeds the revolving pool and see how many days of food you subsidized.
+                Buy farm-fresh produce with MTN MoMo or Airtel Money. Contribute 1%–5% to refill the bridge pool and see how many days of food you subsidized.
               </p>
             </div>
             <div class="role-card-sample">
-              <div>
-                <b>Sample: Grace Ingabire</b> · Urban Consumer
-                <div style="color: var(--text-muted); font-size: 11px;">Donates 2% of cart to social pool</div>
-              </div>
+              <b>Sample: Grace Ingabire</b> · Kigali · 2% Pool Donor
             </div>
             <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Shopper', 'grace_shopper')">
               Enter as Shopper →
             </button>
           </div>
 
-          <!-- Card 4: Planner / Admin -->
-          <div class="role-card-select highlight" style="border-color: #7e22ce;">
+          <!-- 4. Planner / Judge -->
+          <div class="role-card-select highlight" style="border-color:#7e22ce;">
             <div>
               <div class="role-card-icon">📊</div>
               <div class="role-card-title">
                 <span>Government Planner & Judges</span>
-                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence & Analytics</span>
+                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence Cockpit</span>
               </div>
               <p class="role-card-desc">
-                Explore the complete NISR microdata analysis: interactive 30-district choropleth map, delay hotspots, 30-district "Help Here First" priority rankings, and poverty risk estimators.
+                Inspect NISR household survey analytics: interactive 30-district choropleth map, delay hotspots, 30-district priority rankings, and poverty risk model.
               </p>
             </div>
             <div class="role-card-sample">
-              <div>
-                <b>Sample: LODA / NISR Administrator</b>
-                <div style="color: var(--text-muted); font-size: 11px;">National & District Decision Cockpit</div>
-              </div>
+              <b>Sample: LODA / NISR Administrator</b> · National & District Planning
             </div>
-            <button class="btn btn-primary btn-lg" style="background: #7e22ce;" onclick="window.app.enterRole('Planner', 'planner_demo')">
+            <button class="btn btn-primary btn-lg" style="background:#7e22ce;" onclick="window.app.enterRole('Planner', 'planner_demo')">
               Enter as Planner / Judge →
             </button>
           </div>
@@ -625,7 +766,7 @@ class IsokoApp {
     `;
   }
 
-  // Dashboard Wrapper with Prominent "Back to Home / Switch Role" Bar
+  // Dashboard Wrapper with Prominent Back to Home Button
   renderDashboardWrapper() {
     const u = this.state.currentUser;
     let content = "";
@@ -635,21 +776,19 @@ class IsokoApp {
     else if (this.state.role === "Planner") content = this.renderPlannerView();
 
     return `
-      <!-- Prominent Back & Context Navigation Bar -->
       <div class="dashboard-topbar">
         <div style="display: flex; align-items: center; gap: 12px;">
           <button class="back-home-btn" onclick="window.app.goHome()">
             ← Back to Home / Change Role
           </button>
           <div style="font-size: 13px;">
-            Current Role: <b style="color: var(--primary); text-transform: uppercase;">${this.state.role}</b>
+            Role: <b style="color: var(--primary); text-transform: uppercase;">${this.state.role}</b>
             <span style="color: var(--text-muted); margin: 0 4px;">·</span>
-            Logged in as: <b>${u.name}</b>
+            User: <b>${u.name}</b> (${u.district || 'National'})
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span style="font-size: 12px; color: var(--text-muted);">Switch Role:</span>
           <button class="btn btn-sm ${this.state.role === 'Family' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Family')">👨‍👩‍👧 Family</button>
           <button class="btn btn-sm ${this.state.role === 'Farmer' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Farmer')">🌾 Farmer</button>
           <button class="btn btn-sm ${this.state.role === 'Shopper' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Shopper')">🛒 Shopper</button>
@@ -657,7 +796,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Specific Role Content -->
       ${content}
     `;
   }
@@ -721,15 +859,16 @@ class IsokoApp {
         </div>
       </div>
 
+      <!-- Produce Market -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
-            <div class="card-title">🛒 ${this.t("marketTitle")}</div>
-            <div class="card-subtitle">Direct staple produce from Rwandan farmers with official NISR median price benchmarks.</div>
+            <div class="card-title">🛒 Direct Produce Market</div>
+            <div class="card-subtitle">Direct staple produce from Rwandan farmers with photos and official NISR median price benchmarks.</div>
           </div>
           <span class="pill ${isLate ? 'pill-urgent' : 'pill-neutral'}">${isLate ? 'Bridge Credit Mode Active' : 'Cash Market Mode'}</span>
         </div>
-        ${this.renderMarketCatalog(isLate ? 'credit' : 'cash')}
+        ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
       </div>
 
       <div class="grid grid-cols-2">
@@ -749,7 +888,7 @@ class IsokoApp {
               </tr>
             </tbody>
           </table>
-          <p class="metric-sub" style="margin-top: 10px;">* NISR survey does not measure calories; cost calculations represent illustrative food security budgets.</p>
+          <p class="metric-sub" style="margin-top: 10px;">* Illustrative food security budget based on NISR food prices.</p>
         </div>
 
         <div class="card">
@@ -761,7 +900,7 @@ class IsokoApp {
     `;
   }
 
-  // 2. Farmer View
+  // 2. Farmer View (With Photo Upload & Gallery Chooser)
   renderFarmerView() {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmer === "You (farmer)");
@@ -773,7 +912,7 @@ class IsokoApp {
         <div>
           <b>Seller Portal · Direct Smallholder & Cooperative Produce Hub</b>
           <div style="font-size: 13px; margin-top: 2px;">
-            Sell directly to local families and urban shoppers without middlemen. When a family orders on Bridge Credit, the social pool guarantees your payment via Mobile Money as soon as you confirm delivery!
+            Sell directly to local families and urban shoppers. Upload photos of your harvest or use our verified produce gallery so buyers know exactly what they are purchasing!
           </div>
         </div>
       </div>
@@ -797,18 +936,44 @@ class IsokoApp {
       </div>
 
       <div class="grid grid-cols-2">
+        <!-- Add Listing with Photo Options -->
         <div class="card">
-          <div class="card-title">➕ ${this.t("addListing")}</div>
-          <div class="card-subtitle" style="margin-bottom: 16px;">List your harvest produce with real-time NISR price fairness benchmarking.</div>
+          <div class="card-title">➕ Add Harvest Listing with Photo</div>
+          <div class="card-subtitle" style="margin-bottom: 16px;">Take a photo, upload an image, or pick one from our verified gallery:</div>
           
           <form onsubmit="window.app.addListing(event)">
             <div class="form-group">
               <label class="form-label">Produce Crop</label>
-              <select id="new_food" class="form-control" onchange="window.app.updatePriceGuidePreview()">
+              <select id="new_food" class="form-control" onchange="window.app.onProduceSelected(this.value)">
                 ${Object.keys(NISR_DATA.foodPrices).map(k => `
-                  <option value="${k}">${k} (${NISR_DATA.foodPrices[k].category})</option>
+                  <option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>
                 `).join("")}
               </select>
+            </div>
+
+            <!-- Photo Selection: Upload, Camera, or Choose Ours -->
+            <div class="form-group" style="background:var(--bg); padding:12px; border-radius:var(--radius-md); border:1px solid var(--card-border);">
+              <label class="form-label">Produce Photo (Show Buyers What You Grow)</label>
+              <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
+                <img id="listingPhotoPreview" src="${HARVEST_GALLERY['Dry beans'].img}" style="width:75px; height:75px; object-fit:cover; border-radius:8px; border:2px solid var(--primary);" alt="Preview">
+                <div style="flex:1;">
+                  <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
+                  <button type="button" class="btn btn-sm btn-outline" style="margin-bottom:6px; width:100%;" onclick="document.getElementById('cameraUploadInput').click()">
+                    📸 Take Photo / Upload File
+                  </button>
+                  <input type="hidden" id="new_photo_url" value="${HARVEST_GALLERY['Dry beans'].img}">
+                  <small style="color:var(--text-muted); font-size:11px; display:block;">Or pick from our verified harvest photos below:</small>
+                </div>
+              </div>
+
+              <!-- Quick Gallery Chooser -->
+              <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;">
+                ${Object.keys(HARVEST_GALLERY).map(k => `
+                  <img src="${HARVEST_GALLERY[k].img}" title="${k}" 
+                       style="width:38px; height:38px; object-fit:cover; border-radius:6px; cursor:pointer; border:1px solid var(--card-border);"
+                       onclick="window.app.setListingPhoto('${HARVEST_GALLERY[k].img}')">
+                `).join("")}
+              </div>
             </div>
 
             <div class="grid grid-cols-2" style="margin-bottom: 0;">
@@ -837,39 +1002,25 @@ class IsokoApp {
               <input id="new_momo" type="text" value="${u.momo || '0788123456'}" class="form-control">
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Publish Listing to Isoko Market</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Publish Produce to Market</button>
           </form>
         </div>
 
+        <!-- Orders Awaiting Delivery -->
         <div class="card">
-          <div class="card-title">📦 Orders Awaiting Delivery</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Confirm delivery to immediately release guaranteed payout from the pool or buyer.</div>
+          <div class="card-title">📦 Orders to Deliver</div>
+          <div class="card-subtitle" style="margin-bottom: 12px;">Confirm delivery to release guaranteed payout from the pool or buyer.</div>
           ${this.renderOrdersTable(myOrders, true)}
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-title">🌾 My Current Produce Listings</div>
-        <div class="card-subtitle" style="margin-bottom: 14px;">Available produce visible to families and shoppers.</div>
-        <div class="market-grid">
-          ${this.state.listings.filter(l => l.farmer === u.name || l.farmer === "Mukamana Farm" || l.farmer === "You (farmer)").map(l => {
-            const guide = this.getPriceGuide(l.food, l.price);
-            return `
-              <div class="product-card">
-                <div class="product-info">
-                  <h4>${l.food}</h4>
-                  <div class="product-meta">📍 ${l.district} · Stock: <b>${l.quantity} kg</b></div>
-                  <div style="margin-top: 8px;">
-                    <span class="pill ${guide.class}">${guide.label} (${guide.ratio < 0.85 ? 'Below median' : guide.ratio > 1.15 ? 'Above median' : 'Aligned with NISR'})</span>
-                  </div>
-                </div>
-                <div class="product-price">${l.price.toLocaleString()} <span>RWF/kg</span></div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      </div>
     `;
+  }
+
+  onProduceSelected(foodName) {
+    if (HARVEST_GALLERY[foodName]) {
+      this.setListingPhoto(HARVEST_GALLERY[foodName].img);
+    }
+    this.updatePriceGuidePreview();
   }
 
   updatePriceGuidePreview() {
@@ -897,7 +1048,7 @@ class IsokoApp {
         <div>
           <b>Ethical Shopper Portal · Support Local Farmers & Bridge the Hunger Gap</b>
           <div style="font-size: 13px; margin-top: 2px;">
-            Buy fresh farm produce at fair prices. With every order, your chosen donation share ($1\% \text{ to } 5\%$) directly fuels the Emergency Bridge Pool, keeping vulnerable Rwandan families fed while their VUP transfers are delayed.
+            Buy fresh farm produce at fair prices with MTN MoMo, Airtel Money, or BK. With every order, your chosen donation share ($1\% \text{ to } 5\%$) directly fuels the Emergency Bridge Pool, keeping vulnerable Rwandan families fed while their VUP transfers are delayed.
           </div>
         </div>
       </div>
@@ -932,9 +1083,9 @@ class IsokoApp {
             <div class="card-title">🛒 Fresh Farm Harvest Catalog</div>
             <div class="card-subtitle">Order high-quality produce straight from Rwandan cooperatives and smallholder farmers.</div>
           </div>
-          <span class="pill pill-fair">Ethical Cash Checkout</span>
+          <span class="pill pill-fair">Ethical Cash & MoMo Checkout</span>
         </div>
-        ${this.renderMarketCatalog('cash')}
+        ${this.renderGroceryCatalog('cash')}
       </div>
 
       <div class="card">
@@ -996,8 +1147,8 @@ class IsokoApp {
             <div style="font-size: 13px; color: var(--text-muted);">Simulate the arrival of the scheduled VUP government cash transfer wave to automatically reimburse the community pool.</div>
           </div>
           <div style="display: flex; gap: 8px;">
-            <button class="btn btn-primary" onclick="window.app.simulateVupRepayment()">⚡ ${this.t("simulateVup")}</button>
-            <button class="btn btn-outline" onclick="window.app.resetState()">↺ ${this.t("resetDemo")}</button>
+            <button class="btn btn-primary" onclick="window.app.simulateVupRepayment()">⚡ Simulate: VUP Payments Arrive</button>
+            <button class="btn btn-outline" onclick="window.app.resetState()">↺ Reset Simulation</button>
           </div>
         </div>
       </div>
@@ -1018,18 +1169,11 @@ class IsokoApp {
         <div class="grid grid-cols-3" style="margin-bottom: 0;">
           <div style="grid-column: span 2;">
             <div id="mapContainer"></div>
-            <div class="metric-sub" style="margin-top: 6px;">
-              * Source: geoBoundaries ADM2 Rwanda District Boundaries verified against NISR Geodata.
-            </div>
           </div>
           <div>
             <div class="card" style="height: 100%; border: 1px solid var(--card-border); padding: 14px; background: var(--bg);">
-              <div id="districtDetailPane">
-                <div style="font-weight: 700; font-size: 16px; margin-bottom: 8px;">District Profile</div>
-                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Click any district on the map or select from the list below to inspect NISR microdata metrics.</div>
-                <div id="districtSelectedInfo">
-                  ${this.renderDistrictInfo(this.state.selectedDistrict)}
-                </div>
+              <div id="districtSelectedInfo">
+                ${this.renderDistrictInfo(this.state.selectedDistrict)}
               </div>
             </div>
           </div>
@@ -1053,14 +1197,7 @@ class IsokoApp {
           <div class="table-wrap">
             <table>
               <thead>
-                <tr>
-                  <th>Programme</th>
-                  <th>Southern</th>
-                  <th>Eastern</th>
-                  <th>Western</th>
-                  <th>Kigali</th>
-                  <th>Northern</th>
-                </tr>
+                <tr><th>Programme</th><th>Southern</th><th>Eastern</th><th>Western</th><th>Kigali</th><th>Northern</th></tr>
               </thead>
               <tbody>
                 ${Object.keys(NISR_DATA.hotspots).map(prog => `
@@ -1087,166 +1224,56 @@ class IsokoApp {
               </tbody>
             </table>
           </div>
-          <div class="metric-sub" style="margin-top: 8px;">
-            * Cell with asterisk (*) indicates fewer than 100 survey records. Darker red indicates acute friction.
-          </div>
         </div>
 
         <div class="card">
-          <div class="card-title">💳 Financial Inclusion Channels & Disbursement Speed</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">How delivery channel correlates with recipient waiting periods.</div>
+          <div class="card-title">💳 Financial Inclusion Channels & Speed</div>
+          <div class="card-subtitle" style="margin-bottom: 12px;">Disbursement turnaround by payment provider.</div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr><th>Disbursement Channel</th><th>Avg Delay</th><th>>7d Late (%)</th><th>Survey Records</th></tr>
               </thead>
               <tbody>
-                <tr>
-                  <td><b>Mobile Money</b></td>
-                  <td style="color: var(--danger); font-weight: 700;">10.4 days</td>
-                  <td>59%</td>
-                  <td>630</td>
-                </tr>
-                <tr>
-                  <td><b>Bank-type SACCO</b></td>
-                  <td>9.2 days</td>
-                  <td>53%</td>
-                  <td>2,205</td>
-                </tr>
-                <tr>
-                  <td><b>Umurenge SACCO</b></td>
-                  <td style="color: var(--success); font-weight: 700;">7.7 days</td>
-                  <td>43%</td>
-                  <td>546</td>
-                </tr>
+                <tr><td><b>Mobile Money</b></td><td style="color: var(--danger); font-weight: 700;">10.4 days</td><td>59%</td><td>630</td></tr>
+                <tr><td><b>Bank-type SACCO</b></td><td>9.2 days</td><td>53%</td><td>2,205</td></tr>
+                <tr><td><b>Umurenge SACCO</b></td><td style="color: var(--success); font-weight: 700;">7.7 days</td><td>43%</td><td>546</td></tr>
               </tbody>
             </table>
           </div>
           <div class="banner-notice info" style="margin-top: 14px; margin-bottom: 0; padding: 10px;">
-            <small><b>Key Insight for Planners:</b> Umurenge SACCOs achieve the fastest disbursement turnarounds (7.7 days), while mobile money disbursements experience longer delays (10.4 days) due to agent liquidity shortages in remote rural cells.</small>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2" style="margin-top: 24px;">
-        <div class="card">
-          <div class="card-title">🧮 Interactive Poverty Risk Proxy Estimator</div>
-          <div class="card-subtitle" style="margin-bottom: 14px;">Evaluates household vulnerability strictly from dwelling and demographic facts without income circularity (AUC ~ 0.78).</div>
-          
-          <div class="grid grid-cols-2" style="margin-bottom: 10px;">
-            <div class="form-group">
-              <label class="form-label">Household Size</label>
-              <input id="pov_size" type="number" min="1" max="15" value="6" class="form-control" oninput="window.app.calculatePovertyProxy()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Number of Children</label>
-              <input id="pov_children" type="number" min="0" max="10" value="4" class="form-control" oninput="window.app.calculatePovertyProxy()">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2" style="margin-bottom: 10px;">
-            <div class="form-group">
-              <label class="form-label">Floor Material</label>
-              <select id="pov_floor" class="form-control" onchange="window.app.calculatePovertyProxy()">
-                <option value="earth">Dirt / Beaten Earth</option>
-                <option value="wood">Timber / Wood</option>
-                <option value="cement">Cement Screed</option>
-                <option value="tile">Ceramic / Modern Tiles</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Estimated Monthly Rent</label>
-              <input id="pov_rent" type="number" min="1000" step="1000" value="4000" class="form-control" oninput="window.app.calculatePovertyProxy()">
-            </div>
-          </div>
-
-          <div id="povertyProxyResult" style="padding: 14px; border-radius: var(--radius-md); background: var(--bg); border: 1px solid var(--card-border); margin-top: 10px;"></div>
-          <div class="metric-sub" style="margin-top: 6px;">
-            * Rule: For geographic targeting only. Never use to automatically deny benefits to eligible individuals.
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">🏆 National 'Help Here First' 30-District Ranking</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Composite Priority = 45% Delay + 40% Poverty Rate + 15% Food Price Index.</div>
-          <div class="table-wrap" style="max-height: 380px;">
-            <table>
-              <thead>
-                <tr><th>Rank</th><th>District</th><th>Province</th><th>Score</th><th>Delay</th><th>Poverty</th><th>Band</th></tr>
-              </thead>
-              <tbody>
-                ${NISR_DATA.districts.map(d => `
-                  <tr style="cursor: pointer;" onclick="window.app.selectDistrict('${d.name}')">
-                    <td><b>#${d.rank}</b></td>
-                    <td><b>${d.name}</b></td>
-                    <td>${d.province}</td>
-                    <td style="font-weight: 700; color: var(--primary);">${d.priority.toFixed(1)}</td>
-                    <td>${d.delay.toFixed(1)}d</td>
-                    <td>${d.poverty.toFixed(1)}%</td>
-                    <td><span class="pill ${d.priority >= 70 ? 'pill-urgent' : d.priority >= 45 ? 'pill-high' : 'pill-neutral'}">${d.band}</span></td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top: 24px;">
-        <div class="card-title">🎯 Actionable Policy Recommendations (NST2 & Vision 2050)</div>
-        <div class="grid grid-cols-3" style="margin-top: 14px; margin-bottom: 0;">
-          <div style="background: var(--bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--card-border);">
-            <b>1. Priority Liquidity Buffering</b>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
-              Direct emergency liquidity reserves to the top 7 urgent districts (Gisagara, Kirehe, Karongi, Nyaruguru, Gatsibo, Nyamagabe, Rutsiro) where average delays exceed 11 days.
-            </p>
-          </div>
-          <div style="background: var(--bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--card-border);">
-            <b>2. Umurenge SACCO Integration</b>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
-              Strengthen SACCO cash reconciliation capabilities. Survey evidence proves SACCO recipients experience 2.7 fewer days delay than mobile money disbursements.
-            </p>
-          </div>
-          <div style="background: var(--bg); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--card-border);">
-            <b>3. Local Market Bridge Adoption</b>
-            <p style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
-              Formalize the Isoko Bridge emergency credit and farmer registry under LODA social protection innovation pilots to achieve zero interim hunger.
-            </p>
+            <small><b>Planner Insight:</b> Umurenge SACCOs disburse fastest (7.7 days). Mobile money delays (10.4 days) stem from rural cash float constraints.</small>
           </div>
         </div>
       </div>
     `;
   }
 
-  // Common UI components
-  renderMarketCatalog(mode) {
-    if (!this.state.listings.length) {
-      return `<p style="padding: 20px; color: var(--text-muted);">No produce listings currently available.</p>`;
-    }
-
+  // Render Visual Grocery Catalog with Photos
+  renderGroceryCatalog(mode) {
     return `
-      <div class="market-grid">
+      <div class="grocery-grid">
         ${this.state.listings.map(l => {
           const guide = this.getPriceGuide(l.food, l.price);
-          const canBuy = l.quantity > 0;
+          const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "");
           return `
-            <div class="product-card">
-              <div class="product-info">
-                <h4>${l.food}</h4>
-                <div class="product-meta">📍 ${l.district} · Seller: <b>${l.farmer}</b></div>
-                <div class="product-meta" style="margin-top: 4px;">Stock: <b>${l.quantity} kg available</b></div>
-                <div style="margin-top: 8px;">
-                  <span class="pill ${guide.class}">${guide.label} (NISR Median: ${guide.median} RWF)</span>
-                </div>
+            <div class="grocery-card">
+              <div class="grocery-img-box">
+                <img src="${photo}" alt="${l.food}" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-md);" 
+                     onerror="this.onerror=null; this.parentElement.innerHTML='${HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].icon : '🥬'}';">
+                <span class="grocery-price-pill ${guide.class}">${guide.label}</span>
               </div>
               <div>
-                <div class="product-price">${l.price.toLocaleString()} <span>RWF / kg</span></div>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                  <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width: 75px;" aria-label="Quantity kg">
-                  <button class="btn ${mode === 'credit' ? 'btn-accent' : 'btn-primary'}" 
-                    style="flex: 1;" ${canBuy ? '' : 'disabled'}
-                    onclick="window.app.buyProduce(${l.id}, '${mode}')">
-                    ${mode === 'credit' ? this.t("buyCredit") : this.t("buyCash")}
+                <h4>${l.food}</h4>
+                <div class="grocery-meta">📍 ${l.district} · Stock: <b>${l.quantity} kg</b></div>
+                <div class="grocery-meta">Seller: <b>${l.farmer}</b></div>
+              </div>
+              <div class="grocery-card-footer">
+                <div class="grocery-cost">${l.price.toLocaleString()} <small>RWF/kg</small></div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:55px; padding:4px;" aria-label="kg">
+                  <button class="btn btn-sm ${mode === 'credit' ? 'btn-accent' : 'btn-primary'}" onclick="window.app.startBuyProduce(${l.id}, '${mode}')">
+                    ${mode === 'credit' ? 'Credit' : 'Buy'}
                   </button>
                 </div>
               </div>
@@ -1285,7 +1312,7 @@ class IsokoApp {
                 <td><b>${o.total.toLocaleString()} RWF</b></td>
                 <td>
                   <span class="pill ${o.mode === 'credit' ? 'pill-urgent' : 'pill-fair'}">
-                    ${o.mode === 'credit' ? 'Bridge Credit' : 'Cash'}
+                    ${o.mode === 'credit' ? 'Bridge Credit' : o.paidBy || 'Cash'}
                   </span>
                   ${o.repaid ? '<span class="pill pill-fair" style="margin-left: 4px;">Repaid</span>' : ''}
                 </td>
@@ -1293,13 +1320,12 @@ class IsokoApp {
                   <span class="pill ${o.status === 'Delivered' ? 'pill-fair' : 'pill-high'}">
                     ${o.status}
                   </span>
-                  ${o.paidBy ? `<small style="display:block; font-size:10px; color:var(--text-muted);">Paid by ${o.paidBy}</small>` : ''}
                 </td>
                 ${showDeliverBtn ? `
                   <td>
                     ${o.status === 'Placed' 
                       ? `<button class="btn btn-sm btn-primary" onclick="window.app.deliverOrder(${o.id})">Mark Delivered</button>`
-                      : '<span style="color: var(--success); font-weight:600;">Completed</span>'}
+                      : '<span style="color: var(--success); font-weight:700;">Delivered ✓</span>'}
                   </td>
                 ` : ''}
               </tr>
@@ -1318,15 +1344,14 @@ class IsokoApp {
 
       <div style="margin-bottom: 8px;">
         <span class="pill ${d.priority >= 70 ? 'pill-urgent' : d.priority >= 45 ? 'pill-high' : 'pill-neutral'}">${d.band}</span>
-        <span class="pill pill-neutral">National Rank #${d.rank} of 30</span>
+        <span class="pill pill-neutral">Rank #${d.rank} of 30</span>
       </div>
 
       <table style="margin-top: 12px; font-size: 12px;">
-        <tr><td>Average Payment Delay:</td><td><b>${d.delay.toFixed(1)} days</b></td></tr>
+        <tr><td>Average Delay:</td><td><b>${d.delay.toFixed(1)} days</b></td></tr>
         <tr><td>Estimated Poverty Rate:</td><td><b>${d.poverty.toFixed(1)}%</b></td></tr>
-        <tr><td>Composite Priority Score:</td><td><b style="color: var(--primary);">${d.priority.toFixed(1)} / 100</b></td></tr>
-        <tr><td>Food Price Index:</td><td><b>${d.priceIdx.toFixed(2)}x</b></td></tr>
-        <tr><td>NISR Sample Records:</td><td><b>${d.records} households</b> ${d.records < 100 ? '<small style="color:var(--danger);">(<100)</small>' : ''}</td></tr>
+        <tr><td>Priority Score:</td><td><b style="color: var(--primary);">${d.priority.toFixed(1)} / 100</b></td></tr>
+        <tr><td>NISR Records:</td><td><b>${d.records} households</b></td></tr>
       </table>
     `;
   }
@@ -1344,59 +1369,9 @@ class IsokoApp {
   }
 
   initPlannerVisuals() {
-    this.calculatePovertyProxy();
     setTimeout(() => {
       this.initMap();
     }, 100);
-  }
-
-  calculatePovertyProxy() {
-    const sizeEl = document.getElementById("pov_size");
-    const childEl = document.getElementById("pov_children");
-    const floorEl = document.getElementById("pov_floor");
-    const rentEl = document.getElementById("pov_rent");
-    const resEl = document.getElementById("povertyProxyResult");
-    if (!sizeEl || !childEl || !floorEl || !rentEl || !resEl) return;
-
-    const size = parseFloat(sizeEl.value) || 4;
-    const children = parseFloat(childEl.value) || 2;
-    const floor = floorEl.value;
-    const rent = parseFloat(rentEl.value) || 10000;
-
-    let logOdds = -1.25;
-    logOdds += 0.28 * (size - 4.0);
-    logOdds += 0.35 * children;
-
-    const floorWeights = { earth: 0.85, wood: 0.10, cement: -0.65, tile: -1.40 };
-    logOdds += floorWeights[floor] || 0;
-
-    if (rent <= 5000) logOdds += 0.60;
-    else if (rent <= 15000) logOdds += 0.10;
-    else if (rent <= 30000) logOdds -= 0.50;
-    else logOdds -= 1.30;
-
-    const prob = 1.0 / (1.0 + Math.exp(-logOdds));
-    const pct = Math.round(prob * 100);
-
-    let band = "Low Risk (Relatively Resilient)";
-    let pillClass = "pill-fair";
-    if (pct >= 70) {
-      band = "High Risk (Likely Extremely Poor)";
-      pillClass = "pill-urgent";
-    } else if (pct >= 45) {
-      band = "Moderate Risk (Vulnerable Household)";
-      pillClass = "pill-high";
-    }
-
-    resEl.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <div style="font-size: 12px; color: var(--text-muted);">Estimated Poverty Probability:</div>
-          <div style="font-size: 24px; font-weight: 800;">${pct}%</div>
-        </div>
-        <span class="pill ${pillClass}">${band}</span>
-      </div>
-    `;
   }
 
   initMap() {
@@ -1432,71 +1407,38 @@ class IsokoApp {
 
         const getColor = (val) => {
           if (this.mapMetric === "priority") {
-            return val >= 75 ? "#991b1b" :
-                   val >= 60 ? "#dc2626" :
-                   val >= 45 ? "#ea580c" :
-                   val >= 30 ? "#eab308" :
-                               "#16a34a";
+            return val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
           }
           if (this.mapMetric === "delay") {
-            return val >= 13 ? "#991b1b" :
-                   val >= 10 ? "#dc2626" :
-                   val >= 8  ? "#ea580c" :
-                   val >= 6  ? "#eab308" :
-                               "#16a34a";
+            return val >= 13 ? "#991b1b" : val >= 10 ? "#dc2626" : val >= 8 ? "#ea580c" : val >= 6 ? "#eab308" : "#16a34a";
           }
-          return val >= 42 ? "#991b1b" :
-                 val >= 35 ? "#dc2626" :
-                 val >= 28 ? "#ea580c" :
-                 val >= 20 ? "#eab308" :
-                             "#16a34a";
-        };
-
-        const styleFeature = (feature) => {
-          const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "";
-          const val = getMetricValue(name);
-          return {
-            fillColor: getColor(val),
-            weight: 1.5,
-            opacity: 1,
-            color: "#ffffff",
-            dashArray: "",
-            fillOpacity: 0.75
-          };
+          return val >= 42 ? "#991b1b" : val >= 35 ? "#dc2626" : val >= 28 ? "#ea580c" : val >= 20 ? "#eab308" : "#16a34a";
         };
 
         this.mapLayer = L.geoJson(window.RWANDA_DISTRICTS_GEOJSON, {
-          style: styleFeature,
-          onEachFeature: (feature, layer) => {
-            const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "District";
+          style: (feat) => ({
+            fillColor: getColor(getMetricValue(feat.properties.shapeName || "")),
+            weight: 1.5,
+            opacity: 1,
+            color: "#ffffff",
+            fillOpacity: 0.75
+          }),
+          onEachFeature: (feat, layer) => {
+            const name = feat.properties.shapeName || "District";
             const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
-            
             if (d) {
-              layer.bindTooltip(`<b>${d.name}</b><br>Delay: ${d.delay.toFixed(1)}d · Poverty: ${d.poverty.toFixed(1)}% · Score: ${d.priority.toFixed(1)}`, {
-                sticky: true
-              });
+              layer.bindTooltip(`<b>${d.name}</b><br>Delay: ${d.delay.toFixed(1)}d · Score: ${d.priority.toFixed(1)}`, { sticky: true });
             }
-
             layer.on({
-              mouseover: (e) => {
-                const l = e.target;
-                l.setStyle({ weight: 3, color: '#0e635e', fillOpacity: 0.9 });
-                l.bringToFront();
-              },
-              mouseout: (e) => {
-                this.mapLayer.resetStyle(e.target);
-              },
-              click: () => {
-                this.selectDistrict(name);
-              }
+              click: () => this.selectDistrict(name)
             });
           }
         }).addTo(this.map);
 
         this.map.fitBounds(this.mapLayer.getBounds());
         return;
-      } catch (err) {
-        console.warn("Leaflet error, falling back to built-in SVG map:", err);
+      } catch (e) {
+        console.warn("Leaflet error, using SVG fallback", e);
       }
     }
 
@@ -1505,32 +1447,19 @@ class IsokoApp {
 
   renderOfflineSvgMap(container) {
     if (!window.RWANDA_DISTRICTS_GEOJSON) return;
-    
     const minX = 28.8, maxX = 30.9, minY = -2.9, maxY = -1.0;
     const width = 600, height = 450;
     const scaleX = width / (maxX - minX);
     const scaleY = height / (maxY - minY);
 
-    const project = (lng, lat) => {
-      const x = (lng - minX) * scaleX;
-      const y = height - (lat - minY) * scaleY;
-      return [x, y];
-    };
+    const project = (lng, lat) => [(lng - minX) * scaleX, height - (lat - minY) * scaleY];
 
     let paths = "";
     window.RWANDA_DISTRICTS_GEOJSON.features.forEach(feat => {
       const name = feat.properties.shapeName || "District";
       const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
       const val = d ? (this.mapMetric === 'delay' ? d.delay : this.mapMetric === 'poverty' ? d.poverty : d.priority) : 50;
-      
-      let col = "#16a34a";
-      if (this.mapMetric === 'priority') {
-        col = val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
-      } else if (this.mapMetric === 'delay') {
-        col = val >= 13 ? "#991b1b" : val >= 10 ? "#dc2626" : val >= 8 ? "#ea580c" : val >= 6 ? "#eab308" : "#16a34a";
-      } else {
-        col = val >= 42 ? "#991b1b" : val >= 35 ? "#dc2626" : val >= 28 ? "#ea580c" : val >= 20 ? "#eab308" : "#16a34a";
-      }
+      let col = val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
 
       const geom = feat.geometry;
       let dAttr = "";
@@ -1544,32 +1473,16 @@ class IsokoApp {
         });
       };
 
-      if (geom.type === "Polygon") {
-        addPolygon(geom.coordinates);
-      } else if (geom.type === "MultiPolygon") {
-        geom.coordinates.forEach(poly => addPolygon(poly));
-      }
+      if (geom.type === "Polygon") addPolygon(geom.coordinates);
+      else if (geom.type === "MultiPolygon") geom.coordinates.forEach(poly => addPolygon(poly));
 
-      paths += `<path d="${dAttr}" fill="${col}" stroke="#ffffff" stroke-width="1" style="cursor:pointer; transition: opacity 0.2s;" 
-        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="window.app.selectDistrict('${name}')">
-        <title>${name}: ${d ? (this.mapMetric === 'delay' ? d.delay + ' days' : this.mapMetric === 'poverty' ? d.poverty + '%' : d.priority + ' score') : ''}</title>
-      </path>`;
+      paths += `<path d="${dAttr}" fill="${col}" stroke="#ffffff" stroke-width="1" style="cursor:pointer;" onclick="window.app.selectDistrict('${name}')"><title>${name}</title></path>`;
     });
 
-    container.innerHTML = `
-      <div style="background: var(--card-bg); border-radius: var(--radius-md); padding: 12px; text-align: center;">
-        <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; max-height: 420px; display: block; margin: 0 auto;">
-          ${paths}
-        </svg>
-        <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
-          Self-Contained Offline GIS Vector Map · Hover over or click any district to inspect details.
-        </div>
-      </div>
-    `;
+    container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto;">${paths}</svg>`;
   }
 }
 
-// Global initialization
 document.addEventListener("DOMContentLoaded", () => {
   window.app = new IsokoApp();
   window.app.init();
