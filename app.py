@@ -43,6 +43,12 @@ def app(environ, start_response):
         mime = 'application/json; charset=utf-8'
     elif file_path.endswith('.svg'):
         mime = 'image/svg+xml'
+    elif file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+        mime = 'image/jpeg'
+    elif file_path.endswith('.png'):
+        mime = 'image/png'
+    elif file_path.endswith('.webp'):
+        mime = 'image/webp'
         
     try:
         with open(file_path, 'rb') as f:
