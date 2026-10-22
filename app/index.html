@@ -23,7 +23,7 @@
     <div class="container">
       <div class="topbar-content">
         <!-- Logo and Brand -->
-        <a href="#" class="brand-section" onclick="window.app.render(); return false;">
+        <a href="#" class="brand-section" onclick="window.app.goHome(); return false;">
           <div class="brand-logo">IB</div>
           <div class="brand-name">
             <span>Isoko Bridge</span>
@@ -57,32 +57,10 @@
     </div>
   </header>
 
-  <!-- Role Navigation Tabs (Sticky bar for 4 personas) -->
-  <div class="role-nav-wrap">
-    <div class="container">
-      <div id="roleNav" class="role-nav">
-        <!-- Injected via JavaScript -->
-      </div>
-    </div>
-  </div>
-
-  <!-- Sub-Navigation / Quick User Context Switcher -->
-  <div class="container">
-    <div class="sub-nav">
-      <div id="quickUserSelector" class="account-selector-quick">
-        <!-- Injected via JavaScript -->
-      </div>
-      <div style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-        <span>Status:</span>
-        <span class="pill pill-fair">Simulated Local Prototype (No Real Money Moved)</span>
-      </div>
-    </div>
-  </div>
-
   <!-- Main Dynamic View Container -->
-  <main class="container" style="flex: 1; padding-bottom: 40px;">
+  <main class="container" style="flex: 1; padding: 16px 16px 40px;">
     <div id="appView">
-      <!-- Injected dynamically based on role (Family, Farmer, Shopper, Planner) -->
+      <!-- Injected dynamically: Opening Landing Page OR Specific Role Dashboard -->
     </div>
   </main>
 

@@ -1,12 +1,13 @@
 /**
  * Isoko Bridge - Core Application Logic
- * Integrates Market, Emergency Social Bridge, and NISR Planner Analytics
+ * Integrates Opening Page, Interactive Sample Question, Market, Bridge, and Planner Analytics
  */
 
 // Initial Seed State
 const DEFAULT_STATE = {
   theme: "light",
   lang: "en",
+  currentView: "home", // "home" (Opening Page) or "dashboard"
   role: "Family", // Family, Farmer, Shopper, Planner
   currentUser: {
     username: "amina_family",
@@ -17,6 +18,11 @@ const DEFAULT_STATE = {
     householdSize: 5,
     daysLate: 8,
     donationPct: 2
+  },
+  // Sample Question Widget on Opening Page
+  sampleQ: {
+    daysLate: 8,
+    householdSize: 5
   },
   pool: {
     balance: 25000,
@@ -159,14 +165,28 @@ class IsokoApp {
     this.render();
   }
 
-  setRole(role) {
+  // Navigation: Go Home / Go to Dashboard
+  goHome() {
+    this.state.currentView = "home";
+    this.saveState();
+    this.render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  enterRole(role, username = null) {
+    this.state.currentView = "dashboard";
     this.state.role = role;
-    const account = NISR_DATA.demoAccounts.find(a => a.role === role);
-    if (account) {
-      this.state.currentUser = { ...this.state.currentUser, ...account };
+    if (username) {
+      const account = NISR_DATA.demoAccounts.find(a => a.username === username);
+      if (account) this.state.currentUser = { ...this.state.currentUser, ...account };
+    } else {
+      const account = NISR_DATA.demoAccounts.find(a => a.role === role);
+      if (account) this.state.currentUser = { ...this.state.currentUser, ...account };
     }
     this.saveState();
     this.render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    this.toast(`Entered portal as ${this.state.currentUser.name} (${role})`, "success");
   }
 
   setUser(username) {
@@ -174,9 +194,10 @@ class IsokoApp {
     if (account) {
       this.state.currentUser = { ...this.state.currentUser, ...account };
       this.state.role = account.role;
+      this.state.currentView = "dashboard";
       this.saveState();
       this.render();
-      this.toast(`Logged in as ${account.name} (${account.role})`, "success");
+      this.toast(`Active session: ${account.name} (${account.role})`, "success");
     }
   }
 
@@ -383,67 +404,261 @@ class IsokoApp {
     });
   }
 
-  // View Renders
+  // Update Sample Question Widget on Opening Page
+  updateSampleCalc() {
+    const daysEl = document.getElementById("sq_days");
+    const sizeEl = document.getElementById("sq_size");
+    const resEl = document.getElementById("sq_result_val");
+    const textEl = document.getElementById("sq_result_text");
+    if (!daysEl || !sizeEl || !resEl) return;
+
+    const days = parseInt(daysEl.value) || 0;
+    const size = parseInt(sizeEl.value) || 1;
+    this.state.sampleQ.daysLate = days;
+    this.state.sampleQ.householdSize = size;
+
+    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf; // ~261 RWF
+    const totalCredit = days > 0 ? (size * dpp * days) : 0;
+
+    resEl.textContent = `${totalCredit.toLocaleString()} RWF`;
+    if (textEl) {
+      textEl.textContent = days > 0 
+        ? `Covers ${days} days of beans, sweet potatoes & vegetables for ${size} people.` 
+        : `Payment is on time. Zero credit required.`;
+    }
+  }
+
+  // Main Render Routing
   render() {
-    this.renderHeader();
-    this.renderSubNav();
+    this.updateHeaderTicker();
     const mainEl = document.getElementById("appView");
     if (!mainEl) return;
 
-    switch (this.state.role) {
-      case "Family":
-        mainEl.innerHTML = this.renderFamilyView();
-        break;
-      case "Farmer":
-        mainEl.innerHTML = this.renderFarmerView();
-        this.updatePriceGuidePreview();
-        break;
-      case "Shopper":
-        mainEl.innerHTML = this.renderShopperView();
-        break;
-      case "Planner":
-        mainEl.innerHTML = this.renderPlannerView();
+    if (this.state.currentView === "home") {
+      mainEl.innerHTML = this.renderOpeningPage();
+      this.updateSampleCalc();
+    } else {
+      mainEl.innerHTML = this.renderDashboardWrapper();
+      if (this.state.role === "Planner") {
         this.initPlannerVisuals();
-        break;
-      default:
-        mainEl.innerHTML = this.renderFamilyView();
+      } else if (this.state.role === "Farmer") {
+        this.updatePriceGuidePreview();
+      }
     }
-
-    this.updateHeaderTicker();
   }
 
-  renderHeader() {
-    const roleNav = document.getElementById("roleNav");
-    if (!roleNav) return;
+  // 1. OPENING LANDING PAGE (Clean, Inviting, Non-Confusing)
+  renderOpeningPage() {
+    const sq = this.state.sampleQ || { daysLate: 8, householdSize: 5 };
 
-    const roles = [
-      { id: "Family", label: this.t("roleFamily"), icon: "👨‍👩‍👧" },
-      { id: "Farmer", label: this.t("roleFarmer"), icon: "🌾" },
-      { id: "Shopper", label: this.t("roleShopper"), icon: "🛒" },
-      { id: "Planner", label: this.t("rolePlanner"), icon: "📊" }
-    ];
+    return `
+      <!-- Hero Header -->
+      <div class="hero-opening">
+        <div class="hero-tag">NISR 2026 Big Data Hackathon · Rwanda Social Innovation</div>
+        <h1 class="hero-title">Isoko Bridge <span style="font-weight: 400; color: var(--accent);">(Ikiraro cya VUP)</span></h1>
+        <p class="hero-sub">
+          When VUP social payments arrive late, families shouldn't go hungry. 
+          <b>Isoko Bridge</b> connects local smallholder farmers with waiting families through 
+          zero-interest emergency food credit, backed by ethical shoppers and real NISR survey evidence.
+        </p>
 
-    roleNav.innerHTML = roles.map(r => `
-      <button class="role-nav-item ${this.state.role === r.id ? 'active' : ''}" onclick="window.app.setRole('${r.id}')">
-        <span>${r.icon}</span>
-        <span>${r.label}</span>
-      </button>
-    `).join("");
+        <!-- Quick 4 NISR Facts -->
+        <div class="stats-banner">
+          <div class="stat-pill-box">
+            <b>9.2 Days</b>
+            <span>Average Disbursement Delay</span>
+          </div>
+          <div class="stat-pill-box">
+            <b style="color: var(--danger);">52%</b>
+            <span>Wait More Than 1 Week</span>
+          </div>
+          <div class="stat-pill-box">
+            <b>14.6 Days</b>
+            <span>Southern Expanded PW Hotspot</span>
+          </div>
+          <div class="stat-pill-box">
+            <b>3,399</b>
+            <span>Surveyed Beneficiary Records</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Sample Question Card (Clear & Engaging) -->
+      <div class="sample-question-card">
+        <div class="sample-q-header">
+          <span class="sample-q-badge">Interactive Sample Scenario</span>
+          <b style="font-size: 15px;">How does emergency Bridge Credit work in practice?</b>
+        </div>
+        <p style="font-size: 14px; color: var(--text-muted);">
+          <b>Scenario:</b> Amina Uwase lives in Kirehe District and receives VUP Direct Support. 
+          Her cash payment is delayed. Adjust the sample parameters below to see how her emergency credit limit calculates:
+        </p>
+
+        <div class="sample-calc-grid">
+          <div>
+            <label class="form-label">Disbursement Delay (Days Late)</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input id="sq_days" type="range" min="0" max="20" value="${sq.daysLate}" 
+                oninput="window.app.updateSampleCalc()" style="flex: 1;">
+              <b id="sq_days_val" style="min-width: 38px;">${sq.daysLate} d</b>
+            </div>
+            <small style="color: var(--text-muted);">Kirehe district average: 15.5 days</small>
+          </div>
+
+          <div>
+            <label class="form-label">Family Size (Household Members)</label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <input id="sq_size" type="range" min="1" max="10" value="${sq.householdSize}" 
+                oninput="window.app.updateSampleCalc()" style="flex: 1;">
+              <b id="sq_size_val" style="min-width: 38px;">${sq.householdSize}</b>
+            </div>
+            <small style="color: var(--text-muted);">Demo food basket: 261 RWF/person/day</small>
+          </div>
+
+          <div class="sample-calc-result">
+            <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-muted);">Calculated Bridge Credit</span>
+            <b id="sq_result_val">10,440 RWF</b>
+            <span id="sq_result_text" style="font-size: 11px; color: var(--primary);">Covers 8 days of staple nutrition for 5 people.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Big 4 Role Entrance Cards (No Credentials Needed, Just 1 Click) -->
+      <div>
+        <h2 class="role-entry-title">Choose How You Want to Enter</h2>
+        <p class="role-entry-sub">No passwords required for testing! Click any portal below to enter with pre-configured sample data:</p>
+
+        <div class="role-entry-grid">
+          <!-- Card 1: Family -->
+          <div class="role-card-select highlight">
+            <div>
+              <div class="role-card-icon">👨‍👩‍👧</div>
+              <div class="role-card-title">
+                <span>VUP Beneficiary Family</span>
+                <span class="pill pill-fair">Beneficiary View</span>
+              </div>
+              <p class="role-card-desc">
+                Experience how a waiting family checks their payment delay, calculates emergency bridge credit, and buys staple food on credit while waiting for government support.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <div>
+                <b>Sample: Amina Uwase</b> · Kirehe District
+                <div style="color: var(--text-muted); font-size: 11px;">Direct Support · 5 members · 8 days late</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="window.app.enterRole('Family', 'amina_family')">
+              Enter as Family Member →
+            </button>
+          </div>
+
+          <!-- Card 2: Farmer -->
+          <div class="role-card-select">
+            <div>
+              <div class="role-card-icon">🌾</div>
+              <div class="role-card-title">
+                <span>Food Seller / Farmer</span>
+                <span class="pill pill-high">Seller View</span>
+              </div>
+              <p class="role-card-desc">
+                See how smallholder farmers and cooperatives list produce, evaluate their prices against official NISR median benchmarks, deliver orders, and receive instant payouts.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <div>
+                <b>Sample: Mukamana Farm</b> · Kirehe
+                <div style="color: var(--text-muted); font-size: 11px;">Dry Beans Seller · Linked Mobile Money</div>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Farmer', 'mukamana_seller')">
+              Enter as Farmer / Seller →
+            </button>
+          </div>
+
+          <!-- Card 3: Shopper -->
+          <div class="role-card-select">
+            <div>
+              <div class="role-card-icon">🛒</div>
+              <div class="role-card-title">
+                <span>Ethical Food Shopper</span>
+                <span class="pill pill-neutral">Consumer View</span>
+              </div>
+              <p class="role-card-desc">
+                Buy fresh farm produce directly from Rwandan growers. Set a 1% to 5% donation share from your cart that feeds the revolving pool and see how many days of food you subsidized.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <div>
+                <b>Sample: Grace Ingabire</b> · Urban Consumer
+                <div style="color: var(--text-muted); font-size: 11px;">Donates 2% of cart to social pool</div>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Shopper', 'grace_shopper')">
+              Enter as Shopper →
+            </button>
+          </div>
+
+          <!-- Card 4: Planner / Admin -->
+          <div class="role-card-select highlight" style="border-color: #7e22ce;">
+            <div>
+              <div class="role-card-icon">📊</div>
+              <div class="role-card-title">
+                <span>Government Planner & Judges</span>
+                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence & Analytics</span>
+              </div>
+              <p class="role-card-desc">
+                Explore the complete NISR microdata analysis: interactive 30-district choropleth map, delay hotspots, 30-district "Help Here First" priority rankings, and poverty risk estimators.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <div>
+                <b>Sample: LODA / NISR Administrator</b>
+                <div style="color: var(--text-muted); font-size: 11px;">National & District Decision Cockpit</div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-lg" style="background: #7e22ce;" onclick="window.app.enterRole('Planner', 'planner_demo')">
+              Enter as Planner / Judge →
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
   }
 
-  renderSubNav() {
-    const el = document.getElementById("quickUserSelector");
-    if (!el) return;
+  // Dashboard Wrapper with Prominent "Back to Home / Switch Role" Bar
+  renderDashboardWrapper() {
+    const u = this.state.currentUser;
+    let content = "";
+    if (this.state.role === "Family") content = this.renderFamilyView();
+    else if (this.state.role === "Farmer") content = this.renderFarmerView();
+    else if (this.state.role === "Shopper") content = this.renderShopperView();
+    else if (this.state.role === "Planner") content = this.renderPlannerView();
 
-    el.innerHTML = `
-      <span>Quick Demo User:</span>
-      <select onchange="window.app.setUser(this.value)">
-        ${NISR_DATA.demoAccounts.map(acc => `
-          <option value="${acc.username}" ${this.state.currentUser.username === acc.username ? 'selected' : ''}>
-            ${acc.name} (${acc.role}) - ${acc.district || acc.institution || 'Urban'}
-          </option>
-        `).join("")}
-      </select>
+    return `
+      <!-- Prominent Back & Context Navigation Bar -->
+      <div class="dashboard-topbar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <button class="back-home-btn" onclick="window.app.goHome()">
+            ← Back to Home / Change Role
+          </button>
+          <div style="font-size: 13px;">
+            Current Role: <b style="color: var(--primary); text-transform: uppercase;">${this.state.role}</b>
+            <span style="color: var(--text-muted); margin: 0 4px;">·</span>
+            Logged in as: <b>${u.name}</b>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; color: var(--text-muted);">Switch Role:</span>
+          <button class="btn btn-sm ${this.state.role === 'Family' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Family')">👨‍👩‍👧 Family</button>
+          <button class="btn btn-sm ${this.state.role === 'Farmer' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Farmer')">🌾 Farmer</button>
+          <button class="btn btn-sm ${this.state.role === 'Shopper' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Shopper')">🛒 Shopper</button>
+          <button class="btn btn-sm ${this.state.role === 'Planner' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Planner')">📊 Planner</button>
+        </div>
+      </div>
+
+      <!-- Specific Role Content -->
+      ${content}
     `;
   }
 
@@ -457,7 +672,6 @@ class IsokoApp {
     const benchmarkProg = NISR_DATA.programmes.find(p => p.name === u.programme) || NISR_DATA.programmes[2];
 
     return `
-      <!-- Family Overview Banner -->
       <div class="banner-notice ${isLate ? 'danger' : 'info'}">
         <div style="font-size: 24px;">${isLate ? '🚨' : '✅'}</div>
         <div>
@@ -470,7 +684,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Family Status Controls & Cards -->
       <div class="grid grid-cols-4">
         <div class="card">
           <div class="card-subtitle">VUP Programme</div>
@@ -508,7 +721,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Produce Market -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
@@ -520,7 +732,6 @@ class IsokoApp {
         ${this.renderMarketCatalog(isLate ? 'credit' : 'cash')}
       </div>
 
-      <!-- Budget Nutrition Guide & Orders -->
       <div class="grid grid-cols-2">
         <div class="card">
           <div class="card-title">🍲 Affordable Family Food Basket (NISR Cost Guide)</div>
@@ -557,7 +768,6 @@ class IsokoApp {
     const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
 
     return `
-      <!-- Farmer Header Banner -->
       <div class="banner-notice info">
         <div style="font-size: 24px;">🌾</div>
         <div>
@@ -568,7 +778,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Quick Metrics -->
       <div class="grid grid-cols-3">
         <div class="card">
           <div class="card-subtitle">Pending Orders to Deliver</div>
@@ -587,7 +796,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Add Listing & Orders -->
       <div class="grid grid-cols-2">
         <div class="card">
           <div class="card-title">➕ ${this.t("addListing")}</div>
@@ -640,7 +848,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- My Active Listings -->
       <div class="card">
         <div class="card-title">🌾 My Current Produce Listings</div>
         <div class="card-subtitle" style="margin-bottom: 14px;">Available produce visible to families and shoppers.</div>
@@ -685,7 +892,6 @@ class IsokoApp {
     const daysFunded = (totalGifts / dpp).toFixed(1);
 
     return `
-      <!-- Shopper Header Banner -->
       <div class="banner-notice warning">
         <div style="font-size: 24px;">🛒</div>
         <div>
@@ -696,7 +902,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Social Impact Metrics -->
       <div class="grid grid-cols-3">
         <div class="card">
           <div class="card-subtitle">Pool Donation Share</div>
@@ -721,7 +926,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Produce Market for Shoppers -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
@@ -733,7 +937,6 @@ class IsokoApp {
         ${this.renderMarketCatalog('cash')}
       </div>
 
-      <!-- My Shopper Orders -->
       <div class="card">
         <div class="card-title">🧾 My Purchase Receipts & Impact Contribution</div>
         <div class="card-subtitle" style="margin-bottom: 12px;">See what you purchased and how much was contributed to the bridge pool.</div>
@@ -750,7 +953,6 @@ class IsokoApp {
     const outstanding = this.getOutstandingCredit();
 
     return `
-      <!-- Planner Header Banner -->
       <div class="banner-notice" style="background: #f3e8ff; border-left-color: #7e22ce;">
         <div style="font-size: 24px;">📊</div>
         <div>
@@ -761,7 +963,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Planner KPIs -->
       <div class="grid grid-cols-4">
         <div class="card">
           <div class="card-subtitle">Total Market Orders</div>
@@ -788,7 +989,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Simulation Actions -->
       <div class="card" style="margin-bottom: 24px; background: var(--bg);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
           <div>
@@ -802,7 +1002,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Interactive Rwanda Map & 30-District Ranking -->
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
           <div>
@@ -837,7 +1036,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Hotspots & Delays Matrix -->
       <div class="grid grid-cols-2">
         <div class="card">
           <div class="card-header">
@@ -930,7 +1128,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Poverty Risk Proxy Model & 30 District Ranking -->
       <div class="grid grid-cols-2" style="margin-top: 24px;">
         <div class="card">
           <div class="card-title">🧮 Interactive Poverty Risk Proxy Estimator</div>
@@ -963,9 +1160,7 @@ class IsokoApp {
             </div>
           </div>
 
-          <div id="povertyProxyResult" style="padding: 14px; border-radius: var(--radius-md); background: var(--bg); border: 1px solid var(--card-border); margin-top: 10px;">
-            <!-- Rendered dynamically -->
-          </div>
+          <div id="povertyProxyResult" style="padding: 14px; border-radius: var(--radius-md); background: var(--bg); border: 1px solid var(--card-border); margin-top: 10px;"></div>
           <div class="metric-sub" style="margin-top: 6px;">
             * Rule: For geographic targeting only. Never use to automatically deny benefits to eligible individuals.
           </div>
@@ -997,7 +1192,6 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Policy Recommendations linked to NST2 and Vision 2050 -->
       <div class="card" style="margin-top: 24px;">
         <div class="card-title">🎯 Actionable Policy Recommendations (NST2 & Vision 2050)</div>
         <div class="grid grid-cols-3" style="margin-top: 14px; margin-bottom: 0;">
@@ -1209,7 +1403,6 @@ class IsokoApp {
     const mapEl = document.getElementById("mapContainer");
     if (!mapEl) return;
 
-    // Check if Leaflet is available and online
     if (window.L && window.RWANDA_DISTRICTS_GEOJSON) {
       try {
         if (this.map) {
@@ -1307,14 +1500,12 @@ class IsokoApp {
       }
     }
 
-    // Built-in Offline SVG Fallback
     this.renderOfflineSvgMap(mapEl);
   }
 
   renderOfflineSvgMap(container) {
     if (!window.RWANDA_DISTRICTS_GEOJSON) return;
     
-    // Bounds: Rwanda is roughly Longitude 28.8 to 30.9, Latitude -2.9 to -1.0
     const minX = 28.8, maxX = 30.9, minY = -2.9, maxY = -1.0;
     const width = 600, height = 450;
     const scaleX = width / (maxX - minX);

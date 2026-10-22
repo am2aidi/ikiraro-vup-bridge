@@ -4,6 +4,7 @@
   "description": "Isoko Bridge (Ikiraro VUP Bridge) - A direct food market, emergency social payment bridge, and decision-support planner tool for Rwandan households receiving VUP support.",
   "main": "app/index.html",
   "scripts": {
+    "build": "echo 'Static assets ready'",
     "start": "npx serve app -l 3000",
     "dev": "npx serve app -l 3000",
     "test-scripts": "python scripts/delay_tables.py && python scripts/district_priority_score.py"

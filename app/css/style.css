@@ -69,7 +69,7 @@ body {
 /* Container */
 .container {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
 }
@@ -99,11 +99,12 @@ body {
   gap: 10px;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .brand-logo {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--primary), var(--accent));
   display: flex;
@@ -159,34 +160,20 @@ body {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(21, 128, 61, 0); }
 }
 
-/* User Controls */
+/* Header buttons */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.role-badge {
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.role-badge.family { background: #e0f2fe; color: #0369a1; }
-.role-badge.farmer { background: #fef3c7; color: #b45309; }
-.role-badge.shopper { background: #dcfce7; color: #15803d; }
-.role-badge.planner { background: #f3e8ff; color: #7e22ce; }
-
 /* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 8px;
+  padding: 9px 18px;
   font-size: 14px;
   font-weight: 600;
   border-radius: var(--radius-md);
@@ -198,8 +185,14 @@ body {
   white-space: nowrap;
 }
 
+.btn-lg {
+  padding: 12px 24px;
+  font-size: 15px;
+  border-radius: var(--radius-lg);
+}
+
 .btn-sm {
-  padding: 5px 10px;
+  padding: 5px 12px;
   font-size: 12px;
 }
 
@@ -220,7 +213,7 @@ body {
 }
 
 .btn-outline {
-  background: transparent;
+  background: var(--card-bg);
   border-color: var(--card-border);
   color: var(--text-main);
 }
@@ -238,100 +231,253 @@ body {
   color: var(--text-main);
 }
 
-/* Role Selector Tabs */
-.role-nav-wrap {
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--card-border);
-  padding: 6px 0;
+/* Opening / Landing Page Elements */
+.hero-opening {
+  text-align: center;
+  padding: 36px 16px 28px;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
-.role-nav {
-  display: flex;
+.hero-tag {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.role-nav::-webkit-scrollbar { display: none; }
-
-.role-nav-item {
-  padding: 8px 16px;
+  background: var(--accent-light);
+  color: var(--accent-hover);
+  padding: 4px 14px;
   border-radius: var(--radius-full);
-  font-size: 13px;
-  font-weight: 600;
-  background: var(--bg);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-size: 38px;
+  font-weight: 800;
+  line-height: 1.18;
+  color: var(--primary-dark);
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+}
+[data-theme="dark"] .hero-title {
+  color: #5eead4;
+}
+
+.hero-sub {
+  font-size: 17px;
   color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 680px;
+  margin: 0 auto 20px;
+}
+
+/* Quick Facts Banner */
+.stats-banner {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 30px;
+}
+@media (max-width: 768px) {
+  .stats-banner { grid-template-columns: repeat(2, 1fr); }
+  .hero-title { font-size: 28px; }
+}
+
+.stat-pill-box {
+  background: var(--card-bg);
   border: 1px solid var(--card-border);
-  cursor: pointer;
-  white-space: nowrap;
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-pill-box b {
+  display: block;
+  font-size: 22px;
+  color: var(--primary);
+  font-weight: 800;
+}
+.stat-pill-box span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Interactive Sample Question Widget */
+.sample-question-card {
+  background: linear-gradient(135deg, var(--card-bg) 60%, var(--primary-light));
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 36px;
+}
+
+.sample-q-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.sample-q-badge {
+  background: var(--primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sample-calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+  margin-top: 14px;
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+}
+@media (max-width: 768px) {
+  .sample-calc-grid { grid-template-columns: 1fr; }
+}
+
+.sample-calc-result {
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  text-align: center;
+}
+
+.sample-calc-result b {
+  display: block;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* Role Entry Cards Grid */
+.role-entry-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.role-entry-sub {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.role-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 36px;
+}
+@media (max-width: 768px) {
+  .role-entry-grid { grid-template-columns: 1fr; }
+}
+
+.role-card-select {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
   transition: var(--transition);
 }
 
-.role-nav-item:hover {
+.role-card-select:hover {
+  border-color: var(--primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.role-card-select.highlight {
+  border-color: var(--primary);
+  background: linear-gradient(180deg, var(--card-bg) 70%, var(--primary-light));
+}
+
+.role-card-icon {
+  font-size: 36px;
+  margin-bottom: 6px;
+}
+
+.role-card-title {
+  font-size: 19px;
+  font-weight: 800;
   color: var(--text-main);
-  border-color: var(--primary);
-}
-
-.role-nav-item.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  box-shadow: 0 2px 4px rgba(14, 99, 94, 0.25);
-}
-
-/* Sub-nav / Breadcrumb bar */
-.sub-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 0 16px;
-  gap: 10px;
-  flex-wrap: wrap;
 }
 
-.account-selector-quick {
+.role-card-desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.role-card-sample {
+  background: var(--bg);
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  justify-content: space-between;
 }
 
-.account-selector-quick select {
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--card-border);
+/* Active Dashboard Navigation Bar */
+.dashboard-topbar {
   background: var(--card-bg);
-  color: var(--text-main);
-  font-size: 13px;
-  font-family: inherit;
-  font-weight: 600;
-}
-
-/* Banner alert */
-.banner-notice {
-  background: var(--primary-light);
-  border-left: 4px solid var(--primary);
-  padding: 12px 16px;
-  border-radius: 0 var(--radius-md) var(--radius-md) 0;
-  margin-bottom: 20px;
-  font-size: 14px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 18px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-}
-.banner-notice.warning {
-  background: var(--accent-light);
-  border-left-color: var(--accent);
-}
-.banner-notice.danger {
-  background: var(--danger-light);
-  border-left-color: var(--danger);
+  flex-wrap: wrap;
+  box-shadow: var(--shadow-sm);
 }
 
-/* Grid & Cards */
+.back-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-decoration: none;
+  background: var(--primary-light);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.back-home-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* Cards & Layout */
 .grid {
   display: grid;
   gap: 16px;
@@ -355,11 +501,6 @@ body {
   border-radius: var(--radius-lg);
   padding: 20px;
   box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -385,16 +526,6 @@ body {
   margin-top: 2px;
 }
 
-/* Metric Stats Widget */
-.metric-box {
-  background: var(--bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-}
-
 .metric-value {
   font-size: 26px;
   font-weight: 800;
@@ -403,20 +534,13 @@ body {
   letter-spacing: -0.5px;
 }
 
-.metric-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-
 .metric-sub {
   font-size: 11px;
   color: var(--text-sub);
   margin-top: 4px;
 }
 
-/* Badges & Pills */
+/* Pills */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -434,7 +558,7 @@ body {
 .pill-urgent { background: var(--danger-light); color: var(--danger); }
 .pill-neutral { background: var(--bg); color: var(--text-muted); border: 1px solid var(--card-border); }
 
-/* Forms */
+/* Form Controls */
 .form-group {
   margin-bottom: 14px;
 }
@@ -465,10 +589,10 @@ body {
   box-shadow: 0 0 0 3px rgba(14, 99, 94, 0.15);
 }
 
-/* Produce Market Items */
+/* Product Cards */
 .market-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 16px;
 }
 
@@ -486,7 +610,6 @@ body {
 
 .product-card:hover {
   border-color: var(--primary);
-  transform: translateY(-2px);
   box-shadow: var(--shadow-sm);
 }
 
@@ -499,10 +622,6 @@ body {
 .product-meta {
   font-size: 13px;
   color: var(--text-muted);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
 }
 
 .product-price {
@@ -510,7 +629,6 @@ body {
   font-weight: 800;
   color: var(--primary);
 }
-
 .product-price span {
   font-size: 12px;
   font-weight: 500;
@@ -546,39 +664,37 @@ td {
   color: var(--text-main);
 }
 
-tr:last-child td {
-  border-bottom: none;
-}
-
 tr:hover td {
   background: rgba(14, 99, 94, 0.03);
 }
 
-/* Map Section */
+/* Banner Alert */
+.banner-notice {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: 12px 16px;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.banner-notice.warning {
+  background: var(--accent-light);
+  border-left-color: var(--accent);
+}
+.banner-notice.danger {
+  background: var(--danger-light);
+  border-left-color: var(--danger);
+}
+
+/* Map Container */
 #mapContainer {
   width: 100%;
-  height: 480px;
+  height: 460px;
   border-radius: var(--radius-md);
   border: 1px solid var(--card-border);
-  z-index: 10;
-}
-
-.map-legend {
-  padding: 10px 14px;
-  background: var(--card-bg);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow-sm);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.legend-bar {
-  display: flex;
-  height: 10px;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  margin: 6px 0;
 }
 
 /* Modals */
@@ -610,7 +726,7 @@ tr:hover td {
   padding: 24px;
 }
 
-/* Toast notification */
+/* Toasts */
 .toast-container {
   position: fixed;
   bottom: 24px;
