@@ -3,9 +3,9 @@
 > **A direct food market, emergency social payment bridge, and decision-support planner tool for Rwandan households receiving Vision 2020 Umurenge Programme (VUP) support.**
 
 **NISR 2026 Big Data Hackathon Submission**  
-**Track:** Track 3: Open Innovation *(or Track 2: Financial Inclusion and Poverty Reduction)*  
-**Lead Author:** Zaidi (Reg. No: 223008014), Year 3 Information Systems, University of Rwanda (CST)  
-**Co-Author:** ____________________, University of Rwanda  
+**Track:** Track 3: Open Innovation *(Alternate: Track 2: Financial Inclusion and Poverty Reduction)*  
+**Lead Author:** Zaidi (Final Year, Information Systems, University of Rwanda - CST)  
+**Team Member 2:** KAYUMBA TETA Aela Greta (Final Year, University of Rwanda - CST)  
 **Repository:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
 
 ---
@@ -50,7 +50,7 @@ The platform features role-based access control with four specialized interfaces
 | **Ethical Shopper** | Eric Mugisha | `eric_shopper` | `Eric#2026` | Urban consumer donating 3% of cart to the bridge pool |
 | **Government Planner** | Planner Demo | `planner_demo` | `Plan#2026` | Full administrative, analytical, and policy planning access |
 
-> **Note:** A one-click role switcher is provided on the login page for rapid review without manual password typing.
+> **Note:** A one-click role switcher and demo account modal are provided on the login page for rapid review without manual password typing.
 
 ---
 
@@ -73,7 +73,7 @@ The platform features role-based access control with four specialized interfaces
 - **Impact Metrics:** Real-time calculation showing how many family-days of food nutrition their purchases have subsidized.
 
 ### D. Government & District Planner View
-- **Interactive Rwanda 30-District Choropleth Map:** Visualizes payment delays, poverty prevalence, and priority scores across all 30 districts.
+- **Interactive Rwanda 30-District Geospatial Observatory:** Visualizes payment delays, poverty prevalence, and priority scores across all 30 districts.
 - **Hotspot Heatmap:** Two-way cross-tabulation of average delay and percentage waiting $>7$ days across programmes and provinces.
 - **District Priority Ranking:** Composite multi-criteria decision tool identifying which districts require urgent payment logistics interventions.
 - **Poverty Risk Proxy Tool:** Interactive simulator predicting household poverty vulnerability based on dwelling facts without income bias.
@@ -88,11 +88,16 @@ ikiraro-vup-bridge/
 ├── README.md                           # Master project documentation, user guide, and methodologies
 ├── DECLARATION.md                      # Official declaration of originality, citations, and AI disclosure
 ├── requirements.txt                    # Python environment requirements
-├── package.json                        # Node.js dependencies for local PWA runtime
+├── package.json                        # Node.js dependencies for local runtime
+├── start_local.bat                     # Windows 1-click launcher for local server
 ├── app/                                # Complete web application source code
 │   ├── index.html                      # Single-page application entry point (all 4 roles + map)
-│   ├── css/                            # Responsive styling (light/dark mode, mobile-first)
-│   ├── js/                             # State management, data analytics visualizers, simulation engine
+│   ├── css/
+│   │   └── style.css                   # Responsive styling (light/dark mode, mobile-first)
+│   ├── js/
+│   │   ├── app.js                      # Core reactive application engine and view controllers
+│   │   ├── nisr_data.js                # NISR aggregated survey statistics and models
+│   │   └── rwanda_geo_data.js          # Rwanda 30-district geospatial coordinates
 │   └── manifest.json                   # Progressive Web App (PWA) configuration
 ├── data/                               # Aggregated NISR summary data (Zero PII)
 │   ├── data_sources.md                 # Full provenance and NISR Microdata links
@@ -106,7 +111,10 @@ ikiraro-vup-bridge/
 │   └── summary_finance_access.csv      # Financial inclusion and credit constraints
 ├── docs/                               # Competition briefs and reference specifications
 │   ├── VUP_Bridge_Full_Project.pdf     # Full 13-page project specification
-│   └── 2026_NISR_Hackathon_Webinar.pdf # NISR preparatory webinar guidelines
+│   ├── 2026_Hackathon_Competition.pdf  # Competition track rules and rubrics
+│   ├── 2026_NISR_Hackathon_Webinar.pdf # NISR preparatory webinar guidelines
+│   ├── reference_vup_pulse_demo.html   # Earlier analysis visualization
+│   └── reference_vup_bridge_prototype.html # Earlier marketplace prototype
 ├── scripts/                            # Data processing and analytical model pipelines
 │   ├── generate_summaries.py           # Generates all summary CSVs from survey benchmarks
 │   ├── delay_tables.py                 # Formatted delay and hotspot reporting
@@ -125,22 +133,22 @@ The application is completely self-contained, lightweight, and requires no compl
 ### Option 1: Standalone Web Browser (Zero Installation)
 Simply open `app/index.html` directly in any modern web browser (Google Chrome, Microsoft Edge, Firefox, Safari).
 
-### Option 2: Local Python Server
+### Option 2: 1-Click Windows Launcher
+Double-click `start_local.bat` in the repository root. It will launch the local HTTP server and open the application in your browser automatically.
+
+### Option 3: Local Python Server
 ```bash
 # Clone the repository
 git clone https://github.com/am2aidi/ikiraro-vup-bridge.git
 cd ikiraro-vup-bridge
 
 # Run lightweight HTTP server
-python -m http.server 8000
+python -m http.server 8085
 ```
-Then visit `http://localhost:8000/app` in your browser.
+Then visit `http://localhost:8085/app/index.html` in your browser.
 
-### Option 3: Run Analysis Scripts
+### Option 4: Run Analysis Scripts
 ```bash
-# Optional: install dependencies
-pip install -r requirements.txt
-
 # Run delay & hotspot analysis
 python scripts/delay_tables.py
 
@@ -179,3 +187,4 @@ python scripts/poverty_risk_model.py
 - [x] `DECLARATION.md` completed with originality, citations, and AI-use disclosures
 - [x] Data privacy compliant: only aggregated tables published, raw PII omitted
 - [x] Script verified to execute reliably on clean machines
+- [x] Team requirements fulfilled: 2 final-year students from University of Rwanda (UR-CST) including female representation.
