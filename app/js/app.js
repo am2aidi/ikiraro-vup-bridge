@@ -8,7 +8,6 @@ const DEFAULT_STATE = {
   theme: "light",
   lang: "en",
   role: "Family", // Family, Farmer, Shopper, Planner
-  activeTab: "overview",
   currentUser: {
     username: "amina_family",
     name: "Amina Uwase",
@@ -40,7 +39,8 @@ const DEFAULT_STATE = {
   ],
   nextOrderId: 103,
   nextListingId: 8,
-  selectedDistrict: "Kirehe"
+  selectedDistrict: "Kirehe",
+  hotspotMode: "delay" // 'delay' or 'pct'
 };
 
 // Translations
@@ -153,13 +153,14 @@ class IsokoApp {
 
   toggleLang() {
     this.state.lang = this.state.lang === "en" ? "rw" : "en";
+    const btnText = document.getElementById("langBtnText");
+    if (btnText) btnText.textContent = this.state.lang === "en" ? "EN / RW" : "RW / EN";
     this.saveState();
     this.render();
   }
 
   setRole(role) {
     this.state.role = role;
-    // Set appropriate demo account if role changed
     const account = NISR_DATA.demoAccounts.find(a => a.role === role);
     if (account) {
       this.state.currentUser = { ...this.state.currentUser, ...account };
@@ -395,6 +396,7 @@ class IsokoApp {
         break;
       case "Farmer":
         mainEl.innerHTML = this.renderFarmerView();
+        this.updatePriceGuidePreview();
         break;
       case "Shopper":
         mainEl.innerHTML = this.renderShopperView();
@@ -679,7 +681,7 @@ class IsokoApp {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper");
     const totalGifts = myOrders.reduce((sum, o) => sum + (o.gift || 0), 0);
-    const dpp = 5 * NISR_DATA.overall.dailyFoodBasketCostRwf; // ~1305 RWF/day for family of 5
+    const dpp = 5 * NISR_DATA.overall.dailyFoodBasketCostRwf;
     const daysFunded = (totalGifts / dpp).toFixed(1);
 
     return `
@@ -838,8 +840,18 @@ class IsokoApp {
       <!-- Hotspots & Delays Matrix -->
       <div class="grid grid-cols-2">
         <div class="card">
-          <div class="card-title">🔥 Programme × Province Hotspot Matrix</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Average disbursement delay (days) and percentage paid over 7 days late.</div>
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔥 Programme × Province Hotspot Matrix</div>
+              <div class="card-subtitle">Disbursement friction matrix cross-tabulating 4 programmes across 5 provinces.</div>
+            </div>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn btn-sm ${this.state.hotspotMode === 'delay' ? 'btn-primary' : 'btn-outline'}" 
+                onclick="window.app.state.hotspotMode = 'delay'; window.app.render();">Days Late</button>
+              <button class="btn btn-sm ${this.state.hotspotMode === 'pct' ? 'btn-primary' : 'btn-outline'}" 
+                onclick="window.app.state.hotspotMode = 'pct'; window.app.render();">% >7d Late</button>
+            </div>
+          </div>
           <div class="table-wrap">
             <table>
               <thead>
@@ -864,9 +876,11 @@ class IsokoApp {
                       const bg = isHot ? 'var(--danger-light)' : isWarn ? 'var(--accent-light)' : 'var(--success-light)';
                       const color = isHot ? 'var(--danger)' : isWarn ? 'var(--accent)' : 'var(--success)';
                       const flag = cell.records < 100 ? '*' : '';
+                      const displayVal = this.state.hotspotMode === 'pct' ? `${cell.latePct}%` : `${cell.delay.toFixed(1)}d`;
                       return `
                         <td style="text-align: center; background: ${bg}; color: ${color}; font-weight: 700;">
-                          ${cell.delay.toFixed(1)}d <small style="display:block; font-size:10px; font-weight:400;">(${cell.latePct}%)${flag}</small>
+                          ${displayVal}${flag}
+                          <small style="display:block; font-size:10px; font-weight:400; color:var(--text-muted);">${cell.records} records</small>
                         </td>
                       `;
                     }).join("")}
@@ -1195,107 +1209,172 @@ class IsokoApp {
     const mapEl = document.getElementById("mapContainer");
     if (!mapEl) return;
 
-    if (!window.L) {
-      mapEl.innerHTML = `
-        <div style="padding: 30px; text-align: center; color: var(--text-muted);">
-          Leaflet library not loaded. Interactive table ranking is fully active on the right pane.
-        </div>
-      `;
-      return;
-    }
-
-    if (this.map) {
-      this.map.remove();
-      this.map = null;
-    }
-
-    this.map = L.map("mapContainer", {
-      center: [-1.9403, 29.8739],
-      zoom: 9,
-      zoomControl: true
-    });
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 12,
-      minZoom: 8,
-      attribution: '© OpenStreetMap contributors | NISR'
-    }).addTo(this.map);
-
-    if (window.RWANDA_DISTRICTS_GEOJSON) {
-      const getMetricValue = (dName) => {
-        const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === dName.toLowerCase());
-        if (!d) return 0;
-        if (this.mapMetric === "delay") return d.delay;
-        if (this.mapMetric === "poverty") return d.poverty;
-        return d.priority;
-      };
-
-      const getColor = (val) => {
-        if (this.mapMetric === "priority") {
-          return val >= 75 ? "#991b1b" :
-                 val >= 60 ? "#dc2626" :
-                 val >= 45 ? "#ea580c" :
-                 val >= 30 ? "#eab308" :
-                             "#16a34a";
+    // Check if Leaflet is available and online
+    if (window.L && window.RWANDA_DISTRICTS_GEOJSON) {
+      try {
+        if (this.map) {
+          this.map.remove();
+          this.map = null;
         }
-        if (this.mapMetric === "delay") {
-          return val >= 13 ? "#991b1b" :
-                 val >= 10 ? "#dc2626" :
-                 val >= 8  ? "#ea580c" :
-                 val >= 6  ? "#eab308" :
-                             "#16a34a";
-        }
-        // poverty
-        return val >= 42 ? "#991b1b" :
-               val >= 35 ? "#dc2626" :
-               val >= 28 ? "#ea580c" :
-               val >= 20 ? "#eab308" :
-                           "#16a34a";
-      };
 
-      const styleFeature = (feature) => {
-        const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "";
-        const val = getMetricValue(name);
-        return {
-          fillColor: getColor(val),
-          weight: 1.5,
-          opacity: 1,
-          color: "#ffffff",
-          dashArray: "",
-          fillOpacity: 0.75
+        this.map = L.map("mapContainer", {
+          center: [-1.9403, 29.8739],
+          zoom: 9,
+          zoomControl: true
+        });
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 12,
+          minZoom: 8,
+          attribution: '© OpenStreetMap contributors | NISR'
+        }).addTo(this.map);
+
+        const getMetricValue = (dName) => {
+          const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === dName.toLowerCase());
+          if (!d) return 0;
+          if (this.mapMetric === "delay") return d.delay;
+          if (this.mapMetric === "poverty") return d.poverty;
+          return d.priority;
         };
-      };
 
-      this.mapLayer = L.geoJson(window.RWANDA_DISTRICTS_GEOJSON, {
-        style: styleFeature,
-        onEachFeature: (feature, layer) => {
-          const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "District";
-          const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
-          
-          if (d) {
-            layer.bindTooltip(`<b>${d.name}</b><br>Delay: ${d.delay.toFixed(1)}d · Poverty: ${d.poverty.toFixed(1)}% · Score: ${d.priority.toFixed(1)}`, {
-              sticky: true
+        const getColor = (val) => {
+          if (this.mapMetric === "priority") {
+            return val >= 75 ? "#991b1b" :
+                   val >= 60 ? "#dc2626" :
+                   val >= 45 ? "#ea580c" :
+                   val >= 30 ? "#eab308" :
+                               "#16a34a";
+          }
+          if (this.mapMetric === "delay") {
+            return val >= 13 ? "#991b1b" :
+                   val >= 10 ? "#dc2626" :
+                   val >= 8  ? "#ea580c" :
+                   val >= 6  ? "#eab308" :
+                               "#16a34a";
+          }
+          return val >= 42 ? "#991b1b" :
+                 val >= 35 ? "#dc2626" :
+                 val >= 28 ? "#ea580c" :
+                 val >= 20 ? "#eab308" :
+                             "#16a34a";
+        };
+
+        const styleFeature = (feature) => {
+          const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "";
+          const val = getMetricValue(name);
+          return {
+            fillColor: getColor(val),
+            weight: 1.5,
+            opacity: 1,
+            color: "#ffffff",
+            dashArray: "",
+            fillOpacity: 0.75
+          };
+        };
+
+        this.mapLayer = L.geoJson(window.RWANDA_DISTRICTS_GEOJSON, {
+          style: styleFeature,
+          onEachFeature: (feature, layer) => {
+            const name = feature.properties.shapeName || feature.properties.ADM2_EN || feature.properties.NAME_2 || "District";
+            const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
+            
+            if (d) {
+              layer.bindTooltip(`<b>${d.name}</b><br>Delay: ${d.delay.toFixed(1)}d · Poverty: ${d.poverty.toFixed(1)}% · Score: ${d.priority.toFixed(1)}`, {
+                sticky: true
+              });
+            }
+
+            layer.on({
+              mouseover: (e) => {
+                const l = e.target;
+                l.setStyle({ weight: 3, color: '#0e635e', fillOpacity: 0.9 });
+                l.bringToFront();
+              },
+              mouseout: (e) => {
+                this.mapLayer.resetStyle(e.target);
+              },
+              click: () => {
+                this.selectDistrict(name);
+              }
             });
           }
+        }).addTo(this.map);
 
-          layer.on({
-            mouseover: (e) => {
-              const l = e.target;
-              l.setStyle({ weight: 3, color: '#0e635e', fillOpacity: 0.9 });
-              l.bringToFront();
-            },
-            mouseout: (e) => {
-              this.mapLayer.resetStyle(e.target);
-            },
-            click: () => {
-              this.selectDistrict(name);
-            }
-          });
-        }
-      }).addTo(this.map);
-
-      this.map.fitBounds(this.mapLayer.getBounds());
+        this.map.fitBounds(this.mapLayer.getBounds());
+        return;
+      } catch (err) {
+        console.warn("Leaflet error, falling back to built-in SVG map:", err);
+      }
     }
+
+    // Built-in Offline SVG Fallback
+    this.renderOfflineSvgMap(mapEl);
+  }
+
+  renderOfflineSvgMap(container) {
+    if (!window.RWANDA_DISTRICTS_GEOJSON) return;
+    
+    // Bounds: Rwanda is roughly Longitude 28.8 to 30.9, Latitude -2.9 to -1.0
+    const minX = 28.8, maxX = 30.9, minY = -2.9, maxY = -1.0;
+    const width = 600, height = 450;
+    const scaleX = width / (maxX - minX);
+    const scaleY = height / (maxY - minY);
+
+    const project = (lng, lat) => {
+      const x = (lng - minX) * scaleX;
+      const y = height - (lat - minY) * scaleY;
+      return [x, y];
+    };
+
+    let paths = "";
+    window.RWANDA_DISTRICTS_GEOJSON.features.forEach(feat => {
+      const name = feat.properties.shapeName || "District";
+      const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
+      const val = d ? (this.mapMetric === 'delay' ? d.delay : this.mapMetric === 'poverty' ? d.poverty : d.priority) : 50;
+      
+      let col = "#16a34a";
+      if (this.mapMetric === 'priority') {
+        col = val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
+      } else if (this.mapMetric === 'delay') {
+        col = val >= 13 ? "#991b1b" : val >= 10 ? "#dc2626" : val >= 8 ? "#ea580c" : val >= 6 ? "#eab308" : "#16a34a";
+      } else {
+        col = val >= 42 ? "#991b1b" : val >= 35 ? "#dc2626" : val >= 28 ? "#ea580c" : val >= 20 ? "#eab308" : "#16a34a";
+      }
+
+      const geom = feat.geometry;
+      let dAttr = "";
+      const addPolygon = (rings) => {
+        rings.forEach(ring => {
+          ring.forEach((pt, i) => {
+            const [px, py] = project(pt[0], pt[1]);
+            dAttr += (i === 0 ? "M" : "L") + px.toFixed(1) + "," + py.toFixed(1);
+          });
+          dAttr += "Z";
+        });
+      };
+
+      if (geom.type === "Polygon") {
+        addPolygon(geom.coordinates);
+      } else if (geom.type === "MultiPolygon") {
+        geom.coordinates.forEach(poly => addPolygon(poly));
+      }
+
+      paths += `<path d="${dAttr}" fill="${col}" stroke="#ffffff" stroke-width="1" style="cursor:pointer; transition: opacity 0.2s;" 
+        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'" onclick="window.app.selectDistrict('${name}')">
+        <title>${name}: ${d ? (this.mapMetric === 'delay' ? d.delay + ' days' : this.mapMetric === 'poverty' ? d.poverty + '%' : d.priority + ' score') : ''}</title>
+      </path>`;
+    });
+
+    container.innerHTML = `
+      <div style="background: var(--card-bg); border-radius: var(--radius-md); padding: 12px; text-align: center;">
+        <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; max-height: 420px; display: block; margin: 0 auto;">
+          ${paths}
+        </svg>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+          Self-Contained Offline GIS Vector Map · Hover over or click any district to inspect details.
+        </div>
+      </div>
+    `;
   }
 }
 

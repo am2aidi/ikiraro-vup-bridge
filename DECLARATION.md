@@ -3,8 +3,9 @@
 **Competition:** NISR 2026 Big Data Hackathon  
 **Track:** Track 3: Open Innovation *(Alternate: Track 2: Financial Inclusion and Poverty Reduction)*  
 **Project Title:** Isoko Bridge (Ikiraro VUP Bridge)  
-**Lead Participant:** Zaidi (Reg. No: 223008014), Year 3, Information Systems, University of Rwanda (CST)  
-**Co-Participant:** ____________________ (Student ID / Reg. No: ____________, University of Rwanda)  
+**Lead Participant:** Zaidi (Final Year, Information Systems, University of Rwanda - CST)  
+**Co-Participant:** KAYUMBA TETA Aela Greta (Final Year, University of Rwanda - CST)  
+**Eligibility:** Both participants are registered final-year university students at UR-CST and Rwandan citizens.  
 **Date:** October 2026  
 
 ---
@@ -37,12 +38,12 @@ In compliance with the NISR Hackathon Guidelines concerning generative AI transp
 
 1. **Lead Participant:**  
    Name: Zaidi  
-   Registration Number: 223008014  
+   Programme: Final Year, Information Systems, University of Rwanda (UR-CST)  
    Signature: __________________________  
    Date: _______________________________  
 
 2. **Team Member 2:**  
-   Name: _______________________________  
-   Registration Number: ________________  
+   Name: KAYUMBA TETA Aela Greta  
+   Programme: Final Year, University of Rwanda (UR-CST)  
    Signature: __________________________  
    Date: _______________________________  
