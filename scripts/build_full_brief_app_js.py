@@ -1045,26 +1045,119 @@ class IsokoApp {
 
   renderHeaderNavActions() {
     const slot = document.getElementById("headerUserAuthSlot");
-    if (!slot) return;
+    const topNavPill = document.getElementById("topNavPill");
+    const railMid = document.getElementById("railMid");
 
-    if (this.state.user) {
-      slot.innerHTML = `
-        <div style="display:inline-flex; align-items:center; gap:8px; margin-left:6px;">
-          <span style="font-size:12.5px; color:var(--text-main);">
-            <span style="color:var(--text-muted);">${this.state.user}</span> · 
-            <b style="color:var(--primary);">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</b>
-          </span>
-          <button class="btn btn-sm btn-outline" style="padding:3px 10px; font-size:11px;" onclick="window.app.logout()">
-            ${this.state.lang === 'rw' ? 'Gusohoka' : this.state.lang === 'fr' ? 'Déconnexion' : 'Log out'}
+    const lang = this.state.lang || "en";
+    const logoutTxt = lang === 'rw' ? 'Gusohoka' : lang === 'fr' ? 'Déconnexion' : 'Log out';
+
+    // 1. Render Middle Nav Pill based on active role and view
+    if (topNavPill) {
+      if (this.state.user) {
+        const role = this.state.role || "Family";
+        const sub = this.state.activeSubView || "dashboard";
+        
+        let navItems = [];
+        if (role === "Planner") {
+          navItems = [
+            { id: "dashboard", label: "📊 Overview" },
+            { id: "creditdesk", label: "💳 Credit Desk" },
+            { id: "analysis", label: "🗺️ Delays & GIS" },
+            { id: "cases", label: "🛟 Disputes" },
+            { id: "reports", label: "📄 Reports" }
+          ];
+        } else if (role === "Admin") {
+          navItems = [
+            { id: "dashboard", label: "🏛️ Overview" },
+            { id: "creditdesk", label: "💳 Credit Desk" },
+            { id: "users", label: "👥 Users" },
+            { id: "cases", label: "🛟 Disputes" },
+            { id: "ledger", label: "📒 Ledger" }
+          ];
+        } else if (role === "Family") {
+          navItems = [
+            { id: "dashboard", label: "🥗 Food Basket" },
+            { id: "credit", label: "💳 Bridge Credit" },
+            { id: "orders", label: "📦 Orders" }
+          ];
+        } else if (role === "Farmer") {
+          navItems = [
+            { id: "dashboard", label: "🌾 Add Produce" },
+            { id: "orders", label: "🚚 Orders & Payouts" }
+          ];
+        } else {
+          navItems = [
+            { id: "dashboard", label: "🛒 Fresh Market" },
+            { id: "pool", label: "🏦 Pool Impact" }
+          ];
+        }
+
+        topNavPill.innerHTML = navItems.map(item => `
+          <button class="${sub === item.id ? 'on' : ''}" onclick="window.app.setNavTab('${item.id}')">
+            ${item.label}
           </button>
-        </div>
-      `;
+        `).join("");
+      } else {
+        topNavPill.innerHTML = `
+          <button class="${!this.state.pickRole ? 'on' : ''}" onclick="window.app.cancelPickRole()">👥 Roles</button>
+          <button onclick="document.getElementById('vupDateCard')?.scrollIntoView({behavior:'smooth'})">📅 VUP Schedule</button>
+          <button onclick="document.getElementById('nearbyStoreSection')?.scrollIntoView({behavior:'smooth'})">🛒 Fresh Produce</button>
+        `;
+      }
+    }
+
+    // 2. Render Rail Mid Icons
+    if (railMid) {
+      if (this.state.user) {
+        railMid.innerHTML = `
+          <button class="on" onclick="window.app.setNavTab('dashboard')" title="Dashboard" aria-label="Dashboard">📊<span>Overview</span></button>
+          <button onclick="window.app.openStatementModal()" title="Statements" aria-label="Statements">📄<span>Statement</span></button>
+          <button onclick="window.app.openAnalysisReportModal()" title="Analysis Report" aria-label="Analysis Report">📈<span>Report</span></button>
+        `;
+      } else {
+        railMid.innerHTML = `
+          <button class="on" onclick="window.app.goHome()" title="Home">🏠<span>Home</span></button>
+          <button onclick="window.app.openGeminiModal()" title="Gemini AI">✨<span>Gemini AI</span></button>
+        `;
+      }
+    }
+
+    // 3. Render User Auth Slot Pill
+    if (slot) {
+      if (this.state.user) {
+        const u = this.state.currentUser || {};
+        const initials = (u.name || this.state.user).slice(0, 2).toUpperCase();
+        slot.innerHTML = `
+          <div class="av">${initials}</div>
+          <div style="line-height:1.2;">
+            <b style="font-size:12px;">${u.name || this.state.user.split('@')[0]}</b>
+            <small style="color:var(--mute); font-size:9.5px;">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</small>
+          </div>
+          <button class="mini" onclick="window.app.logout()" style="margin-left:6px;" title="Log out">
+            ${logoutTxt}
+          </button>
+        `;
+      } else {
+        slot.innerHTML = `
+          <button class="btn btn-sm btn-primary" onclick="window.app.pickRole('member')" style="border-radius:999px;">
+            ${lang === 'rw' ? 'Injira' : lang === 'fr' ? 'Connexion' : 'Log In'}
+          </button>
+        `;
+      }
+    }
+  }
+
+  setNavTab(tabId) {
+    if (tabId === "analysis") {
+      this.state.activeSubView = "analysis";
+      this.render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      slot.innerHTML = `
-        <button class="btn btn-sm btn-primary" style="margin-left:6px; font-size:12px; font-weight:700;" onclick="window.app.pickRole('member')">
-          ${this.state.lang === 'rw' ? 'Injira' : this.state.lang === 'fr' ? 'Connexion' : 'Log In'}
-        </button>
-      `;
+      this.state.activeSubView = "dashboard";
+      this.render();
+      const el = document.getElementById(tabId + "Section") || document.getElementById(tabId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      else window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 
@@ -1081,35 +1174,45 @@ class IsokoApp {
       : "Choose your role. Then you will log in.";
 
     const rolesList = [
-      { code: "member", key: "Family", title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
-      { code: "planner", key: "Planner", title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
-      { code: "seller", key: "Farmer", title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
-      { code: "shopper", key: "Shopper", title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
-      { code: "admin", key: "Admin", title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
+      { code: "member", key: "Family", icon: "👨‍👩‍👧", title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
+      { code: "planner", key: "Planner", icon: "📊", title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
+      { code: "seller", key: "Farmer", icon: "🌾", title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
+      { code: "shopper", key: "Shopper", icon: "🛒", title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
+      { code: "admin", key: "Admin", icon: "🏛️", title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
     ];
 
     return `
-      <!-- First Page: Who are you? -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 28px; font-weight:800; margin-bottom: 4px;">${title}</h2>
-        <p class="sub" style="font-size: 15px; margin-bottom: 16px; color:var(--text-muted);">${sub}</p>
-
-        <!-- 5 Big Role Buttons matching Reference App -->
-        <div class="pick">
-          ${rolesList.map(r => {
-            const rTitle = lang === 'rw' ? r.kinyTitle : lang === 'fr' ? r.frTitle : r.title;
-            const rLine = lang === 'rw' ? r.kinyLine : lang === 'fr' ? r.frLine : r.line;
-            return `
-              <button class="pk" onclick="window.app.pickRole('${r.code}')">
-                <b>
-                  ${rTitle}
-                  <span class="pk-badge">${r.code === 'admin' ? 'Audit' : r.key}</span>
-                </b>
-                <span>${rLine}</span>
-              </button>
-            `;
-          }).join("")}
+      <!-- First Page Header -->
+      <div class="head">
+        <div>
+          <h1>${title}</h1>
+          <p class="sub">${sub}</p>
         </div>
+      </div>
+
+      <!-- 5 Big Role Cards in Vertix Grid -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        ${rolesList.map(r => {
+          const rTitle = lang === 'rw' ? r.kinyTitle : lang === 'fr' ? r.frTitle : r.title;
+          const rLine = lang === 'rw' ? r.kinyLine : lang === 'fr' ? r.frLine : r.line;
+          return `
+            <div class="card pk" style="cursor:pointer; display:flex; flex-direction:column; margin-bottom:0;" onclick="window.app.pickRole('${r.code}')">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <span class="ki" style="width:40px; height:40px; border-radius:50%; background:var(--accsoft); color:var(--acc); display:grid; place-items:center; font-size:18px;">
+                  ${r.icon}
+                </span>
+                <span class="tag ${r.code === 'admin' ? 'r' : 'g'}">${r.code === 'admin' ? 'Audit' : r.key}</span>
+              </div>
+              <b style="font-size:16px; font-weight:600; display:block; margin-bottom:4px;">${rTitle}</b>
+              <p style="color:var(--mute); font-size:12px; margin-bottom:14px; line-height:1.4;">${rLine}</p>
+              <div style="margin-top:auto;">
+                <button class="mini" style="width:100%; text-align:center;">
+                  ${lang === 'rw' ? 'Injira hano →' : lang === 'fr' ? 'Accéder →' : 'Enter as ' + r.title + ' →'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("")}
       </div>
 
       <!-- Rwanda VUP Payment Dates & Delay Calendar -->
@@ -1118,32 +1221,8 @@ class IsokoApp {
       <!-- Universal Location & Proximity Bar ("The Place You Are Right Now") -->
       ${this.renderNearbyBar()}
 
-      <!-- Fresh Harvest Catalog with 18 Productions, Real Photos & Distance -->
-      <div id="harvestMarketSection" style="margin-bottom: 28px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:8px;">
-          <div>
-            <h3 style="font-size: 20px; font-weight:800;">${this.t('catalogTitle')}</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">${this.t('catalogSub')}</p>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="pill pill-fair">${this.t('catalogCountBadge')}</span>
-            <span class="pill pill-neutral">${this.t('catalogMedianBadge')}</span>
-          </div>
-        </div>
-
-        <!-- Category Strip -->
-        <div class="category-strip" style="margin-bottom:14px;">
-          ${["All", "Pulses", "Staples", "Vegetables", "Grains", "Fruits"].map(cat => `
-            <button class="category-pill ${this.state.activeCategory === cat ? 'active' : ''}" 
-              onclick="window.app.state.activeCategory = '${cat}'; window.app.render();">
-              ${cat === 'All' ? '🧺' : cat === 'Pulses' ? '🫘' : cat === 'Staples' ? '🥔' : cat === 'Vegetables' ? '🥦' : cat === 'Grains' ? '🌽' : '🥑'}
-              ${this.t('cat' + cat)}
-            </button>
-          `).join("")}
-        </div>
-
-        ${this.renderGroceryCatalog('cash')}
-      </div>
+      <!-- Produce Harvest Catalog -->
+      ${this.renderGroceryCatalog()}
     `;
   }
 
@@ -1488,18 +1567,22 @@ class IsokoApp {
     }
 
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
-        <h2>${this.t('rolePlannerTitle')}</h2>
+      <!-- Vertix Dashboard Header -->
+      <div class="head">
+        <div>
+          <h1>Good morning, ${this.state.currentUser.name || 'Planner One'}</h1>
+          <p class="sub">District Evidence Cockpit · 30-District Household Microdata & Credit Liquidity Oversight</p>
+        </div>
         
-        <div style="display:flex; gap:8px; align-items:center;">
-          <!-- Time switch (1 week, 1 month, 1 year) -->
-          <div class="timeframe-bar">
-            <button class="${tf === 'week' ? 'active' : ''}" onclick="window.app.setTimeframe('week')" title="1 week timeframe">1 Week</button>
-            <button class="${tf === 'month' ? 'active' : ''}" onclick="window.app.setTimeframe('month')" title="1 month timeframe">1 Month</button>
-            <button class="${tf === 'year' ? 'active' : ''}" onclick="window.app.setTimeframe('year')" title="1 year timeframe">1 Year</button>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <!-- Vertix Segmented Timeframe Switcher -->
+          <div class="seg">
+            <button class="${tf === 'week' ? 'on' : ''}" onclick="window.app.setTimeframe('week')" title="1 week timeframe">1 Week</button>
+            <button class="${tf === 'month' ? 'on' : ''}" onclick="window.app.setTimeframe('month')" title="1 month timeframe">1 Month</button>
+            <button class="${tf === 'year' ? 'on' : ''}" onclick="window.app.setTimeframe('year')" title="1 year timeframe">1 Year</button>
           </div>
 
-          <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()" title="Generate analysis report">
+          <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()" title="Generate analysis report">
             📄 Make Analysis Report
           </button>
           <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
@@ -1508,120 +1591,152 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Icon-First Top Row: 5 Cards (Section 6.5) -->
-      <div class="stats">
-        <div class="stat" title="VUP families in the app. Tap to see the list">
-          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">👥 Families</div>
+      <!-- Vertix Prominent Mandatory Banner (Section 2 Hard Rule) -->
+      <div class="card" style="background:var(--accsoft); border:1px solid rgba(14,99,94,0.3); padding:12px 18px; border-radius:18px; display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+        <span style="font-size:22px; flex:none;">💡</span>
+        <div>
+          <b style="font-size:13px; color:var(--acc);">The NISR data shows patterns. It cannot show why a payment was late.</b>
+          <div style="font-size:11.5px; color:var(--mute);">Delays reflect administrative muster roll audits, SACCO clearance cycles, or local capacity. Investigate before acting.</div>
+        </div>
+      </div>
+
+      <!-- Vertix Top KPI Row: 5 Cards (Section 6.5) -->
+      <div class="kpis">
+        <div class="card kp" title="VUP families in the app. Tap to see the list">
+          <span class="ki">👥</span>
+          <small>VUP Families</small>
           <b>${Math.round(6 * tfMult)}</b>
-          <span>verified & pending</span>
+          <em>verified & pending</em>
         </div>
-        <div class="stat" title="Families whose VUP payment is late today">
-          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">⏰ Late payments</div>
-          <b style="color:var(--danger);">${Math.round(4 * tfMult)}</b>
-          <span>avg 9.2 days late</span>
+        <div class="card kp" title="Families whose VUP payment is late today">
+          <span class="ki" style="background:var(--bad-soft); color:var(--bad);">⏰</span>
+          <small>Late Payments</small>
+          <b style="color:var(--bad);">${Math.round(4 * tfMult)}</b>
+          <em>avg 9.2 days late</em>
         </div>
-        <div class="stat" title="Food credit families have used. Tap to open the credit desk">
-          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">💳 Credit</div>
-          <b style="color:var(--primary);">${Math.round(totalCredit * tfMult).toLocaleString()} RWF</b>
-          <span>${outstanding.toLocaleString()} RWF open</span>
+        <div class="card kp" title="Food credit families have used. Tap to open the credit desk">
+          <span class="ki">💳</span>
+          <small>Bridge Credit</small>
+          <b style="color:var(--acc);">${Math.round(totalCredit * tfMult).toLocaleString()} RWF</b>
+          <em>${outstanding.toLocaleString()} RWF open</em>
         </div>
-        <div class="stat" title="Money available to pay sellers while payments are late">
-          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">🏦 Pool</div>
+        <div class="card kp" title="Money available to pay sellers while payments are late">
+          <span class="ki" style="background:var(--ok-soft); color:var(--ok);">🏦</span>
+          <small>Revolving Pool</small>
           <b>${this.state.pool.balance.toLocaleString()} RWF</b>
-          <span>${Math.round(this.state.pool.balance / (5 * 261))} days food cover</span>
+          <em>${Math.round(this.state.pool.balance / (5 * 261))} days food cover</em>
         </div>
-        <div class="stat" title="Things that are not going well">
-          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">🚨 Alerts</div>
-          <b style="color:var(--danger);">3 alerts</b>
-          <span>active problems</span>
+        <div class="card kp" title="Things that are not going well">
+          <span class="ki" style="background:var(--bad-soft); color:var(--bad);">🚨</span>
+          <small>Active Alerts</small>
+          <b style="color:var(--bad);">3 Alerts</b>
+          <em>attention needed</em>
         </div>
       </div>
 
-      <!-- "What is not going well" Alerts Box (Section 7.3) -->
-      ${this.renderAlertsBox()}
-
-      <!-- Gemini AI Helper Card (Section 8: 4-part answers) -->
-      ${this.renderAiHelperCard()}
-
-      <!-- Member Approvals Queue (Section 5.1: Live Approval for Judges) -->
-      <div class="card" style="border-left: 4px solid var(--primary);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <!-- Vertix Interactive Rwandan Delay Bar Chart -->
+      <section class="card" style="margin-bottom:20px;">
+        <div class="ch">
           <div>
-            <h3 style="font-size:17px; font-weight:800;">✅ Member Approvals Queue (${pendingMembers.length} pending)</h3>
-            <div style="font-size:12px; color:var(--text-muted);">New VUP family verification requests awaiting planner review:</div>
+            <h3>Average VUP Disbursement Delay by Province</h3>
+            <p class="sub" style="margin-top:4px;">Empirical microdata from NISR household survey ($N = 3,399$ records · National average: 9.2 days)</p>
           </div>
-          <span class="pill pill-urgent">Live Judge Action</span>
+          <span class="tag y">52% Wait &gt; 7 Days</span>
         </div>
+        <div class="bars">
+          <button class="bc on" title="Southern Province: 10.7 days delay">
+            <span class="tip">10.7 days</span>
+            <i style="height: 67%;"></i>
+            <em>Southern (10.7d)</em>
+          </button>
+          <button class="bc on" title="Eastern Province: 10.7 days delay">
+            <span class="tip">10.7 days</span>
+            <i style="height: 67%;"></i>
+            <em>Eastern (10.7d)</em>
+          </button>
+          <button class="bc" title="Western Province: 9.4 days delay">
+            <span class="tip">9.4 days</span>
+            <i style="height: 58%;"></i>
+            <em>Western (9.4d)</em>
+          </button>
+          <button class="bc" title="City of Kigali: 8.3 days delay">
+            <span class="tip">8.3 days</span>
+            <i style="height: 52%;"></i>
+            <em>Kigali (8.3d)</em>
+          </button>
+          <button class="bc" title="Northern Province: 6.6 days delay">
+            <span class="tip">6.6 days</span>
+            <i style="height: 41%;"></i>
+            <em>Northern (6.6d)</em>
+          </button>
+        </div>
+      </section>
 
-        ${pendingMembers.length ? `
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Family Name</th><th>Email</th><th>District</th><th>Programme</th><th>Household</th><th>Actions</th></tr>
-              </thead>
-              <tbody>
-                ${pendingMembers.map(m => `
-                  <tr>
-                    <td><b>${m.name}</b></td>
-                    <td>${m.email}</td>
-                    <td>${m.district} (${m.sector || 'Sector'})</td>
-                    <td>${m.programme}</td>
-                    <td>${m.householdSize} people</td>
-                    <td>
-                      <div style="display:flex; gap:4px;">
-                        <button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.approveMemberRequest('${m.email}')">Approve</button>
-                        <button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:11px;" onclick="window.app.askMemberMoreInfo('${m.email}')">Ask Info</button>
-                        <button class="btn btn-sm btn-ghost" style="padding:2px 8px; font-size:11px; color:var(--danger);" onclick="window.app.rejectMemberRequest('${m.email}')">Reject</button>
-                      </div>
-                    </td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
+      <!-- Vertix Two-Column Layout -->
+      <div class="grid g2">
+        <div class="left">
+          <!-- The Credit Desk with 3 Queues -->
+          <div id="creditdeskSection">
+            ${this.renderCreditDesk()}
           </div>
-        ` : '<p class="small" style="color:var(--text-muted);">✓ All member verification requests approved.</p>'}
-      </div>
 
-      <!-- Credit Desk with 3 Queues (Section 5.3, 5.4, 5.5) -->
-      ${this.renderCreditDesk()}
+          <!-- Problem Cases Queue -->
+          <div id="casesSection">
+            ${this.renderCasesQueue()}
+          </div>
 
-      <!-- Problem Cases Queue (Section 16.3) -->
-      ${this.renderCasesQueue()}
-
-      <!-- Pool flow -->
-      <div class="card">
-        <h3>Pool flow</h3>
-        <p class="small">Gifts in: ${this.state.pool.totalGiftsIn.toLocaleString()} RWF · Paid to sellers: ${this.state.pool.totalPaidToFarmers.toLocaleString()} RWF · Repaid by VUP: ${this.state.pool.totalRepaidByVup.toLocaleString()} RWF</p>
-        <div style="display:flex; gap:8px; margin-top:10px;">
-          <button class="btn btn-primary btn-sm" onclick="window.app.simulateVupRepayment()">Simulate: VUP payments arrive</button>
-          <button class="btn btn-outline btn-sm" onclick="window.app.resetState()">Reset demo</button>
+          <!-- VUP Families Orders Table -->
+          <div class="card">
+            <div class="ch">
+              <h3>VUP Beneficiary Orders (${vupOrders.length})</h3>
+              <small>Only VUP families shown (Section 6.2)</small>
+            </div>
+            ${this.renderOrdersTable(vupOrders)}
+          </div>
         </div>
-      </div>
 
-      <!-- NISR Delay Table -->
-      <div class="card">
-        <h3>What NISR data says about late payments</h3>
-        <table>
-          <thead>
-            <tr><th>Programme</th><th>Average days late</th><th>Over 7 days</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Expanded Public Works</td><td style="color:var(--danger); font-weight:700;">11.0 days</td><td>63%</td></tr>
-            <tr><td>Classic Public Works</td><td>9.7 days</td><td>50%</td></tr>
-            <tr><td>Direct Support</td><td>8.3 days</td><td>51%</td></tr>
-            <tr><td>NSDS</td><td>7.7 days</td><td>42%</td></tr>
-          </tbody>
-        </table>
-        <p class="small" style="margin-top:8px;">The NISR data shows patterns. It cannot show why a payment was late. Slowest places: Southern and Eastern provinces.</p>
-      </div>
+        <div class="left">
+          <!-- "What is not going well" Alerts Box -->
+          ${this.renderAlertsBox()}
 
-      <!-- Planner shows ONLY VUP Families Orders -->
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3>VUP Family Orders (${vupOrders.length})</h3>
-          <span class="pill pill-fair">Filtered: Only VUP Families</span>
+          <!-- Gemini AI Explainer Card -->
+          ${this.renderAiHelperCard()}
+
+          <!-- Member Approvals Queue for Judges -->
+          <div class="card" style="border-left: 4px solid var(--acc);">
+            <div class="ch">
+              <div>
+                <h3 style="font-size:16px;">✅ Member Approvals Queue (${pendingMembers.length} pending)</h3>
+                <small>New VUP family verification requests</small>
+              </div>
+              <span class="tag y">Live Judge Action</span>
+            </div>
+
+            ${pendingMembers.length ? `
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Family</th><th>District</th><th>Household</th><th>Action</th></tr>
+                  </thead>
+                  <tbody>
+                    ${pendingMembers.map(m => `
+                      <tr>
+                        <td><b>${m.name}</b><br><small style="color:var(--mute);">${m.programme}</small></td>
+                        <td>${m.district}</td>
+                        <td>${m.householdSize} people</td>
+                        <td>
+                          <button class="btn btn-sm btn-primary" onclick="window.app.approveMember('${m.email}')">
+                            ✓ Approve
+                          </button>
+                        </td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<p class="small" style="color:var(--mute); text-align:center; padding:16px 0;">✓ All member applications verified</p>'}
+          </div>
         </div>
-        ${this.renderOrdersTable(vupOrders)}
       </div>
     `;
   }
@@ -1980,105 +2095,106 @@ class IsokoApp {
   // 17. GOVERNMENT WORKER (ADMIN) SCREEN (Sees Whole System & Demo Switch)
   // =========================================================================
   renderAdminView() {
-    const o = this.state.orders;
-    const totalSales = o.reduce((sum, x) => sum + x.total, 0);
-
     const allUsers = [];
-    for (const [rCode, uList] of Object.entries(this.state.users || {})) {
-      uList.forEach(u => allUsers.push({ ...u, roleCode: rCode }));
+    for (const [r, list] of Object.entries(this.state.users || {})) {
+      list.forEach(u => allUsers.push({ ...u, role: r.toUpperCase() }));
     }
 
+    const totalSales = this.state.orders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
+    const cases = this.state.cases || [];
+
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <h2>Government worker (Admin)</h2>
-        <div style="display:flex; gap:6px;">
-          <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()">📄 Executive Report</button>
-          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')">📥 Export All Data</button>
+      <!-- Vertix Admin Header -->
+      <div class="head">
+        <div>
+          <h1>System Administration & Audit</h1>
+          <p class="sub">Central audit cockpit · Revolving pool velocity & system-wide transparency</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()">
+            📄 Make Analysis Report
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')">
+            📥 Export System Audit
+          </button>
         </div>
       </div>
 
-      <p class="sub">Sees the whole system: all users, all orders, total sales, settings, and the audit log. Planners see only VUP families.</p>
-
-      <div class="stats">
-        <div class="stat"><b>${allUsers.length}</b><span>users (demo)</span></div>
-        <div class="stat"><b>${o.length}</b><span>orders</span></div>
-        <div class="stat"><b style="color:var(--primary);">${totalSales.toLocaleString()} RWF</b><span>total sales</span></div>
-        <div class="stat"><b>${this.state.pool.balance.toLocaleString()} RWF</b><span>pool balance</span></div>
+      <!-- Admin Demo Switch: 'Make the next payment fail' -->
+      <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div>
+          <b style="font-size:14.5px;">Demo Switch for Judges: 'Make the next payment fail'</b>
+          <div style="font-size:12px; color:var(--mute); margin-top:2px;">
+            When toggled ON, the next seller payout will simulate a Mobile Money float failure to test problem reporting and reversal flow.
+          </div>
+        </div>
+        <button class="sw ${this.state.adminSettings.makeNextPaymentFail ? 'on' : ''}" 
+          onclick="window.app.toggleMakeNextPaymentFail()" 
+          title="Toggle payment failure simulation" 
+          aria-label="Make next payment fail"></button>
       </div>
 
-      <!-- Demo Switch for Admins: 'Make the next payment fail' (Section 17.3 & 17.4) -->
-      <div class="card" style="background:var(--tint); border-left:4px solid var(--accent);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <div>
-            <b>Demo Switch for Admins: 'Make the next payment fail'</b>
-            <div style="font-size:12.5px; color:var(--text-muted);">
-              When toggled ON, the next seller payout will fail at the switch to test 'Report a problem' and the reversal flow from section 16.
+      <!-- Top Master KPIs -->
+      <div class="kpis">
+        <div class="card kp">
+          <span class="ki">👥</span>
+          <small>Total Users</small>
+          <b>${allUsers.length}</b>
+          <em>members, sellers, shoppers</em>
+        </div>
+        <div class="card kp">
+          <span class="ki" style="background:var(--ok-soft); color:var(--ok);">🛒</span>
+          <small>Total Sales</small>
+          <b style="color:var(--ok);">${totalSales.toLocaleString()} RWF</b>
+          <em>gross market volume</em>
+        </div>
+        <div class="card kp">
+          <span class="ki">🏦</span>
+          <small>Pool Balance</small>
+          <b>${this.state.pool.balance.toLocaleString()} RWF</b>
+          <em>liquidity available</em>
+        </div>
+        <div class="card kp">
+          <span class="ki" style="background:var(--bad-soft); color:var(--bad);">🛟</span>
+          <small>Problem Cases</small>
+          <b style="color:var(--bad);">${cases.length} Open</b>
+          <em>audit queue</em>
+        </div>
+      </div>
+
+      <!-- Two-column grid -->
+      <div class="grid g2">
+        <div class="left">
+          ${this.renderCreditDesk()}
+          ${this.renderCasesQueue()}
+          <div class="card">
+            <div class="ch">
+              <h3>All System Orders (${this.state.orders.length})</h3>
+            </div>
+            ${this.renderOrdersTable(this.state.orders)}
+          </div>
+        </div>
+        <div class="left">
+          <div class="card">
+            <div class="ch">
+              <h3>All Registered Users (${allUsers.length})</h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th></tr></thead>
+                <tbody>
+                  ${allUsers.map(u => `
+                    <tr>
+                      <td><b>${u.name}</b></td>
+                      <td><span class="tag">${u.role}</span></td>
+                      <td><small>${u.email}</small></td>
+                      <td><span class="tag ${u.status === 'pending' ? 'y' : 'g'}">${u.status}</span></td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
             </div>
           </div>
-          <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
-            <input type="checkbox" ${this.state.adminSettings.makeNextPaymentFail ? 'checked' : ''} 
-              onchange="window.app.state.adminSettings.makeNextPaymentFail = this.checked; window.app.saveState(); window.app.toast('Next payment failure demo switch: ' + (this.checked ? 'ENABLED' : 'DISABLED'), 'info');">
-            <span>Make next payment fail</span>
-          </label>
-        </div>
-      </div>
-
-      <!-- Credit Desk Master Overview -->
-      ${this.renderCreditDesk()}
-
-      <!-- Cases Queue -->
-      ${this.renderCasesQueue()}
-
-      <div class="card">
-        <h3>All users across system (${allUsers.length})</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Name</th><th>Role</th><th>Email</th><th>District</th><th>Status / Programme</th></tr>
-            </thead>
-            <tbody>
-              ${allUsers.map(u => `
-                <tr>
-                  <td><b>${u.name}</b></td>
-                  <td><span class="pill pill-fair">${u.role || u.roleCode}</span></td>
-                  <td><small>${u.email}</small></td>
-                  <td>${u.district || 'National'}</td>
-                  <td><small>${u.stateDesc || u.programme || u.sells || u.notes || ''}</small></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3>All orders across system (${o.length})</h3>
-          <button class="btn btn-sm btn-outline" onclick="window.app.exportDatabaseJson()">💾 Export Database JSON</button>
-        </div>
-        ${this.renderOrdersTable(o, true)}
-      </div>
-
-      <!-- Audit Log View (Section 5.1 & 16.3) -->
-      <div class="card">
-        <h3>Audit Log (Immutable Action Log)</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Who</th><th>Action</th><th>Target</th><th>Date/Time</th><th>Reason</th></tr>
-            </thead>
-            <tbody>
-              ${this.state.auditLog.map(a => `
-                <tr>
-                  <td><b>${a.who}</b></td>
-                  <td>${a.action}</td>
-                  <td>${a.target}</td>
-                  <td><small>${a.date}</small></td>
-                  <td><small>${a.reason}</small></td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
         </div>
       </div>
     `;

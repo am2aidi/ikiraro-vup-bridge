@@ -1,3 +1,850 @@
+/* =========================================================================
+   VERTIX DASHBOARD DESIGN SYSTEM FOR ISOKO BRIDGE (IKIRARO CYA VUP)
+   Ultra-modern glassmorphism, pill architecture, ambient mesh gradient,
+   and clean interactive micro-components based on Vertix Dashboard.
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #e9e8ea;
+  --shell: #f1f0f2;
+  --card: #ffffff;
+  --soft: #f3f2f4;
+  --ink: #141414;
+  --mute: #8b8b92;
+  --line: #ececef;
+  --pill: #ffffff;
+  --on: #141414;
+  --onink: #ffffff;
+  
+  --acc: #0e635e;        /* Rwandan Social Protection Teal */
+  --acc2: #094e4a;       /* Deep Forest Gradient */
+  --accsoft: #e3efec;    /* Soft Tint */
+  --ok: #22a85a;         /* Emerald Green */
+  --ok-soft: rgba(34, 168, 90, 0.12);
+  --bad: #e5484d;        /* Coral Danger */
+  --bad-soft: rgba(229, 72, 77, 0.12);
+  --warm: #e8a33d;       /* Amber Warning */
+  --warm-soft: rgba(232, 163, 61, 0.12);
+  --purple: #7e22ce;     /* Gemini AI Purple */
+  --purple-soft: rgba(126, 34, 206, 0.12);
+
+  --primary: var(--acc);
+  --primary-hover: var(--acc2);
+  --primary-light: var(--accsoft);
+  --card-bg: var(--card);
+  --card-border: var(--line);
+  --text-main: var(--ink);
+  --text-muted: var(--mute);
+  --success: var(--ok);
+  --danger: var(--bad);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #050506;
+    --shell: #0e0e10;
+    --card: #151518;
+    --soft: #1b1b1f;
+    --ink: #f4f4f5;
+    --mute: #7c7c85;
+    --line: #232327;
+    --pill: #16161a;
+    --on: #ffffff;
+    --onink: #111111;
+    --accsoft: #163638;
+    --ok: #3ecf7a;
+    --ok-soft: rgba(62, 207, 122, 0.16);
+    --bad: #ff6b6b;
+    --bad-soft: rgba(255, 107, 107, 0.16);
+    --warm: #f0b95a;
+    --warm-soft: rgba(240, 185, 90, 0.16);
+    --purple-soft: rgba(168, 85, 247, 0.2);
+    
+    --card-bg: var(--card);
+    --card-border: var(--line);
+    --text-main: var(--ink);
+    --text-muted: var(--mute);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #050506;
+  --shell: #0e0e10;
+  --card: #151518;
+  --soft: #1b1b1f;
+  --ink: #f4f4f5;
+  --mute: #7c7c85;
+  --line: #232327;
+  --pill: #16161a;
+  --on: #ffffff;
+  --onink: #111111;
+  --accsoft: #163638;
+  --ok: #3ecf7a;
+  --ok-soft: rgba(62, 207, 122, 0.16);
+  --bad: #ff6b6b;
+  --bad-soft: rgba(255, 107, 107, 0.16);
+  --warm: #f0b95a;
+  --warm-soft: rgba(240, 185, 90, 0.16);
+  --purple-soft: rgba(168, 85, 247, 0.2);
+
+  --card-bg: var(--card);
+  --card-border: var(--line);
+  --text-main: var(--ink);
+  --text-muted: var(--mute);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(60% 50% at 12% 8%, color-mix(in srgb, var(--acc) 30%, transparent), transparent 70%),
+              radial-gradient(55% 50% at 90% 90%, rgba(90, 120, 255, .20), transparent 70%),
+              radial-gradient(40% 40% at 80% 5%, rgba(255, 190, 120, .18), transparent 70%),
+              var(--bg);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.5;
+  padding: 16px;
+  transition: background .3s, color .3s;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================================
+   VERTIX SHELL & PILL NAVIGATION
+   ========================================================================= */
+.shell {
+  max-width: 1260px;
+  margin: 0 auto;
+  background: color-mix(in srgb, var(--shell) 62%, transparent);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  border-radius: 36px;
+  padding: 22px 26px 34px;
+  position: relative;
+  transition: background .3s;
+  border: 1px solid rgba(255,255,255,.5);
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.6);
+}
+:root[data-theme="dark"] .shell {
+  border-color: rgba(255,255,255,.08);
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  background: color-mix(in srgb, var(--card) 62%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 8px 24px -14px rgba(0,0,0,.15);
+  transition: background .3s, border-color .3s;
+}
+:root[data-theme="dark"] .pill {
+  border-color: rgba(255,255,255,.08);
+}
+
+.logo {
+  padding: 6px 18px 6px 6px;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.logo i {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font: 700 15px 'Inter', sans-serif;
+  font-style: normal;
+  box-shadow: 0 4px 12px rgba(14,99,94,.35);
+  flex: none;
+}
+
+.nav {
+  padding: 5px;
+  gap: 4px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+.nav button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  transition: .2s;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.nav button.on {
+  background: var(--on);
+  color: var(--onink);
+  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+.tools {
+  padding: 0 8px;
+  height: 48px;
+  gap: 6px;
+}
+.tools button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink);
+  border: 0;
+  cursor: pointer;
+  background: transparent;
+  transition: .2s;
+}
+.tools button:hover {
+  background: var(--soft);
+}
+
+.user {
+  padding: 6px 16px 6px 6px;
+  gap: 10px;
+  height: 48px;
+}
+.av {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--acc), #15803d);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.user b {
+  display: block;
+  font-weight: 600;
+  font-size: 12.5px;
+  line-height: 1.2;
+}
+.user small {
+  color: var(--mute);
+  font-size: 10px;
+}
+
+/* =========================================================================
+   BODY LAYOUT WITH VERTIX RAIL & MAIN
+   ========================================================================= */
+.body {
+  display: flex;
+  gap: 24px;
+  margin-top: 22px;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 48px;
+  flex: none;
+  min-height: 640px;
+  transition: width .3s cubic-bezier(.2,.8,.2,1);
+}
+.rail.wide {
+  width: 172px;
+}
+.rail .grp {
+  flex-direction: column;
+  padding: 6px;
+  gap: 6px;
+  border-radius: 999px;
+}
+.rail button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  transition: .2s;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+}
+.rail.wide button {
+  width: 100%;
+  border-radius: 999px;
+  justify-content: flex-start;
+  padding: 0 12px;
+  gap: 10px;
+}
+.rail button.on {
+  background: var(--on);
+  color: var(--onink);
+}
+.rail span {
+  display: none;
+}
+.rail.wide span {
+  display: inline;
+  font-size: 12px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.rail .mid {
+  margin-top: 80px;
+}
+.rail .low {
+  margin-top: auto;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* =========================================================================
+   HEADINGS, BUTTONS & CARDS
+   ========================================================================= */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+h1 {
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -.03em;
+  line-height: 1.15;
+}
+h2 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  margin-bottom: 6px;
+}
+h3 {
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+.sub {
+  color: var(--mute);
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.card {
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-radius: 24px;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 8px 24px -14px rgba(0,0,0,.18);
+  transition: background .3s, transform .2s, box-shadow .2s;
+  margin-bottom: 20px;
+}
+:root[data-theme="dark"] .card {
+  border-color: rgba(255,255,255,.08);
+}
+.ch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.ch h3 {
+  font-weight: 600;
+  font-size: 15.5px;
+}
+.ch small {
+  color: var(--mute);
+  font-size: 11px;
+}
+
+/* Buttons */
+.btn {
+  background: var(--on);
+  color: var(--onink);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 12.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  cursor: pointer;
+  transition: .2s;
+  text-decoration: none;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  color: #fff;
+}
+.btn-acc {
+  background: linear-gradient(135deg, var(--acc), var(--acc2));
+  color: #fff;
+}
+.btn-outline {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 11.5px;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--mute);
+  border: 0;
+}
+.mini {
+  background: var(--on);
+  color: var(--onink);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 11px;
+  font-weight: 500;
+  transition: .2s;
+  border: 0;
+  cursor: pointer;
+}
+.mini:hover {
+  background: var(--acc);
+  color: #fff;
+}
+
+/* =========================================================================
+   VERTIX KPIS & STATS
+   ========================================================================= */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.kp {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 0;
+}
+.kp .ki {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--accsoft);
+  color: var(--acc);
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+.kp small {
+  color: var(--mute);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.kp b {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.kp em {
+  font-style: normal;
+  color: var(--mute);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* Compatibility with stats/stat */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.stat {
+  background: color-mix(in srgb, var(--card) 68%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border-radius: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255,255,255,.45);
+  box-shadow: 0 8px 24px -14px rgba(0,0,0,.18);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat b {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.stat span {
+  color: var(--mute);
+  font-size: 11px;
+}
+
+/* =========================================================================
+   VERTIX BARS CHART (RWANDAN DELAY MATRIX)
+   ========================================================================= */
+.bars {
+  display: flex;
+  gap: 12px;
+  height: 210px;
+  align-items: flex-end;
+  padding-top: 28px;
+}
+.bc {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  padding-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.bc i {
+  display: block;
+  width: 100%;
+  max-width: 44px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(135deg, var(--line) 0 2px, transparent 2px 6px), var(--soft);
+  transition: height .6s cubic-bezier(.2,.8,.2,1), background .3s, transform .2s;
+}
+.bc:hover i {
+  transform: translateY(-3px);
+}
+.bc.on i {
+  background: linear-gradient(180deg, var(--acc), var(--acc2));
+}
+.bc em {
+  position: absolute;
+  bottom: 0;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--mute);
+  white-space: nowrap;
+}
+.tip {
+  position: absolute;
+  top: -26px;
+  background: var(--on);
+  color: var(--onink);
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: .2s;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.bc.on .tip, .bc:hover .tip {
+  opacity: 1;
+  transform: none;
+}
+
+/* =========================================================================
+   VERTIX TOGGLE SWITCH & SEGMENTED CONTROLS
+   ========================================================================= */
+.sw {
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  transition: .25s;
+  flex: none;
+  cursor: pointer;
+  border: 0;
+}
+.sw:after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: .25s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.sw.on {
+  background: var(--acc);
+}
+.sw.on:after {
+  left: 23px;
+}
+
+.seg {
+  display: inline-flex;
+  background: var(--soft);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 3px;
+}
+.seg button, .timeframe-bar button {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--mute);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: .2s;
+  white-space: nowrap;
+}
+.seg button.on, .seg button.active, .timeframe-bar button.active {
+  background: var(--card);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.timeframe-bar {
+  display: inline-flex;
+  background: var(--soft);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 3px;
+}
+
+/* =========================================================================
+   VERTIX HERO FEATURED CARD (GEMINI AI EXPLAINER)
+   ========================================================================= */
+.hero {
+  border-radius: 24px;
+  padding: 22px 24px;
+  color: #fff;
+  background: radial-gradient(circle at 75% 25%, rgba(255,255,255,.22), transparent 40%),
+              linear-gradient(135deg, #7e22ce, #581c87);
+  box-shadow: 0 14px 38px -12px rgba(126,34,206,.45);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.hero h3 {
+  font-size: 17px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.hero p {
+  color: rgba(255,255,255,.9);
+  line-height: 1.5;
+  font-size: 13px;
+}
+
+/* Tags & Badges */
+.tag {
+  background: var(--accsoft);
+  color: var(--acc);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.tag.g {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+.tag.r {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.tag.y {
+  background: var(--warm-soft);
+  color: var(--warm);
+}
+
+/* =========================================================================
+   VERTIX TWO-COLUMN GRID & QUEUE CARDS
+   ========================================================================= */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.g2 {
+  grid-template-columns: 1.45fr 1fr;
+}
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
+}
+.queue-card {
+  background: var(--soft);
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.queue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.queue-badge {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.queue-item {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 6px rgba(0,0,0,.04);
+}
+
+/* Table Wrappers */
+.table-wrap {
+  overflow-x: auto;
+  margin: 10px 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+th {
+  color: var(--mute);
+  font-weight: 600;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+/* Vertix Toasts */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--on);
+  color: var(--onink);
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25);
+  transition: opacity .3s, transform .3s;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .grid, .g2 {
+    grid-template-columns: 1fr;
+  }
+  .rail {
+    display: none;
+  }
+  .shell {
+    padding: 16px;
+    border-radius: 28px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  .kpis, .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 520px) {
+  .kpis, .stats {
+    grid-template-columns: 1fr;
+  }
+  .top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+
 /* Isoko Bridge - Premium Modern Grocery & Social Fintech Stylesheet */
 :root {
   --primary: #0e635e;

@@ -15,55 +15,86 @@
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
-  <header class="header-top">
-    <div class="container">
-      <div class="topbar-content">
-        <!-- Logo and Brand -->
-        <a href="#" class="brand-section" onclick="window.app.goHome(); return false;">
-          <div class="brand-logo">IB</div>
-          <div class="brand-name">
-            <span>Isoko Bridge</span>
-            <small>Ikiraro cya VUP · NISR 2026</small>
-          </div>
-        </a>
-
-        <!-- Live Revolving Pool Ticker -->
-        <div class="pool-ticker">
-          <span class="dot-pulse"></span>
-          <span>Social Bridge Pool:</span>
-          <b id="poolTickerAmount">25,000 RWF</b>
-        </div>
-
-        <!-- Header Actions: Language, Theme, Auth, Demo Logins -->
-                <!-- Header Actions: Trilingual Switcher (EN, RW, FR), Gemini AI, Theme -->
-        <div class="header-actions" id="headerNavActions">
-          <div style="display:inline-flex; align-items:center; gap:2px; background:var(--card-bg); padding:2px; border-radius:20px; border:1px solid var(--card-border);">
-            <button class="btn btn-ghost btn-sm" id="langBtnEn" onclick="window.app.setLanguage('en')" style="padding:3px 8px; font-size:11px; font-weight:700; border-radius:14px;">🇬🇧 EN</button>
-            <button class="btn btn-ghost btn-sm" id="langBtnRw" onclick="window.app.setLanguage('rw')" style="padding:3px 8px; font-size:11px; font-weight:700; border-radius:14px;">🇷🇼 RW</button>
-            <button class="btn btn-ghost btn-sm" id="langBtnFr" onclick="window.app.setLanguage('fr')" style="padding:3px 8px; font-size:11px; font-weight:700; border-radius:14px;">🇫🇷 FR</button>
-          </div>
-          <button class="btn btn-outline btn-sm" onclick="window.app.openGeminiModal()" title="Gemini AI Language Translator & Assistant" style="border-color:#7e22ce; color:#7e22ce; font-weight:700;">
-            ✨ Gemini AI
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="window.app.toggleTheme()" title="Toggle Dark/Light Mode">
-            🌓 Mode
-          </button>
-          <div id="headerUserAuthSlot" style="display:inline-flex; align-items:center;"></div>
-        </div>
+  <!-- Master Vertix Shell Container -->
+  <div class="shell">
+    <!-- Mandatory Hackathon Hard Rule Banners (Section 2) -->
+    <div class="vertix-banner-bar">
+      <div class="vertix-banner-pill warn" title="Hard Rule 1: Prototype with fake money">
+        <span class="v-badge">DEMO</span>
+        <b>Prototype. Fake money.</b>
+        <span>All transactions, credit, and pool balances are simulated for the NISR 2026 Big Data Hackathon.</span>
+      </div>
+      <div class="vertix-banner-pill info" title="Hard Rule 2: Patterns, not reasons">
+        <span class="v-badge">NISR</span>
+        <b>The NISR data shows patterns. It cannot show why a payment was late.</b>
+        <span>Investigate administrative and banking factors before taking action.</span>
       </div>
     </div>
-  </header>
 
-  <!-- Main Dynamic View Container -->
-  <main class="container" style="flex: 1; padding: 16px 16px 40px;">
-    <div id="appView">
-      <!-- Injected dynamically: Opening Landing Page OR Specific Role Dashboard -->
+    <!-- Vertix Top Navigation Pill Bar -->
+    <div class="top" style="margin-top: 10px;">
+      <!-- Brand & Pool Ticker Pill -->
+      <div class="pill logo" onclick="window.app.goHome()" title="Isoko Bridge Home">
+        <i>IB</i>
+        <div style="display:flex; flex-direction:column; line-height:1.2;">
+          <span style="font-weight:700; font-size:14.5px; letter-spacing:-0.02em;">Isoko Bridge</span>
+          <small style="color:var(--mute); font-size:10px;">Ikiraro cya VUP · NISR 2026</small>
+        </div>
+        <span class="tag g" style="margin-left:6px;" id="poolTickerLabel">
+          <span class="dot-pulse" style="width:6px; height:6px; border-radius:50%; background:var(--ok); display:inline-block;"></span>
+          Pool: <b id="poolTickerAmount">25,000 RWF</b>
+        </span>
+      </div>
+
+      <!-- Center Pill Navigation -->
+      <div class="pill nav" id="topNavPill"></div>
+
+      <!-- Right Tools & User Auth Pill -->
+      <div class="pill right" style="background:none; border:0; box-shadow:none; gap:8px;">
+        <div class="pill tools" id="headerNavActions">
+          <div class="seg" style="margin:0; padding:2px;">
+            <button id="langBtnEn" onclick="window.app.setLanguage('en')">🇬🇧 EN</button>
+            <button id="langBtnRw" onclick="window.app.setLanguage('rw')">🇷🇼 RW</button>
+            <button id="langBtnFr" onclick="window.app.setLanguage('fr')">🇫🇷 FR</button>
+          </div>
+          <button class="btn btn-sm" onclick="window.app.openGeminiModal()" title="Gemini AI Language Translator & Assistant" style="background:rgba(126,34,206,.12); color:#7e22ce; font-weight:700; border-radius:999px;">
+            ✨ Gemini AI
+          </button>
+          <button class="btn btn-sm" onclick="window.app.toggleTheme()" title="Toggle Dark/Light Mode" style="border-radius:999px;">
+            🌓 Mode
+          </button>
+        </div>
+        <div class="pill user" id="headerUserAuthSlot"></div>
+      </div>
     </div>
-  </main>
+
+    <!-- Vertix Body: Left Rail + Main Dynamic View -->
+    <div class="body">
+      <aside class="rail" id="appRail">
+        <div class="pill grp">
+          <button id="railSun" onclick="window.app.setTheme('light')" aria-label="Light mode" title="Light mode">☀️</button>
+          <button id="railMoon" onclick="window.app.setTheme('dark')" aria-label="Dark mode" title="Dark mode">🌙</button>
+        </div>
+        <div class="pill grp mid" id="railMid">
+          <!-- Dynamic quick section jumps based on active role -->
+        </div>
+        <div class="pill grp low">
+          <button id="railRw" onclick="document.getElementById('appRail').classList.toggle('wide')" aria-label="Expand sidebar" title="Expand sidebar">⇄</button>
+          <button onclick="window.app.openGeminiModal()" aria-label="Gemini AI" title="Gemini AI">✨</button>
+          <button onclick="window.app.logout()" aria-label="Log out" title="Log out">🚪</button>
+        </div>
+      </aside>
+
+      <main class="main" id="appView">
+        <!-- Injected dynamically: Opening Landing Page OR Specific Role Dashboard -->
+      </main>
+    </div>
+  </div>
 
     <!-- 1. USER SLIDING AUTH MODAL (media_1792662744651.html) -->
   <div id="authModal" class="auth-overlay-backdrop">
