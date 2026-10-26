@@ -1390,12 +1390,12 @@ class IsokoApp {
       <div class="card" style="background:linear-gradient(135deg, rgba(22,163,74,0.12), rgba(14,99,94,0.18)); border:1px solid rgba(22,163,74,0.25); border-radius:24px; padding:18px 22px; margin-bottom:18px; position:relative; overflow:hidden;">
         <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
           <div style="flex:1;">
-            <span class="tag g" style="margin-bottom:6px;">Co-op Fresh Harvest</span>
+            <span class="tag g" style="margin-bottom:6px;">Fresh food from local sellers</span>
             <h2 style="font-size:22px; font-weight:800; line-height:1.15; margin:4px 0 6px; color:var(--ink);">
-              20% Below Market Prices
+              Good food, closer to home
             </h2>
             <p style="font-size:12px; color:var(--mute); margin-bottom:12px; line-height:1.4;">
-              Zero middlemen. Direct farm-to-table cooperative produce with NISR microdata price protection.
+              Browse local produce, compare prices, and choose what works for your family.
             </p>
             <button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')">
               Enter as VUP Member →
@@ -1419,8 +1419,8 @@ class IsokoApp {
       <!-- @uxui_faran Top Farmer Cooperatives Strip -->
       <div style="margin-bottom:18px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <b style="font-size:14px; font-weight:700;">Top Farmer Cooperatives</b>
-          <small style="color:var(--primary); font-weight:600; cursor:pointer;" onclick="window.app.setProximityFilter('all')">View all</small>
+          <b style="font-size:14px; font-weight:700;">Seller examples</b>
+          <small style="color:var(--mute);">Sample listings</small>
         </div>
         <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none;">
           ${[
@@ -1441,8 +1441,8 @@ class IsokoApp {
 
       <!-- @uxui_faran 2-Column Produce Section Header -->
       <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
-        <h3 style="font-size:16px; font-weight:800;">Top Produce Items</h3>
-        <small style="color:var(--mute); font-size:11.5px;">18 verified cooperative listings</small>
+        <h3 style="font-size:16px; font-weight:800;">Food near you</h3>
+        <small style="color:var(--mute); font-size:11.5px;">Prices shown in RWF</small>
       </div>
 
       <!-- Produce Grid -->
@@ -1452,11 +1452,11 @@ class IsokoApp {
 
   renderPublicRolesView() {
     const rolesList = [
-      { code: "member", key: "Family", icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: "VUP Member", line: "I receive VUP support and need food bridge credit during disbursement delays." },
-      { code: "planner", key: "Planner", icon: '<svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', title: "Sector Planner", line: "I oversee 30-district microdata, manage delay patterns, and approve credit liquidity." },
-      { code: "seller", key: "Farmer", icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>', title: "Cooperative Farmer (Seller)", line: "I supply fresh harvest produce and receive instant Mobile Money float payouts." },
-      { code: "shopper", key: "Shopper", icon: '<svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', title: "Ethical Shopper", line: "I buy fresh food for my household and support the 2% revolving community bridge pool." },
-      { code: "admin", key: "Admin", icon: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: "Government Auditor", line: "I audit system solvency, reconciliation records, and test payment resilience." }
+      { code: "member", key: "Family", icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
+      { code: "planner", key: "Planner", icon: '<svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
+      { code: "seller", key: "Farmer", icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
+      { code: "shopper", key: "Shopper", icon: '<svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', title: "Ethical Shopper", line: "I buy food for my household." },
+      { code: "admin", key: "Admin", icon: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
     ];
 
     return `
@@ -1905,7 +1905,7 @@ class IsokoApp {
       <div class="head">
         <div>
           <h1>Good morning, ${this.state.currentUser.name || 'Planner One'}</h1>
-          <p class="sub">District Evidence Cockpit · 30-District Household Microdata & Credit Liquidity Oversight</p>
+          <p class="sub">A clear view of payments, food credit, and open cases.</p>
         </div>
         
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
@@ -1916,10 +1916,10 @@ class IsokoApp {
           </div>
 
           <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('nisr_facts')" title="View official NISR document">
-            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> NISR Report & PDF
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> NISR source
           </button>
           <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export Data
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download activity
           </button>
         </div>
       </div>
@@ -1928,8 +1928,8 @@ class IsokoApp {
       <div class="card" style="background:var(--accsoft); border:1px solid rgba(14,99,94,0.3); padding:12px 18px; border-radius:18px; display:flex; align-items:center; gap:12px; margin-bottom:18px;">
         <span style="font-size:20px; flex:none;">💡</span>
         <div>
-          <b style="font-size:13px; color:var(--acc);">The NISR data shows patterns. It cannot show why a payment was late.</b>
-          <div style="font-size:11.5px; color:var(--mute);">Delays reflect administrative muster roll audits, SACCO clearance cycles, or local capacity. Investigate before acting.</div>
+          <b style="font-size:13px; color:var(--acc);">Survey results are not live payment records.</b>
+          <div style="font-size:11.5px; color:var(--mute);">Survey results show a pattern. They do not explain why one payment was late. Check a case before taking action.</div>
         </div>
       </div>
 
@@ -1939,7 +1939,7 @@ class IsokoApp {
           <span class="ki"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M17 4.5a3.5 3.5 0 0 1 0 7M22 20c0-3-2-5-5-5.5"/></svg></span>
           <small>VUP Families</small>
           <b>${Math.round(6 * tfMult)}</b>
-          <em>verified households</em>
+          <em>sample dashboard count</em>
         </div>
         <div class="card kp" title="Families whose VUP payment is late today">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
@@ -1972,9 +1972,9 @@ class IsokoApp {
         <div class="ch">
           <div>
             <h3>Average VUP Disbursement Delay by Province</h3>
-            <p class="sub" style="margin-top:4px;">Empirical microdata from NISR household survey ($N = 3,399$ records · National average: 9.2 days)</p>
+            <p class="sub" style="margin-top:4px;">NISR household survey · average reported wait: 9.2 days</p>
           </div>
-          <span class="tag y">52% Wait &gt; 7 Days</span>
+            <span class="tag y">52% waited over 7 days</span>
         </div>
         <div class="bars" role="list" aria-label="Average payment delay by province">
           ${NISR_DATA.provinces.map((p, index) => `<button class="bc ${index < 2 ? 'on' : ''}" title="${p.name}: ${p.delay.toFixed(1)} days; ${p.latePct}% over 7 days; ${p.records} records" aria-label="${p.name}: ${p.delay.toFixed(1)} days average delay, ${p.latePct}% over 7 days, ${p.records} survey records">
@@ -2035,7 +2035,7 @@ class IsokoApp {
       <div class="head">
         <div>
           <h1>Credit Desk Liquidity & Queues</h1>
-          <p class="sub">Three operational queues for VUP household credit verification, seller Mobile Money payouts, and SACCO loan recovery.</p>
+          <p class="sub">Review family credit requests, seller payments, and repayments.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
           ← Back to Overview
@@ -2583,7 +2583,7 @@ class IsokoApp {
       <div class="head">
         <div>
           <h1>System Administration & Audit</h1>
-          <p class="sub">Central audit cockpit · Revolving pool velocity & system-wide transparency</p>
+          <p class="sub">Review users, payments, cases, and reports in one place.</p>
         </div>
         <div style="display:flex; gap:8px;">
           <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()">
@@ -2642,7 +2642,7 @@ class IsokoApp {
           <div>
             <span class="tag g">NISR EICV7 · 2023–24</span>
             <h3 style="margin:8px 0 4px;">National payment-delay analysis</h3>
-            <p class="sub">Survey baseline: 9.2 days average delay; 52% waited more than 7 days. Current project estimates are provisional pending final weighting.</p>
+            <p class="sub">Early survey estimates: an average wait of 9.2 days; 52% waited over 7 days. These numbers may change after final checks.</p>
           </div>
           <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('analysis')">Open NISR Analysis →</button>
         </div>
@@ -2802,34 +2802,34 @@ class IsokoApp {
     const groupComparisons = Object.entries(NISR_DATA.groups || {}).flatMap(([group, rows]) => rows.map(row => ({ group, ...row })));
     return `
       <div class="head nisr-analysis-head">
-        <div><h1>NISR payment-delay analysis</h1><p class="sub">Plain-language findings from the EICV7 VUP household survey, 2023–24.</p></div>
+        <div><h1>NISR payment-delay analysis</h1><p class="sub">What the 2023–24 household survey says about VUP payment waits.</p></div>
         <div class="nisr-export-actions">
           <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()">Print / Save report as PDF</button>
           <button class="btn btn-sm btn-outline" onclick="window.app.downloadAnalysisCsv()">Download analysis CSV</button>
         </div>
       </div>
 
-      <div class="card nisr-truth-note"><b>How to read this:</b> NISR survey figures are a fixed 2023–24 baseline and do not change with the date filter below. Date filters apply only to simulated prototype transactions. The NISR data shows patterns; it cannot explain why an individual payment was late. The build brief marks the available summary values as early, unweighted estimates; treat them as provisional until the final weighted analysis is confirmed. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">Open the NISR EICV7 catalogue entry</a>.</div>
+      <div class="card nisr-truth-note"><b>Before you read:</b> These NISR survey numbers are early estimates. They may change after the final checks. The date filter below changes demo orders only; it does not change the 2023–24 survey results. Survey results show patterns, not the reason one person's payment was late. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">View the NISR survey source</a>.</div>
 
       <div class="nisr-kpis">
         <article class="card"><small>Average delay</small><strong>${overall.averageDelayDays.toFixed(1)} days</strong><span>Across ${overall.totalBeneficiaries.toLocaleString()} VUP beneficiary records</span></article>
         <article class="card"><small>Waited more than 7 days</small><strong>${overall.pctOver7DaysLate}%</strong><span>About 1 in 2 surveyed beneficiaries</span></article>
-        <article class="card"><small>Longest programme–province average</small><strong>14.6 days</strong><span>Expanded Public Works · Southern Province · n = 140</span></article>
-        <article class="card"><small>Districts covered</small><strong>${NISR_DATA.districts.length}</strong><span>National survey summaries, not live payment tracking</span></article>
+        <article class="card"><small>Longest average in this summary</small><strong>14.6 days</strong><span>Expanded Public Works · Southern Province · 140 records</span></article>
+        <article class="card"><small>Districts in the summary</small><strong>${NISR_DATA.districts.length}</strong><span>Survey results, not live payment tracking</span></article>
       </div>
 
       <section class="card nisr-explainer">
         <h3>What the findings mean</h3>
         <ul>
           <li>The national average is <b>${overall.averageDelayDays.toFixed(1)} days</b>, and <b>${overall.pctOver7DaysLate}%</b> of surveyed beneficiaries reported waits longer than a week.</li>
-          <li>Delays differ across VUP programmes. Expanded Public Works has the highest programme average in these summaries (${programmes[0].delay.toFixed(1)} days).</li>
-          <li>The largest listed hotspot is Expanded Public Works in Southern Province: <b>14.6 days</b> on average; <b>79%</b> waited over 7 days (n = 140).</li>
-          <li>These are group patterns. They do not identify a cause or establish the status of any household's current payment.</li>
+          <li>Average waits differ by VUP programme. Expanded Public Works has the longest average in this summary (${programmes[0].delay.toFixed(1)} days).</li>
+          <li>The longest listed wait is in Expanded Public Works in Southern Province: <b>14.6 days</b> on average. <b>79%</b> waited over 7 days (140 records).</li>
+          <li>These results do not explain the cause or show whether a family's current payment has arrived.</li>
         </ul>
       </section>
 
       <section class="card nisr-programmes">
-        <div class="ch"><div><h3>Average delay by VUP programme</h3><p class="sub">Each bar starts at zero; the table keeps exact values and sample counts visible.</p></div></div>
+        <div class="ch"><div><h3>Average wait by VUP programme</h3><p class="sub">Bars show the average wait. The table shows the number of survey records.</p></div></div>
         <div class="nisr-bar-list" role="list">
           ${programmes.map(p => `<div class="nisr-bar-row" role="listitem"><span>${p.name}</span><div class="nisr-bar-track" aria-label="${p.delay} days average delay"><i style="width:${Math.max(4, (p.delay / maxDelay) * 100)}%"></i></div><b>${p.delay.toFixed(1)} days</b><small>${p.latePct}% over 7 days · n=${p.records.toLocaleString()}</small></div>`).join("")}
         </div>
@@ -2839,18 +2839,18 @@ class IsokoApp {
       <section class="card nisr-comparison">
         <div class="ch"><div><h3>Province comparison</h3><p class="sub">Averages and late shares from the survey summaries.</p></div></div>
         <div class="table-wrap"><table><thead><tr><th>Province</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${NISR_DATA.provinces.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td><td>${p.records < 100 ? 'Small sample; interpret cautiously' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
-        <p class="sub" style="margin-top:10px;">Reliability guide: 100+ records is more stable; 25–99 needs caution; fewer than 25 should be suppressed or pooled.</p>
+        <p class="sub" style="margin-top:10px;">Small groups are less certain. Read results from fewer than 100 records with care; results under 25 records are hidden.</p>
       </section>
 
       <section class="card nisr-comparison">
-        <div class="ch"><div><h3>Districts with the longest reported delays</h3><p class="sub">Ranked by average delay in the project summary; small samples can make estimates less stable.</p></div></div>
+        <div class="ch"><div><h3>Districts with the longest reported waits</h3><p class="sub">Ranked by average wait. Small groups can make results less certain.</p></div></div>
         <div class="table-wrap"><table><thead><tr><th>District</th><th>Province</th><th>Average delay</th><th>Records</th><th>Reliability</th></tr></thead><tbody>${districtHotspots.map(d => `<tr><td>${d.name}</td><td>${d.province}</td><td>${d.records < 25 ? 'Suppressed' : `${d.delay.toFixed(1)} days`}</td><td>${d.records < 25 ? '—' : d.records}</td><td>${d.records < 25 ? 'Suppressed (<25)' : d.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
       </section>
 
       <section class="card nisr-comparison">
         <div class="ch"><div><h3>Differences between surveyed groups</h3><p class="sub">Descriptive comparisons across payment method, poverty group, location, sex, and age.</p></div></div>
         <div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${groupComparisons.map(row => `<tr><td>${row.group}</td><td>${row.name}</td><td>${row.records < 25 ? 'Suppressed' : `${row.delay.toFixed(1)} days`}</td><td>${row.records < 25 ? '—' : `${row.latePct}%`}</td><td>${row.records < 25 ? '—' : row.records.toLocaleString()}</td><td>${row.records < 25 ? 'Suppressed (<25)' : row.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
-        <p class="sub" style="margin-top:10px;">Group differences show association, not cause. Poverty status is measured after support and does not decide who should receive help.</p>
+        <p class="sub" style="margin-top:10px;">Differences between groups do not prove why waits differ. Poverty status is measured after support and must not be used alone to decide who gets help.</p>
       </section>
 
       <section class="card nisr-date-panel">
@@ -2864,7 +2864,7 @@ class IsokoApp {
         </div>
         <div class="nisr-kpis nisr-activity-kpis">
           <article class="card"><small>Orders in period</small><strong>${transactions.length}</strong><span>Simulated prototype records</span></article>
-          <article class="card"><small>Order value</small><strong>${transactions.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF</strong><span>Fake money · not a real transfer</span></article>
+          <article class="card"><small>Order value</small><strong>${transactions.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF</strong><span>Demo only · no real payment</span></article>
           <article class="card"><small>Credit orders</small><strong>${credit.length}</strong><span>${credit.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF simulated credit</span></article>
         </div>
         <div class="nisr-export-actions" style="margin:12px 0;">
