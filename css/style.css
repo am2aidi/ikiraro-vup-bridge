@@ -3609,3 +3609,66 @@ svg * {
   #analysisReportModal th, #analysisReportModal td { border: 1px solid #bbb !important; color: #111 !important; padding: 5px !important; }
   #analysisReportModal h2, #analysisReportModal h3 { color: #111 !important; }
 }
+
+/* Clearer navigation and calmer glass panels for the Planner and Admin views. */
+.top {
+  display: grid;
+  grid-template-columns: minmax(250px, auto) minmax(0, 1fr);
+  grid-template-areas: "brand tools" "nav nav";
+  gap: 10px 16px;
+  align-items: center;
+}
+.top > .logo { grid-area: brand; min-width: 0; }
+.top > .nav {
+  grid-area: nav;
+  width: 100%;
+  justify-content: flex-start;
+  scrollbar-width: none;
+  background: color-mix(in srgb, var(--card) 55%, transparent);
+}
+.top > .nav::-webkit-scrollbar { display: none; }
+.top > .right {
+  grid-area: tools;
+  justify-self: end;
+  min-width: 0;
+  padding: 0;
+}
+.top .tools, .top .user { min-width: 0; }
+.head { align-items: center; }
+.head > div:first-child { min-width: min(100%, 320px); }
+.head .sub { max-width: 62ch; line-height: 1.55; }
+.card, .nisr-kpis > article, .kp, .grocery-card {
+  border-color: color-mix(in srgb, var(--line) 70%, rgba(255,255,255,.8));
+  box-shadow: 0 8px 28px -18px rgba(16, 50, 39, .28), inset 0 1px 0 rgba(255,255,255,.55);
+}
+.kp { min-width: 0; }
+.kp b { overflow-wrap: anywhere; }
+.nisr-truth-note { border-radius: 16px; }
+.nisr-date-panel .table-wrap { border-radius: 16px; }
+
+@media (max-width: 1100px) {
+  .top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "nav" "tools"; }
+  .top > .right { justify-self: stretch; width: 100%; }
+  .top > .right > .pill { width: 100%; justify-content: space-between; }
+  .top .user { flex: 0 1 auto; }
+}
+@media (max-width: 640px) {
+  .top { gap: 8px; }
+  .top > .logo { width: 100%; padding: 6px 8px 6px 4px; }
+  .top > .logo .tag { margin-left: auto !important; }
+  .top > .nav { gap: 2px; padding: 4px; }
+  .top > .nav button { padding: 8px 11px; font-size: 12px; }
+  .top > .right > .pill { align-items: stretch; flex-wrap: wrap; gap: 6px !important; }
+  .top .tools { flex: 1 1 100%; justify-content: space-around; height: auto; min-height: 42px; padding: 2px 4px; }
+  .top .tools button { padding: 6px 8px; }
+  .top .user { flex: 1 1 100%; justify-content: flex-start; }
+  .body { margin-top: 16px; }
+  .head { gap: 12px; }
+  .head h1 { font-size: clamp(24px, 7vw, 31px); }
+  .nisr-export-actions .btn { flex: 1 1 auto; }
+  .card { padding: 16px; border-radius: 20px; }
+  .nisr-period-controls label { min-width: min(100%, 140px); flex: 1 1 140px; }
+  .vm-grocery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .grocery-card { padding: 10px; border-radius: 18px; }
+  .grocery-img-box { height: clamp(105px, 32vw, 150px); }
+}
