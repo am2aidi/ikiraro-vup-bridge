@@ -1510,7 +1510,7 @@ class IsokoApp {
     const language = this.state.lang || "en";
     const theme = this.state.theme || "light";
     const roleName = this.getRoleTitleByCode(this.state.roleCode || "member");
-    const languageOptions = [ ["en", "English"], ["rw", "Kinyarwanda"], ["fr", "Français"] ];
+    const languageOptions = [ ["en", "EN"], ["rw", "RW"], ["fr", "FR"] ];
     return `
       <div class="head settings-heading">
         <div><h1>Settings</h1><p class="sub">Choose how Isoko Bridge looks and reads for you.</p></div>
