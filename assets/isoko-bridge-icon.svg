@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-labelledby="title">
+  <title id="title">Isoko Bridge</title>
+  <rect width="192" height="192" rx="42" fill="#eaf7ef"/>
+  <g fill="none" stroke="#0e635e" stroke-linecap="round" stroke-linejoin="round" stroke-width="7">
+    <path d="M28 68 Q96 42 164 68"/>
+    <path d="M39 123 C39 94 83 94 83 123"/>
+    <path d="M75 123 C75 79 117 79 117 123"/>
+    <path d="M109 123 C109 94 153 94 153 123"/>
+  </g>
+</svg>
