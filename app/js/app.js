@@ -177,7 +177,6 @@ class IsokoApp {
     this.map = null;
     this.mapLayer = null;
     this.mapMetric = "priority";
-    this.geminiTargetLang = "rw";
     this.currentStatementData = null;
   }
 
@@ -305,7 +304,8 @@ class IsokoApp {
 
   init() {
     this.applyTheme();
-    this.updateLangButtons();
+    this.updateLanguageSelector();
+    this.syncSidebar();
     this.render();
   }
 
@@ -316,7 +316,46 @@ class IsokoApp {
   toggleTheme() {
     this.state.theme = this.state.theme === "light" ? "dark" : "light";
     this.applyTheme();
+    this.updateThemeControl();
     this.saveState();
+  }
+
+  syncSidebar() {
+    const sidebar = document.getElementById("appRail");
+    const toggle = document.getElementById("railRw");
+    if (!sidebar) return;
+    const stored = localStorage.getItem("isoko_sidebar_expanded");
+    const expanded = stored === null ? true : stored === "true";
+    sidebar.classList.toggle("wide", expanded);
+    const body = document.querySelector(".shell > .body");
+    if (body) body.classList.toggle("menu-collapsed", !expanded);
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", String(expanded));
+      toggle.title = expanded ? "Close menu" : "Open menu";
+      const label = document.getElementById("menuToggleLabel");
+      if (label) label.textContent = expanded ? "Close menu" : "Open menu";
+    }
+  }
+
+  toggleSidebar() {
+    const sidebar = document.getElementById("appRail");
+    if (!sidebar) return;
+    const expanded = !sidebar.classList.contains("wide");
+    sidebar.classList.toggle("wide", expanded);
+    localStorage.setItem("isoko_sidebar_expanded", String(expanded));
+    this.syncSidebar();
+  }
+
+  updateThemeControl() {
+    const button = document.getElementById("themeToggle");
+    const label = document.getElementById("themeToggleLabel");
+    if (!button) return;
+    const dark = this.state.theme === "dark";
+    const title = dark ? "Switch to light mode" : "Switch to dark mode";
+    button.title = title;
+    button.innerHTML = `<i class="bi ${dark ? "bi-sun" : "bi-moon-stars"}" aria-hidden="true"></i><span class="rail-label" id="themeToggleLabel">${dark ? "Light mode" : "Dark mode"}</span>`;
+    button.dataset.tip = title;
+    button.setAttribute("aria-label", title);
   }
 
   setTheme(theme) {
@@ -344,25 +383,16 @@ class IsokoApp {
   setLanguage(lang) {
     this.state.lang = lang;
     this.saveState();
-    this.updateLangButtons();
+    this.updateLanguageSelector();
     this.render();
     const names = { en: "English", rw: "Ikinyarwanda", fr: "Français" };
     this.toast(`Language switched to ${names[lang] || lang}`, "success");
   }
 
-  updateLangButtons() {
-    const lang = this.state.lang || "en";
-    ["en", "rw", "fr"].forEach(l => {
-      const btn = document.getElementById("langBtn" + l.charAt(0).toUpperCase() + l.slice(1));
-      if (btn) {
-        if (l === lang) {
-          btn.classList.add("btn-primary");
-          btn.classList.remove("btn-ghost");
-        } else {
-          btn.classList.remove("btn-primary");
-          btn.classList.add("btn-ghost");
-        }
-      }
+  updateLanguageSelector() {
+    ["languageSelect", "settingsLanguage"].forEach(id => {
+      const select = document.getElementById(id);
+      if (select) select.value = this.state.lang || "en";
     });
   }
 
@@ -371,13 +401,74 @@ class IsokoApp {
   // =========================================================================
   pickRole(roleCode) {
     this.state.pickRole = roleCode;
+    this.state.authMode = "login";
     this.render();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   cancelPickRole() {
     this.state.pickRole = "";
+    this.state.authMode = "login";
     this.render();
+  }
+
+  setAuthMode(mode) {
+    if (mode !== "login" && mode !== "signup") return;
+    const roleCode = this.state.pickRole || "member";
+    if (mode === "signup" && ["planner", "admin"].includes(roleCode)) {
+      this.toast("Planner and admin accounts are provided by the organization. Choose a demo account to sign in.", "info");
+      return;
+    }
+    this.state.authMode = mode;
+    this.render();
+  }
+
+  handlePrototypeSignup(event) {
+    event.preventDefault();
+    const name = (document.getElementById("signupName")?.value || "").trim();
+    const email = (document.getElementById("signupEmail")?.value || "").trim().toLowerCase();
+    const password = document.getElementById("signupPassword")?.value || "";
+    const roleCode = this.state.pickRole || "member";
+    if (!name || !email || password.length < 6) {
+      this.toast("Add your name, a valid email, and a password with at least 6 characters.", "warning");
+      return;
+    }
+    if (["planner", "admin"].includes(roleCode)) {
+      this.toast("Planner and admin accounts are provided by the organization.", "info");
+      return;
+    }
+    const allUsers = Object.values(this.state.users || {}).flat();
+    if (allUsers.some(user => (user.email || "").toLowerCase() === email)) {
+      this.state.authMode = "login";
+      this.render();
+      this.toast("This email already has an account. Please log in.", "info");
+      return;
+    }
+    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", shopper: "Shopper", admin: "Admin" };
+    const account = {
+      name, email, password,
+      role: roleMap[roleCode] || "Family",
+      roleCode,
+      district: "Gasabo",
+      sector: "",
+      status: roleCode === "member" ? "not_submitted" : roleCode === "seller" ? "pending" : "verified",
+      householdSize: 4,
+      daysLate: 0,
+      usualPaymentDay: 15,
+      programme: "Direct Support"
+    };
+    this.state.users ||= {};
+    this.state.users[roleCode] ||= [];
+    this.state.users[roleCode].push(account);
+    this.state.currentUser = { ...account };
+    this.state.user = email;
+    this.state.role = account.role;
+    this.state.roleCode = roleCode;
+    this.state.pickRole = "";
+    this.state.activeSubView = "dashboard";
+    this.saveState();
+    this.render();
+    this.toast("Your demo account is ready.", "success");
   }
 
   onRoleLoginUserSelected(email) {
@@ -397,67 +488,37 @@ class IsokoApp {
 
   handlePrototypeLogin(event) {
     event.preventDefault();
-    const emEl = document.getElementById("protoEmail");
-    const pwEl = document.getElementById("protoPassword");
-    const email = emEl ? emEl.value.trim() : "";
-    const pass = pwEl ? pwEl.value.trim() : "";
-
-    if (!email || !pass) {
-      this.toast("Type any email and any password. This is a prototype.", "warning");
+    const email = (document.getElementById("protoEmail")?.value || "").trim().toLowerCase();
+    const password = document.getElementById("protoPassword")?.value || "";
+    const roleCode = this.state.pickRole || "member";
+    const users = Object.values(this.state.users || {}).flat();
+    const account = users.find(user => (user.email || "").toLowerCase() === email);
+    if (!account) {
+      this.toast("We could not find this account. Create an account or choose a demo user.", "warning");
       return;
     }
-
-    const roleCode = this.state.pickRole || "member";
-    const roleMap = {
-      member: "Family",
-      planner: "Planner",
-      seller: "Farmer",
-      shopper: "Shopper",
-      admin: "Admin"
-    };
-
-    // Check if email belongs to a sample user of a different role (Section 17.1 Rule 6)
-    for (const [rCode, uList] of Object.entries(this.state.users || {})) {
-      const matched = uList.find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (matched && rCode !== roleCode) {
-        const otherRoleTitle = this.getRoleTitleByCode(rCode);
-        this.toast(`This sample user is a ${otherRoleTitle}. Go back and choose ${otherRoleTitle} to see their screens. Continuing as ${this.getRoleTitleByCode(roleCode)}.`, "info");
-      }
+    if ((account.roleCode || roleCode) !== roleCode) {
+      this.state.pickRole = account.roleCode;
+      this.state.authMode = "login";
+      this.render();
+      this.toast(`Choose the ${this.getRoleTitleByCode(account.roleCode)} portal for this account.`, "info");
+      return;
     }
-
-    // Match or create user profile
-    const userList = (this.state.users && this.state.users[roleCode]) || [];
-    const existing = userList.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-    if (existing) {
-      this.state.currentUser = { ...existing };
-      this.state.role = roleMap[roleCode] || existing.role;
-      this.state.roleCode = roleCode;
-    } else {
-      // New demo user starts at 'Add my details' if member (Section 5.1 & 17.1)
-      this.state.currentUser = {
-        name: email.split("@")[0].replace(/[._]/g, " "),
-        email: email,
-        role: roleMap[roleCode],
-        roleCode: roleCode,
-        district: "Gasabo",
-        status: roleCode === "member" ? "not_submitted" : "verified",
-        householdSize: 4,
-        daysLate: 0,
-        usualPaymentDay: 15,
-        programme: "Direct Support"
-      };
-      this.state.role = roleMap[roleCode];
-      this.state.roleCode = roleCode;
+    if (account.password && account.password !== password) {
+      this.toast("That password does not match this account. Try again.", "warning");
+      return;
     }
-
+    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", shopper: "Shopper", admin: "Admin" };
+    this.state.currentUser = { ...account };
+    this.state.role = roleMap[roleCode] || account.role;
+    this.state.roleCode = roleCode;
     this.state.user = email;
     this.state.pickRole = "";
+    this.state.authMode = "login";
     this.state.activeSubView = "dashboard";
-
     this.saveState();
     this.render();
-    this.toast(`Logged in as ${this.getRoleTitleByCode(roleCode)} (${email})`, "success");
+    this.toast(`Welcome, ${account.name || email}.`, "success");
   }
 
   logout() {
@@ -1034,98 +1095,7 @@ class IsokoApp {
     this.toast(`Case #${caseId} marked ${c.status} (${outcome}).`, "success");
   }
 
-  // =========================================================================
-  // 5. GEMINI AI TRANSLATION & PLAIN-LANGUAGE INTELLIGENCE
-  // =========================================================================
-  openGeminiModal() {
-    const m = document.getElementById("geminiModal");
-    if (m) m.classList.add("open");
-  }
-
-  closeGeminiModal() {
-    const m = document.getElementById("geminiModal");
-    if (m) m.classList.remove("open");
-  }
-
-  updateGeminiTargetLang(lang) {
-    this.geminiTargetLang = lang;
-  }
-
-  async runGeminiTranslate() {
-    const inputEl = document.getElementById("geminiTextInput");
-    const outCard = document.getElementById("geminiOutputCard");
-    const outText = document.getElementById("geminiOutputText");
-    if (!inputEl || !outCard || !outText) return;
-
-    const query = inputEl.value.trim();
-    if (!query) {
-      this.toast("Please type or paste some text to translate.", "warning");
-      return;
-    }
-
-    outCard.style.display = "block";
-    outText.innerHTML = '<span class="dot-pulse"></span> <i>Translating with Google Gemini AI multilingual engine…</i>';
-
-    const target = this.geminiTargetLang || "rw";
-    const res = await window.geminiEngine.translateText(query, target);
-    outText.textContent = res;
-  }
-
-  applyWholePageTranslation() {
-    const target = this.geminiTargetLang || "rw";
-    this.setLanguage(target);
-    this.closeGeminiModal();
-  }
-
-  listenToTranslation() {
-    const outText = document.getElementById("geminiOutputText");
-    if (!outText || !outText.textContent) {
-      this.toast("Translate some text first to listen.", "info");
-      return;
-    }
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(outText.textContent);
-      u.lang = this.geminiTargetLang === 'fr' ? 'fr-FR' : 'en-US';
-      window.speechSynthesis.speak(u);
-    } else {
-      this.toast("Speech synthesis not supported in this browser.", "warning");
-    }
-  }
-
-  useGeminiPrompt(promptKey) {
-    const inputEl = document.getElementById("geminiTextInput");
-    if (!inputEl) return;
-    const prompts = {
-      sobanura: "Sobanura uko Ikiraro cya VUP gifasha imiryango ibiryo byayo byatinda.",
-      "crédit vup": "Comment le crédit d'urgence Isoko Bridge protège les familles bénéficiaires VUP ?",
-      "farmer sell": "How do Rwandan smallholder farmers list crops and verify fair NISR prices?",
-      "shopper donation": "How does an ethical shopper subsidize child food security in Rwanda?",
-      "delay nisr": "Why are government VUP payments delayed according to NISR survey data?"
-    };
-    inputEl.value = prompts[promptKey] || promptKey;
-    this.runGeminiTranslate();
-  }
-
-  copyGeminiResult() {
-    const outText = document.getElementById("geminiOutputText");
-    if (outText && outText.textContent) {
-      navigator.clipboard.writeText(outText.textContent).then(() => {
-        this.toast("Translation copied to clipboard!", "success");
-      });
-    }
-  }
-
-  toggleGeminiApiKeyPrompt() {
-    const cur = localStorage.getItem("isoko_gemini_api_key") || "";
-    const key = prompt("Enter your Google Gemini API Key (optional - built-in offline engine active by default):", cur);
-    if (key !== null) {
-      localStorage.setItem("isoko_gemini_api_key", key.trim());
-      if (window.geminiEngine) window.geminiEngine.apiKey = key.trim();
-      this.toast(key.trim() ? "Gemini API key saved!" : "Using default built-in AI engine.", "info");
-    }
-  }
-
-  // Section 8 System Prompt compliance
+  // Plain-language notes use reviewed text already included with the app.
   explainNumbersInEasyWords(topic) {
     const lang = this.state.lang || "en";
     let text = "";
@@ -1159,7 +1129,7 @@ class IsokoApp {
     if (box) {
       box.style.display = "block";
       box.innerHTML = `
-        <div style="font-weight:700; color:#7e22ce; margin-bottom:4px; font-size:12.5px;">✨ Gemini AI Explainer (${lang.toUpperCase()}):</div>
+        <div style="font-weight:700; color:var(--acc); margin-bottom:4px; font-size:12.5px;">✨ Simple explanation (${lang.toUpperCase()}):</div>
         <div style="font-size:13.5px; line-height:1.5;">${text}</div>
       `;
     } else {
@@ -1210,106 +1180,61 @@ class IsokoApp {
 
   renderHeaderNavActions() {
     const slot = document.getElementById("headerUserAuthSlot");
-    const topNavPill = document.getElementById("topNavPill");
-    const railMid = document.getElementById("railMid");
-
+    const nav = document.getElementById("topNavPill");
+    if (!nav) return;
     const lang = this.state.lang || "en";
     const activeSub = this.state.activeSubView || "dashboard";
-    const logoutTxt = lang === 'rw' ? 'Gusohoka' : lang === 'fr' ? 'Déconnexion' : 'Log out';
-
-    // 1. Render Middle Nav Pill based on active role and view
-    if (topNavPill) {
-      if (this.state.user) {
-        const role = this.state.role || "Family";
-        const sub = this.state.activeSubView || "dashboard";
-        
-        const icon = {
-          dashboard: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
-          creditdesk: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
-          credit: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
-          nisr_facts: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>',
-          analysis: '<svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 6-7"/></svg>',
-          cases: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4m0 4h.01"/></svg>',
-          reports: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
-          users: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2m2-13a4 4 0 0 1 0 8m2 5v-2a6 6 0 0 0-3-5.2"/></svg>',
-          ledger: '<svg viewBox="0 0 24 24"><path d="M4 3h16v18H4zM8 7h8M8 11h8M8 15h5"/></svg>',
-          orders: '<svg viewBox="0 0 24 24"><path d="M4 4h16v17H4zM8 2v4m8-4v4M8 11h8m-8 4h8"/></svg>',
-          produce: '<svg viewBox="0 0 24 24"><path d="M12 21c-5-3-8-7-7-12 4-1 7 1 7 5 0-5 4-8 8-7 1 6-2 11-8 14zm0-9c0-4-2-7-5-9"/></svg>',
-          add_produce: '<svg viewBox="0 0 24 24"><path d="M12 21c-5-3-8-7-7-12 4-1 7 1 7 5 0-5 4-8 8-7 1 6-2 11-8 14zm0-9c0-4-2-7-5-9"/></svg>',
-          listings: '<svg viewBox="0 0 24 24"><path d="M4 4h16v17H4zM8 2v4m8-4v4M8 11h8m-8 4h8"/></svg>',
-          pool: '<svg viewBox="0 0 24 24"><path d="M3 10h18M5 10v9m5-9v9m4-9v9m5-9v9M3 21h18M12 3l9 5H3z"/></svg>',
-          settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7z"/></svg>'
-        };
-        const item = (id, label, tip = label) => ({ id, label, tip, icon: icon[id] || icon.dashboard });
-        let navItems = [];
-        if (role === "Planner") {
-          navItems = [item("dashboard", "Overview", "View the planner dashboard"), item("creditdesk", "Credit Desk", "Review credit and repayments"), item("nisr_facts", "NISR Facts", "Read the source facts"), item("analysis", "NISR Analysis", "Explore survey findings"), item("cases", "Disputes", "Review reported problems"), item("reports", "Reports", "Download reports"), item("settings", "Settings", "Change your preferences")];
-        } else if (role === "Admin") {
-          navItems = [item("dashboard", "Overview"), item("creditdesk", "Credit Desk"), item("nisr_facts", "NISR Facts"), item("analysis", "NISR Analysis"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings", "Change your preferences")];
-        } else if (role === "Family") {
-          navItems = [item("dashboard", "Food Basket"), item("credit", "Bridge Credit"), item("orders", "Orders"), item("settings", "Settings", "Change your preferences")];
-        } else if (role === "Farmer") {
-          navItems = [item("dashboard", "Orders"), item("add_produce", "Add Produce", "Add food for sale"), item("listings", "My Listings"), item("settings", "Settings", "Change your preferences")];
-        } else {
-          navItems = [item("dashboard", "Shop"), item("pool", "Pool Impact"), item("settings", "Settings", "Change your preferences")];
-        }
-
-        topNavPill.innerHTML = navItems.map(nav => `
-          <button class="${sub === nav.id ? 'on' : ''}" onclick="window.app.setNavTab('${nav.id}')" title="${nav.tip}" aria-label="${nav.tip}">
-            <span class="nav-item-icon">${nav.icon}</span><span class="nav-item-label">${nav.label}</span>
-          </button>
-        `).join("");
-      } else {
-        const pTab = this.state.publicTab || 'market';
-        topNavPill.innerHTML = `
-          <button class="${pTab === 'market' ? 'on' : ''}" onclick="window.app.setPublicTab('market')" title="Shop local food"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>Fresh Market</span></button>
-          <button class="${pTab === 'roles' ? 'on' : ''}" onclick="window.app.setPublicTab('roles')" title="Choose a user role"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Roles & Portals</span></button>
-          <button class="${pTab === 'schedule' ? 'on' : ''}" onclick="window.app.setPublicTab('schedule')" title="View the VUP payment schedule"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>VUP Schedule</span></button>
-        `;
-      }
+    const role = this.state.role || "Family";
+    const icon = {
+      dashboard: "bi-grid-1x2",
+      creditdesk: "bi-credit-card",
+      credit: "bi-credit-card",
+      nisr_facts: "bi-file-earmark-text",
+      analysis: "bi-graph-up-arrow",
+      cases: "bi-shield-exclamation",
+      reports: "bi-download",
+      users: "bi-people",
+      ledger: "bi-journal-text",
+      orders: "bi-receipt",
+      produce: "bi-basket",
+      add_produce: "bi-basket2",
+      listings: "bi-card-list",
+      pool: "bi-bank",
+      settings: "bi-gear"
+    };
+    const navText = {
+      en: { dashboard: "Overview", creditdesk: "Credit desk", nisr_facts: "NISR facts", analysis: "NISR analysis", cases: "Disputes", reports: "Reports", users: "Users", ledger: "Ledger", credit: "Bridge credit", orders: "Orders", add_produce: "Add produce", listings: "My listings", pool: "Pool impact", settings: "Settings", market: "Fresh market", roles: "Roles and sign in", schedule: "VUP schedule" },
+      rw: { dashboard: "Incamake", creditdesk: "Inguzanyo", nisr_facts: "Amakuru ya NISR", analysis: "Isesengura rya NISR", cases: "Ibibazo", reports: "Raporo", users: "Abakoresha", ledger: "Ibyakozwe", credit: "Inguzanyo y'ibiribwa", orders: "Ibyatumijwe", add_produce: "Ongeraho umusaruro", listings: "Ibyo ncuruza", pool: "Ikigega rusange", settings: "Igenamiterere", market: "Isoko ry'ibiribwa", roles: "Uruhare no kwinjira", schedule: "Gahunda ya VUP" },
+      fr: { dashboard: "Vue d'ensemble", creditdesk: "Crédit", nisr_facts: "Données NISR", analysis: "Analyse NISR", cases: "Litiges", reports: "Rapports", users: "Utilisateurs", ledger: "Registre", credit: "Crédit alimentaire", orders: "Commandes", add_produce: "Ajouter des produits", listings: "Mes annonces", pool: "Fonds commun", settings: "Paramètres", market: "Marché", roles: "Rôles et connexion", schedule: "Calendrier VUP" }
+    };
+    const copy = navText[lang] || navText.en;
+    const item = (id, fallback) => ({ id, label: copy[id] || fallback, icon: icon[id] || icon.dashboard });
+    let items = [];
+    if (this.state.user) {
+      if (role === "Planner") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
+      else if (role === "Admin") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
+      else if (role === "Family") items = [item("dashboard", "Food basket"), item("credit", "Bridge credit"), item("orders", "Orders"), item("settings", "Settings")];
+      else if (role === "Farmer") items = [item("dashboard", "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("settings", "Settings")];
+      else items = [item("dashboard", "Shop"), item("pool", "Pool impact"), item("settings", "Settings")];
+      nav.innerHTML = items.map(entry => `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
+    } else {
+      const publicTab = this.state.publicTab || "market";
+      items = [
+        { id: "market", label: copy.market, icon: "bi-basket" },
+        { id: "roles", label: copy.roles, icon: "bi-person-vcard" },
+        { id: "schedule", label: copy.schedule, icon: "bi-calendar3" }
+      ];
+      nav.innerHTML = items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
     }
-
-    // 2. Render Rail Mid Icons
-    if (railMid) {
-      if (this.state.user) {
-        railMid.innerHTML = `
-          <button class="${activeSub === 'dashboard' ? 'on' : ''}" onclick="window.app.setNavTab('dashboard')" title="Open overview" data-tip="Overview" aria-label="Overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Overview</span></button>
-          <button class="${activeSub === 'settings' ? 'on' : ''}" onclick="window.app.setNavTab('settings')" title="Change your preferences" data-tip="Settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7z"/></svg><span>Settings</span></button>
-          <button onclick="window.app.openStatementModal()" title="Download your statement" data-tip="Statements" aria-label="Statements"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v18h16V8zM14 2v6h6M8 13h8m-8 4h8"/></svg><span>Statement</span></button>
-        `;
-      } else {
-        railMid.innerHTML = `
-          <button class="on" onclick="window.app.goHome()" title="Go to the market" data-tip="Home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
-          <button onclick="window.app.openGeminiModal()" title="Open the AI helper" data-tip="AI helper" aria-label="AI helper"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="4"/></svg><span>AI helper</span></button>
-        `;
-      }
-    }
-
-    // 3. Render User Auth Slot Pill
-    if (slot) {
-      if (this.state.user) {
-        const u = this.state.currentUser || {};
-        const initials = (u.name || this.state.user).slice(0, 2).toUpperCase();
-        slot.innerHTML = `
-          <div class="av">${initials}</div>
-          <div style="line-height:1.2;">
-            <b style="font-size:12px;">${u.name || this.state.user.split('@')[0]}</b>
-            <small style="color:var(--mute); font-size:9.5px;">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</small>
-          </div>
-          <button class="mini" onclick="window.app.downloadUserStatement()" style="margin-left:4px;" title="Download my statement (CSV)">
-            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> CSV
-          </button>
-          <button class="mini" onclick="window.app.logout()" style="margin-left:4px;" title="Log out">
-            ${logoutTxt}
-          </button>
-        `;
-      } else {
-        slot.innerHTML = `
-          <button class="btn btn-sm btn-primary" onclick="window.app.pickRole('member')" style="border-radius:999px;">
-            ${lang === 'rw' ? 'Injira' : lang === 'fr' ? 'Connexion' : 'Log In'}
-          </button>
-        `;
-      }
+    this.updateThemeControl();
+    this.syncSidebar();
+    if (!slot) return;
+    if (this.state.user) {
+      const user = this.state.currentUser || {};
+      const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
+      slot.innerHTML = `<div class="av" aria-hidden="true">${this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="btn btn-sm btn-outline" onclick="window.app.logout()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> ${lang === "rw" ? "Sohoka" : lang === "fr" ? "Déconnexion" : "Log out"}</button>`;
+    } else {
+      slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
   }
 
@@ -1362,9 +1287,6 @@ class IsokoApp {
         </div>
 
         <div style="display:flex; align-items:center; gap:6px;">
-          <button class="btn btn-sm" onclick="window.app.openGeminiModal()" title="Gemini AI Assistant" style="background:rgba(126,34,206,.12); color:#7e22ce; border-radius:999px; padding:6px 12px; font-weight:700;">
-            ✨ Gemini AI
-          </button>
           <button class="btn btn-sm btn-outline" onclick="window.app.setPublicTab('roles')" title="Log in" style="border-radius:999px; padding:6px 14px;">
             Log In →
           </button>
@@ -1446,11 +1368,11 @@ class IsokoApp {
 
   renderPublicRolesView() {
     const rolesList = [
-      { code: "member", key: "Family", icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
-      { code: "planner", key: "Planner", icon: '<svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
-      { code: "seller", key: "Farmer", icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
-      { code: "shopper", key: "Shopper", icon: '<svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', title: "Ethical Shopper", line: "I buy food for my household." },
-      { code: "admin", key: "Admin", icon: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
+      { code: "member", key: "Family", icon: '<i class="bi bi-people" aria-hidden="true"></i>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
+      { code: "planner", key: "Planner", icon: '<i class="bi bi-bar-chart-line" aria-hidden="true"></i>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
+      { code: "seller", key: "Farmer", icon: '<i class="bi bi-shop" aria-hidden="true"></i>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
+      { code: "shopper", key: "Shopper", icon: '<i class="bi bi-cart3" aria-hidden="true"></i>', title: "Ethical Shopper", line: "I buy food for my household." },
+      { code: "admin", key: "Admin", icon: '<i class="bi bi-shield-lock" aria-hidden="true"></i>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
     ];
 
     return `
@@ -1509,66 +1431,61 @@ class IsokoApp {
   renderLoginView() {
     const roleCode = this.state.pickRole || "member";
     const userList = (this.state.users && this.state.users[roleCode]) || [];
-    const firstUser = userList[0] || { email: "demo@vupbridge.rw", password: "demo1234", stateDesc: "Standard demo profile" };
-
-    const lang = this.state.lang || "en";
-    const rTitle = this.getRoleTitleByCode(roleCode);
-
-    const headerText = lang === 'rw' 
-      ? `Injira nka ${rTitle}` 
-      : lang === 'fr' 
-      ? `Connexion en tant que ${rTitle}` 
-      : `Log in as ${rTitle}`;
-
-    const protoNotice = lang === 'rw' 
-      ? "<b>Urugero rw'Ikoranabuhanga:</b> Andika imeli n'ijambo ry'ibanga iryo ari ryo ryose. Nta kigenzurwa." 
-      : lang === 'fr' 
-      ? "<b>Prototype :</b> saisissez n'importe quel e-mail et mot de passe. Aucun contrôle n'est effectué." 
-      : "<b>Prototype:</b> type any email and any password. Nothing is checked.";
-
+    const firstUser = userList[0] || {};
+    const mode = this.state.authMode || "login";
+    const isSignup = mode === "signup";
+    const canSignUp = !["planner", "admin"].includes(roleCode);
+    const roleTitle = this.getRoleTitleByCode(roleCode);
+    const language = this.state.lang || "en";
+    const copy = {
+      en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account.", signupSub: "Create a demo account to continue. Your details stay in this browser.", account: "Your account", newAccount: "New account", fullName: "Full name", email: "Email address", password: "Password", logIn: "Log in", signUp: "Create account", back: "Back", sample: "Demo account", note: "Prototype sign-in is saved on this device only.", safe: "This prototype saves your demo account in this browser. Do not use a real password.", already: "Already have an account?", newHere: "New to Isoko Bridge?", haveAccount: "Already registered?", needAccount: "Need an account?", chooseDemo: "Choose a demo account or enter an account you created." },
+      rw: { welcome: "Murakaza neza", create: "Fungura konti", loginSub: "Injira muri konti yawe ya Isoko Bridge.", signupSub: "Fungura konti y'igerageza. Amakuru yawe abikwa muri iyi browser.", account: "Konti yawe", newAccount: "Konti nshya", fullName: "Amazina yawe", email: "Imeli", password: "Ijambo ry'ibanga", logIn: "Injira", signUp: "Fungura konti", back: "Subira inyuma", sample: "Konti y'igerageza", note: "Kwinjira kw'igerageza kubikwa kuri iki gikoresho gusa.", safe: "Iyi porogaramu ibika konti y'igerageza muri iyi browser. Ntukoreshe ijambo ry'ibanga nyaryo.", already: "Usanzwe ufite konti?", newHere: "Ni ubwa mbere ukoresha Isoko Bridge?", haveAccount: "Usanzwe ufite konti?", needAccount: "Ukeneye konti?", chooseDemo: "Hitamo konti y'igerageza cyangwa wandike imeli wakoresheje." },
+      fr: { welcome: "Bon retour", create: "Créer votre compte", loginSub: "Connectez-vous à votre compte Isoko Bridge.", signupSub: "Créez un compte de démonstration. Vos données restent dans ce navigateur.", account: "Votre compte", newAccount: "Nouveau compte", fullName: "Nom complet", email: "Adresse e-mail", password: "Mot de passe", logIn: "Se connecter", signUp: "Créer le compte", back: "Retour", sample: "Compte de démonstration", note: "La connexion de démonstration est enregistrée sur cet appareil.", safe: "Ce prototype enregistre le compte dans ce navigateur. N'utilisez pas votre vrai mot de passe.", already: "Vous avez déjà un compte ?", newHere: "Nouveau sur Isoko Bridge ?", haveAccount: "Déjà inscrit ?", needAccount: "Besoin d'un compte ?", chooseDemo: "Choisissez un compte de démonstration ou saisissez votre adresse e-mail." }
+    }[language] || {};
+    const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
-      <div style="max-width: 540px; margin: 30px auto;">
-        <h2 style="font-size: 26px; font-weight:800; margin-bottom: 8px;">${headerText}</h2>
-        <div class="sim">${protoNotice}</div>
-
-        <div class="card" style="padding: 24px;">
-          <!-- Section 17.1: Sample login dropdown for this role -->
-          <div style="margin-bottom:16px; background:var(--bg); padding:10px 12px; border-radius:8px; border:1px solid var(--card-border);">
-            <label style="font-size:12px; font-weight:700; color:var(--text-main); display:block; margin-bottom:4px;">
-              Sample login for this role (Choose another sample user):
-            </label>
-            <select class="form-control" style="font-size:13px; font-weight:600;" onchange="window.app.onRoleLoginUserSelected(this.value)">
-              ${userList.map(u => `
-                <option value="${u.email}">${u.name} — ${u.email} (${u.stateDesc || u.sells || u.notes || ''})</option>
-              `).join("")}
-            </select>
-            <div id="protoUserStateDesc" style="font-size:11.5px; color:var(--primary); margin-top:4px; font-weight:600;">
-              ${firstUser.stateDesc || firstUser.notes || ''}
+      <section class="auth-scene" aria-labelledby="authTitle">
+        <div class="auth-card">
+          <aside class="auth-welcome">
+            <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
+            <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
+            <h1 id="authTitle">${isSignup ? text("create") : text("welcome")}</h1>
+            <p>${isSignup ? text("signupSub") : text("loginSub")}</p>
+            <div class="auth-switch">
+              <span>${isSignup ? text("already") : text("newHere")}</span>
+              ${canSignUp ? `<button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("create")}</button>` : `<small>Use the organization demo account.</small>`}
             </div>
+          </aside>
+          <div class="auth-form-panel">
+            <div class="auth-form-heading">
+              <div><span class="auth-eyebrow">${isSignup ? text("newAccount") : text("account")}</span><h2>${isSignup ? text("signUp") : text("logIn")}</h2></div>
+              <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
+            </div>
+            ${isSignup ? `
+              <form class="auth-form" onsubmit="window.app.handlePrototypeSignup(event)" autocomplete="on">
+                <label for="signupName">${text("fullName")}</label><div class="auth-field"><i class="bi bi-person" aria-hidden="true"></i><input id="signupName" name="name" autocomplete="name" placeholder="${text("fullName")}" required></div>
+                <label for="signupEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+                <label for="signupPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
+                <p class="auth-help">${text("safe")}</p>
+                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> ${text("signUp")}</button>
+              </form>
+            ` : `
+              <form class="auth-form" onsubmit="window.app.handlePrototypeLogin(event)" autocomplete="on">
+                <label for="demoUserSelect">${text("sample")}</label>
+                <select id="demoUserSelect" class="auth-select" onchange="window.app.onRoleLoginUserSelected(this.value)">
+                  ${userList.map(user => `<option value="${this.escapeHtml(user.email)}" ${user.email === firstUser.email ? "selected" : ""}>${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}
+                </select>
+                <p class="auth-help" id="protoUserStateDesc">${this.escapeHtml(firstUser.stateDesc || firstUser.notes || text("chooseDemo"))}</p>
+                <label for="protoEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="protoEmail" name="email" type="email" autocomplete="username" value="${this.escapeHtml(firstUser.email || "")}" placeholder="name@example.com" required></div>
+                <label for="protoPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="protoPassword" name="password" type="password" autocomplete="current-password" value="${this.escapeHtml(firstUser.password || "")}" placeholder="Your password" required></div>
+                <p class="auth-help">${text("note")}</p>
+                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${text("logIn")}</button>
+              </form>
+            `}
+            ${canSignUp ? `<p class="auth-mobile-switch">${isSignup ? text("haveAccount") : text("needAccount")} <button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("signUp")}</button></p>` : ""}
           </div>
-
-          <form onsubmit="window.app.handlePrototypeLogin(event)">
-            <div class="form-group">
-              <label class="form-label" style="font-weight:700;">Email</label>
-              <input id="protoEmail" type="email" class="form-control" value="${firstUser.email}" style="font-size:15px; padding:10px;" required>
-            </div>
-
-            <div class="form-group" style="margin-top:14px;">
-              <label class="form-label" style="font-weight:700;">Password</label>
-              <input id="protoPassword" type="password" class="form-control" value="${firstUser.password}" style="font-size:15px; padding:10px;" required>
-            </div>
-
-            <div style="display:flex; gap:10px; margin-top:22px;">
-              <button type="submit" class="btn btn-primary btn-lg" style="flex:1; font-weight:800;">
-                Log in
-              </button>
-              <button type="button" class="btn btn-outline btn-lg" onclick="window.app.cancelPickRole()">
-                ← Back
-              </button>
-            </div>
-          </form>
         </div>
-      </div>
+      </section>
     `;
   }
 
@@ -1600,20 +1517,20 @@ class IsokoApp {
       </div>
       <div class="settings-layout">
         <section class="card settings-card">
-          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg></span><div><h3>Language</h3><p>Choose the language used in the app.</p></div></div>
-          <div class="settings-choice-row">${languageOptions.map(([value, label]) => `<button class="settings-choice ${language === value ? 'selected' : ''}" aria-pressed="${language === value}" onclick="window.app.setLanguage('${value}')">${label}</button>`).join("")}</div>
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-translate" aria-hidden="true"></i></span><div><h3>Language</h3><p>Choose the language used in the app.</p></div></div>
+          <label class="settings-language-select" for="settingsLanguage">App language<select id="settingsLanguage" onchange="window.app.setLanguage(this.value)">${languageOptions.map(([value, label]) => `<option value="${value}" ${language === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
         </section>
         <section class="card settings-card">
-          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><div><h3>Appearance</h3><p>Pick a light or dark screen.</p></div></div>
-          <div class="settings-choice-row"><button class="settings-choice ${theme === 'light' ? 'selected' : ''}" aria-pressed="${theme === 'light'}" onclick="window.app.setTheme('light')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg> Light</button><button class="settings-choice ${theme === 'dark' ? 'selected' : ''}" aria-pressed="${theme === 'dark'}" onclick="window.app.setTheme('dark')"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg> Dark</button></div>
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-palette" aria-hidden="true"></i></span><div><h3>Appearance</h3><p>Pick a light or dark screen.</p></div></div>
+          <div class="settings-choice-row"><button class="settings-choice ${theme === 'light' ? 'selected' : ''}" aria-pressed="${theme === 'light'}" onclick="window.app.setTheme('light')"><i class="bi bi-sun" aria-hidden="true"></i> Light</button><button class="settings-choice ${theme === 'dark' ? 'selected' : ''}" aria-pressed="${theme === 'dark'}" onclick="window.app.setTheme('dark')"><i class="bi bi-moon-stars" aria-hidden="true"></i> Dark</button></div>
         </section>
         <section class="card settings-card settings-account">
-          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><div><h3>Your account</h3><p>Your profile details for this demo.</p></div></div>
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-person" aria-hidden="true"></i></span><div><h3>Your account</h3><p>Your profile details for this demo.</p></div></div>
           <dl class="settings-account-list"><div><dt>Name</dt><dd>${this.escapeHtml(user.name || this.state.user || "User")}</dd></div><div><dt>Role</dt><dd>${this.escapeHtml(roleName)}</dd></div><div><dt>Email</dt><dd>${this.escapeHtml(user.email || this.state.user || "Not added")}</dd></div><div><dt>District</dt><dd>${this.escapeHtml(user.district || "Not added")}</dd></div></dl>
         </section>
         <section class="card settings-card">
-          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v18h16V8zM14 2v6h6M8 13h8m-8 4h8"/></svg></span><div><h3>Your records</h3><p>Download a copy of your activity.</p></div></div>
-          <button class="btn btn-primary settings-download" onclick="window.app.downloadUserStatement()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download my activity</button>
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i></span><div><h3>Your records</h3><p>Download a copy of your activity.</p></div></div>
+          <button class="btn btn-primary settings-download" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button>
         </section>
       </div>
     `;
@@ -2041,14 +1958,14 @@ class IsokoApp {
 
         <div class="card" style="padding:20px; display:flex; flex-direction:column;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h4 style="font-size:15px; font-weight:700;">Gemini AI Assistant</h4>
-            <span class="tag" style="background:rgba(126,34,206,.12); color:#7e22ce;">Natural AI</span>
+            <h4 style="font-size:15px; font-weight:700;">NISR data guide</h4>
+            <span class="tag g">Plain language</span>
           </div>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
-            Query disbursement patterns, translate produce listings, and analyze sector liquidity.
+            See what the survey can show, what it cannot show, and how to read the results.
           </p>
-          <button class="btn btn-sm btn-outline" style="margin-top:auto; border-color:#7e22ce; color:#7e22ce;" onclick="window.app.openGeminiModal()">
-            Launch Gemini AI Assistant →
+          <button class="btn btn-sm btn-outline" style="margin-top:auto;" onclick="window.app.setNavTab('nisr_facts')">
+            Read the data guide →
           </button>
         </div>
       </div>
@@ -2331,40 +2248,19 @@ class IsokoApp {
   }
 
   // =========================================================================
-  // 14. GEMINI AI HELPER CARD (Explains Numbers in Easy Words)
+  // 14. PLAIN-LANGUAGE DATA GUIDE
   // =========================================================================
   renderAiHelperCard() {
-    const lang = this.state.lang || "en";
-    const aiTitle = lang === 'rw' 
-      ? "✨ Ubufasha bwa Gemini AI — 'Sobanura Iyi Mibare mu Magambo Yoroshye'" 
-      : lang === 'fr' 
-      ? "✨ Assistant Gemini AI — 'Expliquer les Chiffres en Mots Simples'" 
-      : "✨ Gemini AI Helper — 'Explain the Numbers in Easy Words'";
-
     return `
-      <div class="ai-helper-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-          <b style="color:#7e22ce; font-size:15px;">${aiTitle}</b>
-          <button class="btn btn-outline btn-sm" style="border-color:#7e22ce; color:#7e22ce; font-size:11px; padding:2px 8px;" onclick="window.app.openGeminiModal()">
-            Open Full AI Translator 🌐
-          </button>
+      <section class="card plain-guide">
+        <div class="plain-guide-heading"><span class="settings-icon"><i class="bi bi-lightbulb" aria-hidden="true"></i></span><div><h3>Understand the numbers</h3><p>Short, clear notes about the NISR survey.</p></div></div>
+        <div class="plain-guide-actions">
+          <button class="btn btn-sm btn-outline" onclick="window.app.explainNumbersInEasyWords('delay')">Explain payment delays</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.explainNumbersInEasyWords('queues')">Explain the payment steps</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.explainNumbersInEasyWords('pool')">Explain the bridge pool</button>
         </div>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Click below to hear an easy, plain-language 4-part explanation of these numbers:</p>
-
-        <div style="display:flex; flex-wrap:wrap; gap:6px;">
-          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('delay')">
-            💡 Explain delay numbers in plain words
-          </button>
-          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('queues')">
-            💡 How the 3 queues protect money
-          </button>
-          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('pool')">
-            💡 How the revolving pool stays alive
-          </button>
-        </div>
-
-        <div id="aiExplainerResult" style="display:none; background:var(--card-bg); border:1px solid rgba(126,34,206,0.3); border-radius:10px; padding:12px; margin-top:12px;"></div>
-      </div>
+        <div id="aiExplainerResult" class="plain-guide-result" hidden></div>
+      </section>
     `;
   }
 
@@ -3186,8 +3082,8 @@ class IsokoApp {
                   <div class="vm-price-wrap">
                     <b>${l.price.toLocaleString()}</b> <small>RWF/kg</small>
                   </div>
-                  <button class="vm-add-btn" onclick="window.app.startBuyProduce(${l.id}, '${mode || 'cash'}')" title="Buy Produce">
-                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                  <button class="vm-add-btn" onclick="window.app.startBuyProduce(${l.id}, '${mode || 'cash'}')" title="Add to cart" aria-label="Add ${this.escapeHtml(displayName)} to cart">
+                    <i class="bi bi-cart-plus" aria-hidden="true"></i>
                   </button>
                 </div>
 
@@ -3205,6 +3101,11 @@ class IsokoApp {
   }
 
   toggleFavorite(id) {
+    if (!this.state.user) {
+      this.pickRole("shopper");
+      this.toast("Log in or create an account to save favorites.", "info");
+      return;
+    }
     const item = this.state.listings.find(l => l.id === id);
     if (item) {
       item.isFav = !item.isFav;
@@ -3218,6 +3119,11 @@ class IsokoApp {
   // 22. PHONE ORDER & PAYMENT FLOW (media_1792662744615.html)
   // =========================================================================
   startBuyProduce(listingId, mode) {
+    if (!this.state.user) {
+      this.pickRole(mode === "credit" ? "member" : "shopper");
+      this.toast("Log in or create an account to place an order.", "info");
+      return;
+    }
     const listing = this.state.listings.find(l => l.id === listingId);
     if (!listing) return;
     const inputEl = document.getElementById(`qty_${listingId}`);
