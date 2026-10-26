@@ -3694,7 +3694,7 @@ footer .container { max-width: 1800px; }
 .vm-seller-card .tag { max-width: 100%; white-space: normal; }
 .ib-header-logo { display: block; width: 132px; height: auto; flex: none; }
 .ib-market-brand { display: flex; justify-content: center; padding: 6px 0 16px; }
-.ib-market-brand img { display: block; width: min(260px, 58vw); height: auto; }
+.ib-market-brand img { display: block; width: min(150px, 52vw); height: auto; }
 .ib-market-icon { display: block; width: 42px; height: 42px; flex: none; border: 1px solid var(--line); border-radius: 14px; object-fit: cover; }
 .ib-auth-logo { width: min(210px, 72%); height: auto; margin: 0 auto 12px; filter: brightness(0) invert(1); }
 .ib-receipt-logo { display: block; width: 132px; height: auto; margin: 0 auto 7px; }
