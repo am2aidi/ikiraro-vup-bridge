@@ -6,6 +6,7 @@
   <title>Isoko Bridge · Ikiraro cya VUP (NISR Big Data Hackathon)</title>
   <meta name="description" content="A direct food market, emergency social payment bridge, and decision-support planner tool for Rwandan households receiving VUP support. Built on NISR household microdata.">
   <meta name="theme-color" content="#0e635e">
+  <link rel="icon" type="image/svg+xml" href="assets/isoko-bridge-icon.svg">
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -29,16 +30,8 @@
     <div class="top" style="margin-top: 10px;">
       <!-- Brand & Pool Ticker Pill -->
       <div class="pill logo" onclick="window.app.goHome()" title="Isoko Bridge Home">
-        <i style="background:var(--on); color:#fff; display:grid; place-items:center;">
-          <svg viewBox="0 0 540 120" style="width:22px; height:16px;">
-            <path d="M 75 48 Q 270 18 465 48 Q 270 24 75 48 Z" fill="#fff" style="fill:#fff !important; stroke:none !important;"/>
-            <path d="M 86 106 C 86 66, 182 66, 182 106" stroke="#fff" stroke-width="26" stroke-linecap="round" fill="none" style="stroke:#fff !important;"/>
-            <path d="M 210 106 C 210 54, 330 54, 330 106" stroke="#fff" stroke-width="28" stroke-linecap="round" fill="none" style="stroke:#fff !important;"/>
-            <path d="M 358 106 C 358 66, 454 66, 454 106" stroke="#fff" stroke-width="26" stroke-linecap="round" fill="none" style="stroke:#fff !important;"/>
-          </svg>
-        </i>
+        <img class="ib-header-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
         <div style="display:flex; flex-direction:column; line-height:1.2;">
-          <span style="font-weight:700; font-size:14.5px; letter-spacing:-0.02em;">Isoko Bridge</span>
           <small style="color:var(--mute); font-size:10px;">Ikiraro cya VUP · NISR 2026</small>
         </div>
         <span class="tag g" style="margin-left:6px;" id="poolTickerLabel">
@@ -125,10 +118,12 @@
     <div class="auth-card-v5" id="authCardV5" data-mode="login">
       <section class="overlay-v5">
         <div class="msg-v5 m-signup-v5">
+          <img class="ib-auth-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
           <h1>HELLO, FRIEND!</h1>
           <p>Join Isoko Bridge today. Choose your role or try a 1-click sample demo account.</p>
         </div>
         <div class="msg-v5 m-login-v5">
+          <img class="ib-auth-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
           <h1>WELCOME BACK!</h1>
           <p>Connect with your Rwandan community pool, farmer market, and emergency credit.</p>
         </div>
@@ -298,7 +293,7 @@
           <div class="slot-v2"></div>
           <div class="feed-v2">
             <div class="paper-v2" id="paperV2">
-              <h3>ISOKO BRIDGE</h3>
+              <img class="ib-receipt-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
               <div class="s-v2">FOOD MARKETPLACE RECEIPT</div>
               <hr>
               <div class="l-v2"><span>RECEIPT</span><span id="recNumV2">#IB-2026-102</span></div>
@@ -570,7 +565,7 @@
     <div class="container">
       <div class="footer-content">
         <div>
-          <b>Isoko Bridge (Ikiraro cya VUP)</b> · NISR 2026 Big Data Hackathon Submission
+          <img class="ib-footer-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge"> <span>(Ikiraro cya VUP)</span> · NISR 2026 Big Data Hackathon Submission
           <div style="font-size: 12px; margin-top: 2px;">
             Team: <b>Zaidi</b> & <b>KAYUMBA TETA Aela Greta</b> (Final Year, University of Rwanda - CST)
             <br>

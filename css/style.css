@@ -3670,6 +3670,17 @@ footer .container { max-width: 1800px; }
 .vm-seller-card b { display: block; font-size: 12.5px; line-height: 1.3; }
 .vm-seller-card small { display: block; margin: 4px 0; color: var(--mute); font-size: 11px; }
 .vm-seller-card .tag { max-width: 100%; white-space: normal; }
+.ib-header-logo { display: block; width: 132px; height: auto; flex: none; }
+.ib-market-brand { display: flex; justify-content: center; padding: 6px 0 16px; }
+.ib-market-brand img { display: block; width: min(260px, 58vw); height: auto; }
+.ib-market-icon { display: block; width: 42px; height: 42px; flex: none; border: 1px solid var(--line); border-radius: 14px; object-fit: cover; }
+.ib-auth-logo { width: min(210px, 72%); height: auto; margin: 0 auto 12px; filter: brightness(0) invert(1); }
+.ib-receipt-logo { display: block; width: 132px; height: auto; margin: 0 auto 7px; }
+.ib-footer-logo { display: inline-block; width: 132px; height: auto; margin-right: 6px; vertical-align: middle; }
+.ib-report-logo { display: block; width: 150px; height: auto; margin-bottom: 8px; }
+:root[data-theme="dark"] .ib-header-logo,
+:root[data-theme="dark"] .ib-market-brand img,
+:root[data-theme="dark"] .ib-market-icon { filter: brightness(0) invert(1); }
 
 @media (max-width: 1100px) {
   .top { grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand" "nav" "tools"; }
@@ -3677,11 +3688,14 @@ footer .container { max-width: 1800px; }
   .top > .right > .pill { width: 100%; justify-content: space-between; }
   .top .user { flex: 0 1 auto; }
   .vm-seller-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ib-header-logo { width: 120px; }
 }
 @media (max-width: 640px) {
   .top { gap: 8px; }
   .top > .logo { width: 100%; padding: 6px 8px 6px 4px; }
   .top > .logo .tag { margin-left: auto !important; }
+  .ib-header-logo { width: 104px; }
+  .ib-footer-logo { width: 116px; }
   .top > .nav { gap: 2px; padding: 4px; }
   .top > .nav button { padding: 8px 11px; font-size: 12px; }
   .top > .right > .pill { align-items: stretch; flex-wrap: wrap; gap: 6px !important; }

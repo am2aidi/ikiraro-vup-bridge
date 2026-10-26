@@ -911,7 +911,8 @@ class IsokoApp {
       <div style="border:1px solid #fed7d7;background:#fff5f5;padding:9px 12px;border-radius:10px;margin-bottom:14px;font-size:12px;font-weight:700;color:#991b1b;">Prototype. Fake money. Prototype activity below is simulated. NISR figures describe group patterns; they do not explain why any individual payment was late.</div>
 
       <div style="font-size:14px; margin-bottom:12px;">
-        <h2 style="font-size:22px; margin-bottom:4px;">Isoko Bridge — NISR & Activity Report</h2>
+        <img class="ib-report-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
+        <h2 style="font-size:22px; margin-bottom:4px;">NISR & Activity Report</h2>
         <div style="font-size:12.5px; color:var(--text-muted);">
           Activity period: <b>${this.escapeHtml(report.period.label)}</b> · Prepared by: <b>${this.escapeHtml(currentUser.name || 'Dashboard user')}</b> · Generated: <b>${new Date().toLocaleString('en-GB')}</b>
         </div>
@@ -1338,26 +1339,15 @@ class IsokoApp {
     const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
 
     return `
-      <!-- Pure SVG Logo Recreated from Concept (No image file used) -->
-      <div style="text-align:center; padding: 6px 0 16px; display:flex; justify-content:center;">
-        <svg viewBox="0 0 540 160" style="width: 100%; max-width: 240px; height: auto;" class="ib-brand-svg-logo">
-          <!-- Top Curved Deck Line -->
-          <path d="M 75 48 Q 270 18 465 48 Q 270 24 75 48 Z" fill="currentColor" style="fill:currentColor !important; stroke:none !important;"/>
-          <!-- 3 Distinct Bridge Arches -->
-          <path d="M 86 106 C 86 66, 182 66, 182 106" stroke="currentColor" stroke-width="14" stroke-linecap="round" fill="none"/>
-          <path d="M 210 106 C 210 54, 330 54, 330 106" stroke="currentColor" stroke-width="16" stroke-linecap="round" fill="none"/>
-          <path d="M 358 106 C 358 66, 454 66, 454 106" stroke="currentColor" stroke-width="14" stroke-linecap="round" fill="none"/>
-          <!-- Spaced Typography -->
-          <text x="270" y="148" text-anchor="middle" font-family="'Inter', 'Bricolage Grotesque', sans-serif" font-weight="700" font-size="28" letter-spacing="0.42em" fill="currentColor" style="fill:currentColor !important; stroke:none !important;">I S O K O   B R I D G E</text>
-        </svg>
+      <!-- Shared Isoko Bridge logo -->
+      <div class="ib-market-brand">
+        <img src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
       </div>
 
       <!-- @uxui_faran Mobile User Location & Header Strip -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding:4px 2px;">
         <div style="display:flex; align-items:center; gap:10px;">
-          <div class="av" style="width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--on), var(--gd)); color:#fff; font-weight:700; display:grid; place-items:center;">
-            IB
-          </div>
+          <img class="ib-market-icon" src="assets/isoko-bridge-icon.svg" alt="">
           <div>
             <b style="font-size:13.5px; display:block; line-height:1.2;">Isoko Fresh Market</b>
             <small style="color:var(--mute); font-size:11px; display:flex; align-items:center; gap:3px;">
