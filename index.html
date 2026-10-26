@@ -16,12 +16,30 @@
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
 
-  <!-- Master Vertix Shell Container -->
-  <div class="shell">
+  <!-- Device Preview Bar (Phone / Tablet / Laptop) from Eat while you wait -->
+  <div class="devbar" role="group" aria-label="Preview on a device">
+    <button class="dev-btn" data-v="phone" onclick="window.app.setDevicePreview('phone')" title="Phone (420px)">
+      <svg viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>
+      <span>Phone</span>
+    </button>
+    <button class="dev-btn" data-v="tablet" onclick="window.app.setDevicePreview('tablet')" title="Tablet (840px)">
+      <svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M11 18h2"/></svg>
+      <span>Tablet</span>
+    </button>
+    <button class="dev-btn on" data-v="laptop" onclick="window.app.setDevicePreview('laptop')" title="Laptop (1260px)">
+      <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 20h20"/></svg>
+      <span>Laptop</span>
+    </button>
+  </div>
+
+  <div id="dev" data-d="laptop">
+    <!-- Master Vertix Shell Container -->
+    <div class="shell">
     <!-- Mandatory Hackathon Hard Rule Banners (Section 2) -->
     <div class="vertix-banner-bar">
       <div class="vertix-banner-pill warn" title="Hard Rule 1: Prototype with fake money">
@@ -95,6 +113,11 @@
       </main>
     </div>
   </div>
+  </div>
+  <!-- End of dev container -->
+
+  <!-- Toast Notification from Eat while you wait -->
+  <div class="toast" id="toast" role="status"></div>
 
     <!-- 1. USER SLIDING AUTH MODAL (media_1792662744651.html) -->
   <div id="authModal" class="auth-overlay-backdrop">
@@ -566,6 +589,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/rwanda_geo_data.js"></script>
   <script src="js/nisr_data.js"></script>
+  <script src="js/nisr_pdf_data.js"></script>
   <script src="js/vup_seed_data.js"></script>
   <script src="js/translations.js"></script>
   <script src="js/app.js"></script>

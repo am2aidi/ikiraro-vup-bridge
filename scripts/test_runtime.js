@@ -94,6 +94,7 @@ global.L = {
 
 // Load dependencies
 require('../js/nisr_data.js');
+require('../js/nisr_pdf_data.js');
 require('../js/vup_seed_data.js');
 require('../js/translations.js');
 require('../js/app.js');
@@ -159,6 +160,13 @@ if (global.app) {
 
   const creditDesk = global.app.renderCreditDesk();
   console.log('Credit Desk HTML generated, length:', creditDesk.length);
+
+  const nisrDoc = global.app.renderNisrFactsDoc();
+  console.log('NISR Facts Doc HTML generated, length:', nisrDoc.length);
+
+  const summaryCard = global.app.renderSummaryCard(false);
+  console.log('Summary Card HTML generated, length:', summaryCard.length);
+  console.log('NISR_PDF available:', typeof global.NISR_PDF === 'string', '| Length:', global.NISR_PDF?.length);
 
   console.log('\n--- TEST 6: Admin Login & Demo Failure Switch ---');
   global.app.logout();

@@ -1227,6 +1227,7 @@ class IsokoApp {
           navItems = [
             { id: "dashboard", label: "📊 Overview" },
             { id: "creditdesk", label: "💳 Credit Desk" },
+            { id: "nisr_facts", label: "📑 NISR Facts" },
             { id: "analysis", label: "🗺️ Delays & GIS" },
             { id: "cases", label: "🛟 Disputes" },
             { id: "reports", label: "📄 Reports" }
@@ -1235,6 +1236,7 @@ class IsokoApp {
           navItems = [
             { id: "dashboard", label: "🏛️ Overview" },
             { id: "creditdesk", label: "💳 Credit Desk" },
+            { id: "nisr_facts", label: "📑 NISR Facts" },
             { id: "users", label: "👥 Users" },
             { id: "cases", label: "🛟 Disputes" },
             { id: "ledger", label: "📒 Ledger" }
@@ -1298,7 +1300,10 @@ class IsokoApp {
             <b style="font-size:12px;">${u.name || this.state.user.split('@')[0]}</b>
             <small style="color:var(--mute); font-size:9.5px;">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</small>
           </div>
-          <button class="mini" onclick="window.app.logout()" style="margin-left:6px;" title="Log out">
+          <button class="mini" onclick="window.app.downloadUserStatement()" style="margin-left:4px;" title="Download my statement (CSV)">
+            📥 CSV
+          </button>
+          <button class="mini" onclick="window.app.logout()" style="margin-left:4px;" title="Log out">
             ${logoutTxt}
           </button>
         `;
@@ -1313,7 +1318,7 @@ class IsokoApp {
   }
 
   setNavTab(tabId) {
-    if (tabId === "analysis") {
+    if (tabId === "analysis" || tabId === "nisr_facts") {
       this.state.activeSubView = "analysis";
       this.render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1717,6 +1722,9 @@ class IsokoApp {
   // 11. PLANNER DASHBOARD (ICON-FIRST, ONLY VUP FAMILIES, 3 QUEUES, ALERTS)
   // =========================================================================
   renderPlannerView() {
+    if (this.state.activeSubView === "nisr_facts") {
+      return this.renderNisrFactsDoc();
+    }
     const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
     const creditOrders = vupOrders.filter(x => x.mode === "credit");
     const totalCredit = creditOrders.reduce((sum, x) => sum + x.total, 0);
@@ -1836,6 +1844,8 @@ class IsokoApp {
           </button>
         </div>
       </section>
+
+      ${this.renderSummaryCard(false)}
 
       <!-- Vertix Two-Column Layout -->
       <div class="grid g2">
@@ -2260,6 +2270,9 @@ class IsokoApp {
   // 17. GOVERNMENT WORKER (ADMIN) SCREEN (Sees Whole System & Demo Switch)
   // =========================================================================
   renderAdminView() {
+    if (this.state.activeSubView === "nisr_facts") {
+      return this.renderNisrFactsDoc();
+    }
     const allUsers = [];
     for (const [r, list] of Object.entries(this.state.users || {})) {
       list.forEach(u => allUsers.push({ ...u, role: r.toUpperCase() }));
@@ -3326,6 +3339,13 @@ class IsokoApp {
   }
 
   toast(msg, type = "info") {
+    const floatEl = document.getElementById("toast");
+    if (floatEl) {
+      floatEl.textContent = msg;
+      floatEl.classList.add("show");
+      clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => floatEl.classList.remove("show"), 2800);
+    }
     let container = document.getElementById("toastContainer");
     if (!container) {
       container = document.createElement("div");
@@ -3341,6 +3361,469 @@ class IsokoApp {
       t.style.opacity = '0';
       setTimeout(() => t.remove(), 300);
     }, 3500);
+  }
+
+  // =========================================================================
+  // EAT WHILE YOU WAIT ENHANCEMENTS: DEVICE PREVIEW, NISR DOC, EXPORTS
+  // =========================================================================
+  setDevicePreview(mode) {
+    const dev = document.getElementById('dev');
+    if (dev) dev.dataset.d = mode;
+    document.querySelectorAll('.devbar button').forEach(b => {
+      b.classList.toggle('on', b.dataset.v === mode);
+    });
+    if (window.L && window.mapInstance) {
+      setTimeout(() => window.mapInstance.invalidateSize(), 300);
+    }
+    this.toast(`Preview: ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode`, 'info');
+  }
+
+  downloadFile(name, data, type) {
+    const blob = (data instanceof Blob) ? data : new Blob([data], { type: type || 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 150);
+  }
+
+  downloadNisrPdf() {
+    const b64 = (typeof window !== 'undefined' && window.NISR_PDF) || (typeof NISR_PDF !== 'undefined' && NISR_PDF);
+    if (b64) {
+      const raw = atob(b64);
+      const u = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) u[i] = raw.charCodeAt(i);
+      const today = new Date().toISOString().slice(0, 10);
+      this.downloadFile(`VUPBridge_NISR_Report_${today}.pdf`, new Blob([u], { type: 'application/pdf' }));
+      this.toast('NISR Analytical Report (PDF) downloaded successfully', 'success');
+    } else {
+      window.print();
+    }
+  }
+
+  downloadNisrCsv() {
+    const rows = this.getNisrSummaryCsvRows();
+    const today = new Date().toISOString().slice(0, 10);
+    this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, rows.map(r => r.join(',')).join('\n'), 'text/csv');
+    this.toast('NISR analytical tables (CSV) downloaded successfully', 'success');
+  }
+
+  downloadNisrHtml() {
+    const docEl = document.getElementById('nisrdoc');
+    if (!docEl) {
+      this.toast('Open the NISR Facts tab to export web document', 'warning');
+      return;
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    const styles = document.querySelector('style') ? document.querySelector('style').textContent : '';
+    const content = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>NISR Facts: VUP Bridge</title><style>' + styles + '</style></head><body style="max-width:960px;margin:20px auto;padding:16px;">' + docEl.outerHTML.replace(/data-a="[^"]*"/g, '') + '</body></html>';
+    this.downloadFile(`VUPBridge_NISR_facts_${today}.html`, content, 'text/html');
+    this.toast('NISR facts web page downloaded successfully', 'success');
+  }
+
+  downloadUserStatement() {
+    const role = this.state.role || 'Family';
+    const email = (this.state.currentUser && this.state.currentUser.email) || 'user@vupbridge.rw';
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = this.state.orders.filter(o => {
+      if (role === 'Family') return o.buyerEmail === email || o.buyerRole === 'Family';
+      if (role === 'Farmer') return o.farmerEmail === email || o.farmer === (this.state.currentUser && this.state.currentUser.name);
+      return o.buyerEmail === email;
+    });
+
+    const csvContent = [
+      'Prototype. Fake money.',
+      `Statement for ${email} generated ${new Date().toISOString()}`,
+      'order_id,date,food,amount_rwf,mode,status,payment_method',
+      ...rows.map(o => [o.id, o.date || today, `"${o.food || 'Fresh staple'}"`, o.total, o.mode, o.status, `"${o.payMethod || 'MTN Mobile Money'}"`].join(','))
+    ].join('\n');
+
+    this.downloadFile(`VUPBridge_${role}_statement_${today}.csv`, csvContent, 'text/csv');
+    this.toast(`Statement for ${email} downloaded successfully`, 'success');
+  }
+
+  downloadAuditCsv() {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = (this.state.cases || []).map(c => [c.id, c.date, c.status, `"${c.type}"`, c.amount, `"${c.actionTaken || ''}"`].join(','));
+    const content = ['Prototype. Fake money.', 'case_id,date,status,type,amount_rwf,action_taken', ...rows].join('\n');
+    this.downloadFile(`VUPBridge_audit_disputes_${today}.csv`, content, 'text/csv');
+    this.toast('Audit & disputes log downloaded', 'success');
+  }
+
+  downloadLedgerCsv() {
+    const today = new Date().toISOString().slice(0, 10);
+    const rows = (this.state.orders || []).map(o => [o.id, o.date || today, `"${o.food}"`, o.total, o.mode, o.status, `"${o.payMethod || ''}"`].join(','));
+    const content = ['Prototype. Fake money.', 'id,date,item,total_rwf,mode,status,payment_method', ...rows].join('\n');
+    this.downloadFile(`VUPBridge_transactions_${today}.csv`, content, 'text/csv');
+    this.toast('Transactions ledger (CSV) downloaded', 'success');
+  }
+
+  filterNisrClass(cls) {
+    this.state.nisrFilter = cls;
+    this.render();
+  }
+
+  getNisrSummaryCsvRows() {
+    const NISR = [['Expanded Public Works', 11.0, 63, 796], ['Classic Public Works', 9.7, 50, 925], ['Direct Support', 8.3, 51, 1003], ['NSDS', 7.7, 42, 675]];
+    const PROV = [['Southern', 10.7, 64, 675], ['Eastern', 10.7, 59, 762], ['Western', 9.4, 55, 789], ['City of Kigali', 8.3, 47, 358], ['Northern', 6.6, 34, 815]];
+    const PG = [['Severely poor', 11.0, 62, 174], ['Moderately poor', 9.7, 56, 875], ['Not poor', 8.9, 50, 2350]];
+    const PM = [['Mobile money', 10.4, 59, 630], ['Umurenge SACCO', 7.7, 43, 546]];
+    const SX = [['Women', 9.2, 52, 2468], ['Men', 9.2, 52, 931]];
+    const DIS_slow = [['Kirehe', 15.5, null, 70], ['Gisagara', 14.9, null, 77], ['Karongi', 13.2, null, 100], ['Kicukiro', 12.4, null, 27], ['Gatsibo', 12.2, null, 92]];
+    const DIS_fast = [['Nyabihu', 4.5, null, 63], ['Musanze', 5.1, null, 70], ['Gicumbi', 6.3, null, 297], ['Rwamagana', 6.3, null, 55], ['Rubavu', 6.6, null, 76]];
+    const PR = [['Sweet potato', 250], ['Cooking banana', 300], ['Salt', 400], ['Avocado', 400], ['Irish potato', 450], ['Tomato', 500], ['Dry beans', 800], ['Corn flour', 1000], ['Local rice', 1200], ['Onion (about)', 1667], ['Groundnut flour', 2000], ['Small dry fish', 3030]];
+
+    const cD = d => d > 10 ? ['ba', '✖', 'High delay'] : d >= 7 ? ['wa', '▲', 'Medium delay'] : ['ok', '✔', 'Low delay'];
+    const cN = n => n < 25 ? ['ba', '✖', 'Under 25: hide'] : n < 100 ? ['wa', '▲', 'Small sample'] : ['ok', '✔', 'Reliable'];
+    const cP = p => p > 1500 ? ['ba', '✖', 'High cost'] : p >= 500 ? ['wa', '▲', 'Mid cost'] : ['ok', '✔', 'Cheap staple'];
+
+    const o = [
+      ['Prototype. Fake money. NISR EICV7 2023-2024 summary. Early unweighted values. Patterns, not reasons.'],
+      ['section', 'name', 'avg_days_late', 'over_7_days_pct', 'records', 'delay_class', 'sample_class']
+    ];
+    const add = (sc, rows) => rows.forEach(r => o.push([sc, r[0], r[1], r[2] == null ? '' : r[2], r[3], cD(r[1])[2], cN(r[3])[2]]));
+    add('programme', NISR);
+    add('province', PROV);
+    add('poverty group', PG);
+    add('payment method', PM);
+    add('sex', SX);
+    add('district slowest', DIS_slow);
+    add('district fastest', DIS_fast);
+    PR.forEach(r => o.push(['food price rwf per kg', r[0], r[1], '', '', cP(r[1])[2], '']));
+    return o;
+  }
+
+  renderSummaryCard(adm = false) {
+    const tf = (this.state.timeframe || 'week');
+    const tfKey = tf.charAt(0).toUpperCase() + tf.slice(1);
+    const SM = {
+      Week: [14, 12, 2, 64000, 52000, 3, 70000, 58000, 11, 56, 2.4, 38, 212000, 'Sweet potato, Irish potato, Dry beans', [6, 2, 5, 41]],
+      Month: [61, 52, 9, 288000, 251000, 5, 300000, 262000, 44, 53, 2.1, 164, 904000, 'Irish potato, Sweet potato, Tomato', [24, 8, 19, 118]],
+      Year: [702, 604, 98, 3310000, 3025000, 9, 3500000, 3180000, 402, 51, 2.3, 1893, 10240000, 'Irish potato, Dry beans, Sweet potato', [260, 71, 204, 402]]
+    };
+    const q = SM[tfKey] || SM.Month;
+    const t = (v, l) => `<div class="tile"><b>${v}</b>${l}</div>`;
+    return `
+      <div class="card" style="margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <h3 style="margin:0; font-size:16px;">📈 This ${tfKey.toLowerCase()} summary <span class="tag g">Simulated</span></h3>
+          <div class="seg">
+            ${['Week', 'Month', 'Year'].map(x => `<button class="${x.toLowerCase() === tf ? 'on' : ''}" onclick="window.app.setTimeframe('${x.toLowerCase()}')">${x}</button>`).join('')}
+          </div>
+        </div>
+        <div class="tiles">
+          ${t(q[0], 'credit requests (' + q[1] + ' approved, ' + q[2] + ' refused)')}
+          ${t(Math.round(q[3]).toLocaleString() + ' RWF', 'credit given')}
+          ${t(Math.round(q[4]).toLocaleString() + ' RWF', 'credit repaid')}
+          ${t(q[5], 'credit overdue')}
+          ${t(Math.round(q[6]).toLocaleString() + ' RWF', 'pool money in')}
+          ${t(Math.round(q[7]).toLocaleString() + ' RWF', 'pool paid out')}
+          ${t(q[8], 'families helped')}
+          ${t(q[9] + '%', 'paid over 7 days late (NISR benchmark: 52%)')}
+          ${t(q[10] + ' days', 'average time to pay sellers')}
+          ${t(q[11], 'orders')}
+          ${t(Math.round(q[12]).toLocaleString() + ' RWF', 'sales')}
+          ${t(q[13].split(',')[0], 'top staple: ' + q[13])}
+          ${adm ? t(q[14][0] + ' / ' + q[14][1] + ' / ' + q[14][2], 'new members / sellers / shoppers') + t(q[14][3], 'active users') : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  renderNisrFactsDoc() {
+    const NISR = [
+      ['Expanded Public Works', 11.0, 63, 796],
+      ['Classic Public Works', 9.7, 50, 925],
+      ['Direct Support', 8.3, 51, 1003],
+      ['NSDS', 7.7, 42, 675]
+    ];
+    const PROV = [
+      ['Southern', 10.7, 64, 675],
+      ['Eastern', 10.7, 59, 762],
+      ['Western', 9.4, 55, 789],
+      ['City of Kigali', 8.3, 47, 358],
+      ['Northern', 6.6, 34, 815]
+    ];
+    const PG = [['Severely poor', 11.0, 62, 174], ['Moderately poor', 9.7, 56, 875], ['Not poor', 8.9, 50, 2350]];
+    const PM = [['Mobile money', 10.4, 59, 630], ['Umurenge SACCO', 7.7, 43, 546]];
+    const SX = [['Women', 9.2, 52, 2468], ['Men', 9.2, 52, 931]];
+    const DIS = {
+      slow: [['Kirehe', 15.5, null, 70], ['Gisagara', 14.9, null, 77], ['Karongi', 13.2, null, 100], ['Kicukiro', 12.4, null, 27], ['Gatsibo', 12.2, null, 92]],
+      fast: [['Nyabihu', 4.5, null, 63], ['Musanze', 5.1, null, 70], ['Gicumbi', 6.3, null, 297], ['Rwamagana', 6.3, null, 55], ['Rubavu', 6.6, null, 76]]
+    };
+    const COLS = ['Southern', 'Eastern', 'Western', 'City of Kigali', 'Northern'];
+    const MX = [
+      ['Expanded Public Works', [[14.6, '79% · worst hotspot'], 0, 0, 0, 0]],
+      ['Classic Public Works', [[11.4], [12.0], [10.0], [8.5], [6.3]]],
+      ['Direct Support', [[9.7], [9.2], [9.2], [7.4], [6.0]]],
+      ['NSDS', [[8.3], [11.4, 'only 57 records'], [7.8], 0, [6.2]]]
+    ];
+    const PR = [
+      ['Sweet potato', 250], ['Cooking banana', 300], ['Salt', 400], ['Avocado', 400],
+      ['Irish potato', 450], ['Tomato', 500], ['Dry beans', 800], ['Corn flour', 1000],
+      ['Local rice', 1200], ['Onion (about)', 1667], ['Groundnut flour', 2000], ['Small dry fish', 3030]
+    ];
+    const ACC = [['Mobile money', 4699], ['Umurenge SACCO', 4641], ['Commercial bank', 444]];
+    const LON = [['Tontine', 2129], ['Relatives', 1246], ['VUP financial loan', 614]];
+    const REF = [['Purpose not clear', 113], ['Income too low', 89], ['No collateral', 35]];
+    const BUY = [['Small shop', 69], ['Market', 27], ['Individual seller', 5]];
+
+    const cD = d => d > 10 ? ['ba', '✖', 'High delay'] : d >= 7 ? ['wa', '▲', 'Medium delay'] : ['ok', '✔', 'Low delay'];
+    const cS = p => p > 55 ? ['ba', '✖'] : p >= 40 ? ['wa', '▲'] : ['ok', '✔'];
+    const cN = n => n < 25 ? ['ba', '✖', 'Under 25: hide'] : n < 100 ? ['wa', '▲', 'Small sample'] : ['ok', '✔', 'Reliable'];
+    const cP = p => p > 1500 ? ['ba', '✖', 'High cost'] : p >= 500 ? ['wa', '▲', 'Mid cost'] : ['ok', '✔', 'Cheap staple'];
+    const bd = c => `<span class="bd ${c[0]}">${c[1]} ${c[2] || ''}</span>`;
+
+    const NF = this.state.nisrFilter || 'All';
+    const tot = NISR.reduce((a, r) => a + r[3], 0);
+    const avg = (NISR.reduce((a, r) => a + r[1] * r[3], 0) / tot).toFixed(1);
+    const o7 = Math.round(NISR.reduce((a, r) => a + r[2] * r[3], 0) / tot);
+
+    const sec = (id, t, x) => `<section class="card" id="${id}"><h3 style="font-size:18px; font-weight:700; margin-bottom:12px;">${t}</h3>${x}</section>`;
+    const bars = (rows, max, fmt, cls) => rows.map(r => `
+      <div class="br">
+        <span>${r[0]}</span>
+        <i><u class="${cls(r)}" style="width:${Math.max(2, r[1] / max * 100)}%"></u></i>
+        <b>${fmt(r)}</b>
+      </div>
+    `).join('');
+
+    const dt = (rows, first) => {
+      const f = rows.filter(r => NF === 'All' || cD(r[1])[2].startsWith(NF)).sort((a, b) => b[1] - a[1]);
+      return f.length ? `
+        <div class="sc">
+          <table>
+            <tr>
+              <th>${first}</th>
+              <th>Average days late</th>
+              <th>Over 7 days</th>
+              <th>Records</th>
+              <th>Delay class</th>
+              <th>Sample</th>
+            </tr>
+            ${f.map(r => `
+              <tr>
+                <td>${r[0]}</td>
+                <td><b>${r[1]}</b><i class="mb"><u class="${cD(r[1])[0]}" style="width:${r[1] / 16 * 100}%"></u></i></td>
+                <td>${r[2] == null ? '—' : r[2] + '% ' + cS(r[2])[1]}</td>
+                <td>${r[3].toLocaleString()}</td>
+                <td>${bd(cD(r[1]))}</td>
+                <td>${bd(cN(r[3]))}</td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      ` : '<p class="mute" style="color:var(--mute); padding:10px 0;">No rows in this class.</p>';
+    };
+
+    const toc = [
+      ['s1', 'Key findings'], ['s2', 'How to read'], ['s3', 'By programme'],
+      ['s4', 'By province'], ['s5', 'Hotspots'], ['s6', 'Districts'],
+      ['s7', 'Who waits longer'], ['s8', 'Poverty risk'], ['s9', 'Finance'],
+      ['s10', 'Food prices'], ['s11', 'Priority score'], ['s12', 'Limits and sources']
+    ];
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    return `
+      <div class="doc" id="nisrdoc">
+        <!-- Hero Header Card with Leaves -->
+        <div class="dh">
+          <i class="lf l1"></i>
+          <i class="lf l2"></i>
+          <span class="tag">Real data</span>
+          <span class="tag">EICV7 · 2023–2024</span>
+          <span class="tag">Early unweighted values</span>
+          <h1>NISR facts: late VUP payments, poverty and food prices</h1>
+          <p>A plain-words report from the NISR Integrated Household Living Conditions Survey (EICV7). It shows patterns, not reasons. Prepared ${todayStr} in VUP Bridge. Built on NISR household microdata.</p>
+          <div class="tb">
+            <button class="btn" onclick="window.app.downloadNisrPdf()">
+              📥 Download PDF
+            </button>
+            <button class="btn" onclick="window.app.downloadNisrHtml()">
+              🌐 Download web page
+            </button>
+            <button class="btn" onclick="window.app.downloadNisrCsv()">
+              📊 Download tables (CSV)
+            </button>
+          </div>
+        </div>
+
+        <!-- Table of Contents Pills -->
+        <div class="toc" role="navigation" aria-label="Contents">
+          ${toc.map(t => `<button onclick="document.getElementById('${t[0]}')?.scrollIntoView({behavior:'smooth'})">${t[1]}</button>`).join('')}
+        </div>
+
+        <!-- Section 1: Key Findings -->
+        ${sec('s1', 'Key findings', `
+          <div class="kpis">
+            <div class="kpi">
+              <b>${avg} days</b>
+              average wait after due date
+              <small>${tot.toLocaleString()} payment records</small>
+            </div>
+            <div class="kpi">
+              <b>${o7}%</b>
+              waited more than 7 days
+              <small>about half of beneficiaries</small>
+            </div>
+            <div class="kpi">
+              <b>14.6 days</b>
+              worst hotspot: Expanded Public Works, Southern
+              <small>79% waited over 7 days</small>
+            </div>
+            <div class="kpi">
+              <b>Kirehe 15.5</b>
+              slowest district (days late)
+              <small>70 records, small sample</small>
+            </div>
+          </div>
+          <p class="mute" style="margin-top:10px; color:var(--mute); font-size:12.5px;">Totals calculated from the survey microdata. The survey covers 3,771 households and 15,039 people across Rwanda.</p>
+        `)}
+
+        <!-- Section 2: How to read this report -->
+        ${sec('s2', 'How to read this report', `
+          <p class="mute" style="margin-bottom:10px; color:var(--mute); font-size:13px;">Every group gets a class with a shape, so you never need color to read it. Use the filter to show only one class.</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+            <b>Show delay class:</b>
+            <div class="seg">
+              ${['All', 'High', 'Medium', 'Low'].map(x => `
+                <button class="${x === NF ? 'on' : ''}" onclick="window.app.filterNisrClass('${x}')">${x}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="sc">
+            <table>
+              <tr><th>What we measure</th><th>✔ Good</th><th>▲ Watch</th><th>✖ Act</th></tr>
+              <tr><td>Average days late</td><td>under 7</td><td>7 to 10</td><td>over 10</td></tr>
+              <tr><td>Paid more than 7 days late</td><td>under 40%</td><td>40% to 55%</td><td>over 55%</td></tr>
+              <tr><td>Records in the group</td><td>100 or more: reliable</td><td>25 to 99: small sample, take care</td><td>under 25: hide or warn</td></tr>
+              <tr><td>Food price per kg</td><td>under 500: cheap staple</td><td>500 to 1,500: mid cost</td><td>over 1,500: high cost</td></tr>
+              <tr><td>Seller price vs NISR middle price</td><td>85% to 115%: Fair</td><td>under 85%: Low</td><td>over 115%: High</td></tr>
+            </table>
+          </div>
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12px;"><b>Real</b> = NISR survey numbers. <b>Simulated</b> = app people, orders, credit, pool. <b>Assumed</b> = food basket daily cost (261 RWF/person/day).</p>
+        `)}
+
+        <!-- Section 3: Delay by programme -->
+        ${sec('s3', '1. Payment delay by VUP programme', dt(NISR, 'Programme') + `
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">Public works programmes wait longer than Direct Support and NSDS.</p>
+        `)}
+
+        <!-- Section 4: Delay by province -->
+        ${sec('s4', '2. Payment delay by province', dt(PROV, 'Province') + `
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">Southern and Eastern wait longest. Northern waits least.</p>
+        `)}
+
+        <!-- Section 5: Hotspots matrix -->
+        ${sec('s5', '3. Hotspots: programme by province', `
+          <p class="mute" style="margin-bottom:8px; color:var(--mute); font-size:12.5px;">Average days late. A dash means no value in this summary.</p>
+          <div class="sc">
+            <table>
+              <tr><th>Programme</th>${COLS.map(c => `<th style="text-align:center">${c}</th>`).join('')}</tr>
+              ${MX.map(r => `
+                <tr>
+                  <td>${r[0]}</td>
+                  ${r[1].map(c => c ? `<td class="c ${cD(c[0])[0]}"><b>${c[0]}</b> ${cD(c[0])[1]}${c[1] ? `<small>${c[1]}</small>` : ''}</td>` : '<td class="c">—</td>').join('')}
+                </tr>
+              `).join('')}
+            </table>
+          </div>
+        `)}
+
+        <!-- Section 6: Districts -->
+        ${sec('s6', '4. Districts: slowest and fastest', `
+          <b>Slowest five districts</b>
+          ${dt(DIS.slow, 'District')}
+          <b style="display:block; margin-top:14px;">Fastest five districts</b>
+          ${dt(DIS.fast, 'District')}
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">Kicukiro has only 27 records. Treat small samples with care.</p>
+        `)}
+
+        <!-- Section 7: Who waits longer -->
+        ${sec('s7', '5. Who waits longer?', `
+          <b>By poverty group (measured after support is received)</b>
+          ${dt(PG, 'Group')}
+          <b style="display:block; margin-top:14px;">By payment method</b>
+          ${dt(PM, 'Method')}
+          <b style="display:block; margin-top:14px;">By sex</b>
+          ${dt(SX, 'Sex')}
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">Mobile money payments wait about 2.7 days longer than Umurenge SACCO payments. Women and men wait the same time. This is an administrative pattern, not a reason.</p>
+        `)}
+
+        <!-- Section 8: Poverty risk model -->
+        ${sec('s8', '6. Poverty risk model', `
+          <div class="kpis">
+            <div class="kpi"><b>29%</b>of sampled households are poor</div>
+            <div class="kpi"><b>0.76–0.79</b>AUC score ${bd(['wa', '▲', 'Fair'])}<small>0.5 = guessing, 1 = perfect</small></div>
+            <div class="kpi"><b>4.9 vs 3.6</b>people at home: poor vs not poor</div>
+          </div>
+          <b style="display:block; margin-top:14px;">Main factors, from strongest:</b>
+          <ol class="ol" style="margin-top:6px;">
+            <li>Household size</li>
+            <li>Estimated rent</li>
+            <li>Number of children</li>
+            <li>Outside floor area</li>
+            <li>Floor material</li>
+          </ol>
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">The model uses housing and household facts only. Use it to guide where to look. Never use it to decide who gets help.</p>
+        `)}
+
+        <!-- Section 9: Finance & Loans -->
+        ${sec('s9', '7. Money and loans (survey records)', `
+          <b>Accounts held</b>
+          ${bars(ACC, 4699, r => r[1].toLocaleString(), () => 'ok')}
+          <b style="display:block; margin-top:12px;">Where loans come from</b>
+          ${bars(LON, 2129, r => r[1].toLocaleString(), () => 'ok')}
+          <b style="display:block; margin-top:12px;">Why loans were refused</b>
+          ${bars(REF, 113, r => r[1].toLocaleString(), () => 'wa')}
+          <p class="mute" style="margin-top:8px; color:var(--mute); font-size:12.5px;">Only 353 of 5,404 people (6.5%) tried to get a formal loan. Most borrow from a tontine (ibimina) or relatives.</p>
+        `)}
+
+        <!-- Section 10: Food prices -->
+        ${sec('s10', '8. Food prices (NISR middle price per kg, RWF)', `
+          ${bars(PR, 3030, r => r[1].toLocaleString() + ' ' + cP(r[1])[1], r => cP(r[1])[0])}
+          <b style="display:block; margin-top:14px;">Where households buy food</b>
+          ${bars(BUY, 69, r => r[1] + '%', () => 'ok')}
+          <b style="display:block; margin-top:14px;">Basket used for credit (assumed): 261 RWF per person per day</b>
+          <div class="sc">
+            <table>
+              <tr><th>Food</th><th>Amount</th><th>Price per kg</th><th>Cost</th></tr>
+              <tr><td>Dry beans</td><td>120 g</td><td>800</td><td>96</td></tr>
+              <tr><td>Sweet potato</td><td>300 g</td><td>250</td><td>75</td></tr>
+              <tr><td>Tomato</td><td>80 g</td><td>500</td><td>40</td></tr>
+              <tr><td>Onion</td><td>30 g</td><td>1,667</td><td>50</td></tr>
+              <tr><td><b>Total</b></td><td></td><td></td><td><b>261 RWF</b></td></tr>
+            </table>
+          </div>
+        `)}
+
+        <!-- Section 11: Priority score -->
+        ${sec('s11', '9. District priority score', `
+          <p class="mute" style="color:var(--mute); font-size:13px;">Method: for each district, standardise (a) poverty rate, (b) average payment delay, and (c) food price level, average the three, then rank. Delay-only list to investigate first:</p>
+          <ol class="ol" style="margin-top:8px;">
+            ${DIS.slow.map(r => `<li><b>${r[0]}</b>: ${r[1]} days late ${bd(cN(r[3]))}</li>`).join('')}
+          </ol>
+        `)}
+
+        <!-- Section 12: Limits & Sources -->
+        ${sec('s12', 'Limits and sources', `
+          <ol class="ol">
+            <li>These are patterns. The data cannot show why a payment was late.</li>
+            <li>Values are early and unweighted. They will change after the weighted run and the check against NISR's EICV7 VUP Thematic Report.</li>
+            <li>Poverty is measured after support is received.</li>
+            <li>Only summary tables are shown. No individual household rows are published.</li>
+            <li>Source: NISR, EICV7 2023–2024, VUP. Reference RWA-NISR-EICV7-VUP-2023-2024-V01, microdata.statistics.gov.rw/index.php/catalog/121.</li>
+            <li>AI tools helped build this prototype.</li>
+          </ol>
+        `)}
+      </div>
+    `;
   }
 }
 
