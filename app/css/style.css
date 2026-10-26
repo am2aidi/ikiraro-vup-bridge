@@ -3611,6 +3611,14 @@ svg * {
 }
 
 /* Clearer navigation and calmer glass panels for the Planner and Admin views. */
+.shell {
+  width: 100% !important;
+  max-width: 1800px !important;
+  margin-inline: auto !important;
+}
+.body, .main, #appView { min-width: 0; }
+.main { flex: 1 1 0; }
+footer .container { max-width: 1800px; }
 .top {
   display: grid;
   grid-template-columns: minmax(250px, auto) minmax(0, 1fr);
