@@ -319,6 +319,14 @@ class IsokoApp {
     this.saveState();
   }
 
+  setTheme(theme) {
+    if (theme !== "light" && theme !== "dark") return;
+    this.state.theme = theme;
+    this.applyTheme();
+    this.saveState();
+    this.render();
+  }
+
   // =========================================================================
   // TRILINGUAL LOCALIZATION (EN, RW, FR)
   // =========================================================================
@@ -1171,7 +1179,9 @@ class IsokoApp {
 
     if (this.state.user) {
       // User is logged in to a specific role screen
-      if (this.state.activeSubView === "analysis") {
+      if (this.state.activeSubView === "settings") {
+        mainEl.innerHTML = this.renderSettingsView();
+      } else if (this.state.activeSubView === "analysis") {
         mainEl.innerHTML = this.renderDashboardTopbar() + this.renderAnalysisView();
         this.initPlannerVisuals();
       } else {
@@ -1204,6 +1214,7 @@ class IsokoApp {
     const railMid = document.getElementById("railMid");
 
     const lang = this.state.lang || "en";
+    const activeSub = this.state.activeSubView || "dashboard";
     const logoutTxt = lang === 'rw' ? 'Gusohoka' : lang === 'fr' ? 'Déconnexion' : 'Log out';
 
     // 1. Render Middle Nav Pill based on active role and view
@@ -1212,55 +1223,48 @@ class IsokoApp {
         const role = this.state.role || "Family";
         const sub = this.state.activeSubView || "dashboard";
         
+        const icon = {
+          dashboard: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
+          creditdesk: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+          credit: '<svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
+          nisr_facts: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h6"/></svg>',
+          analysis: '<svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 6-7"/></svg>',
+          cases: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4m0 4h.01"/></svg>',
+          reports: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>',
+          users: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2m2-13a4 4 0 0 1 0 8m2 5v-2a6 6 0 0 0-3-5.2"/></svg>',
+          ledger: '<svg viewBox="0 0 24 24"><path d="M4 3h16v18H4zM8 7h8M8 11h8M8 15h5"/></svg>',
+          orders: '<svg viewBox="0 0 24 24"><path d="M4 4h16v17H4zM8 2v4m8-4v4M8 11h8m-8 4h8"/></svg>',
+          produce: '<svg viewBox="0 0 24 24"><path d="M12 21c-5-3-8-7-7-12 4-1 7 1 7 5 0-5 4-8 8-7 1 6-2 11-8 14zm0-9c0-4-2-7-5-9"/></svg>',
+          add_produce: '<svg viewBox="0 0 24 24"><path d="M12 21c-5-3-8-7-7-12 4-1 7 1 7 5 0-5 4-8 8-7 1 6-2 11-8 14zm0-9c0-4-2-7-5-9"/></svg>',
+          listings: '<svg viewBox="0 0 24 24"><path d="M4 4h16v17H4zM8 2v4m8-4v4M8 11h8m-8 4h8"/></svg>',
+          pool: '<svg viewBox="0 0 24 24"><path d="M3 10h18M5 10v9m5-9v9m4-9v9m5-9v9M3 21h18M12 3l9 5H3z"/></svg>',
+          settings: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7z"/></svg>'
+        };
+        const item = (id, label, tip = label) => ({ id, label, tip, icon: icon[id] || icon.dashboard });
         let navItems = [];
         if (role === "Planner") {
-          navItems = [
-            { id: "dashboard", label: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg> Overview' },
-            { id: "creditdesk", label: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Credit Desk' },
-            { id: "nisr_facts", label: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> NISR Facts' },
-            { id: "analysis", label: '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> NISR Analysis' },
-            { id: "cases", label: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Disputes' },
-            { id: "reports", label: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Reports' }
-          ];
+          navItems = [item("dashboard", "Overview", "View the planner dashboard"), item("creditdesk", "Credit Desk", "Review credit and repayments"), item("nisr_facts", "NISR Facts", "Read the source facts"), item("analysis", "NISR Analysis", "Explore survey findings"), item("cases", "Disputes", "Review reported problems"), item("reports", "Reports", "Download reports"), item("settings", "Settings", "Change your preferences")];
         } else if (role === "Admin") {
-          navItems = [
-            { id: "dashboard", label: "🏛️ Overview" },
-            { id: "creditdesk", label: "💳 Credit Desk" },
-            { id: "nisr_facts", label: "📑 NISR Facts" },
-            { id: "analysis", label: "📊 NISR Analysis" },
-            { id: "users", label: "👥 Users" },
-            { id: "cases", label: "🛟 Disputes" },
-            { id: "ledger", label: "📒 Ledger" }
-          ];
+          navItems = [item("dashboard", "Overview"), item("creditdesk", "Credit Desk"), item("nisr_facts", "NISR Facts"), item("analysis", "NISR Analysis"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings", "Change your preferences")];
         } else if (role === "Family") {
-          navItems = [
-            { id: "dashboard", label: "🥗 Food Basket" },
-            { id: "credit", label: "💳 Bridge Credit" },
-            { id: "orders", label: "📦 Orders" }
-          ];
+          navItems = [item("dashboard", "Food Basket"), item("credit", "Bridge Credit"), item("orders", "Orders"), item("settings", "Settings", "Change your preferences")];
         } else if (role === "Farmer") {
-          navItems = [
-            { id: "dashboard", label: "🌾 Add Produce" },
-            { id: "orders", label: "🚚 Orders & Payouts" }
-          ];
+          navItems = [item("dashboard", "Orders"), item("add_produce", "Add Produce", "Add food for sale"), item("listings", "My Listings"), item("settings", "Settings", "Change your preferences")];
         } else {
-          navItems = [
-            { id: "dashboard", label: "🛒 Fresh Market" },
-            { id: "pool", label: "🏦 Pool Impact" }
-          ];
+          navItems = [item("dashboard", "Shop"), item("pool", "Pool Impact"), item("settings", "Settings", "Change your preferences")];
         }
 
-        topNavPill.innerHTML = navItems.map(item => `
-          <button class="${sub === item.id ? 'on' : ''}" onclick="window.app.setNavTab('${item.id}')">
-            ${item.label}
+        topNavPill.innerHTML = navItems.map(nav => `
+          <button class="${sub === nav.id ? 'on' : ''}" onclick="window.app.setNavTab('${nav.id}')" title="${nav.tip}" aria-label="${nav.tip}">
+            <span class="nav-item-icon">${nav.icon}</span><span class="nav-item-label">${nav.label}</span>
           </button>
         `).join("");
       } else {
         const pTab = this.state.publicTab || 'market';
         topNavPill.innerHTML = `
-          <button class="${pTab === 'market' ? 'on' : ''}" onclick="window.app.setPublicTab('market')"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Fresh Market</button>
-          <button class="${pTab === 'roles' ? 'on' : ''}" onclick="window.app.setPublicTab('roles')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Roles & Portals</button>
-          <button class="${pTab === 'schedule' ? 'on' : ''}" onclick="window.app.setPublicTab('schedule')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> VUP Schedule</button>
+          <button class="${pTab === 'market' ? 'on' : ''}" onclick="window.app.setPublicTab('market')" title="Shop local food"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span>Fresh Market</span></button>
+          <button class="${pTab === 'roles' ? 'on' : ''}" onclick="window.app.setPublicTab('roles')" title="Choose a user role"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Roles & Portals</span></button>
+          <button class="${pTab === 'schedule' ? 'on' : ''}" onclick="window.app.setPublicTab('schedule')" title="View the VUP payment schedule"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>VUP Schedule</span></button>
         `;
       }
     }
@@ -1269,14 +1273,14 @@ class IsokoApp {
     if (railMid) {
       if (this.state.user) {
         railMid.innerHTML = `
-          <button class="on" onclick="window.app.setNavTab('dashboard')" title="Dashboard" aria-label="Dashboard">📊<span>Overview</span></button>
-          <button onclick="window.app.openStatementModal()" title="Statements" aria-label="Statements">📄<span>Statement</span></button>
-          <button onclick="window.app.openAnalysisReportModal()" title="Analysis Report" aria-label="Analysis Report">📈<span>Report</span></button>
+          <button class="${activeSub === 'dashboard' ? 'on' : ''}" onclick="window.app.setNavTab('dashboard')" title="Open overview" data-tip="Overview" aria-label="Overview"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Overview</span></button>
+          <button class="${activeSub === 'settings' ? 'on' : ''}" onclick="window.app.setNavTab('settings')" title="Change your preferences" data-tip="Settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.7z"/></svg><span>Settings</span></button>
+          <button onclick="window.app.openStatementModal()" title="Download your statement" data-tip="Statements" aria-label="Statements"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v18h16V8zM14 2v6h6M8 13h8m-8 4h8"/></svg><span>Statement</span></button>
         `;
       } else {
         railMid.innerHTML = `
-          <button class="on" onclick="window.app.goHome()" title="Home">🏠<span>Home</span></button>
-          <button onclick="window.app.openGeminiModal()" title="Gemini AI">✨<span>Gemini AI</span></button>
+          <button class="on" onclick="window.app.goHome()" title="Go to the market" data-tip="Home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+          <button onclick="window.app.openGeminiModal()" title="Open the AI helper" data-tip="AI helper" aria-label="AI helper"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="4"/></svg><span>AI helper</span></button>
         `;
       }
     }
@@ -1293,7 +1297,7 @@ class IsokoApp {
             <small style="color:var(--mute); font-size:9.5px;">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</small>
           </div>
           <button class="mini" onclick="window.app.downloadUserStatement()" style="margin-left:4px;" title="Download my statement (CSV)">
-            📥 CSV
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> CSV
           </button>
           <button class="mini" onclick="window.app.logout()" style="margin-left:4px;" title="Log out">
             ${logoutTxt}
@@ -1582,6 +1586,37 @@ class IsokoApp {
     if (this.state.role === "Shopper" || this.state.roleCode === "shopper") return this.renderShopperView();
     if (this.state.role === "Admin" || this.state.roleCode === "admin") return this.renderAdminView();
     return this.renderFamilyView();
+  }
+
+  renderSettingsView() {
+    const user = this.state.currentUser || {};
+    const language = this.state.lang || "en";
+    const theme = this.state.theme || "light";
+    const roleName = this.getRoleTitleByCode(this.state.roleCode || "member");
+    const languageOptions = [ ["en", "English"], ["rw", "Kinyarwanda"], ["fr", "Français"] ];
+    return `
+      <div class="head settings-heading">
+        <div><h1>Settings</h1><p class="sub">Choose how Isoko Bridge looks and reads for you.</p></div>
+      </div>
+      <div class="settings-layout">
+        <section class="card settings-card">
+          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4m0-12.8L17 7M7 17l-1.4 1.4"/><circle cx="12" cy="12" r="4"/></svg></span><div><h3>Language</h3><p>Choose the language used in the app.</p></div></div>
+          <div class="settings-choice-row">${languageOptions.map(([value, label]) => `<button class="settings-choice ${language === value ? 'selected' : ''}" aria-pressed="${language === value}" onclick="window.app.setLanguage('${value}')">${label}</button>`).join("")}</div>
+        </section>
+        <section class="card settings-card">
+          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><div><h3>Appearance</h3><p>Pick a light or dark screen.</p></div></div>
+          <div class="settings-choice-row"><button class="settings-choice ${theme === 'light' ? 'selected' : ''}" aria-pressed="${theme === 'light'}" onclick="window.app.setTheme('light')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg> Light</button><button class="settings-choice ${theme === 'dark' ? 'selected' : ''}" aria-pressed="${theme === 'dark'}" onclick="window.app.setTheme('dark')"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg> Dark</button></div>
+        </section>
+        <section class="card settings-card settings-account">
+          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span><div><h3>Your account</h3><p>Your profile details for this demo.</p></div></div>
+          <dl class="settings-account-list"><div><dt>Name</dt><dd>${this.escapeHtml(user.name || this.state.user || "User")}</dd></div><div><dt>Role</dt><dd>${this.escapeHtml(roleName)}</dd></div><div><dt>Email</dt><dd>${this.escapeHtml(user.email || this.state.user || "Not added")}</dd></div><div><dt>District</dt><dd>${this.escapeHtml(user.district || "Not added")}</dd></div></dl>
+        </section>
+        <section class="card settings-card">
+          <div class="settings-title"><span class="settings-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v18h16V8zM14 2v6h6M8 13h8m-8 4h8"/></svg></span><div><h3>Your records</h3><p>Download a copy of your activity.</p></div></div>
+          <button class="btn btn-primary settings-download" onclick="window.app.downloadUserStatement()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download my activity</button>
+        </section>
+      </div>
+    `;
   }
 
   // =========================================================================
@@ -2556,10 +2591,41 @@ class IsokoApp {
   // =========================================================================
   // 17. GOVERNMENT WORKER (ADMIN) SCREEN (Sees Whole System & Demo Switch)
   // =========================================================================
+  renderAdminUsersTab() {
+    const users = Object.entries(this.state.users || {}).flatMap(([role, list]) => list.map(user => ({ ...user, role })));
+    return `
+      <div class="head"><div><h1>Users</h1><p class="sub">Find a demo account and check its role and status.</p></div></div>
+      <section class="card admin-list-card">
+        <div class="admin-list-tools"><label class="admin-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="Search name, email, or role" oninput="window.app.filterAdminUserRows(this.value)"></label><span class="tag g">${users.length} demo accounts</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>District</th></tr></thead><tbody>
+          ${users.map(user => { const search = `${user.name || ""} ${user.email || ""} ${user.role}`.toLowerCase(); return `<tr data-admin-user="${this.escapeHtml(search)}"><td><b>${this.escapeHtml(user.name || "—")}</b></td><td>${this.escapeHtml(user.role)}</td><td>${this.escapeHtml(user.email || "—")}</td><td><span class="tag ${user.status === 'pending' ? 'y' : 'g'}">${this.escapeHtml(user.status || 'active')}</span></td><td>${this.escapeHtml(user.district || "—")}</td></tr>`; }).join("")}
+        </tbody></table></div>
+      </section>`;
+  }
+
+  filterAdminUserRows(query) {
+    const term = String(query || "").trim().toLowerCase();
+    document.querySelectorAll("[data-admin-user]").forEach(row => { row.hidden = !row.dataset.adminUser.includes(term); });
+  }
+
+  renderAdminLedgerTab() {
+    const entries = this.state.ledger || [];
+    return `
+      <div class="head"><div><h1>Money record</h1><p class="sub">See money added to or paid from the bridge pool.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadLedgerCsv()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download CSV</button></div>
+      <section class="card admin-list-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Order</th><th>Status</th></tr></thead><tbody>
+        ${entries.length ? entries.map(entry => `<tr><td>${this.escapeHtml(entry.date || "—")}</td><td>${this.escapeHtml(String(entry.type || "Record").replace(/_/g, " "))}</td><td>${this.escapeHtml(entry.from || "—")}</td><td>${this.escapeHtml(entry.to || "—")}</td><td>${(Number(entry.amount) || 0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.link || "—")}</td><td>${this.escapeHtml(entry.status || "Recorded")}</td></tr>`).join("") : '<tr><td colspan="7">No money records yet.</td></tr>'}
+      </tbody></table></div></section>`;
+  }
+
   renderAdminView() {
-    if (this.state.activeSubView === "nisr_facts") {
+    const sub = this.state.activeSubView || "dashboard";
+    if (sub === "nisr_facts") {
       return this.renderNisrFactsDoc();
     }
+    if (sub === "users") return this.renderAdminUsersTab();
+    if (sub === "ledger") return this.renderAdminLedgerTab();
+    if (sub === "cases") return this.renderPlannerCasesTab();
+    if (sub === "creditdesk") return this.renderPlannerCreditDeskTab();
     const allUsers = [];
     for (const [r, list] of Object.entries(this.state.users || {})) {
       list.forEach(u => allUsers.push({ ...u, role: r.toUpperCase() }));
@@ -2576,11 +2642,11 @@ class IsokoApp {
           <p class="sub">Review users, payments, cases, and reports in one place.</p>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()">
-            📄 Make Analysis Report
+          <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()" title="Create a report">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v18h16V8zM14 2v6h6M8 13h8m-8 4h8"/></svg> Make report
           </button>
-          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')">
-            📥 Export System Audit
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')" title="Download system activity">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download activity
           </button>
         </div>
       </div>
@@ -2602,25 +2668,25 @@ class IsokoApp {
       <!-- Top Master KPIs -->
       <div class="kpis">
         <div class="card kp">
-          <span class="ki">👥</span>
+          <span class="ki"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2m2-13a4 4 0 0 1 0 8m2 5v-2a6 6 0 0 0-3-5.2"/></svg></span>
           <small>Total Users</small>
           <b>${allUsers.length}</b>
           <em>members, sellers, shoppers</em>
         </div>
         <div class="card kp">
-          <span class="ki" style="background:var(--ok-soft); color:var(--ok);">🛒</span>
+          <span class="ki" style="background:var(--ok-soft); color:var(--ok);"><svg viewBox="0 0 24 24"><path d="M3 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L22 7H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></span>
           <small>Total Sales</small>
           <b style="color:var(--ok);">${totalSales.toLocaleString()} RWF</b>
           <em>gross market volume</em>
         </div>
         <div class="card kp">
-          <span class="ki">🏦</span>
+          <span class="ki"><svg viewBox="0 0 24 24"><path d="M3 10h18M5 10v9m5-9v9m4-9v9m5-9v9M3 21h18M12 3l9 5H3z"/></svg></span>
           <small>Pool Balance</small>
           <b>${this.state.pool.balance.toLocaleString()} RWF</b>
           <em>liquidity available</em>
         </div>
         <div class="card kp">
-          <span class="ki" style="background:var(--bad-soft); color:var(--bad);">🛟</span>
+          <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg></span>
           <small>Problem Cases</small>
           <b style="color:var(--bad);">${cases.length} Open</b>
           <em>audit queue</em>
@@ -2823,24 +2889,22 @@ class IsokoApp {
         <div class="nisr-bar-list" role="list">
           ${programmes.map(p => `<div class="nisr-bar-row" role="listitem"><span>${p.name}</span><div class="nisr-bar-track" aria-label="${p.delay} days average delay"><i style="width:${Math.max(4, (p.delay / maxDelay) * 100)}%"></i></div><b>${p.delay.toFixed(1)} days</b><small>${p.latePct}% over 7 days · n=${p.records.toLocaleString()}</small></div>`).join("")}
         </div>
-        <div class="table-wrap"><table><thead><tr><th>Programme</th><th>Average delay</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${programmes.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td></tr>`).join("")}</tbody></table></div>
+        <details class="nisr-details"><summary>Show the full programme table</summary><div class="table-wrap"><table><thead><tr><th>Programme</th><th>Average wait</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${programmes.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td></tr>`).join("")}</tbody></table></div></details>
       </section>
 
       <section class="card nisr-comparison">
-        <div class="ch"><div><h3>Province comparison</h3><p class="sub">Averages and late shares from the survey summaries.</p></div></div>
-        <div class="table-wrap"><table><thead><tr><th>Province</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${NISR_DATA.provinces.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td><td>${p.records < 100 ? 'Small sample; interpret cautiously' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
-        <p class="sub" style="margin-top:10px;">Small groups are less certain. Read results from fewer than 100 records with care; results under 25 records are hidden.</p>
+        <div class="ch"><div><h3>Province results</h3><p class="sub">See the province averages and how many survey records each includes.</p></div></div>
+        <details class="nisr-details"><summary>Show province results</summary><div class="table-wrap"><table><thead><tr><th>Province</th><th>Average wait</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${NISR_DATA.provinces.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td><td>${p.records < 100 ? 'Small sample; take care' : '100+ records'}</td></tr>`).join("")}</tbody></table></div><p class="sub">Results with fewer than 100 records are less certain. Results under 25 records are hidden.</p></details>
       </section>
 
       <section class="card nisr-comparison">
-        <div class="ch"><div><h3>Districts with the longest reported waits</h3><p class="sub">Ranked by average wait. Small groups can make results less certain.</p></div></div>
-        <div class="table-wrap"><table><thead><tr><th>District</th><th>Province</th><th>Average delay</th><th>Records</th><th>Reliability</th></tr></thead><tbody>${districtHotspots.map(d => `<tr><td>${d.name}</td><td>${d.province}</td><td>${d.records < 25 ? 'Suppressed' : `${d.delay.toFixed(1)} days`}</td><td>${d.records < 25 ? '—' : d.records}</td><td>${d.records < 25 ? 'Suppressed (<25)' : d.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
+        <div class="ch"><div><h3>Districts with the longest waits</h3><p class="sub">These five districts have the highest averages in the summary.</p></div></div>
+        <details class="nisr-details"><summary>Show district results</summary><div class="table-wrap"><table><thead><tr><th>District</th><th>Province</th><th>Average wait</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${districtHotspots.map(d => `<tr><td>${d.name}</td><td>${d.province}</td><td>${d.records < 25 ? 'Hidden' : `${d.delay.toFixed(1)} days`}</td><td>${d.records < 25 ? '—' : d.records}</td><td>${d.records < 25 ? 'Hidden: fewer than 25' : d.records < 100 ? 'Small sample; take care' : '100+ records'}</td></tr>`).join("")}</tbody></table></div></details>
       </section>
 
       <section class="card nisr-comparison">
-        <div class="ch"><div><h3>Differences between surveyed groups</h3><p class="sub">Descriptive comparisons across payment method, poverty group, location, sex, and age.</p></div></div>
-        <div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${groupComparisons.map(row => `<tr><td>${row.group}</td><td>${row.name}</td><td>${row.records < 25 ? 'Suppressed' : `${row.delay.toFixed(1)} days`}</td><td>${row.records < 25 ? '—' : `${row.latePct}%`}</td><td>${row.records < 25 ? '—' : row.records.toLocaleString()}</td><td>${row.records < 25 ? 'Suppressed (<25)' : row.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
-        <p class="sub" style="margin-top:10px;">Differences between groups do not prove why waits differ. Poverty status is measured after support and must not be used alone to decide who gets help.</p>
+        <div class="ch"><div><h3>How groups compare</h3><p class="sub">Explore results by payment method, location, age, and other groups.</p></div></div>
+        <details class="nisr-details"><summary>Show group results</summary><div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Average wait</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${groupComparisons.map(row => `<tr><td>${row.group}</td><td>${row.name}</td><td>${row.records < 25 ? 'Hidden' : `${row.delay.toFixed(1)} days`}</td><td>${row.records < 25 ? '—' : `${row.latePct}%`}</td><td>${row.records < 25 ? '—' : row.records.toLocaleString()}</td><td>${row.records < 25 ? 'Hidden: fewer than 25' : row.records < 100 ? 'Small sample; take care' : '100+ records'}</td></tr>`).join("")}</tbody></table></div><p class="sub">Group differences do not explain why waits differ. Poverty status is measured after support and must not be used alone to decide who gets help.</p></details>
       </section>
 
       <section class="card nisr-date-panel">
