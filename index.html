@@ -16,6 +16,7 @@
 
   <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
@@ -26,56 +27,32 @@
     <div class="shell">
     
 
-    <!-- Vertix Top Navigation Pill Bar -->
-    <div class="top" style="margin-top: 10px;">
-      <!-- Brand & Pool Ticker Pill -->
-      <div class="pill logo" onclick="window.app.goHome()" title="Isoko Bridge Home">
-        <img class="ib-header-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
-        <div style="display:flex; flex-direction:column; line-height:1.2;">
-          <small style="color:var(--mute); font-size:10px;">Ikiraro cya VUP · NISR 2026</small>
-        </div>
-        <span class="tag g" style="margin-left:6px;" id="poolTickerLabel">
-          <span class="dot-pulse" style="width:6px; height:6px; border-radius:50%; background:var(--ok); display:inline-block;"></span>
-          Pool: <b id="poolTickerAmount">25,000 RWF</b>
-        </span>
-      </div>
-
-      <!-- Center Pill Navigation -->
-      <div class="pill nav" id="topNavPill"></div>
-
-      <!-- Right Tools & User Auth Pill -->
-      <div class="pill right" style="background:none; border:0; box-shadow:none; gap:8px;">
-        <div class="pill tools" id="headerNavActions">
-          <div class="seg" style="margin:0; padding:2px;">
-            <button id="langBtnEn" onclick="window.app.setLanguage('en')">🇬🇧 EN</button>
-            <button id="langBtnRw" onclick="window.app.setLanguage('rw')">🇷🇼 RW</button>
-            <button id="langBtnFr" onclick="window.app.setLanguage('fr')">🇫🇷 FR</button>
-          </div>
-          <button class="btn btn-sm" onclick="window.app.openGeminiModal()" title="Open the AI helper" style="background:rgba(126,34,206,.12); color:#7e22ce; font-weight:700; border-radius:999px;">
-            <svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8m0-12.8L5.6 18.4"/><circle cx="12" cy="12" r="4"/></svg> Gemini AI
-          </button>
-          <button class="btn btn-sm" onclick="window.app.toggleTheme()" title="Switch between light and dark" style="border-radius:999px;">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg> Appearance
-          </button>
-        </div>
+    <header class="top">
+      <a class="brand-lockup" href="#" onclick="window.app.goHome(); return false;" aria-label="Isoko Bridge home">
+        <img class="ib-header-logo" src="assets/isoko-bridge-icon.svg" alt="">
+        <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>
+      </a>
+      <div class="top-controls">
+        <button class="menu-toggle" id="railRw" type="button" onclick="window.app.toggleSidebar()" aria-controls="appRail" aria-expanded="true" title="Close menu">
+          <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i><span id="menuToggleLabel">Close menu</span>
+        </button>
         <div class="pill user" id="headerUserAuthSlot"></div>
       </div>
-    </div>
+    </header>
 
     <!-- Vertix Body: Left Rail + Main Dynamic View -->
     <div class="body">
-      <aside class="rail" id="appRail">
-        <div class="pill grp">
-          <button id="railSun" onclick="window.app.setTheme('light')" aria-label="Light mode" title="Use light mode" data-tip="Light mode"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-          <button id="railMoon" onclick="window.app.setTheme('dark')" aria-label="Dark mode" title="Use dark mode" data-tip="Dark mode"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
-        </div>
-        <div class="pill grp mid" id="railMid">
-          <!-- Dynamic quick section jumps based on active role -->
-        </div>
-        <div class="pill grp low">
-          <button id="railRw" onclick="document.getElementById('appRail').classList.toggle('wide')" aria-label="Expand sidebar" title="Expand sidebar" data-tip="Expand sidebar"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-          <button onclick="window.app.openGeminiModal()" aria-label="Gemini AI" title="Open AI helper" data-tip="AI helper"><svg viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></button>
-          <button onclick="window.app.logout()" aria-label="Log out" title="Log out" data-tip="Log out"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+      <aside class="rail wide" id="appRail" aria-label="Main menu">
+        <nav class="nav sidebar-nav" id="topNavPill" aria-label="Pages"></nav>
+        <div class="sidebar-tools">
+          <label class="language-control" for="languageSelect"><i class="bi bi-translate" aria-hidden="true"></i><span class="rail-label">Language</span>
+            <select id="languageSelect" onchange="window.app.setLanguage(this.value)" aria-label="Choose language">
+              <option value="en">English</option><option value="rw">Ikinyarwanda</option><option value="fr">Français</option>
+            </select>
+          </label>
+          <button class="rail-action" type="button" onclick="window.app.toggleTheme()" id="themeToggle" title="Change appearance" data-tip="Change appearance">
+            <i class="bi bi-moon-stars" aria-hidden="true"></i><span class="rail-label" id="themeToggleLabel">Dark mode</span>
+          </button>
         </div>
       </aside>
 
@@ -87,119 +64,8 @@
 
   <!-- Toast Notification from Eat while you wait -->
   
-  <!-- Mobile Bottom Floating Navigation Bar (VeggieMart style) -->
-  <nav class="mobile-bottom-nav" id="mobileBottomNav">
-    <button class="mb-nav-btn on" onclick="window.app.goHome()" id="mbNavHome">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <span>Store</span>
-    </button>
-    <button class="mb-nav-btn" onclick="window.app.openCreditTab()" id="mbNavCredit">
-      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      <span>Credit</span>
-    </button>
-    <button class="mb-nav-btn" onclick="window.app.openOrdersTab()" id="mbNavOrders">
-      <svg viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      <span>Orders</span>
-    </button>
-    <button class="mb-nav-btn" onclick="window.app.openPlannerTab()" id="mbNavPlanner">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      <span>Planner</span>
-    </button>
-    <button class="mb-nav-btn" onclick="window.app.openRoleModal()" id="mbNavProfile">
-      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      <span>Profile</span>
-    </button>
-  </nav>
 
   <div class="toast" id="toast" role="status"></div>
-
-    <!-- 1. USER SLIDING AUTH MODAL (media_1792662744651.html) -->
-  <div id="authModal" class="auth-overlay-backdrop">
-    <div class="auth-card-v5" id="authCardV5" data-mode="login">
-      <section class="overlay-v5">
-        <div class="msg-v5 m-signup-v5">
-          <img class="ib-auth-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
-          <h1>HELLO, FRIEND!</h1>
-          <p>Join Isoko Bridge today. Choose your role or try a 1-click sample demo account.</p>
-        </div>
-        <div class="msg-v5 m-login-v5">
-          <img class="ib-auth-logo" src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
-          <h1>WELCOME BACK!</h1>
-          <p>Connect with your Rwandan community pool, farmer market, and emergency credit.</p>
-        </div>
-      </section>
-
-      <!-- Sign Up Form -->
-      <form class="form-v5" id="signupFormV5" onsubmit="window.app.handleAuthSubmit(event, 'signup')" autocomplete="off">
-        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-          <h2>Sign Up</h2>
-          <button type="button" class="btn btn-ghost btn-sm" style="color:#fff;" onclick="window.app.closeAuthModal()">✕</button>
-        </div>
-        <label class="field-v5">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-          <input required placeholder="Full Name or Username" id="su_user">
-        </label>
-        <label class="field-v5">
-          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
-          <input type="text" required placeholder="Phone / Email (e.g. 0788 123 456)" id="su_email">
-        </label>
-        <label class="field-v5">
-          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-          <input type="password" required placeholder="Password" id="su_pass" value="Demo#2026">
-        </label>
-        <div class="field-v5">
-          <select id="su_role">
-            <option value="Shopper" style="color:#000;">Role: Ethical Produce Shopper</option>
-            <option value="Family" style="color:#000;">Role: VUP Beneficiary Family</option>
-            <option value="Farmer" style="color:#000;">Role: Smallholder Farmer / Coop</option>
-            <option value="Planner" style="color:#000;">Role: Government Planner / Judge</option>
-          </select>
-        </div>
-        <button class="btn-auth-v5" type="submit">Sign Up & Enter</button>
-        <p class="small-v5">Already have an account? <a onclick="window.app.setAuthMode('login')">Login</a></p>
-      </form>
-
-      <!-- Login Form -->
-      <form class="form-v5" id="loginFormV5" onsubmit="window.app.handleAuthSubmit(event, 'login')" autocomplete="off">
-        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-          <h2>Login</h2>
-          <button type="button" class="btn btn-ghost btn-sm" style="color:#fff;" onclick="window.app.closeAuthModal()">✕</button>
-        </div>
-        <label class="field-v5">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-          <input placeholder="Username (or click sample below)" id="li_user">
-        </label>
-        <label class="field-v5">
-          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-          <input type="password" placeholder="Password (optional for demo)" id="li_pass" value="Demo#2026">
-        </label>
-
-        <!-- 1-Click Sample Demo Logins (No credentials needed!) -->
-        <div style="width:100%; margin-top:2px;">
-          <small style="font-size:10.5px; color:#d1deda; display:block; margin-bottom:4px; text-align:center;">
-            1-Click Sample Logins (No password required):
-          </small>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('amina_family')">
-              👨‍👩‍👧 Amina (Family)
-            </button>
-            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('mukamana_seller')">
-              🌾 Mukamana (Farmer)
-            </button>
-            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('grace_shopper')">
-              🛒 Grace (Shopper)
-            </button>
-            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('planner_demo')">
-              📊 LODA (Planner)
-            </button>
-          </div>
-        </div>
-
-        <button class="btn-auth-v5" type="submit">Login →</button>
-        <p class="small-v5">Don't have an account? <a onclick="window.app.setAuthMode('signup')">Sign Up</a></p>
-      </form>
-    </div>
-  </div>
 
     <!-- 2. USER PHONE ORDER & PAYMENT FLOW (media_1792662744615.html) -->
   <div id="payModal" class="auth-overlay-backdrop">
@@ -408,86 +274,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 3. GEMINI AI MULTILINGUAL TRANSLATOR & ASSISTANT MODAL -->
-  <div id="geminiModal" class="auth-overlay-backdrop">
-    <div class="gemini-modal-content">
-      <div class="gemini-header">
-        <div>
-          <h3 style="font-size:17px; font-weight:800; margin:0;" id="gemModalTitle">✨ Google Gemini AI Multilingual Engine</h3>
-          <small style="opacity:0.9; font-size:12px;" id="gemModalSub">AI translation & agricultural guidance across Ikinyarwanda, Français & English</small>
-        </div>
-        <button type="button" class="btn btn-ghost btn-sm" style="color:#fff;" onclick="window.app.closeGeminiModal()">✕</button>
-      </div>
-
-      <div style="padding: 18px 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
-          <label style="font-size:12.5px; font-weight:700; color:var(--text-main);" id="gemInputLabel">Enter text or query to translate:</label>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <span style="font-size:11.5px; color:var(--text-muted);" id="gemTargetLabel">Target:</span>
-            <select id="gemTargetLangSelect" class="form-control" style="width:auto; padding:2px 8px; font-size:12px; border-radius:12px;" onchange="window.app.updateGeminiTargetLang(this.value)">
-              <option value="rw">🇷🇼 Ikinyarwanda</option>
-              <option value="fr">🇫🇷 Français</option>
-              <option value="en">🇬🇧 English</option>
-            </select>
-          </div>
-        </div>
-
-        <textarea id="geminiTextInput" class="form-control" rows="3" style="width:100%; border-radius:10px; font-size:13.5px; padding:10px;" placeholder="Type in English, Kinyarwanda, or French (e.g. 'How does VUP bridge credit work?' or 'Ndashaka kugura ibirayi n'ibishyimbo')..."></textarea>
-
-        <div style="display:flex; gap:8px; margin: 10px 0 14px; flex-wrap:wrap;">
-          <button class="btn btn-primary btn-sm" style="background:#7e22ce; border-color:#7e22ce; font-weight:700;" onclick="window.app.runGeminiTranslate()">
-            ✨ Translate with Gemini AI
-          </button>
-          <button class="btn btn-outline btn-sm" onclick="window.app.applyWholePageTranslation()">
-            🌍 Switch Entire App to this Language
-          </button>
-          <button class="btn btn-ghost btn-sm" onclick="window.app.listenToTranslation()" id="gemSpeakBtn">
-            🔊 Listen (Speech)
-          </button>
-        </div>
-
-        <!-- Quick AI Prompt Chips -->
-        <div style="margin-bottom: 12px;">
-          <small style="font-size:11.5px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;" id="gemChipsTitle">
-            Quick Rwandan Queries & AI Prompts:
-          </small>
-          <div style="display:flex; flex-wrap:wrap; gap:4px;">
-            <button type="button" class="ai-prompt-chip" onclick="window.app.useGeminiPrompt('sobanura')">
-              🇷🇼 Sobanura Ikiraro cya VUP
-            </button>
-            <button type="button" class="ai-prompt-chip" onclick="window.app.useGeminiPrompt('crédit vup')">
-              🇫🇷 Expliquer le crédit VUP
-            </button>
-            <button type="button" class="ai-prompt-chip" onclick="window.app.useGeminiPrompt('farmer sell')">
-              🌾 Farmer harvest prices
-            </button>
-            <button type="button" class="ai-prompt-chip" onclick="window.app.useGeminiPrompt('shopper donation')">
-              🛒 Ethical shopper contribution
-            </button>
-            <button type="button" class="ai-prompt-chip" onclick="window.app.useGeminiPrompt('delay nisr')">
-              📊 Why payments are delayed
-            </button>
-          </div>
-        </div>
-
-        <!-- Translation Result Box -->
-        <div id="geminiOutputCard" style="display:none; background:var(--bg); border:1px solid var(--card-border); border-radius:10px; padding:12px; margin-top:8px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <b style="font-size:12px; color:var(--primary);" id="gemResultTitle">Gemini AI Translation:</b>
-            <button class="btn btn-ghost btn-sm" style="font-size:11px; padding:2px 8px;" onclick="window.app.copyGeminiResult()">📋 Copy</button>
-          </div>
-          <div id="geminiOutputText" style="font-size:13.5px; line-height:1.5; color:var(--text-main);"></div>
-        </div>
-
-        <div style="margin-top:12px; font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
-          <span>⚡ Model: Gemini 1.5 Flash & NLP Translation Pipeline</span>
-          <a href="#" style="color:#7e22ce; font-weight:600;" onclick="window.app.toggleGeminiApiKeyPrompt(); return false;">Configure API Key</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
 
   <!-- 4. PRINTABLE STATEMENT MODAL (Section 16.1 & 16.2) -->
   <div id="statementModal" class="auth-overlay-backdrop">
