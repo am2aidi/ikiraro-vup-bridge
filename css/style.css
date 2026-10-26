@@ -3552,3 +3552,60 @@ svg * {
 /* Remove any remaining devbar or #dev styling */
 .devbar { display: none !important; }
 #dev { max-width: 100% !important; margin: 0 !important; }
+
+/* NISR analysis workspace — compact glass panels inspired by the Vertix reference */
+.nisr-analysis-head { align-items: flex-start; }
+.nisr-export-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nisr-truth-note { margin: 0 0 16px; padding: 13px 16px; border-left: 4px solid var(--wa); background: color-mix(in srgb, var(--warm-soft) 65%, var(--card-bg)); line-height: 1.55; font-size: 12.5px; }
+.nisr-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.nisr-kpis > article { min-width: 0; padding: 16px; display: flex; flex-direction: column; gap: 5px; }
+.nisr-kpis small { color: var(--mute); font-size: 11px; }
+.nisr-kpis strong { color: var(--ink); font-size: clamp(19px, 2.2vw, 27px); font-variant-numeric: tabular-nums; letter-spacing: -.03em; }
+.nisr-kpis span { color: var(--mute); font-size: 11px; line-height: 1.4; }
+.nisr-explainer, .nisr-programmes, .nisr-comparison, .nisr-date-panel { margin-bottom: 16px; padding: 18px 20px; }
+.nisr-explainer ul { margin: 10px 0 0; padding-left: 20px; color: var(--mute); font-size: 13px; line-height: 1.7; }
+.nisr-explainer li + li { margin-top: 4px; }
+.nisr-bar-list { display: grid; gap: 13px; margin: 8px 0 20px; }
+.nisr-bar-row { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(90px, 2fr) auto minmax(155px, 1fr); gap: 12px; align-items: center; font-size: 12px; }
+.nisr-bar-row > span { font-weight: 600; }
+.nisr-bar-row > b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.nisr-bar-row > small { color: var(--mute); }
+.nisr-bar-track { height: 10px; overflow: hidden; border-radius: var(--radius-full); background: var(--soft); }
+.nisr-bar-track i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--on), var(--acc)); }
+.nisr-period-controls { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 12px 0; }
+.nisr-period-controls label { display: grid; gap: 5px; min-width: 150px; color: var(--mute); font-size: 11px; }
+.nisr-period-controls .form-control { min-width: 150px; }
+.nisr-range-label { margin: 0 0 8px auto; color: var(--mute); font-size: 11px; }
+.nisr-activity-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 14px 0 4px; }
+.nisr-date-panel .table-wrap { margin-top: 8px; }
+.nisr-admin-entry { background: color-mix(in srgb, var(--card-bg) 72%, var(--accsoft)); }
+
+@media (max-width: 760px) {
+  .nisr-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nisr-bar-row { grid-template-columns: 1fr auto; gap: 5px 10px; }
+  .nisr-bar-track { grid-column: 1 / -1; grid-row: 2; }
+  .nisr-bar-row > small { grid-column: 1 / -1; }
+  .nisr-activity-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nisr-range-label { margin-left: 0; width: 100%; }
+}
+@media (max-width: 480px) {
+  .nisr-kpis, .nisr-activity-kpis { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .nisr-kpis > article { padding: 12px; }
+  .nisr-explainer, .nisr-programmes, .nisr-comparison, .nisr-date-panel { padding: 14px 12px; }
+  .nisr-export-actions { width: 100%; }
+  .nisr-export-actions .btn { flex: 1 1 100%; }
+}
+
+@page { size: A4; margin: 14mm; }
+@media print {
+  body * { visibility: hidden !important; }
+  .auth-overlay-backdrop:not(#analysisReportModal) { display: none !important; }
+  #analysisReportModal, #analysisReportModal * { visibility: visible !important; }
+  #analysisReportModal { position: absolute !important; inset: 0 !important; display: block !important; padding: 0 !important; background: #fff !important; color: #111 !important; overflow: visible !important; }
+  #analysisReportModal > .card { width: 100% !important; max-width: none !important; max-height: none !important; overflow: visible !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: #fff !important; color: #111 !important; }
+  #analysisReportModal button { display: none !important; }
+  #analysisReportModal .table-wrap { overflow: visible !important; }
+  #analysisReportModal table { width: 100% !important; border-collapse: collapse !important; }
+  #analysisReportModal th, #analysisReportModal td { border: 1px solid #bbb !important; color: #111 !important; padding: 5px !important; }
+  #analysisReportModal h2, #analysisReportModal h3 { color: #111 !important; }
+}
