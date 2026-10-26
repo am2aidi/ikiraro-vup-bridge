@@ -203,6 +203,9 @@ class IsokoApp {
       role: "Family", // "Family", "Planner", "Farmer", "Shopper", "Admin"
       roleCode: "member", // "member", "planner", "seller", "shopper", "admin"
       timeframe: "month", // "week", "month", "year"
+      analysisPeriod: "30d",
+      analysisFrom: "",
+      analysisTo: "",
       creditDeskTab: "all", // "all", "approve", "pay", "repay"
       activeCategory: "All",
       activeSubView: "dashboard", // "dashboard", "analysis", "reports", "cases", "audit"
@@ -899,53 +902,51 @@ class IsokoApp {
     const modal = document.getElementById("analysisReportModal");
     const container = document.getElementById("analysisReportContent");
     if (!modal || !container) return;
-
-    const tf = this.state.timeframe || "month";
-    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
-    const totalCredit = vupOrders.reduce((sum, o) => sum + o.total, 0);
-    const repaidCredit = vupOrders.filter(o => o.repaid).reduce((sum, o) => sum + o.total, 0);
+    const report = this.getAnalysisReportData();
+    const currentUser = this.state.currentUser || {};
+    const totalCredit = report.creditOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+    const repaidCredit = report.creditOrders.filter(o => o.repaid).reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
     container.innerHTML = `
-      <div style="border: 1px solid #fed7d7; background:#fff5f5; padding:8px 12px; border-radius:6px; margin-bottom:14px; font-size:12px; font-weight:700; color:#991b1b;">
-        Prototype. Fake money. The NISR data shows patterns. It cannot show why a payment was late.
-      </div>
+      <div style="border:1px solid #fed7d7;background:#fff5f5;padding:9px 12px;border-radius:10px;margin-bottom:14px;font-size:12px;font-weight:700;color:#991b1b;">Prototype. Fake money. Prototype activity below is simulated. NISR figures describe group patterns; they do not explain why any individual payment was late.</div>
 
       <div style="font-size:14px; margin-bottom:12px;">
-        <h2 style="font-size:22px; margin-bottom:4px;">Isoko Bridge — Executive Analysis Report</h2>
+        <h2 style="font-size:22px; margin-bottom:4px;">Isoko Bridge — NISR & Activity Report</h2>
         <div style="font-size:12.5px; color:var(--text-muted);">
-          Period: <b>${tf.toUpperCase()}</b> · Scope: <b>All VUP Families (${this.state.currentUser.district})</b> · Prepared by: <b>${this.state.currentUser.name} (Planner)</b> · Date: <b>${new Date().toLocaleDateString('en-GB')}</b>
+          Activity period: <b>${this.escapeHtml(report.period.label)}</b> · Prepared by: <b>${this.escapeHtml(currentUser.name || 'Dashboard user')}</b> · Generated: <b>${new Date().toLocaleString('en-GB')}</b>
         </div>
       </div>
 
       <div style="margin-bottom:14px; font-size:13.5px; line-height:1.5;">
-        <b>One-line summary:</b> Over the ${tf}, ${vupOrders.length} VUP families used emergency bridge credit totaling ${totalCredit.toLocaleString()} RWF to purchase staple food, with ${repaidCredit.toLocaleString()} RWF repaid upon VUP disbursement waves.
+        <b>In this period:</b> ${report.transactions.length} simulated orders worth ${report.totalValue.toLocaleString()} RWF, including ${report.creditOrders.length} food-credit orders (${totalCredit.toLocaleString()} RWF). ${repaidCredit.toLocaleString()} RWF of the recorded credit orders is marked repaid.
       </div>
 
-      <!-- Numbers Table -->
       <div class="table-wrap" style="margin-bottom:14px;">
         <table>
-          <thead>
-            <tr><th>Metric</th><th>App Value</th><th>NISR Survey Benchmark</th><th>Status</th></tr>
-          </thead>
+          <thead><tr><th>NISR survey finding</th><th>Summary</th><th>Sample</th><th>How to read it</th></tr></thead>
           <tbody>
-            <tr><td>National Average Payment Delay</td><td>8.0 days (active)</td><td>9.2 days (overall)</td><td><span class="pill pill-fair">Improved</span></td></tr>
-            <tr><td>Wait Over 7 Days (%)</td><td>42% in app</td><td>52% national survey</td><td><span class="pill pill-fair">Cushioned</span></td></tr>
-            <tr><td>Total Food Credit Disbursed</td><td>${totalCredit.toLocaleString()} RWF</td><td>-</td><td>Active</td></tr>
-            <tr><td>Revolving Pool Repayment Velocity</td><td>94.2% on time</td><td>-</td><td><span class="pill pill-fair">Healthy</span></td></tr>
+            <tr><td>National average delay</td><td>${NISR_DATA.overall.averageDelayDays.toFixed(1)} days</td><td>${NISR_DATA.overall.totalBeneficiaries.toLocaleString()} beneficiary records</td><td>Survey baseline, not live status</td></tr>
+            <tr><td>Waited more than 7 days</td><td>${NISR_DATA.overall.pctOver7DaysLate}%</td><td>Project summary</td><td>About half of surveyed beneficiaries</td></tr>
+            <tr><td>Longest listed hotspot</td><td>14.6 days · ${NISR_DATA.hotspots['Expanded Public Works'].Southern.latePct}% over 7 days</td><td>n = ${NISR_DATA.hotspots['Expanded Public Works'].Southern.records}</td><td>Expanded Public Works, Southern Province</td></tr>
+            <tr><td>Prototype activity</td><td>${report.transactions.length} orders · ${report.totalValue.toLocaleString()} RWF</td><td>Simulated</td><td>Filtered to selected activity period</td></tr>
           </tbody>
         </table>
       </div>
 
-      <div style="margin-bottom:14px;">
-        <h4 style="font-size:15px; font-weight:800; margin-bottom:6px;">Friction Alerts & Goulots d'étranglement:</h4>
-        <ul style="padding-left:18px; font-size:13px; line-height:1.5;">
-          <li><b>Southern Province Delay Hotspot:</b> Expanded Public Works delays average 14.6 days. Administrative muster rolls require acceleration.</li>
-          <li><b>Revolving Pool Liquidity Cushion:</b> Pool balance (${this.state.pool.balance.toLocaleString()} RWF) requires shopper refill to sustain 14-day zero-default protection.</li>
-        </ul>
-      </div>
+      <h3 style="font-size:15px;margin:12px 0 6px;">Programme comparison</h3>
+      <div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>Programme</th><th>Average delay</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${NISR_DATA.programmes.map(p=>`<tr><td>${this.escapeHtml(p.name)}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
 
-      <div style="padding:10px; background:var(--bg); border-radius:8px; font-size:11.5px; color:var(--text-muted);">
-        <b>Limits note:</b> This report shows patterns, not reasons. History in the prototype is simulated. Data sources: NISR EICV7 VUP Household Microdata (3,771 households, 15,039 people).
+      <h3 style="font-size:15px;margin:12px 0 6px;">Province comparison</h3>
+      <div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>Province</th><th>Average delay</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${NISR_DATA.provinces.map(p=>`<tr><td>${this.escapeHtml(p.name)}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
+
+      <h3 style="font-size:15px;margin:12px 0 6px;">Payment-method pattern</h3>
+      <div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>Method</th><th>Average delay</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${(NISR_DATA.groups['Payment Channel'] || []).map(g=>`<tr><td>${this.escapeHtml(g.name)}</td><td>${g.delay.toFixed(1)} days</td><td>${g.latePct}%</td><td>${g.records.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>
+
+      <h3 style="font-size:15px;margin:12px 0 6px;">Simulated transactions in selected period</h3>
+      <div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>Order</th><th>Date</th><th>Buyer</th><th>District</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>${report.transactions.length ? report.transactions.map(o=>`<tr><td>#${this.escapeHtml(o.id)}</td><td>${this.escapeHtml(this.getOrderDateLabel(o.date))}</td><td>${this.escapeHtml(o.buyerName || 'Demo buyer')}</td><td>${this.escapeHtml(o.district || '—')}</td><td>${this.escapeHtml(o.food || 'Food order')} (${Number(o.kg)||0} kg)</td><td>${o.mode === 'credit' ? 'Food credit' : 'Cash'}</td><td>${(Number(o.total)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(o.status || 'Recorded')}</td></tr>`).join('') : '<tr><td colspan="8">No prototype transactions in this period.</td></tr>'}</tbody></table></div>
+
+      <div style="padding:10px;background:var(--bg);border-radius:8px;font-size:11.5px;color:var(--text-muted);line-height:1.5;">
+        <b>Source and limits:</b> NISR EICV7 VUP household survey, 2023–24 (<a href="https://microdata.statistics.gov.rw/index.php/catalog/121">catalogue entry</a>). The build brief marks the supplied summary figures as early, unweighted estimates pending a final weighted analysis. Interpret them as provisional. Sample guide: 100+ records is more stable, 25–99 needs caution, and fewer than 25 should be suppressed or pooled. Survey time is fixed; the selected activity period filters only simulated prototype orders. The survey shows patterns, not causes, and must not be used to decide an individual's eligibility.
       </div>
     `;
 
@@ -962,19 +963,7 @@ class IsokoApp {
   }
 
   exportAnalysisCsv() {
-    const tf = this.state.timeframe || "month";
-    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
-    let csv = "Metric,App_Value,NISR_Benchmark\n";
-    csv += `"Average Payment Delay","8.0 days","9.2 days"\n`;
-    csv += `"Share Over 7 Days","42%","52%"\n`;
-    csv += `"Total Credit Disbursed","${vupOrders.reduce((s,o)=>s+o.total,0)} RWF","N/A"\n`;
-    csv += `"Pool Balance","${this.state.pool.balance} RWF","N/A"\n`;
-
-    const dl = document.createElement("a");
-    dl.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
-    dl.setAttribute("download", `VUPBridge_Analysis_Report_${new Date().toISOString().slice(0,10)}.csv`);
-    dl.click();
-    this.toast("Analysis CSV exported successfully!", "success");
+    this.downloadAnalysisCsv();
   }
 
   // Problem Cases (Section 16.3)
@@ -1228,7 +1217,7 @@ class IsokoApp {
             { id: "dashboard", label: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg> Overview' },
             { id: "creditdesk", label: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Credit Desk' },
             { id: "nisr_facts", label: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> NISR Facts' },
-            { id: "analysis", label: '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Delays & GIS' },
+            { id: "analysis", label: '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> NISR Analysis' },
             { id: "cases", label: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Disputes' },
             { id: "reports", label: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Reports' }
           ];
@@ -1237,6 +1226,7 @@ class IsokoApp {
             { id: "dashboard", label: "🏛️ Overview" },
             { id: "creditdesk", label: "💳 Credit Desk" },
             { id: "nisr_facts", label: "📑 NISR Facts" },
+            { id: "analysis", label: "📊 NISR Analysis" },
             { id: "users", label: "👥 Users" },
             { id: "cases", label: "🛟 Disputes" },
             { id: "ledger", label: "📒 Ledger" }
@@ -1908,6 +1898,7 @@ class IsokoApp {
     const outstanding = this.getOutstandingCredit();
     const tf = this.state.timeframe || "month";
     const tfMult = tf === "week" ? 0.25 : tf === "year" ? 12 : 1;
+    const provinceMaxDelay = Math.max(...NISR_DATA.provinces.map(p => p.delay));
 
     return `
       <!-- Vertix Dashboard Header -->
@@ -1985,32 +1976,10 @@ class IsokoApp {
           </div>
           <span class="tag y">52% Wait &gt; 7 Days</span>
         </div>
-        <div class="bars">
-          <button class="bc on" title="Southern Province: 10.7 days delay">
-            <span class="tip">10.7 days (Nyamagabe/Huye)</span>
-            <i style="height: 85%;"></i>
-            <em>South</em>
-          </button>
-          <button class="bc on" title="Western Province: 10.7 days delay">
-            <span class="tip">10.7 days (Rusizi/Karongi)</span>
-            <i style="height: 85%;"></i>
-            <em>West</em>
-          </button>
-          <button class="bc" title="Northern Province: 8.8 days delay">
-            <span class="tip">8.8 days (Gicumbi/Musanze)</span>
-            <i style="height: 70%;"></i>
-            <em>North</em>
-          </button>
-          <button class="bc" title="Eastern Province: 8.4 days delay">
-            <span class="tip">8.4 days (Kirehe/Nyagatare)</span>
-            <i style="height: 67%;"></i>
-            <em>East</em>
-          </button>
-          <button class="bc" title="Kigali City: 7.2 days delay">
-            <span class="tip">7.2 days (Gasabo/Nyarugenge)</span>
-            <i style="height: 57%;"></i>
-            <em>Kigali</em>
-          </button>
+        <div class="bars" role="list" aria-label="Average payment delay by province">
+          ${NISR_DATA.provinces.map((p, index) => `<button class="bc ${index < 2 ? 'on' : ''}" title="${p.name}: ${p.delay.toFixed(1)} days; ${p.latePct}% over 7 days; ${p.records} records" aria-label="${p.name}: ${p.delay.toFixed(1)} days average delay, ${p.latePct}% over 7 days, ${p.records} survey records">
+            <span class="tip">${p.delay.toFixed(1)} days · ${p.latePct}% over 7 days</span><i style="height:${Math.max(6, p.delay / provinceMaxDelay * 100)}%;"></i><em>${p.name === 'City of Kigali' ? 'Kigali' : p.name.replace(' Province', '')}</em>
+          </button>`).join('')}
         </div>
       </section>
 
@@ -2031,14 +2000,17 @@ class IsokoApp {
 
         <div class="card" style="padding:20px; display:flex; flex-direction:column;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h4 style="font-size:15px; font-weight:700;">NISR 30-District Facts</h4>
-            <span class="tag g">12 Sections</span>
+            <h4 style="font-size:15px; font-weight:700;">NISR Delay Analysis</h4>
+            <span class="tag g">Survey baseline</span>
           </div>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
-            Explore the official household survey data, statistical formulas, and download the compiled report PDF.
+            Read the national findings in plain language, compare programmes and districts, and export a dated report. The figures are provisional pending final weighting.
           </p>
-          <button class="btn btn-sm btn-outline" style="margin-top:auto;" onclick="window.app.setNavTab('nisr_facts')">
-            Read NISR Facts & PDF →
+          <button class="btn btn-sm btn-outline" style="margin-top:auto;" onclick="window.app.setNavTab('analysis')">
+            Open NISR Analysis →
+          </button>
+          <button class="btn btn-sm btn-ghost" style="margin-top:6px;" onclick="window.app.setNavTab('nisr_facts')">
+            Source facts & definitions
           </button>
         </div>
 
@@ -2665,6 +2637,17 @@ class IsokoApp {
         </div>
       </div>
 
+      <section class="card nisr-admin-entry" style="margin:0 0 20px; padding:18px 20px; border-left:4px solid var(--acc);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <span class="tag g">NISR EICV7 · 2023–24</span>
+            <h3 style="margin:8px 0 4px;">National payment-delay analysis</h3>
+            <p class="sub">Survey baseline: 9.2 days average delay; 52% waited more than 7 days. Current project estimates are provisional pending final weighting.</p>
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('analysis')">Open NISR Analysis →</button>
+        </div>
+      </section>
+
       <!-- Two-column grid -->
       <div class="grid g2">
         <div class="left">
@@ -2706,10 +2689,192 @@ class IsokoApp {
   // =========================================================================
   // 18. ANALYSIS & GIS OBSERVATORY (30 Districts, Microdata, Shared DB)
   // =========================================================================
+  escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+
+  localDateInput(date) {
+    const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  }
+
+  getAnalysisPeriod() {
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const preset = this.state.analysisPeriod || "30d";
+    let start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const end = new Date(today);
+    let label = "Last 30 days";
+    if (preset === "today") {
+      label = "Today";
+    } else if (preset === "7d" || preset === "30d" || preset === "12m") {
+      const days = preset === "7d" ? 7 : preset === "30d" ? 30 : 365;
+      start.setDate(start.getDate() - days + 1);
+      label = preset === "7d" ? "Last 7 days" : preset === "30d" ? "Last 30 days" : "Last 12 months";
+    } else if (preset === "custom") {
+      const defaultStart = new Date(start);
+      defaultStart.setDate(defaultStart.getDate() - 29);
+      const fromText = this.state.analysisFrom || this.localDateInput(defaultStart);
+      const toText = this.state.analysisTo || this.localDateInput(today);
+      const fromParts = fromText.split("-").map(Number);
+      const toParts = toText.split("-").map(Number);
+      if (fromParts.length === 3 && fromParts.every(Number.isFinite)) start = new Date(fromParts[0], fromParts[1] - 1, fromParts[2]);
+      const end = new Date(today);
+      if (toParts.length === 3 && toParts.every(Number.isFinite)) end.setTime(new Date(toParts[0], toParts[1] - 1, toParts[2], 23, 59, 59, 999).getTime());
+      label = `${start.toLocaleDateString("en-GB")} – ${end.toLocaleDateString("en-GB")}`;
+      return { start, end, from: this.localDateInput(start), to: this.localDateInput(end), label };
+    }
+    return { start, end, from: this.localDateInput(start), to: this.localDateInput(end), label };
+  }
+
+  parseOrderDate(value) {
+    if (!value) return null;
+    const text = String(value).trim();
+    const lower = text.toLowerCase();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (/^(just now|today)(\b|,)/i.test(lower) || /^\d{1,2}:\d{2}$/.test(lower)) return today;
+    if (lower.startsWith("yesterday")) { today.setDate(today.getDate() - 1); return today; }
+    let match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    match = text.match(/^(\d{1,2})[./](\d{1,2})[./](\d{4})/);
+    if (match) return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+    const parsed = new Date(text);
+    return Number.isNaN(parsed.getTime()) ? null : new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  }
+
+  getOrderDateLabel(value) {
+    const date = this.parseOrderDate(value);
+    if (!date) return value || "Date not recorded";
+    const time = String(value || "").match(/\b(\d{1,2}:\d{2})\b/);
+    return `${date.toLocaleDateString("en-GB")}${time ? ` ${time[1]}` : ""}`;
+  }
+
+  getTransactionsForAnalysisPeriod(period = this.getAnalysisPeriod()) {
+    return (this.state.orders || []).filter(order => {
+      const date = this.parseOrderDate(order.date);
+      return date && date >= period.start && date <= period.end;
+    }).sort((a, b) => (this.parseOrderDate(b.date)?.getTime() || 0) - (this.parseOrderDate(a.date)?.getTime() || 0));
+  }
+
+  setAnalysisPeriod(period) {
+    this.state.analysisPeriod = period;
+    if (period === "custom") {
+      const defaultStart = new Date();
+      defaultStart.setDate(defaultStart.getDate() - 29);
+      this.state.analysisFrom = this.state.analysisFrom || this.localDateInput(defaultStart);
+      this.state.analysisTo = this.state.analysisTo || this.localDateInput(new Date());
+    }
+    this.saveState();
+    this.render();
+  }
+
+  applyAnalysisDates() {
+    const from = document.getElementById("analysisFrom")?.value;
+    const to = document.getElementById("analysisTo")?.value;
+    if (!from || !to || from > to) {
+      this.toast("Choose a valid start date and end date.", "warning");
+      return;
+    }
+    this.state.analysisPeriod = "custom";
+    this.state.analysisFrom = from;
+    this.state.analysisTo = to;
+    this.saveState();
+    this.render();
+  }
+
+  getAnalysisReportData() {
+    const period = this.getAnalysisPeriod();
+    const transactions = this.getTransactionsForAnalysisPeriod(period);
+    const creditOrders = transactions.filter(order => order.mode === "credit");
+    return { period, transactions, creditOrders, totalValue: transactions.reduce((sum, order) => sum + (Number(order.total) || 0), 0) };
+  }
+
   renderAnalysisView() {
+    const overall = NISR_DATA.overall;
+    const period = this.getAnalysisPeriod();
+    const transactions = this.getTransactionsForAnalysisPeriod(period);
+    const credit = transactions.filter(o => o.mode === "credit");
+    const periodLabel = period.label;
+    const programmes = NISR_DATA.programmes || [];
+    const maxDelay = Math.max(...programmes.map(p => p.delay));
+    const districtHotspots = [...NISR_DATA.districts].sort((a, b) => b.delay - a.delay).slice(0, 5);
+    const groupComparisons = Object.entries(NISR_DATA.groups || {}).flatMap(([group, rows]) => rows.map(row => ({ group, ...row })));
     return `
-      <h2>🗺️ Analysis & 30-District Geospatial Observatory</h2>
-      <p class="sub">The NISR data shows patterns. It cannot show why a payment was late. Grounded in EICV7 VUP survey microdata ($N = 3,399$ beneficiaries).</p>
+      <div class="head nisr-analysis-head">
+        <div><h1>NISR payment-delay analysis</h1><p class="sub">Plain-language findings from the EICV7 VUP household survey, 2023–24.</p></div>
+        <div class="nisr-export-actions">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()">Print / Save report as PDF</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.downloadAnalysisCsv()">Download analysis CSV</button>
+        </div>
+      </div>
+
+      <div class="card nisr-truth-note"><b>How to read this:</b> NISR survey figures are a fixed 2023–24 baseline and do not change with the date filter below. Date filters apply only to simulated prototype transactions. The NISR data shows patterns; it cannot explain why an individual payment was late. The build brief marks the available summary values as early, unweighted estimates; treat them as provisional until the final weighted analysis is confirmed. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">Open the NISR EICV7 catalogue entry</a>.</div>
+
+      <div class="nisr-kpis">
+        <article class="card"><small>Average delay</small><strong>${overall.averageDelayDays.toFixed(1)} days</strong><span>Across ${overall.totalBeneficiaries.toLocaleString()} VUP beneficiary records</span></article>
+        <article class="card"><small>Waited more than 7 days</small><strong>${overall.pctOver7DaysLate}%</strong><span>About 1 in 2 surveyed beneficiaries</span></article>
+        <article class="card"><small>Longest programme–province average</small><strong>14.6 days</strong><span>Expanded Public Works · Southern Province · n = 140</span></article>
+        <article class="card"><small>Districts covered</small><strong>${NISR_DATA.districts.length}</strong><span>National survey summaries, not live payment tracking</span></article>
+      </div>
+
+      <section class="card nisr-explainer">
+        <h3>What the findings mean</h3>
+        <ul>
+          <li>The national average is <b>${overall.averageDelayDays.toFixed(1)} days</b>, and <b>${overall.pctOver7DaysLate}%</b> of surveyed beneficiaries reported waits longer than a week.</li>
+          <li>Delays differ across VUP programmes. Expanded Public Works has the highest programme average in these summaries (${programmes[0].delay.toFixed(1)} days).</li>
+          <li>The largest listed hotspot is Expanded Public Works in Southern Province: <b>14.6 days</b> on average; <b>79%</b> waited over 7 days (n = 140).</li>
+          <li>These are group patterns. They do not identify a cause or establish the status of any household's current payment.</li>
+        </ul>
+      </section>
+
+      <section class="card nisr-programmes">
+        <div class="ch"><div><h3>Average delay by VUP programme</h3><p class="sub">Each bar starts at zero; the table keeps exact values and sample counts visible.</p></div></div>
+        <div class="nisr-bar-list" role="list">
+          ${programmes.map(p => `<div class="nisr-bar-row" role="listitem"><span>${p.name}</span><div class="nisr-bar-track" aria-label="${p.delay} days average delay"><i style="width:${Math.max(4, (p.delay / maxDelay) * 100)}%"></i></div><b>${p.delay.toFixed(1)} days</b><small>${p.latePct}% over 7 days · n=${p.records.toLocaleString()}</small></div>`).join("")}
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Programme</th><th>Average delay</th><th>Over 7 days</th><th>Records</th></tr></thead><tbody>${programmes.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td></tr>`).join("")}</tbody></table></div>
+      </section>
+
+      <section class="card nisr-comparison">
+        <div class="ch"><div><h3>Province comparison</h3><p class="sub">Averages and late shares from the survey summaries.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Province</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${NISR_DATA.provinces.map(p => `<tr><td>${p.name}</td><td>${p.delay.toFixed(1)} days</td><td>${p.latePct}%</td><td>${p.records.toLocaleString()}</td><td>${p.records < 100 ? 'Small sample; interpret cautiously' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub" style="margin-top:10px;">Reliability guide: 100+ records is more stable; 25–99 needs caution; fewer than 25 should be suppressed or pooled.</p>
+      </section>
+
+      <section class="card nisr-comparison">
+        <div class="ch"><div><h3>Districts with the longest reported delays</h3><p class="sub">Ranked by average delay in the project summary; small samples can make estimates less stable.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>District</th><th>Province</th><th>Average delay</th><th>Records</th><th>Reliability</th></tr></thead><tbody>${districtHotspots.map(d => `<tr><td>${d.name}</td><td>${d.province}</td><td>${d.records < 25 ? 'Suppressed' : `${d.delay.toFixed(1)} days`}</td><td>${d.records < 25 ? '—' : d.records}</td><td>${d.records < 25 ? 'Suppressed (<25)' : d.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
+      </section>
+
+      <section class="card nisr-comparison">
+        <div class="ch"><div><h3>Differences between surveyed groups</h3><p class="sub">Descriptive comparisons across payment method, poverty group, location, sex, and age.</p></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Category</th><th>Group</th><th>Average delay</th><th>Over 7 days</th><th>Records</th><th>Sample note</th></tr></thead><tbody>${groupComparisons.map(row => `<tr><td>${row.group}</td><td>${row.name}</td><td>${row.records < 25 ? 'Suppressed' : `${row.delay.toFixed(1)} days`}</td><td>${row.records < 25 ? '—' : `${row.latePct}%`}</td><td>${row.records < 25 ? '—' : row.records.toLocaleString()}</td><td>${row.records < 25 ? 'Suppressed (<25)' : row.records < 100 ? 'Caution (<100)' : '100+ records'}</td></tr>`).join("")}</tbody></table></div>
+        <p class="sub" style="margin-top:10px;">Group differences show association, not cause. Poverty status is measured after support and does not decide who should receive help.</p>
+      </section>
+
+      <section class="card nisr-date-panel">
+        <div class="ch"><div><h3>Prototype transaction activity</h3><p class="sub">Choose a period to review simulated orders. This does not filter the NISR survey baseline.</p></div></div>
+        <div class="nisr-period-controls">
+          <label>Period<select class="form-control" onchange="window.app.setAnalysisPeriod(this.value)">
+            ${[['today','Today'],['7d','Last 7 days'],['30d','Last 30 days'],['12m','Last 12 months'],['custom','Choose dates']].map(([v,l])=>`<option value="${v}" ${this.state.analysisPeriod===v?'selected':''}>${l}</option>`).join('')}
+          </select></label>
+          ${this.state.analysisPeriod === 'custom' ? `<label>From<input class="form-control" id="analysisFrom" type="date" value="${period.from}"></label><label>To<input class="form-control" id="analysisTo" type="date" value="${period.to}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyAnalysisDates()">Apply dates</button>` : ''}
+          <span class="nisr-range-label">${periodLabel}</span>
+        </div>
+        <div class="nisr-kpis nisr-activity-kpis">
+          <article class="card"><small>Orders in period</small><strong>${transactions.length}</strong><span>Simulated prototype records</span></article>
+          <article class="card"><small>Order value</small><strong>${transactions.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF</strong><span>Fake money · not a real transfer</span></article>
+          <article class="card"><small>Credit orders</small><strong>${credit.length}</strong><span>${credit.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF simulated credit</span></article>
+        </div>
+        <div class="nisr-export-actions" style="margin:12px 0;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.downloadTransactionsCsv()">Download transactions CSV</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openAnalysisReportModal()">Create dated report</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Buyer</th><th>District</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>
+          ${transactions.length ? transactions.map(o=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(o.date))}</td><td>#${this.escapeHtml(String(o.id))}</td><td>${this.escapeHtml(o.buyerName || 'Demo buyer')}</td><td>${this.escapeHtml(o.district || '—')}</td><td>${this.escapeHtml(o.food || 'Food order')} · ${Number(o.kg)||0} kg</td><td>${o.mode === 'credit'?'Food credit':'Cash'}</td><td>${(Number(o.total)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(o.status || 'Recorded')}</td></tr>`).join('') : `<tr><td colspan="8">No prototype transactions in this date range.</td></tr>`}
+        </tbody></table></div>
+      </section>
 
       <div class="card" style="margin-bottom: 24px;">
         <div class="card-header">
@@ -2751,7 +2916,7 @@ class IsokoApp {
             <tr><td><b>Umurenge SACCO</b></td><td style="color:var(--success); font-weight:700;">7.7 days</td><td>43%</td><td>546</td></tr>
           </tbody>
         </table>
-        <p class="small" style="margin-top:8px;">Umurenge SACCOs disburse fastest because funds remain locally within the administrative sector.</p>
+        <p class="small" style="margin-top:8px;">The survey shows an association between payment method and reported delay. It does not establish why the groups differ.</p>
       </div>
     `;
   }
@@ -3719,6 +3884,55 @@ class IsokoApp {
     const today = new Date().toISOString().slice(0, 10);
     this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, rows.map(r => r.join(',')).join('\n'), 'text/csv');
     this.toast('NISR analytical tables (CSV) downloaded successfully', 'success');
+  }
+
+  csvCell(value) {
+    let text = String(value == null ? "" : value);
+    if (/^[=+@\-]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+
+  downloadAnalysisCsv() {
+    const report = this.getAnalysisReportData();
+    const rows = [
+      ["Dataset", "Metric", "Value", "Unit", "Sample / Scope", "Notes"],
+      ["NISR survey", "Survey period", "2023–24", "", "EICV7 VUP", "Fixed survey baseline; not a live time series"],
+      ["NISR survey", "Average payment delay", NISR_DATA.overall.averageDelayDays, "days", NISR_DATA.overall.totalBeneficiaries, "Current project summary; provisional pending final weighted analysis"],
+      ["NISR survey", "Beneficiaries waiting over 7 days", NISR_DATA.overall.pctOver7DaysLate, "%", NISR_DATA.overall.totalBeneficiaries, "Current project summary; provisional pending final weighted analysis"],
+      ...NISR_DATA.programmes.map(p => ["NISR programme", p.name, p.delay, "average days late", p.records, `${p.latePct}% waited over 7 days; provisional project summary`]),
+      ...NISR_DATA.provinces.map(p => ["NISR province", p.name, p.delay, "average days late", p.records, `${p.latePct}% waited over 7 days; provisional project summary`]),
+      ...NISR_DATA.districts.map(d => ["NISR district", d.name, d.records < 25 ? "" : d.delay, "average days late", d.records < 25 ? "suppressed" : d.records, `${d.province}; priority score ${d.records < 25 ? "suppressed" : d.priority}; ${d.records < 25 ? "n<25, suppress" : d.records < 100 ? "n<100, caution" : "n>=100"}`]),
+      ...Object.entries(NISR_DATA.groups || {}).flatMap(([group, rows]) => rows.map(r => ["NISR group", `${group}: ${r.name}`, r.records < 25 ? "" : r.delay, "average days late", r.records < 25 ? "suppressed" : r.records, r.records < 25 ? "n<25, suppress" : `${r.records < 100 ? "n<100, caution" : "n>=100"}; ${r.records < 25 ? "" : `${r.latePct}% waited over 7 days`}`])),
+      ...Object.entries(NISR_DATA.hotspots || {}).flatMap(([programme, provinces]) => Object.entries(provinces).filter(([, value]) => value).map(([province, value]) => ["NISR programme/province hotspot", `${programme}: ${province}`, value.records < 25 ? "" : value.delay, "average days late", value.records < 25 ? "suppressed" : value.records, value.records < 25 ? "n<25, suppress" : `${value.records < 100 ? "n<100, caution" : "n>=100"}; ${value.records < 25 ? "" : `${value.latePct}% waited over 7 days`}`])),
+      ...Object.entries(NISR_DATA.foodPrices || {}).map(([food, value]) => ["NISR food-price benchmark", food, value.median, `RWF per ${value.unit}`, "", `${value.category}; reference median price`]),
+      ["Simulated prototype activity", "Selected period", report.period.label, "", "", "Date filter applies only to prototype transactions"],
+      ["Simulated prototype activity", "Orders", report.transactions.length, "orders", "", "Fake money; local demo activity"],
+      ["Simulated prototype activity", "Order value", report.totalValue, "RWF", "", "Fake money; not a real transfer"],
+      ["Simulated prototype activity", "Credit order count", report.creditOrders.length, "orders", "", "Fake money; not a real transfer"],
+      ["Limit", "Interpretation", "Patterns, not reasons", "", "", "Survey data cannot explain why an individual payment was late"],
+      ["Limit", "Weighting", "Provisional", "", "", "The build brief labels supplied estimates early and unweighted; final weighted estimates are not confirmed here"]
+    ];
+    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
+    const today = this.localDateInput(new Date());
+    this.downloadFile(`VUPBridge_NISR_analysis_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
+    this.toast("NISR analysis CSV downloaded.", "success");
+  }
+
+  downloadTransactionsCsv() {
+    const report = this.getAnalysisReportData();
+    const rows = [
+      ["Report", "Prototype. Fake money.", `Activity period: ${report.period.label}`, `Generated: ${new Date().toLocaleString("en-GB")}`, "", "", "", "", "", "", "", "", ""],
+      ["Order ID", "Date", "Buyer", "Buyer role", "District", "Food", "Quantity kg", "Mode", "Amount RWF", "Status", "Paid by", "Payment method", "Repaid"],
+      ...report.transactions.map(order => [
+        order.id, this.getOrderDateLabel(order.date), order.buyerName || "Demo buyer", order.buyerRole || "", order.district || "",
+        order.food || "", order.kg || "", order.mode || "", Number(order.total) || 0, order.status || "",
+        order.paidBy || order.paid || "", order.paymentMethod || "", order.repaid ? "Yes" : "No"
+      ])
+    ];
+    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
+    const today = this.localDateInput(new Date());
+    this.downloadFile(`VUPBridge_transactions_${report.period.from}_to_${report.period.to}_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
+    this.toast(`${report.transactions.length} simulated transactions downloaded.`, "success");
   }
 
   downloadNisrHtml() {
