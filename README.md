@@ -42,7 +42,7 @@ National Institute of Statistics of Rwanda (NISR) household survey microdata ($N
 
 | Component Type | Included Elements | Data Source & Treatment |
 | :--- | :--- | :--- |
-| **Real (NISR Microdata)** | 30-district delay statistics, provincial hotspots, demographic breakdowns, poverty proxy model, baseline commodity median prices. | Derived directly from NISR VUP household survey microdata ($N = 3,399$ beneficiaries). |
+| **NISR survey summaries** | 30-district delay statistics, provincial hotspots, demographic breakdowns, poverty proxy model, baseline commodity median prices. | EICV7 VUP 2023–24 summary values included in the prototype. The supplied build brief labels these figures early and unweighted; show them as provisional until a final weighted analysis is confirmed. |
 | **Simulated (Demo)** | Farmers, cooperative listings, consumer orders, bridge credit issuance, revolving pool ledger, audit log, and cases. | Fully functional prototype with local browser state persistence (`Prototype. Fake money.`). |
 | **Assumed Parameters** | Daily adult food consumption basket ($\approx$ 261 RWF/person/day: 120g beans, 300g sweet potato, 80g tomato, 30g onion), shopper donation rate (1%–5%). | Calibrated to Rwandan national nutrition guidelines and market price indices. |
 
@@ -100,6 +100,12 @@ Track every bridge credit order through its financial lifecycle:
 ### E. Statements & Analysis Reports
 - Downloadable **PDF / CSV Statements** for every role (statement number, period, itemized transactions, credit, repaid balance).
 - **Official Executive Analysis Report:** Printable report containing NISR delay baseline comparisons, revolving pool velocity, and district breakdown.
+
+### F. Planner/Admin NISR Analysis Workspace
+- The overview dashboard links to a plain-language NISR analysis with national, programme, province, district, payment-method, demographic, and sample-size comparisons.
+- The EICV7 baseline is fixed to the **2023–24 survey period**. The activity filter (Today, last 7 days, last 30 days, last 12 months, or custom dates) applies only to simulated prototype orders; it never changes or re-dates NISR results.
+- Download the NISR analysis as CSV, print/save a combined NISR and selected-period activity report as PDF, or download the selected-period transactions as CSV.
+- The report labels simulated activity and provisional survey summaries. It explains that the survey shows patterns, not individual causes, and does not establish a household's current payment status.
 
 ---
 
