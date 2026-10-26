@@ -1422,7 +1422,7 @@ class IsokoApp {
           <b style="font-size:14px; font-weight:700;">Seller examples</b>
           <small style="color:var(--mute);">Sample listings</small>
         </div>
-        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none;">
+        <div class="vm-seller-list">
           ${[
             { name: "Mukamana Co-op", dist: "Kirehe", tag: "Beans & Corn" },
             { name: "Kinigi Potato Union", dist: "Musanze", tag: "Irish Potato" },
@@ -1430,7 +1430,7 @@ class IsokoApp {
             { name: "Gicumbi Cooperative", dist: "Northern", tag: "Dry Pulses" },
             { name: "Rusizi Rice Union", dist: "Western", tag: "Local Rice" }
           ].map(coop => `
-            <div style="background:var(--card); border:1px solid var(--line); border-radius:18px; padding:10px 14px; min-width:140px; flex:none; box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+            <div class="vm-seller-card">
               <b style="font-size:12.5px; display:block; line-height:1.2;">${coop.name}</b>
               <small style="color:var(--mute); font-size:10.5px; display:block; margin:2px 0 4px;">📍 ${coop.dist}</small>
               <span class="tag g" style="font-size:9.5px; padding:2px 6px;">${coop.tag}</span>
