@@ -46,7 +46,7 @@
           <button class="btn btn-outline btn-sm" onclick="window.app.toggleTheme()" title="Toggle Dark/Light Mode">
             🌓 Mode
           </button>
-          <button class="btn btn-outline btn-sm" onclick="openAuthModal('signup')">
+          <button class="btn btn-outline btn-sm" onclick="window.app.openAuthModal('signup')">
             📝 Sign Up
           </button>
           <button class="btn btn-primary btn-sm" onclick="openDemoModal()">
@@ -64,150 +64,211 @@
     </div>
   </main>
 
-  <!-- 1. Sliding Auth Modal (Inspired by Login form V5) -->
-  <div id="authModal" class="modal-overlay">
-    <div class="modal" style="max-width: 760px; padding: 0; background: transparent; border: none; box-shadow: none;">
-      <div class="auth-sliding-card" id="authCard" data-mode="signup">
-        <section class="auth-overlay">
-          <div id="authOverlaySignupMsg">
-            <h2 style="font-size: 26px; font-weight: 800; line-height: 1.2;">MURAKAZA NEZA!</h2>
-            <p style="font-size: 13px; opacity: 0.9; margin-top: 8px;">Enter your details to join Rwanda's VUP direct food market and emergency payment bridge.</p>
-            <button class="btn btn-outline btn-sm" style="margin-top: 18px; color:white; border-color:white; background:transparent;" onclick="setAuthMode('login')">
-              Already have an account? Sign In
+    <!-- 1. USER SLIDING AUTH MODAL (media_1792662744651.html) -->
+  <div id="authModal" class="auth-overlay-backdrop">
+    <div class="auth-card-v5" id="authCardV5" data-mode="login">
+      <section class="overlay-v5">
+        <div class="msg-v5 m-signup-v5">
+          <h1>HELLO, FRIEND!</h1>
+          <p>Join Isoko Bridge today. Choose your role or try a 1-click sample demo account.</p>
+        </div>
+        <div class="msg-v5 m-login-v5">
+          <h1>WELCOME BACK!</h1>
+          <p>Connect with your Rwandan community pool, farmer market, and emergency credit.</p>
+        </div>
+      </section>
+
+      <!-- Sign Up Form -->
+      <form class="form-v5" id="signupFormV5" onsubmit="window.app.handleAuthSubmit(event, 'signup')" autocomplete="off">
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+          <h2>Sign Up</h2>
+          <button type="button" class="btn btn-ghost btn-sm" style="color:#fff;" onclick="window.app.closeAuthModal()">✕</button>
+        </div>
+        <label class="field-v5">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          <input required placeholder="Full Name or Username" id="su_user">
+        </label>
+        <label class="field-v5">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          <input type="text" required placeholder="Phone / Email (e.g. 0788 123 456)" id="su_email">
+        </label>
+        <label class="field-v5">
+          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          <input type="password" required placeholder="Password" id="su_pass" value="Demo#2026">
+        </label>
+        <div class="field-v5">
+          <select id="su_role">
+            <option value="Shopper" style="color:#000;">Role: Ethical Produce Shopper</option>
+            <option value="Family" style="color:#000;">Role: VUP Beneficiary Family</option>
+            <option value="Farmer" style="color:#000;">Role: Smallholder Farmer / Coop</option>
+            <option value="Planner" style="color:#000;">Role: Government Planner / Judge</option>
+          </select>
+        </div>
+        <button class="btn-auth-v5" type="submit">Sign Up & Enter</button>
+        <p class="small-v5">Already have an account? <a onclick="window.app.setAuthMode('login')">Login</a></p>
+      </form>
+
+      <!-- Login Form -->
+      <form class="form-v5" id="loginFormV5" onsubmit="window.app.handleAuthSubmit(event, 'login')" autocomplete="off">
+        <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+          <h2>Login</h2>
+          <button type="button" class="btn btn-ghost btn-sm" style="color:#fff;" onclick="window.app.closeAuthModal()">✕</button>
+        </div>
+        <label class="field-v5">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          <input placeholder="Username (or click sample below)" id="li_user">
+        </label>
+        <label class="field-v5">
+          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+          <input type="password" placeholder="Password (optional for demo)" id="li_pass" value="Demo#2026">
+        </label>
+
+        <!-- 1-Click Sample Demo Logins (No credentials needed!) -->
+        <div style="width:100%; margin-top:2px;">
+          <small style="font-size:10.5px; color:#d1deda; display:block; margin-bottom:4px; text-align:center;">
+            1-Click Sample Logins (No password required):
+          </small>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('amina_family')">
+              👨‍👩‍👧 Amina (Family)
+            </button>
+            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('mukamana_seller')">
+              🌾 Mukamana (Farmer)
+            </button>
+            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('grace_shopper')">
+              🛒 Grace (Shopper)
+            </button>
+            <button type="button" class="chip" style="font-size:10.5px; padding:5px; background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25);" onclick="window.app.quickLoginSample('planner_demo')">
+              📊 LODA (Planner)
             </button>
           </div>
-          <div id="authOverlayLoginMsg" style="display: none;">
-            <h2 style="font-size: 26px; font-weight: 800; line-height: 1.2;">WELCOME BACK!</h2>
-            <p style="font-size: 13px; opacity: 0.9; margin-top: 8px;">Sign in to access your bridge credit, produce listings, or planner dashboards.</p>
-            <button class="btn btn-outline btn-sm" style="margin-top: 18px; color:white; border-color:white; background:transparent;" onclick="setAuthMode('signup')">
-              Don't have an account? Sign Up
-            </button>
-          </div>
-        </section>
+        </div>
 
-        <!-- Sign Up Side -->
-        <form class="auth-form-side" id="authSignup" onsubmit="handleAuthSubmit(event, 'signup')">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="font-size: 22px; font-weight: 800;">Create Account</h3>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="closeAuthModal()">✕</button>
-          </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <label class="form-label">Role</label>
-            <select id="signupRole" class="form-control" style="padding:6px 10px;">
-              <option value="Family">VUP Beneficiary Member</option>
-              <option value="Farmer">Farmer / Produce Seller</option>
-              <option value="Shopper">Ethical Food Shopper</option>
-              <option value="Planner">Government Planner (Admin)</option>
-            </select>
-          </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <input id="signupName" type="text" class="form-control" placeholder="Full Name" required>
-          </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <input id="signupContact" type="text" class="form-control" placeholder="Phone or Email (e.g. 0788123456)" required>
-          </div>
-          <div class="form-group" style="margin-bottom:8px;">
-            <input id="signupPass" type="password" class="form-control" placeholder="Password" value="Demo#2026" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:4px;">Sign Up & Enter</button>
-        </form>
-
-        <!-- Login Side -->
-        <form class="auth-form-side" id="authLogin" onsubmit="handleAuthSubmit(event, 'login')">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 style="font-size: 22px; font-weight: 800;">Sign In</h3>
-            <button type="button" class="btn btn-ghost btn-sm" onclick="closeAuthModal()">✕</button>
-          </div>
-          <div class="form-group" style="margin-bottom:10px;">
-            <input id="loginUser" type="text" class="form-control" placeholder="Username (e.g. amina_family)" required>
-          </div>
-          <div class="form-group" style="margin-bottom:10px;">
-            <input id="loginPass" type="password" class="form-control" placeholder="Password" value="Amina#2026" required>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:4px;">Sign In</button>
-          <div style="text-align:center; font-size:12px; margin-top:8px;">
-            <a style="color:var(--primary); cursor:pointer;" onclick="openDemoModal(); closeAuthModal();">Need quick demo logins? Click here</a>
-          </div>
-        </form>
-      </div>
+        <button class="btn-auth-v5" type="submit">Login →</button>
+        <p class="small-v5">Don't have an account? <a onclick="window.app.setAuthMode('signup')">Sign Up</a></p>
+      </form>
     </div>
   </div>
 
-  <!-- 2. Rwandan Payment Sheet Modal (MTN MoMo, Airtel, BK, SACCO) -->
-  <div id="payModal" class="modal-overlay">
-    <div class="modal" style="max-width: 460px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <h3 style="font-size: 19px; font-weight:800;">Pay with Mobile Money or Bank</h3>
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('payModal').classList.remove('open')">✕</button>
-      </div>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Choose your payment channel in Rwanda (RWF):</p>
+    <!-- 2. USER PHONE ORDER & PAYMENT FLOW (media_1792662744615.html) -->
+  <div id="payModal" class="auth-overlay-backdrop">
+    <div class="phone-modal-wrapper" id="phoneModalWrap">
+      <div class="screen-v2" id="scrV2">
+        <div class="island-v2"></div>
+        <div class="status-v2" id="clockV2">12:30</div>
 
-      <div style="margin-bottom: 14px;">
-        <div class="pay-method-item selected" onclick="selectPaymentMethod('momo', this)">
-          <div class="pay-badge-icon pay-momo">MoMo</div>
-          <div style="flex:1;">
-            <b>MTN Mobile Money</b>
-            <div style="font-size:11px; color:var(--text-muted);">0788 123 456 · Instant USSD prompt (*182#)</div>
+        <!-- Page 2: Confirm Order -->
+        <section class="page-v2 on" id="p2_v2">
+          <button class="back-v2" onclick="window.app.closePayFlow()" aria-label="close">✕</button>
+          <h1>Confirm order</h1>
+          <p class="sub-v2">Review your fresh harvest produce before paying.</p>
+          <div class="hcard-v2" id="hcV2">
+            <img id="orderProduceImg" src="assets/produce/dry_beans.jpg" alt="Produce">
+            <span id="orderProduceBadge" style="position:absolute; bottom:8px; left:10px; background:rgba(0,0,0,0.72); color:#fff; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:700;">Dry beans</span>
           </div>
-          <span style="font-size: 12px; color: var(--success); font-weight: 700;">Fast</span>
-        </div>
-
-        <div class="pay-method-item" onclick="selectPaymentMethod('airtel', this)">
-          <div class="pay-badge-icon pay-airtel">Airtel</div>
-          <div style="flex:1;">
-            <b>Airtel Money Rwanda</b>
-            <div style="font-size:11px; color:var(--text-muted);">0738 654 321 · Instant PIN prompt (*500#)</div>
+          <div class="sheet-v2">
+            <div class="row-v2"><span>Produce</span><span id="rcV2">Dry beans (5 kg)</span></div>
+            <div class="row-v2"><span>Produce Cost</span><span id="rfV2">3,900 RWF</span></div>
+            <div class="row-v2">
+              <span>Nearby Delivery</span>
+              <span id="rdModeV2" style="cursor:pointer; color:var(--primary); font-weight:700;" onclick="window.app.toggleCheckoutDelivery()">
+                🚴 Express Moto (+300 RWF) ▾
+              </span>
+            </div>
+            <div class="row-v2"><span>Bridge Pool Gift</span><span id="rgV2">+78 RWF (2%)</span></div>
+            <div class="row-v2"><span>Total today</span><span id="rtV2">4,278 RWF</span></div>
           </div>
-        </div>
+          <button class="pay-pill-btn-v2" id="payBtnV2" onclick="window.app.goToPaymentMethods()"><span class="t">Choose how to pay</span></button>
+          <p class="note-v2">MTN MoMo, Airtel Money, BK, SACCO and more</p>
+        </section>
 
-        <div class="pay-method-item" onclick="selectPaymentMethod('bk', this)">
-          <div class="pay-badge-icon pay-bk">BK</div>
-          <div style="flex:1;">
-            <b>Bank of Kigali (BK Debit)</b>
-            <div style="font-size:11px; color:var(--text-muted);">Card •••• 4821</div>
+        <!-- Page 6: Pay With -->
+        <section class="page-v2" id="p6_v2" style="overflow-y:auto">
+          <button class="back-v2" onclick="window.app.goPhonePage(2)" aria-label="back">‹</button>
+          <h1>Pay with</h1>
+          <p class="sub-v2">Pick a saved account. Amounts in RWF.</p>
+          <div class="mlist-v2" id="mlV2"></div>
+          <div class="fields-v2" id="flV2"></div>
+          <button class="pay-pill-btn-v2" id="goBtnV2" style="margin-top:auto;flex:none" onclick="window.app.processPhonePayment()"><span class="t" id="ppV2">Pay</span></button>
+        </section>
+
+        <!-- Page 3: Terminal Processing Animation -->
+        <section class="page-v2" id="p3_v2">
+          <div class="term-v2">
+            <svg viewBox="0 0 260 230">
+              <g fill="none">
+                <path d="M30 150l100-52 100 52-100 52z" fill="#f0f0f0" stroke="#ddd"/>
+                <path d="M30 150v14l100 52 100-52v-14l-100 52z" fill="#222"/>
+                <path d="M70 130l60-30 60 30-60 32z" fill="#1d1d1d"/>
+                <g fill="#eee"><circle cx="105" cy="132" r="5"/><circle cx="125" cy="140" r="5"/><circle cx="145" cy="132" r="5"/><circle cx="125" cy="122" r="5"/><circle cx="105" cy="146" r="5"/></g>
+                <path d="M150 112l22-12 8-50-26 8z" fill="#fff" stroke="#ddd"/>
+                <path d="M100 82l-8 28 40 20 10-28z" fill="#fff" stroke="#ddd"/>
+                <circle cx="146" cy="150" r="5" fill="#2e8b57"/>
+              </g>
+              <g class="mini-v2"><rect x="70" y="40" width="96" height="62" rx="8" fill="#c9ad72"/><text x="156" y="94" text-anchor="end" font-size="13" font-weight="800" font-style="italic" fill="#2a2112" id="vtV2">MOMO</text></g>
+            </svg>
+            <h2 id="t3V2" style="font-size:20px; font-weight:700; margin-top:12px;">Processing…</h2>
+            <p class="sub-v2" id="t3sV2"></p>
           </div>
-        </div>
+        </section>
 
-        <div class="pay-method-item" onclick="selectPaymentMethod('sacco', this)">
-          <div class="pay-badge-icon pay-sacco">SACCO</div>
-          <div style="flex:1;">
-            <b>Umurenge SACCO Account</b>
-            <div style="font-size:11px; color:var(--text-muted);">Local cooperative account</div>
+        <!-- Page 4: Order Placed -->
+        <section class="page-v2" id="p4_v2">
+          <div class="term-v2" style="margin-top:24px">
+            <svg viewBox="0 0 260 150" class="ok-v2">
+              <path d="M30 100l100-52 100 52-100 52z" fill="#f0f0f0" stroke="#ddd"/>
+              <path d="M70 90l60-30 60 30-60 32z" fill="#1d1d1d"/>
+              <rect x="90" y="10" width="80" height="60" rx="8" fill="#c9ad72"/>
+              <path class="chk-v2" d="M112 42l12 12 24-26" stroke="#2e8b57" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h2 style="font-size:22px; font-weight:700; margin-top:10px;">Order placed</h2>
+            <p class="sub-v2" id="t4V2">Your harvest food is being packed at the nearest hub.<br>We will notify you upon dispatch.</p>
           </div>
-        </div>
-      </div>
+          <div class="sheet-v2" style="margin-top:14px">
+            <div class="row-v2"><span>Paid Amount</span><span id="pdV2">4,278 RWF</span></div>
+            <div class="row-v2" style="font-weight:500;font-size:12px"><span>Fulfillment</span><span id="pdFulV2">15–25 mins (Express Moto)</span></div>
+          </div>
+          <div class="btns" style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
+            <button class="btn btn-outline" style="background:#fff; border-radius:20px; padding:10px;" id="vrV2" onclick="window.app.goPhonePage(5); window.app.triggerReceiptPrinter();">🧾 View receipt</button>
+            <button class="btn btn-primary" style="border-radius:20px; padding:10px;" onclick="window.app.closePayFlow()">Done</button>
+          </div>
+        </section>
 
-      
-      <!-- Delivery Method Selection (Nearby Way) -->
-      <div style="margin-bottom: 14px;">
-        <label class="form-label" style="font-size: 11.5px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px;">
-          📍 Nearby Delivery / Collection Method
-        </label>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div id="delOptionMoto" class="pay-method-item selected" style="padding: 10px; margin-bottom: 0;" onclick="window.app.setCheckoutDelivery('moto')">
-            <span style="font-size: 20px;">🚴</span>
-            <div style="flex:1;">
-              <b style="font-size: 13px;">Moto Drop</b>
-              <div style="font-size: 10px; color: var(--text-muted);">+300 RWF · 15-25m</div>
+        <!-- Page 5: Thermal Receipt -->
+        <section class="page-v2" id="p5_v2" style="padding-top:50px">
+          <div style="text-align:center;color:#fff;font-size:14px;position:relative;margin-bottom:4px;">
+            <button class="back-v2" style="position:absolute;left:0;top:-4px" onclick="window.app.goPhonePage(4)">‹</button>Receipt
+          </div>
+          <div class="slot-v2"></div>
+          <div class="feed-v2">
+            <div class="paper-v2" id="paperV2">
+              <h3>ISOKO BRIDGE</h3>
+              <div class="s-v2">FOOD MARKETPLACE RECEIPT</div>
+              <hr>
+              <div class="l-v2"><span>RECEIPT</span><span id="recNumV2">#IB-2026-102</span></div>
+              <div class="l-v2"><span>DATE</span><span id="recDateV2">22 OCT 2026</span></div>
+              <div class="l-v2"><span>CUSTOMER</span><span id="recCustV2">GRACE INGABIRE</span></div>
+              <div class="l-v2"><span>NEARBY SELLER</span><span id="recSellerV2">MUKAMANA FARM</span></div>
+              <div class="l-v2"><span>NEAREST HUB</span><span id="recHubV2">KIMIRONKO HUB</span></div>
+              <hr>
+              <div class="l-v2"><span id="recItemV2">Dry beans (5 kg)</span><b id="recItemCostV2">3,900 RWF</b></div>
+              <div class="l-v2"><span>Delivery</span><span id="recDelV2">300 RWF (Moto)</span></div>
+              <div class="l-v2"><span>Bridge Pool Gift</span><span id="recGiftV2">+78 RWF</span></div>
+              <hr>
+              <div class="tot-v2"><span>TOTAL</span><span id="recTotV2">4,278 RWF</span></div>
+              <div class="l-v2" style="color:#888"><span id="recPayByV2">PAID BY MTN MOMO</span><span>APPROVED</span></div>
+              <div class="bars-v2" id="barsV2"></div>
+              <div class="ty-v2">Murakoze cyane · Supporting Rwandan Farmers</div>
+              <div class="stamp-v2" id="stampV2"><span>PAID<small>APPROVED</small></span></div>
             </div>
           </div>
-          <div id="delOptionPickup" class="pay-method-item" style="padding: 10px; margin-bottom: 0;" onclick="window.app.setCheckoutDelivery('pickup')">
-            <span style="font-size: 20px;">🚶</span>
-            <div style="flex:1;">
-              <b style="font-size: 13px;">SACCO Pickup</b>
-              <div style="font-size: 10px; color: var(--success); font-weight: 700;">FREE · Ready now</div>
-            </div>
+          <div class="status-t-v2" id="ptV2">Printing your receipt…</div>
+          <div class="rbtn-v2" id="rbV2">
+            <button class="cta-v2" onclick="window.app.triggerReceiptPrinter()">Print again</button>
+            <button class="cta-v2" onclick="window.app.closePayFlow()">Done</button>
           </div>
-        </div>
+        </section>
       </div>
-
-      <!-- Payment Summary -->
-      <div id="paySheetSummary" style="background:var(--bg); border:1px solid var(--card-border); border-radius:var(--radius-md); padding:14px; margin-bottom:14px; font-size:13px;">
-      </div>
-
-      <button id="paySubmitBtn" class="btn btn-primary" style="width:100%; padding:12px; font-size:15px;" onclick="window.app.confirmPayment()">
-        Confirm & Pay
-      </button>
     </div>
   </div>
 

@@ -10,119 +10,81 @@
  */
 
 // Curated Produce Photography (High quality web links with reliable SVG/Emoji fallbacks)
+
+// 1. EXTENDED RWANDAN HARVEST PRODUCTION & GALLERY
 const HARVEST_GALLERY = {
-  "Dry beans": {
-    img: "assets/produce/dry_beans.jpg",
-    icon: "🫘",
-    kiny: "Ibihyimbo",
-    category: "Pulses",
-    retailPrice: 920,
-    hub: "Gatore Food Bank & SACCO Point",
-    distanceKm: 0.9,
-    deliveryMins: 15
-  },
-  "Irish potato": {
-    img: "assets/produce/irish_potato.jpg",
-    icon: "🥔",
-    kiny: "Ibirayi",
-    category: "Staples",
-    retailPrice: 520,
-    hub: "Mukamira Highland Depot",
-    distanceKm: 1.4,
-    deliveryMins: 18
-  },
-  "Sweet potato": {
-    img: "assets/produce/sweet_potato.jpg",
-    icon: "🍠",
-    kiny: "Ibijumba",
-    category: "Staples",
-    retailPrice: 320,
-    hub: "Gisagara Agro-Hub",
-    distanceKm: 2.5,
-    deliveryMins: 25
-  },
-  "Tomato": {
-    img: "assets/produce/tomato.jpg",
-    icon: "🍅",
-    kiny: "Inyanya",
-    category: "Vegetables",
-    retailPrice: 620,
-    hub: "Kimironko Farmers Hub & SACCO",
-    distanceKm: 1.1,
-    deliveryMins: 12
-  },
-  "Cooking banana": {
-    img: "assets/produce/cooking_banana.jpg",
-    icon: "🍌",
-    kiny: "Ibitoki",
-    category: "Staples",
-    retailPrice: 380,
-    hub: "Nyabugogo Direct Agro-Depot",
-    distanceKm: 2.8,
-    deliveryMins: 20
-  },
-  "Onion": {
-    img: "assets/produce/red_onion.jpg",
-    icon: "🧅",
-    kiny: "Ibitunguru",
-    category: "Vegetables",
-    retailPrice: 1950,
-    hub: "Kimironko Farmers Hub & SACCO",
-    distanceKm: 1.2,
-    deliveryMins: 15
-  },
-  "Local rice": {
-    img: "assets/produce/local_rice.jpg",
-    icon: "🍚",
-    kiny: "Umuceri",
-    category: "Grains",
-    retailPrice: 1380,
-    hub: "Bugesera Rice Depot",
-    distanceKm: 3.2,
-    deliveryMins: 30
-  },
-  "Corn flour (factory)": {
-    img: "assets/produce/fresh_corn.jpg",
-    icon: "🌽",
-    kiny: "Ifu y'Ibigori",
-    category: "Grains",
-    retailPrice: 960,
-    hub: "Nyabugogo Direct Agro-Depot",
-    distanceKm: 2.8,
-    deliveryMins: 25
-  },
-  "Avocado": {
-    img: "assets/produce/avocado.jpg",
-    icon: "🥑",
-    kiny: "Avoka",
-    category: "Fruits",
-    retailPrice: 350,
-    hub: "Kimironko Farmers Hub & SACCO",
-    distanceKm: 1.0,
-    deliveryMins: 15
-  },
-  "Spinach": {
-    img: "assets/produce/spinach.jpg",
-    icon: "🥬",
-    kiny: "Dodo / Imbwija",
-    category: "Vegetables",
-    retailPrice: 300,
-    hub: "Kimironko Farmers Hub & SACCO",
-    distanceKm: 0.8,
-    deliveryMins: 10
-  }
+  "Dry beans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Ibihyimbo", category: "Pulses", retailPrice: 920, defaultDistrict: "Kirehe", hub: "Gatore Food Bank & SACCO Point" },
+  "Irish potato": { img: "assets/produce/irish_potato.jpg", icon: "🥔", kiny: "Ibirayi", category: "Staples", retailPrice: 520, defaultDistrict: "Nyabihu", hub: "Mukamira Highland Depot" },
+  "Sweet potato": { img: "assets/produce/sweet_potato.jpg", icon: "🍠", kiny: "Ibijumba", category: "Staples", retailPrice: 320, defaultDistrict: "Gisagara", hub: "Gisagara Agro-Hub" },
+  "Tomato": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Inyanya", category: "Vegetables", retailPrice: 620, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
+  "Cooking banana": { img: "assets/produce/cooking_banana.jpg", icon: "🍌", kiny: "Ibitoki", category: "Staples", retailPrice: 380, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot" },
+  "Onion": { img: "assets/produce/red_onion.jpg", icon: "🧅", kiny: "Ibitunguru", category: "Vegetables", retailPrice: 1950, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
+  "Local rice": { img: "assets/produce/local_rice.jpg", icon: "🍚", kiny: "Umuceri", category: "Grains", retailPrice: 1380, defaultDistrict: "Kicukiro", hub: "Gikondo Agro-Terminal" },
+  "Corn flour (factory)": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ifu y'Ibigori", category: "Grains", retailPrice: 960, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot" },
+  "Avocado": { img: "assets/produce/avocado.jpg", icon: "🥑", kiny: "Avoka", category: "Fruits", retailPrice: 350, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
+  "Spinach": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Dodo / Imbwija", category: "Vegetables", retailPrice: 300, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
+  "Cassava roots": { img: "assets/produce/sweet_potato.jpg", icon: "🪵", kiny: "Imyumbati", category: "Staples", retailPrice: 280, defaultDistrict: "Ruhango", hub: "Ruhango Central Market Point" },
+  "Passion fruit": { img: "assets/produce/avocado.jpg", icon: "🫐", kiny: "Marakuja", category: "Fruits", retailPrice: 1200, defaultDistrict: "Musanze", hub: "Musanze Central Produce Depot" },
+  "Tree tomatoes": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Ibinyomoro", category: "Fruits", retailPrice: 1100, defaultDistrict: "Burera", hub: "Burera Highland Agro-Hub" },
+  "Carrots": { img: "assets/produce/sweet_potato.jpg", icon: "🥕", kiny: "Amakaroti", category: "Vegetables", retailPrice: 450, defaultDistrict: "Gicumbi", hub: "Gicumbi High-Altitude Center" },
+  "Green cabbage": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Amashu", category: "Vegetables", retailPrice: 350, defaultDistrict: "Musanze", hub: "Musanze Central Produce Depot" },
+  "Green peppers": { img: "assets/produce/spinach.jpg", icon: "🫑", kiny: "Urusenda", category: "Vegetables", retailPrice: 850, defaultDistrict: "Bugesera", hub: "Bugesera Rice & Veg Depot" },
+  "Soybeans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Soya", category: "Pulses", retailPrice: 750, defaultDistrict: "Kayonza", hub: "Kayonza Agro-Depot" },
+  "Groundnuts": { img: "assets/produce/dry_beans.jpg", icon: "🥜", kiny: "Ubunyobwa", category: "Pulses", retailPrice: 1800, defaultDistrict: "Ngoma", hub: "Ngoma Farmers Hub" }
 };
 
-const RWANDA_FOOD_HUBS = [
-  { id: "all", name: "All Rwanda (All Hubs)", district: "National", province: "All", distance: 0, deliveryMins: 0, stock: "3,800 kg", icon: "🇷🇼" },
-  { id: "kimironko", name: "Kimironko Farmers Hub & SACCO", district: "Gasabo", province: "Kigali", distance: 1.2, deliveryMins: 15, stock: "450 kg", icon: "🏪" },
-  { id: "nyabugogo", name: "Nyabugogo Direct Agro-Depot", district: "Nyarugenge", province: "Kigali", distance: 2.8, deliveryMins: 25, stock: "680 kg", icon: "🏢" },
-  { id: "gikondo", name: "Gikondo Agro-Terminal", district: "Kicukiro", province: "Kigali", distance: 3.4, deliveryMins: 30, stock: "320 kg", icon: "📦" },
-  { id: "gatore", name: "Gatore Food Bank & SACCO Point", district: "Kirehe", province: "Eastern", distance: 0.9, deliveryMins: 10, stock: "520 kg", icon: "🌾" },
-  { id: "mukamira", name: "Mukamira Highland Potato Center", district: "Nyabihu", province: "Western", distance: 1.4, deliveryMins: 18, stock: "850 kg", icon: "🥔" },
-  { id: "musanze", name: "Musanze Central Produce Depot", district: "Musanze", province: "Northern", distance: 2.1, deliveryMins: 20, stock: "400 kg", icon: "🌿" },
-  { id: "huye", name: "Huye Agro-Logistics Hub", district: "Huye", province: "Southern", distance: 3.1, deliveryMins: 25, stock: "360 kg", icon: "🌽" }
+// 2. ALL 30 RWANDAN DISTRICTS ORGANIZED BY PROVINCE
+const RWANDA_PROVINCES = {
+  "Kigali City": ["Gasabo", "Nyarugenge", "Kicukiro"],
+  "Northern Province": ["Musanze", "Gicumbi", "Burera", "Gakenke", "Rulindo"],
+  "Southern Province": ["Huye", "Gisagara", "Muhanga", "Kamonyi", "Ruhango", "Nyanza", "Nyamagabe", "Nyaruguru"],
+  "Eastern Province": ["Kirehe", "Bugesera", "Rwamagana", "Gatsibo", "Kayonza", "Ngoma", "Nyagatare"],
+  "Western Province": ["Rubavu", "Nyabihu", "Karongi", "Rusizi", "Nyamasheke", "Rutsiro", "Ngororero"]
+};
+
+// Approximate District Center Coordinates for Real-Time Distance Calculation (km)
+const DISTRICT_COORDS = {
+  "Gasabo": [-1.890, 30.130], "Nyarugenge": [-1.954, 30.058], "Kicukiro": [-1.980, 30.100],
+  "Musanze": [-1.498, 29.635], "Gicumbi": [-1.602, 30.098], "Burera": [-1.455, 29.832], "Gakenke": [-1.698, 29.789], "Rulindo": [-1.733, 29.992],
+  "Huye": [-2.597, 29.740], "Gisagara": [-2.618, 29.845], "Muhanga": [-2.080, 29.754], "Kamonyi": [-2.005, 29.897], "Ruhango": [-2.223, 29.778], "Nyanza": [-2.352, 29.751], "Nyamagabe": [-2.476, 29.508], "Nyaruguru": [-2.721, 29.531],
+  "Kirehe": [-2.268, 30.651], "Bugesera": [-2.185, 30.125], "Rwamagana": [-1.949, 30.435], "Gatsibo": [-1.610, 30.457], "Kayonza": [-1.921, 30.562], "Ngoma": [-2.176, 30.508], "Nyagatare": [-1.298, 30.324],
+  "Rubavu": [-1.677, 29.261], "Nyabihu": [-1.657, 29.500], "Karongi": [-2.155, 29.351], "Rusizi": [-2.484, 28.907], "Nyamasheke": [-2.348, 29.138], "Rutsiro": [-1.942, 29.324], "Ngororero": [-1.865, 29.625]
+};
+
+// Haversine formula to compute distance between two Rwandan districts (in km)
+function calculateRwandaDistance(d1, d2) {
+  if (!d1 || !d2) return 1.5;
+  if (d1.toLowerCase() === d2.toLowerCase()) return 0.8;
+  const c1 = DISTRICT_COORDS[d1] || [-1.940, 30.060];
+  const c2 = DISTRICT_COORDS[d2] || [-1.940, 30.060];
+  const R = 6371; // km
+  const dLat = (c2[0] - c1[0]) * Math.PI / 180;
+  const dLon = (c2[1] - c1[1]) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(c1[0] * Math.PI / 180) * Math.cos(c2[0] * Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return Math.round(R * c * 10) / 10;
+}
+
+// 3. RWANDAN PAYMENT ACCOUNTS (Matching media_1792662744615.html)
+const RWANDA_PAYMENT_ACCOUNTS = [
+  { n: 'MTN MoMo', s: '078 123 4567', t: 'mobile', c: 'background:#ffcb05;color:#000', l: 'MoMo', by: 'MTN MOMO', bal: 500000 },
+  { n: 'Airtel Money', s: '073 123 4567', t: 'mobile', c: 'background:#e40000;color:#fff', l: 'airtel', by: 'AIRTEL TIGO MONEY', bal: 1500 },
+  { n: 'BK Debit', s: '•••• 4821', t: 'card', c: 'background:#0a5ca8;color:#fff', l: 'BK', by: 'BK DEBIT', bal: 1500 },
+  { n: 'BK Credit', s: '•••• 7730', t: 'card', c: 'background:#0a5ca8;color:#fff', l: 'BK', by: 'BK CREDIT', bal: 800000, credit: true },
+  { n: 'Umurenge SACCO', s: 'Local SACCO Point', t: 'card', c: 'background:#15803d;color:#fff', l: 'SACCO', by: 'UMURENGE SACCO', bal: 250000 },
+  { n: 'Mastercard Debit', s: '•••• 5521', t: 'card', c: 'background:#222;color:#fff', l: 'MC', by: 'MASTERCARD DEBIT', bal: 320000 },
+  { n: 'Visa Debit', s: '•••• 4012', t: 'card', c: 'background:#1a1f71;color:#fff', l: 'VISA', by: 'VISA DEBIT', bal: 1500 }
 ];
+
+const TOPUP_CHIPS = [
+  { l: '+ RWF 1,500', v: 1500 },
+  { l: '+ $5 (7,250 RWF)', v: 7250 },
+  { l: '+ RWF 50,000', v: 50000 },
+  { l: '+ RWF 500,000', v: 500000 }
+];
+
 
 const DEFAULT_STATE = {
   theme: "light",
@@ -131,12 +93,12 @@ const DEFAULT_STATE = {
   role: "Family",
   activeCategory: "All",
   nearby: {
-    userLocation: "Kimironko, Gasabo (Kigali)",
-    selectedDistrict: "Gasabo",
-    selectedHub: "all",
-    filterProximity: "all",
-    deliveryOption: "moto"
+    userDistrict: "Gasabo",
+    userLocation: "Gasabo (Kimironko Hub)",
+    filterProximity: "all", // "all", "near", "district", "fast", "sacco"
+    deliveryOption: "moto" // "moto" (+300 RWF) or "pickup" (0 RWF)
   },
+  selectedAccountIdx: 0,
   currentUser: {
     username: "amina_family",
     name: "Amina Uwase",
@@ -158,25 +120,34 @@ const DEFAULT_STATE = {
     totalPaidToFarmers: 0,
     totalRepaidByVup: 0
   },
+  // 18 Diverse Rwandan Harvest Productions
   listings: [
-    { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", distanceKm: 0.9, deliveryMins: 15, price: 780, retailPrice: 920, quantity: 200, farmer: "Mukamana Farm", momo: "0788123456", photo: "assets/produce/dry_beans.jpg", isFav: false },
-    { id: 2, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", distanceKm: 2.5, deliveryMins: 25, price: 240, retailPrice: 320, quantity: 350, farmer: "Gisagara Agrilink", momo: "0788234567", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-    { id: 3, food: "Irish potato", district: "Nyabihu", hub: "Mukamira Highland Depot", distanceKm: 1.4, deliveryMins: 18, price: 440, retailPrice: 520, quantity: 500, farmer: "Nyabihu Potato Coop", momo: "0788654321", photo: "assets/produce/irish_potato.jpg", isFav: true },
-    { id: 4, food: "Tomato", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", distanceKm: 1.1, deliveryMins: 12, price: 480, retailPrice: 620, quantity: 90, farmer: "Karongi & Kimironko Fresh", momo: "0788345678", photo: "assets/produce/tomato.jpg", isFav: true },
-    { id: 5, food: "Cooking banana", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", distanceKm: 2.8, deliveryMins: 20, price: 290, retailPrice: 380, quantity: 250, farmer: "Gatsibo & Nyabugogo Coop", momo: "0788456789", photo: "assets/produce/cooking_banana.jpg", isFav: false },
-    { id: 6, food: "Onion", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", distanceKm: 1.2, deliveryMins: 15, price: 1600, retailPrice: 1950, quantity: 80, farmer: "Gicumbi & Kimironko Green", momo: "0788567890", photo: "assets/produce/red_onion.jpg", isFav: false },
-    { id: 7, food: "Local rice", district: "Kicukiro", hub: "Gikondo Agro-Terminal", distanceKm: 3.4, deliveryMins: 30, price: 1180, retailPrice: 1380, quantity: 180, farmer: "Bugesera & Kigali Rice Growers", momo: "0788789012", photo: "assets/produce/local_rice.jpg", isFav: false },
-    { id: 8, food: "Avocado", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", distanceKm: 1.0, deliveryMins: 15, price: 280, retailPrice: 350, quantity: 120, farmer: "Kigali Agro Coop", momo: "0788890123", photo: "assets/produce/avocado.jpg", isFav: true },
-    { id: 9, food: "Spinach", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", distanceKm: 0.8, deliveryMins: 10, price: 250, retailPrice: 300, quantity: 60, farmer: "Nyabarongo Valley Fresh", momo: "0788901234", photo: "assets/produce/spinach.jpg", isFav: false },
-    { id: 10, food: "Corn flour (factory)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", distanceKm: 2.8, deliveryMins: 25, price: 790, retailPrice: 960, quantity: 150, farmer: "Bugarama Mills", momo: "0788012345", photo: "assets/produce/fresh_corn.jpg", isFav: false }
+    { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 200, farmer: "Mukamana Farm", momo: "0788123456", photo: "assets/produce/dry_beans.jpg", isFav: false },
+    { id: 2, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 320, quantity: 350, farmer: "Gisagara Agrilink", momo: "0788234567", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+    { id: 3, food: "Irish potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 500, farmer: "Nyabihu Potato Coop", momo: "0788654321", photo: "assets/produce/irish_potato.jpg", isFav: true },
+    { id: 4, food: "Tomato", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 480, retailPrice: 620, quantity: 90, farmer: "Kimironko Fresh Growers", momo: "0788345678", photo: "assets/produce/tomato.jpg", isFav: true },
+    { id: 5, food: "Cooking banana", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 290, retailPrice: 380, quantity: 250, farmer: "Nyabugogo Agro Cooperative", momo: "0788456789", photo: "assets/produce/cooking_banana.jpg", isFav: false },
+    { id: 6, food: "Onion", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 1600, retailPrice: 1950, quantity: 80, farmer: "Kimironko Green Sellers", momo: "0788567890", photo: "assets/produce/red_onion.jpg", isFav: false },
+    { id: 7, food: "Local rice", district: "Kicukiro", hub: "Gikondo Agro-Terminal", price: 1180, retailPrice: 1380, quantity: 180, farmer: "Kigali Rice Millers", momo: "0788789012", photo: "assets/produce/local_rice.jpg", isFav: false },
+    { id: 8, food: "Avocado", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 280, retailPrice: 350, quantity: 120, farmer: "Kigali Agro Coop", momo: "0788890123", photo: "assets/produce/avocado.jpg", isFav: true },
+    { id: 9, food: "Spinach", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 60, farmer: "Nyabarongo Valley Fresh", momo: "0788901234", photo: "assets/produce/spinach.jpg", isFav: false },
+    { id: 10, food: "Corn flour (factory)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 960, quantity: 150, farmer: "Bugarama Grain Mills", momo: "0788012345", photo: "assets/produce/fresh_corn.jpg", isFav: false },
+    { id: 11, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 400, farmer: "Ruhango Cassava Farmers", momo: "0788112233", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+    { id: 12, food: "Passion fruit", district: "Musanze", hub: "Musanze Central Produce Depot", price: 950, retailPrice: 1200, quantity: 70, farmer: "Musanze Highland Fruit Coop", momo: "0788223344", photo: "assets/produce/avocado.jpg", isFav: true },
+    { id: 13, food: "Tree tomatoes", district: "Burera", hub: "Burera Highland Agro-Hub", price: 880, retailPrice: 1100, quantity: 85, farmer: "Burera Tamarillo Growers", momo: "0788334455", photo: "assets/produce/tomato.jpg", isFav: false },
+    { id: 14, food: "Carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 450, quantity: 140, farmer: "Gicumbi Organic Valley", momo: "0788445566", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+    { id: 15, food: "Green cabbage", district: "Musanze", hub: "Musanze Central Produce Depot", price: 260, retailPrice: 350, quantity: 220, farmer: "Volcanoes Green Coop", momo: "0788556677", photo: "assets/produce/spinach.jpg", isFav: false },
+    { id: 16, food: "Green peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 850, quantity: 95, farmer: "Bugesera Irrigation Scheme", momo: "0788667788", photo: "assets/produce/spinach.jpg", isFav: false },
+    { id: 17, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 300, farmer: "Kayonza Grain Link", momo: "0788778899", photo: "assets/produce/dry_beans.jpg", isFav: false },
+    { id: 18, food: "Groundnuts", district: "Ngoma", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1800, quantity: 110, farmer: "Ngoma Women Agrilink", momo: "0788889900", photo: "assets/produce/dry_beans.jpg", isFav: true }
   ],
   orders: [
     { id: 101, food: "Dry beans", kg: 10, total: 7800, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Kirehe", status: "Delivered", farmer: "Mukamana Farm", paidBy: "pool", deliveryType: "Free SACCO Pickup", repaid: false, date: "2026-10-22 08:30" },
-    { id: 102, food: "Tomato", kg: 8, total: 3840, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gasabo", status: "Delivered", farmer: "Karongi & Kimironko Fresh", paidBy: "MTN Mobile Money", gift: 77, deliveryType: "Express Moto (15m)", date: "2026-10-22 09:15" }
+    { id: 102, food: "Tomato", kg: 8, total: 3840, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gasabo", status: "Delivered", farmer: "Kimironko Fresh Growers", paidBy: "MTN MoMo", gift: 77, deliveryType: "Express Moto (15m)", date: "2026-10-22 09:15" }
   ],
   nextOrderId: 103,
-  nextListingId: 11,
-  selectedDistrict: "Kirehe",
+  nextListingId: 19,
+  selectedDistrict: "Gasabo",
   hotspotMode: "delay",
   selectedPayMethod: "momo",
   pendingCheckoutOrder: null
@@ -303,126 +274,6 @@ class IsokoApp {
     return Math.max(0, limit - out);
   }
 
-  // Buy Produce & Trigger Payment Sheet or Direct Credit
-  startBuyProduce(listingId, mode) {
-    const listing = this.state.listings.find(l => l.id === listingId);
-    if (!listing) return;
-    const inputEl = document.getElementById(`qty_${listingId}`);
-    const qty = parseFloat(inputEl ? inputEl.value : 5);
-
-    if (!qty || qty <= 0) {
-      this.toast("Please enter a valid quantity.", "warning");
-      return;
-    }
-    if (qty > listing.quantity) {
-      this.toast(`Only ${listing.quantity} kg available in stock.`, "warning");
-      return;
-    }
-
-    const total = Math.round(qty * listing.price);
-
-    if (mode === "credit") {
-      const remaining = this.getRemainingCredit();
-      if (total > remaining) {
-        this.toast(`Exceeds available bridge credit limit (${remaining.toLocaleString()} RWF left).`, "danger");
-        return;
-      }
-      this.executeOrder(listing, qty, total, "credit", "pool");
-    } else {
-      // Open Rwandan Payment Modal for Shoppers / Cash buyers
-      this.state.pendingCheckoutOrder = { listing, qty, total };
-      this.openPaymentSheet(total, listing.food, qty);
-    }
-  }
-
-  setCheckoutDelivery(option) {
-    if (!this.state.nearby) this.state.nearby = {};
-    this.state.nearby.deliveryOption = option;
-    const btnMoto = document.getElementById("delOptionMoto");
-    const btnPickup = document.getElementById("delOptionPickup");
-    if (btnMoto && btnPickup) {
-      if (option === 'moto') {
-        btnMoto.classList.add('selected');
-        btnPickup.classList.remove('selected');
-      } else {
-        btnPickup.classList.add('selected');
-        btnMoto.classList.remove('selected');
-      }
-    }
-    if (this.state.pendingCheckoutOrder) {
-      const p = this.state.pendingCheckoutOrder;
-      this.updatePaymentSummary(p.total, p.listing.food, p.qty);
-    }
-  }
-
-  updatePaymentSummary(total, foodName, qty) {
-    const summaryEl = document.getElementById("paySheetSummary");
-    const amountBtn = document.getElementById("paySubmitBtn");
-    if (!summaryEl || !amountBtn) return;
-
-    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
-    const deliveryFee = isPickup ? 0 : 300;
-    const donationPct = this.state.currentUser.donationPct || 2;
-    const gift = Math.round(total * (donationPct / 100));
-    const grandTotal = total + gift + deliveryFee;
-
-    summaryEl.innerHTML = `
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-        <span>${foodName} (${qty} kg)</span>
-        <b>${total.toLocaleString()} RWF</b>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px; color: ${isPickup ? 'var(--success)' : 'var(--text-main)'};">
-        <span>${isPickup ? '🚶 Walk-in SACCO Hub Pickup' : '🚴 Express Moto Delivery (15-25 min)'}</span>
-        <b>${isPickup ? 'FREE (0 RWF)' : '+300 RWF'}</b>
-      </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:6px; color: var(--accent);">
-        <span>Social Pool Contribution (${donationPct}%)</span>
-        <b>+${gift.toLocaleString()} RWF</b>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding-top:8px; border-top:1px solid var(--card-border); font-size:16px; font-weight:800;">
-        <span>Total Payout</span>
-        <b style="color:var(--primary);">${grandTotal.toLocaleString()} RWF</b>
-      </div>
-    `;
-
-    amountBtn.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
-  }
-
-  openPaymentSheet(total, foodName, qty) {
-    const modal = document.getElementById("payModal");
-    if (!modal) return;
-    this.updatePaymentSummary(total, foodName, qty);
-    modal.classList.add("open");
-  }
-
-  confirmPayment() {
-    const pending = this.state.pendingCheckoutOrder;
-    if (!pending) return;
-
-    const method = this.state.selectedPayMethod || "momo";
-    const methodNames = {
-      momo: "MTN Mobile Money",
-      airtel: "Airtel Money",
-      bk: "Bank of Kigali (BK)",
-      sacco: "Umurenge SACCO"
-    };
-
-    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
-    const deliveryType = isPickup ? "Free Walk-in SACCO Pickup" : "Express Moto Drop (15-25 min)";
-    const deliveryFee = isPickup ? 0 : 300;
-    const donationPct = this.state.currentUser.donationPct || 2;
-    const gift = Math.round(pending.total * (donationPct / 100));
-
-    // Refill pool
-    this.state.pool.balance += gift;
-    this.state.pool.totalGiftsIn += gift;
-
-    const newOrder = this.executeOrder(pending.listing, pending.qty, pending.total, "cash", methodNames[method], gift, deliveryType, deliveryFee);
-    document.getElementById("payModal").classList.remove("open");
-
-    // Open receipt modal
-    this.showReceipt(newOrder, methodNames[method]);
-  }
 
   executeOrder(listing, qty, total, mode, paidBy, gift = 0, deliveryType = "Standard Delivery", deliveryFee = 0) {
     listing.quantity -= qty;
@@ -675,34 +526,110 @@ class IsokoApp {
   }
 
 
-  // NEARBY & PROXIMITY BUYING METHODS
+
+  // =========================================================================
+  // 1. SLIDING LOGIN & SIGN UP CONTROLLER (media_1792662744651.html)
+  // =========================================================================
+  openAuthModal(mode = 'login') {
+    const modal = document.getElementById("authModal");
+    if (!modal) return;
+    this.setAuthMode(mode);
+    modal.classList.add("open");
+  }
+
+  closeAuthModal() {
+    const modal = document.getElementById("authModal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  setAuthMode(mode) {
+    const card = document.getElementById("authCardV5");
+    if (card) card.setAttribute("data-mode", mode);
+  }
+
+  // As user instructed: No credentials needed! 1-click sample login
+  quickLoginSample(username) {
+    const acc = NISR_DATA.demoAccounts.find(a => a.username === username);
+    if (!acc) return;
+    this.state.currentUser = { ...this.state.currentUser, ...acc };
+    this.state.role = acc.role;
+    this.state.currentView = "dashboard";
+    this.saveState();
+    this.closeAuthModal();
+    this.render();
+    this.toast(`Welcome back, ${acc.name}! Logged in as ${acc.role}.`, "success");
+  }
+
+  handleAuthSubmit(event, formType) {
+    event.preventDefault();
+    if (formType === 'login') {
+      const u = document.getElementById("li_user").value.trim();
+      const matched = NISR_DATA.demoAccounts.find(a => a.username.toLowerCase() === u.toLowerCase() || a.name.toLowerCase().includes(u.toLowerCase()));
+      if (matched) {
+        this.quickLoginSample(matched.username);
+      } else {
+        // Fallback default
+        this.state.currentUser.name = u || "Demo User";
+        this.state.currentView = "dashboard";
+        this.saveState();
+        this.closeAuthModal();
+        this.render();
+        this.toast(`Signed in as ${this.state.currentUser.name} (${this.state.role})`, "success");
+      }
+    } else {
+      const u = document.getElementById("su_user").value.trim();
+      const role = document.getElementById("su_role").value;
+      this.state.currentUser.name = u || "New Member";
+      this.state.role = role;
+      this.state.currentView = "dashboard";
+      this.saveState();
+      this.closeAuthModal();
+      this.render();
+      this.toast(`Account created! Logged in as ${role}.`, "success");
+    }
+  }
+
+  // =========================================================================
+  // 2. UNIVERSAL LOCATION & PROXIMITY FILTERING ("The Place You Are")
+  // =========================================================================
   renderNearbyBar() {
-    const nb = this.state.nearby || { userLocation: "Kimironko, Gasabo (Kigali)", filterProximity: "all", selectedHub: "all" };
+    const nb = this.state.nearby || { userDistrict: "Gasabo", userLocation: "Gasabo (Kimironko Hub)", filterProximity: "all" };
+    const curDist = nb.userDistrict || "Gasabo";
+
     return `
       <div class="nearby-bar">
         <div class="nearby-loc-badge">
           <div class="pin-icon">📍</div>
           <div>
-            <div class="loc-title">Buying Food Near By</div>
-            <div class="loc-name">
-              <span>${nb.userLocation}</span>
-              <button class="btn btn-sm btn-outline" style="padding: 3px 8px; font-size: 11px; margin-left: 6px;" onclick="window.app.promptChangeLocation()">
-                ✏️ Change
-              </button>
-              <button class="btn btn-sm btn-primary" style="padding: 3px 8px; font-size: 11px; margin-left: 4px;" onclick="window.app.detectUserLocation()">
-                🎯 Detect GPS
+            <div class="loc-title">The Place You Are Right Now (Your Location):</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:2px; flex-wrap:wrap;">
+              <select class="form-control" style="width:auto; padding:4px 10px; font-weight:800; font-size:13px; border-radius:18px; background:var(--card-bg);" 
+                      onchange="window.app.setUserDistrict(this.value)">
+                ${Object.keys(RWANDA_PROVINCES).map(prov => `
+                  <optgroup label="${prov}">
+                    ${RWANDA_PROVINCES[prov].map(d => `
+                      <option value="${d}" ${d === curDist ? 'selected' : ''}>${d} District (${prov})</option>
+                    `).join('')}
+                  </optgroup>
+                `).join('')}
+              </select>
+              <button class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:11px; border-radius:14px;" onclick="window.app.detectUserLocation()">
+                🎯 Detect My GPS
               </button>
             </div>
           </div>
         </div>
 
         <div class="nearby-filters-row">
-          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Nearby Filter:</span>
+          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Show Sellers:</span>
           <button class="hub-chip ${(!nb.filterProximity || nb.filterProximity === 'all') ? 'active' : ''}" onclick="window.app.setProximityFilter('all')">
             🇷🇼 All Rwanda
           </button>
-          <button class="hub-chip ${nb.filterProximity === 'near' ? 'active' : ''}" onclick="window.app.setProximityFilter('near')">
-            📍 Nearest (< 2 km)
+          <button class="hub-chip ${nb.filterProximity === 'near' ? 'active' : ''}" onclick="window.app.setProximityFilter('near')" title="Sorted closest to you first">
+            📍 Nearest (< 5 km)
+          </button>
+          <button class="hub-chip ${nb.filterProximity === 'district' ? 'active' : ''}" onclick="window.app.setProximityFilter('district')" title="Only sellers in ${curDist}">
+            🏙️ In ${curDist}
           </button>
           <button class="hub-chip ${nb.filterProximity === 'fast' ? 'active' : ''}" onclick="window.app.setProximityFilter('fast')">
             ⚡ Fast Moto (< 20m)
@@ -712,35 +639,24 @@ class IsokoApp {
           </button>
         </div>
       </div>
-
-      <!-- Quick Rwanda Hub Selector Strip -->
-      <div style="display:flex; align-items:center; gap:8px; overflow-x:auto; padding-bottom:12px; margin-bottom:18px; scrollbar-width:none;">
-        <span style="font-size:12px; font-weight:700; color:var(--text-muted); white-space:nowrap;">Nearby Hubs:</span>
-        ${RWANDA_FOOD_HUBS.map(h => `
-          <button class="hub-chip ${(nb.selectedHub === h.id || (!nb.selectedHub && h.id === 'all')) ? 'active' : ''}" 
-                  onclick="window.app.setNearbyHub('${h.id}')" title="${h.district} (${h.province}) · ${h.distance > 0 ? h.distance + ' km away' : 'National'}">
-            <span>${h.icon}</span> <span>${h.name.replace(' & SACCO', '').replace(' Direct', '')}</span>
-            ${h.distance > 0 ? `<small style="opacity:0.85; margin-left:2px;">(${h.distance} km)</small>` : ''}
-          </button>
-        `).join('')}
-      </div>
     `;
   }
 
-  setNearbyHub(hubId) {
+  setUserDistrict(districtName) {
     if (!this.state.nearby) this.state.nearby = {};
-    this.state.nearby.selectedHub = hubId;
-    const hub = RWANDA_FOOD_HUBS.find(h => h.id === hubId);
-    if (hub && hubId !== "all") {
-      this.state.nearby.userLocation = `${hub.name} (${hub.district})`;
-      this.state.nearby.selectedDistrict = hub.district;
-      this.toast(`Browsing produce around ${hub.name}`, "info");
-    } else {
-      this.state.nearby.userLocation = "All Rwanda (National Hubs)";
-      this.toast(`Browsing all Rwandan produce hubs`, "info");
-    }
+    this.state.nearby.userDistrict = districtName;
+    this.state.nearby.userLocation = `${districtName} (Local Hub)`;
     this.saveState();
     this.render();
+    this.toast(`Location set to ${districtName}! Recalculated distance to all 18 farm sellers.`, "success");
+  }
+
+  detectUserLocation() {
+    this.toast("Acquiring device GPS coordinates...", "info");
+    setTimeout(() => {
+      this.setUserDistrict("Gasabo");
+      this.toast("📍 GPS calibrated: Gasabo - Kimironko Hub (±12m accuracy)", "success");
+    }, 500);
   }
 
   setProximityFilter(filter) {
@@ -748,38 +664,390 @@ class IsokoApp {
     this.state.nearby.filterProximity = filter;
     this.saveState();
     this.render();
-    const msgs = {
-      all: "Showing all available produce",
-      near: "Filtered to nearest food (< 2.0 km)",
-      fast: "Filtered to fast delivery (< 20 mins)",
-      sacco: "Filtered to Walk-in SACCO Hub pickup"
+    const labels = {
+      all: "Showing all Rwandan sellers",
+      near: "Filtered to nearest sellers (< 5 km)",
+      district: `Filtered to sellers in ${this.state.nearby.userDistrict}`,
+      fast: "Filtered to fastest delivery (< 20 mins)",
+      sacco: "Filtered to local SACCO collection points"
     };
-    this.toast(msgs[filter] || "Filter applied", "info");
+    this.toast(labels[filter] || "Filter applied", "info");
   }
 
-  promptChangeLocation() {
-    const current = this.state.nearby ? this.state.nearby.userLocation : "Kimironko, Gasabo (Kigali)";
-    const newLoc = prompt("Enter your Rwandan District or Sector (e.g. Gasabo, Nyarugenge, Kirehe, Musanze, Huye, Rubavu, Nyabihu):", current);
-    if (newLoc && newLoc.trim()) {
-      if (!this.state.nearby) this.state.nearby = {};
-      this.state.nearby.userLocation = newLoc.trim();
-      this.saveState();
-      this.render();
-      this.toast(`Location updated to ${newLoc.trim()}! Recalculating nearby hubs...`, "success");
+  // =========================================================================
+  // 3. GROCERY CATALOG RENDERING WITH LIVE DISTANCE TO CURRENT USER LOCATION
+  // =========================================================================
+  renderGroceryCatalog(mode) {
+    const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
+    const filter = (this.state.nearby && this.state.nearby.filterProximity) || "all";
+
+    // 1. Calculate live dynamic distance from user's current place to each seller
+    let items = this.state.listings.map(l => {
+      const dist = calculateRwandaDistance(curDist, l.district);
+      const deliveryMins = dist <= 1.0 ? 12 : dist <= 5.0 ? 18 : dist <= 15 ? 25 : Math.round(dist * 1.5);
+      return {
+        ...l,
+        dynamicDistanceKm: dist,
+        dynamicDeliveryMins: deliveryMins,
+        isLocalDistrict: (l.district.toLowerCase() === curDist.toLowerCase())
+      };
+    });
+
+    // 2. Category filter
+    if (this.state.activeCategory && this.state.activeCategory !== "All") {
+      items = items.filter(l => {
+        const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
+        return cat === this.state.activeCategory;
+      });
+    }
+
+    // 3. Proximity filter
+    if (filter === "near") {
+      items = items.filter(l => l.dynamicDistanceKm <= 5.0);
+    } else if (filter === "district") {
+      items = items.filter(l => l.isLocalDistrict);
+    } else if (filter === "fast") {
+      items = items.filter(l => l.dynamicDeliveryMins <= 20);
+    }
+
+    // 4. Sort by distance (Nearest seller first)
+    items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
+
+    if (items.length === 0) {
+      return `
+        <div style="text-align:center; padding: 40px 20px; background:var(--bg); border-radius:var(--radius-lg); margin-bottom: 24px;">
+          <div style="font-size: 36px; margin-bottom: 8px;">🌾</div>
+          <h4 style="font-size: 16px; font-weight:800;">No farm produce found for this filter in ${curDist}</h4>
+          <p style="font-size: 13px; color:var(--text-muted); margin-bottom: 14px;">Try selecting "All Rwanda" or changing your district location.</p>
+          <button class="btn btn-sm btn-primary" onclick="window.app.setProximityFilter('all'); window.app.state.activeCategory='All'; window.app.render();">
+            Show All Rwanda Sellers (18 items)
+          </button>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="grocery-grid">
+        ${items.map(l => {
+          const guide = this.getPriceGuide(l.food, l.price);
+          const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "assets/produce/dry_beans.jpg");
+          const kiny = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
+          const discountPct = l.retailPrice ? Math.round((1 - l.price / l.retailPrice) * 100) : 15;
+          const dist = l.dynamicDistanceKm;
+          const mins = l.dynamicDeliveryMins;
+
+          return `
+            <div class="grocery-card">
+              <div class="grocery-img-box">
+                <span class="proximity-badge">
+                  📍 ${dist <= 1.0 ? '0.8 km (Near you)' : dist + ' km away'}
+                </span>
+                <button class="favorite-btn" onclick="window.app.toggleFavorite(${l.id})" title="Favorite">
+                  ${l.isFav ? '❤️' : '🤍'}
+                </button>
+                <img src="${photo}" alt="${l.food}" 
+                     onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
+                <span class="grocery-price-pill ${guide.class}" style="position:absolute; bottom:8px; right:8px;">${guide.label}</span>
+              </div>
+
+              <div>
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <h4>${l.food}</h4>
+                  ${kiny ? `<small style="font-weight:700; color:var(--text-muted); font-size:11px;">${kiny}</small>` : ''}
+                </div>
+                <div class="produce-origin-strip">
+                  <span>🏪 <b>${l.farmer}</b></span>
+                  <span>Stock: <b>${l.quantity} kg</b></span>
+                </div>
+                <div class="produce-origin-strip" style="margin-top:2px;">
+                  <span>📍 Origin: ${l.district} District</span>
+                  ${l.isLocalDistrict ? '<span class="pill pill-fair" style="padding:1px 6px; font-size:9px;">In Your District</span>' : ''}
+                </div>
+                <div class="delivery-eta-badge">
+                  ⚡ ${mins <= 20 ? mins + ' min express moto' : mins + ' mins transit'} · 🚶 SACCO pickup
+                </div>
+              </div>
+
+              <div class="grocery-card-footer">
+                <div>
+                  <div class="grocery-cost">
+                    ${l.price.toLocaleString()} <small>RWF/kg</small>
+                  </div>
+                  ${l.retailPrice ? `
+                    <div class="grocery-retail-strike">
+                      Market: ${l.retailPrice.toLocaleString()} RWF <span style="color:var(--success); font-weight:700;">(-${discountPct}%)</span>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:48px; padding:4px 6px; text-align:center;" aria-label="kg">
+                  <button class="btn btn-sm ${mode === 'credit' ? 'btn-accent' : 'btn-primary'}" onclick="window.app.startBuyProduce(${l.id}, '${mode}')">
+                    ${mode === 'credit' ? 'Credit' : 'Buy'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 4. PHONE PAYMENT FLOW CONTROLLER (media_1792662744615.html)
+  // =========================================================================
+  startBuyProduce(listingId, mode) {
+    const listing = this.state.listings.find(l => l.id === listingId);
+    if (!listing) return;
+    const inputEl = document.getElementById(`qty_${listingId}`);
+    const qty = parseFloat(inputEl ? inputEl.value : 5);
+
+    if (!qty || qty <= 0) {
+      this.toast("Please enter a valid quantity.", "warning");
+      return;
+    }
+    if (qty > listing.quantity) {
+      this.toast(`Only ${listing.quantity} kg available in stock.`, "warning");
+      return;
+    }
+
+    const total = Math.round(qty * listing.price);
+
+    if (mode === "credit") {
+      const remaining = this.getRemainingCredit();
+      if (total > remaining) {
+        this.toast(`Exceeds available bridge credit limit (${remaining.toLocaleString()} RWF left).`, "danger");
+        return;
+      }
+      this.executeOrder(listing, qty, total, "credit", "pool");
+    } else {
+      // Open Phone Frame Payment Flow from media_1792662744615.html
+      this.state.pendingCheckoutOrder = { listing, qty, total };
+      this.openPhonePayModal(listing, qty, total);
     }
   }
 
-  detectUserLocation() {
-    this.toast("Acquiring GPS location...", "info");
-    setTimeout(() => {
-      if (!this.state.nearby) this.state.nearby = {};
-      this.state.nearby.userLocation = "Gasabo - Kimironko Market Hub (GPS Detected: ±15m)";
-      this.state.nearby.selectedDistrict = "Gasabo";
-      this.saveState();
-      this.render();
-      this.toast("📍 GPS Location set: Gasabo - Kimironko Hub (±15m accuracy)", "success");
-    }, 600);
+  openPhonePayModal(listing, qty, total) {
+    const modal = document.getElementById("payModal");
+    if (!modal) return;
+
+    const donationPct = this.state.currentUser.donationPct || 2;
+    const gift = Math.round(total * (donationPct / 100));
+    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
+    const deliveryFee = isPickup ? 0 : 300;
+    const grandTotal = total + gift + deliveryFee;
+
+    // Fill Page 2 (Confirm order)
+    const imgEl = document.getElementById("orderProduceImg");
+    const badgeEl = document.getElementById("orderProduceBadge");
+    if (imgEl) imgEl.src = listing.photo || "assets/produce/dry_beans.jpg";
+    if (badgeEl) badgeEl.textContent = `${listing.food} · ${listing.farmer}`;
+
+    document.getElementById("rcV2").textContent = `${listing.food} (${qty} kg)`;
+    document.getElementById("rfV2").textContent = `${total.toLocaleString()} RWF`;
+    document.getElementById("rdModeV2").innerHTML = isPickup 
+      ? '🚶 Walk-in SACCO Hub (FREE) ▾' 
+      : '🚴 Express Moto (+300 RWF) ▾';
+    document.getElementById("rgV2").textContent = `+${gift.toLocaleString()} RWF (${donationPct}%)`;
+    document.getElementById("rtV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+
+    this.goPhonePage(2);
+    modal.classList.add("open");
   }
+
+  toggleCheckoutDelivery() {
+    if (!this.state.nearby) this.state.nearby = {};
+    this.state.nearby.deliveryOption = this.state.nearby.deliveryOption === 'pickup' ? 'moto' : 'pickup';
+    if (this.state.pendingCheckoutOrder) {
+      const p = this.state.pendingCheckoutOrder;
+      this.openPhonePayModal(p.listing, p.qty, p.total);
+    }
+  }
+
+  goPhonePage(n) {
+    const pages = ["p2_v2", "p6_v2", "p3_v2", "p4_v2", "p5_v2"];
+    pages.forEach(pid => {
+      const el = document.getElementById(pid);
+      if (el) el.classList.remove("on");
+    });
+    const target = document.getElementById("p" + n + "_v2");
+    if (target) target.classList.add("on");
+
+    const scr = document.getElementById("scrV2");
+    if (scr) scr.classList.toggle("dark", n === 5);
+  }
+
+  goToPaymentMethods() {
+    this.renderPaymentAccountsList();
+    this.goPhonePage(6);
+  }
+
+  renderPaymentAccountsList() {
+    const listEl = document.getElementById("mlV2");
+    const fieldsEl = document.getElementById("flV2");
+    const ppEl = document.getElementById("ppV2");
+    if (!listEl || !this.state.pendingCheckoutOrder) return;
+
+    const p = this.state.pendingCheckoutOrder;
+    const donationPct = this.state.currentUser.donationPct || 2;
+    const gift = Math.round(p.total * (donationPct / 100));
+    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
+    const deliveryFee = isPickup ? 0 : 300;
+    const grandTotal = p.total + gift + deliveryFee;
+
+    const sel = this.state.selectedAccountIdx || 0;
+
+    listEl.innerHTML = RWANDA_PAYMENT_ACCOUNTS.map((m, i) => `
+      <button type="button" class="m-v2 ${i === sel ? 'on' : ''}" onclick="window.app.selectPaymentAccount(${i})">
+        <span class="lg-v2" style="${m.c}">${m.l}</span>
+        <span style="flex:1; min-width:0;">
+          <b>${m.n}</b>
+          <small>${m.s}</small>
+        </span>
+        <span class="am-v2">
+          ${m.bal.toLocaleString()} RWF
+          <small>${m.credit ? 'credit left' : 'balance'}</small>
+        </span>
+        <span class="r-v2"></span>
+      </button>
+    `).join('');
+
+    fieldsEl.innerHTML = `
+      <div class="bal-v2">Add demo money to selected account:</div>
+      <div class="chips-v2">
+        ${TOPUP_CHIPS.map(c => `
+          <button type="button" class="chip-v2" onclick="window.app.topupSelectedAccount(${c.v})">${c.l}</button>
+        `).join('')}
+      </div>
+      <div class="err-v2" id="payErrMsgV2"></div>
+    `;
+
+    if (ppEl) ppEl.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
+  }
+
+  selectPaymentAccount(i) {
+    this.state.selectedAccountIdx = i;
+    this.renderPaymentAccountsList();
+  }
+
+  topupSelectedAccount(amt) {
+    const sel = this.state.selectedAccountIdx || 0;
+    RWANDA_PAYMENT_ACCOUNTS[sel].bal += amt;
+    this.renderPaymentAccountsList();
+    const errEl = document.getElementById("payErrMsgV2");
+    if (errEl) {
+      errEl.style.color = "#2e8b57";
+      errEl.textContent = `Added ${amt.toLocaleString()} RWF to ${RWANDA_PAYMENT_ACCOUNTS[sel].n}!`;
+    }
+  }
+
+  processPhonePayment() {
+    const p = this.state.pendingCheckoutOrder;
+    if (!p) return;
+
+    const sel = this.state.selectedAccountIdx || 0;
+    const acc = RWANDA_PAYMENT_ACCOUNTS[sel];
+    const donationPct = this.state.currentUser.donationPct || 2;
+    const gift = Math.round(p.total * (donationPct / 100));
+    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
+    const deliveryFee = isPickup ? 0 : 300;
+    const grandTotal = p.total + gift + deliveryFee;
+
+    const errEl = document.getElementById("payErrMsgV2");
+    if (acc.bal < grandTotal) {
+      if (errEl) {
+        errEl.style.color = "#c0392b";
+        errEl.textContent = `Not enough ${acc.credit ? 'credit' : 'balance'}. Add ${(grandTotal - acc.bal).toLocaleString()} RWF more.`;
+      }
+      return;
+    }
+
+    acc.bal -= grandTotal;
+
+    // Refill bridge pool
+    this.state.pool.balance += gift;
+    this.state.pool.totalGiftsIn += gift;
+
+    // Execute order record
+    const deliveryType = isPickup ? "Free Walk-in SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
+    const newOrder = this.executeOrder(p.listing, p.qty, p.total, "cash", acc.by, gift, deliveryType, deliveryFee);
+
+    // Page 3: Terminal Processing
+    const isMobile = acc.t === 'mobile';
+    document.getElementById("vtV2").textContent = acc.l || 'MOMO';
+    this.goPhonePage(3);
+
+    const t3 = document.getElementById("t3V2");
+    const t3s = document.getElementById("t3sV2");
+    t3.textContent = isMobile ? "Check your phone" : "Processing…";
+    t3s.textContent = isMobile ? `Approve ${grandTotal.toLocaleString()} RWF with your PIN (*182#)` : "Communicating with bank host…";
+
+    setTimeout(() => {
+      t3.textContent = "Approved ✓";
+      t3s.textContent = "";
+    }, 2800);
+
+    setTimeout(() => {
+      // Page 4: Order Placed
+      document.getElementById("pdV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+      document.getElementById("pdFulV2").textContent = deliveryType;
+      this.goPhonePage(4);
+
+      // Prepare receipt data
+      document.getElementById("recNumV2").textContent = `#IB-2026-${newOrder.id}`;
+      document.getElementById("recDateV2").textContent = `${new Date().toLocaleDateString('en-GB')} ${newOrder.date}`;
+      document.getElementById("recCustV2").textContent = newOrder.buyerName.toUpperCase();
+      document.getElementById("recSellerV2").textContent = newOrder.farmer.toUpperCase();
+      document.getElementById("recHubV2").textContent = newOrder.hub.toUpperCase();
+      document.getElementById("recItemV2").textContent = `${newOrder.food} (${newOrder.kg} kg)`;
+      document.getElementById("recItemCostV2").textContent = `${newOrder.total.toLocaleString()} RWF`;
+      document.getElementById("recDelV2").textContent = isPickup ? "FREE (SACCO)" : "300 RWF (Moto)";
+      document.getElementById("recGiftV2").textContent = `+${newOrder.gift.toLocaleString()} RWF`;
+      document.getElementById("recTotV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+      document.getElementById("recPayByV2").textContent = `PAID BY ${acc.by}`;
+    }, 3800);
+  }
+
+  triggerReceiptPrinter() {
+    const paper = document.getElementById("paperV2");
+    const stamp = document.getElementById("stampV2");
+    const rbtn = document.getElementById("rbV2");
+    const pt = document.getElementById("ptV2");
+    const bars = document.getElementById("barsV2");
+
+    if (bars) {
+      bars.innerHTML = Array.from({length: 44}, () => `<i style="width:${1+Math.floor(Math.random()*3)}px; margin-right:${Math.random()>.6?2:0}px"></i>`).join('');
+    }
+
+    if (!paper) return;
+    paper.style.transition = 'none';
+    paper.classList.remove('print');
+    if (stamp) stamp.classList.remove('on');
+    if (rbtn) rbtn.classList.remove('on');
+    if (pt) pt.style.opacity = 1;
+
+    void paper.offsetWidth;
+    paper.style.transition = '';
+    paper.classList.add('print');
+
+    setTimeout(() => {
+      if (stamp) stamp.classList.add('on');
+    }, 3200);
+
+    setTimeout(() => {
+      if (pt) pt.style.opacity = 0;
+      if (rbtn) rbtn.classList.add('on');
+    }, 3800);
+  }
+
+  closePayFlow() {
+    const modal = document.getElementById("payModal");
+    if (modal) modal.classList.remove("open");
+    this.render();
+  }
+
+
 
   toggleFavorite(id) {
     const item = this.state.listings.find(l => l.id === id);
@@ -791,17 +1059,30 @@ class IsokoApp {
     }
   }
 
-  // 1. OPENING LANDING PAGE (With Grocery UI, VUP Dates, and Tailored Onboarding)
+  // 1. OPENING LANDING PAGE (With Hero CTA, Role Questions, VUP Dates, Proximity, and Harvest Showcase)
   renderOpeningPage() {
     return `
       <!-- Hero Grocery Intro -->
       <div class="hero-grocery">
-        <div class="hero-tagline">🌿 Rwanda Social Fintech & Farmer Market · NISR 2026</div>
+        <div class="hero-tagline">🌿 Rwanda Social Fintech & Farmer Direct Market · NISR 2026 Big Data Hackathon</div>
         <h1 class="hero-heading">Isoko Bridge <span style="color:var(--accent); font-weight:400;">(Ikiraro cya VUP)</span></h1>
         <p class="hero-description">
           Connecting Rwandan smallholder farmers directly with households and ethical shoppers. 
           When government VUP payments arrive late, emergency zero-interest bridge credit keeps families fed.
         </p>
+
+        <!-- Prominent Hero Call-to-Action Buttons -->
+        <div style="display:flex; justify-content:center; gap:12px; margin: 18px 0 22px; flex-wrap:wrap;">
+          <button class="btn btn-primary btn-lg" style="box-shadow: 0 4px 14px rgba(27,107,74,0.35); font-weight:800;" onclick="window.app.openAuthModal('login')">
+            🔑 1-Click Sign In (Demo Accounts)
+          </button>
+          <button class="btn btn-outline btn-lg" style="background:var(--card-bg); font-weight:700;" onclick="window.app.openAuthModal('signup')">
+            📝 New Member Sign Up
+          </button>
+          <button class="btn btn-ghost btn-lg" style="font-weight:700; color:var(--primary);" onclick="const el=document.getElementById('harvestMarketSection'); if(el) el.scrollIntoView({behavior:'smooth'});">
+            🛒 Browse Fresh Harvest Nearby ↓
+          </button>
+        </div>
 
         <!-- Category Pills (From Grocery App Mockup) -->
         <div class="category-strip">
@@ -812,6 +1093,100 @@ class IsokoApp {
               ${cat}
             </button>
           `).join("")}
+        </div>
+      </div>
+
+      <!-- Tailored Onboarding Entrances (4 Distinct Personas with Questions & 1-Click Entry) -->
+      <div style="margin-bottom: 28px;">
+        <h2 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 4px;">How You Join Isoko Bridge</h2>
+        <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">
+          No password or credentials needed — choose your role, answer the sample question, or click any demo persona to enter immediately:
+        </p>
+
+        <div class="role-entry-grid">
+          <!-- 1. VUP Family -->
+          <div class="role-card-select highlight">
+            <div>
+              <div class="role-card-icon">👨‍👩‍👧</div>
+              <div class="role-card-title">
+                <span>VUP Beneficiary Member</span>
+                <span class="pill pill-fair">Bridge Credit</span>
+              </div>
+              <p class="role-card-desc">
+                <b>Sample Question:</b> <i>"Is your VUP monthly cash transfer delayed this month?"</i><br>
+                Check your automatic bridge credit limit, and order staple harvest food on credit until your VUP assistance arrives.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <b>Sample: Amina Uwase</b> · Kirehe District · Direct Support (8 days late · 5 household members)
+            </div>
+            <button class="btn btn-primary btn-lg" onclick="window.app.quickLoginSample('amina_family')">
+              👨‍👩‍👧 1-Click Enter as VUP Member →
+            </button>
+          </div>
+
+          <!-- 2. Farmer / Seller -->
+          <div class="role-card-select">
+            <div>
+              <div class="role-card-icon">🌾</div>
+              <div class="role-card-title">
+                <span>Farmer / Cooperative</span>
+                <span class="pill pill-high">Seller</span>
+              </div>
+              <p class="role-card-desc">
+                <b>Sample Question:</b> <i>"What Rwandan crop are you harvesting and selling?"</i><br>
+                List produce with verified photos or camera upload, benchmark prices against NISR medians, and receive instant Mobile Money payments.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <b>Sample: Mukamana Farm</b> · Kirehe · Dry Beans Seller
+            </div>
+            <button class="btn btn-outline btn-lg" onclick="window.app.quickLoginSample('mukamana_seller')">
+              🌾 1-Click Enter as Farmer / Seller →
+            </button>
+          </div>
+
+          <!-- 3. Ethical Shopper -->
+          <div class="role-card-select">
+            <div>
+              <div class="role-card-icon">🛒</div>
+              <div class="role-card-title">
+                <span>Ethical Shopper</span>
+                <span class="pill pill-neutral">Consumer</span>
+              </div>
+              <p class="role-card-desc">
+                <b>Sample Question:</b> <i>"How much pool donation do you want to add to your order?"</i><br>
+                Buy farm-fresh produce with MTN MoMo, Airtel Money, or BK. Contribute 1%–5% to refill the bridge pool and subsidize family food security.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <b>Sample: Grace Ingabire</b> · Kigali · 2% Pool Donor
+            </div>
+            <button class="btn btn-outline btn-lg" onclick="window.app.quickLoginSample('grace_shopper')">
+              🛒 1-Click Enter as Shopper →
+            </button>
+          </div>
+
+          <!-- 4. Planner / Judge -->
+          <div class="role-card-select highlight" style="border-color:#7e22ce;">
+            <div>
+              <div class="role-card-icon">📊</div>
+              <div class="role-card-title">
+                <span>Government Planner & Judges</span>
+                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence Cockpit</span>
+              </div>
+              <p class="role-card-desc">
+                <b>Sample Question:</b> <i>"Need evidence from NISR 3,399 beneficiary microdata?"</i><br>
+                Inspect 30-district interactive choropleth map, delay hotspot matrix, priority rankings, and treasury liquidity simulation.
+              </p>
+            </div>
+            <div class="role-card-sample">
+              <b>Sample: LODA / NISR Administrator</b> · National & District Planning
+            </div>
+            <button class="btn btn-primary btn-lg" style="background:#7e22ce;" onclick="window.app.quickLoginSample('planner_demo')">
+              📊 1-Click Enter as Planner / Judge →
+            </button>
+          </div>
         </div>
       </div>
 
@@ -852,144 +1227,27 @@ class IsokoApp {
         </div>
       </div>
 
+      <!-- "The Place You Are Right Now" Universal Location & Proximity Bar -->
       ${this.renderNearbyBar()}
 
       <!-- Live Harvest Grocery Showcase with Photos (Visual Grocery UI from Mockup) -->
-      <div style="margin-bottom: 24px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px;">
+      <div id="harvestMarketSection" style="margin-bottom: 28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:8px;">
           <div>
-            <h3 style="font-size: 20px; font-weight:800;">Fresh Harvest Catalog (Real Produce Photos)</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Smallholder farmers upload photos directly or select from our verified Rwandan harvest catalog.</p>
+            <h3 style="font-size: 20px; font-weight:800;">Fresh Harvest Catalog (18 Rwandan Productions)</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Real produce photography · Live proximity distance from your location · Direct farmer mobile money payments</p>
           </div>
-          <span class="pill pill-fair">NISR Median Price Benchmarked</span>
-        </div>
-
-        <div class="grocery-grid">
-          ${this.state.listings.filter(l => {
-            if (this.state.activeCategory === "All") return true;
-            const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
-            return cat === this.state.activeCategory;
-          }).map(l => {
-            const guide = this.getPriceGuide(l.food, l.price);
-            const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "");
-            return `
-              <div class="grocery-card">
-                <div class="grocery-img-box">
-                  <img src="${photo}" alt="${l.food}" style="width:100%; height:100%; object-fit:cover; border-radius:var(--radius-md);" 
-                       onerror="this.onerror=null; this.parentElement.innerHTML='${HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].icon : '🥬'}';">
-                  <span class="grocery-price-pill ${guide.class}">${guide.label}</span>
-                </div>
-                <div>
-                  <h4>${l.food}</h4>
-                  <div class="grocery-meta">📍 ${l.district} · Stock: <b>${l.quantity} kg</b></div>
-                  <div class="grocery-meta" style="margin-top:2px;">Seller: <b>${l.farmer}</b></div>
-                </div>
-                <div class="grocery-card-footer">
-                  <div class="grocery-cost">${l.price.toLocaleString()} <small>RWF/kg</small></div>
-                  <div style="display:flex; align-items:center; gap:6px;">
-                    <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:55px; padding:4px;" aria-label="kg">
-                    <button class="add-btn-circle" title="Add to cart / Buy" onclick="window.app.startBuyProduce(${l.id}, 'cash')">+</button>
-                  </div>
-                </div>
-              </div>
-            `;
-          }).join("")}
-        </div>
-      </div>
-
-      <!-- Tailored Onboarding Entrances (4 Distinct Personas) -->
-      <div>
-        <h2 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 4px;">Choose Your Role to Enter</h2>
-        <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 22px;">
-          Click any persona below to enter with tailored questions and demo context:
-        </p>
-
-        <div class="role-entry-grid">
-          <!-- 1. VUP Family -->
-          <div class="role-card-select highlight">
-            <div>
-              <div class="role-card-icon">👨‍👩‍👧</div>
-              <div class="role-card-title">
-                <span>VUP Beneficiary Member</span>
-                <span class="pill pill-fair">Family</span>
-              </div>
-              <p class="role-card-desc">
-                Check payment delay, view your automatic bridge credit limit, and order staple harvest food on credit until your VUP assistance arrives.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Amina Uwase</b> · Kirehe District · Direct Support (8 days late)
-            </div>
-            <button class="btn btn-primary btn-lg" onclick="window.app.enterRole('Family', 'amina_family')">
-              Enter as VUP Family Member →
-            </button>
-          </div>
-
-          <!-- 2. Farmer / Seller -->
-          <div class="role-card-select">
-            <div>
-              <div class="role-card-icon">🌾</div>
-              <div class="role-card-title">
-                <span>Farmer / Cooperative</span>
-                <span class="pill pill-high">Seller</span>
-              </div>
-              <p class="role-card-desc">
-                List produce with photos, evaluate prices against NISR medians, confirm deliveries, and receive instant payments via Mobile Money.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Mukamana Farm</b> · Kirehe · Dry Beans Seller
-            </div>
-            <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Farmer', 'mukamana_seller')">
-              Enter as Farmer / Seller →
-            </button>
-          </div>
-
-          <!-- 3. Ethical Shopper -->
-          <div class="role-card-select">
-            <div>
-              <div class="role-card-icon">🛒</div>
-              <div class="role-card-title">
-                <span>Ethical Shopper</span>
-                <span class="pill pill-neutral">Consumer</span>
-              </div>
-              <p class="role-card-desc">
-                Buy farm-fresh produce with MTN MoMo or Airtel Money. Contribute 1%–5% to refill the bridge pool and see how many days of food you subsidized.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Grace Ingabire</b> · Kigali · 2% Pool Donor
-            </div>
-            <button class="btn btn-outline btn-lg" onclick="window.app.enterRole('Shopper', 'grace_shopper')">
-              Enter as Shopper →
-            </button>
-          </div>
-
-          <!-- 4. Planner / Judge -->
-          <div class="role-card-select highlight" style="border-color:#7e22ce;">
-            <div>
-              <div class="role-card-icon">📊</div>
-              <div class="role-card-title">
-                <span>Government Planner & Judges</span>
-                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence Cockpit</span>
-              </div>
-              <p class="role-card-desc">
-                Inspect NISR household survey analytics: interactive 30-district choropleth map, delay hotspots, 30-district priority rankings, and poverty risk model.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: LODA / NISR Administrator</b> · National & District Planning
-            </div>
-            <button class="btn btn-primary btn-lg" style="background:#7e22ce;" onclick="window.app.enterRole('Planner', 'planner_demo')">
-              Enter as Planner / Judge →
-            </button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pill pill-fair">18 Rwandan Produce Items</span>
+            <span class="pill pill-neutral">NISR Median Price Benchmarked</span>
           </div>
         </div>
+
+        ${this.renderGroceryCatalog('cash')}
       </div>
     `;
   }
 
-  // Dashboard Wrapper with Prominent Back to Home Button
   renderDashboardWrapper() {
     const u = this.state.currentUser;
     let content = "";
@@ -1023,7 +1281,6 @@ class IsokoApp {
     `;
   }
 
-  // 1. Family View
   renderFamilyView() {
     const u = this.state.currentUser;
     const limit = this.calculateCreditLimit();
@@ -1125,7 +1382,6 @@ class IsokoApp {
     `;
   }
 
-  // 2. Farmer View (With Photo Upload & Gallery Chooser)
   renderFarmerView() {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmer === "You (farmer)");
@@ -1259,7 +1515,6 @@ class IsokoApp {
     el.innerHTML = `NISR Benchmark Median: <b>${guide.median.toLocaleString()} RWF/kg</b> · Rating: <span class="pill ${guide.class}">${guide.label}</span>`;
   }
 
-  // 3. Shopper View
   renderShopperView() {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper");
@@ -1324,7 +1579,6 @@ class IsokoApp {
     `;
   }
 
-  // 4. Planner / Admin View
   renderPlannerView() {
     const o = this.state.orders;
     const creditOrders = o.filter(x => x.mode === "credit");
@@ -1473,102 +1727,6 @@ class IsokoApp {
             <small><b>Planner Insight:</b> Umurenge SACCOs disburse fastest (7.7 days). Mobile money delays (10.4 days) stem from rural cash float constraints.</small>
           </div>
         </div>
-      </div>
-    `;
-  }
-
-  // Render Visual Grocery Catalog with Photos & Nearby Proximity Info
-  renderGroceryCatalog(mode) {
-    const nb = this.state.nearby || { filterProximity: "all", selectedHub: "all" };
-
-    let filtered = this.state.listings.filter(l => {
-      if (this.state.activeCategory && this.state.activeCategory !== "All") {
-        const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
-        if (cat !== this.state.activeCategory) return false;
-      }
-      if (nb.selectedHub && nb.selectedHub !== "all") {
-        const hub = RWANDA_FOOD_HUBS.find(h => h.id === nb.selectedHub);
-        if (hub && l.district !== hub.district && (!l.hub || !l.hub.includes(hub.district))) {
-          if (l.distanceKm > 3.0) return false;
-        }
-      }
-      if (nb.filterProximity === "near" && l.distanceKm > 2.0) return false;
-      if (nb.filterProximity === "fast" && l.deliveryMins > 20) return false;
-      return true;
-    });
-
-    if (filtered.length === 0) {
-      return `
-        <div style="text-align:center; padding: 40px 20px; background:var(--bg); border-radius:var(--radius-lg); margin-bottom: 24px;">
-          <div style="font-size: 36px; margin-bottom: 8px;">🌾</div>
-          <h4 style="font-size: 16px; font-weight:800;">No harvest produce matches this nearby filter</h4>
-          <p style="font-size: 13px; color:var(--text-muted); margin-bottom: 14px;">Try switching to "All Rwanda" or clearing the category filter.</p>
-          <button class="btn btn-sm btn-primary" onclick="window.app.setProximityFilter('all'); window.app.state.activeCategory='All'; window.app.render();">Reset Filters</button>
-        </div>
-      `;
-    }
-
-    return `
-      <div class="grocery-grid">
-        ${filtered.map(l => {
-          const guide = this.getPriceGuide(l.food, l.price);
-          const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "assets/produce/dry_beans.jpg");
-          const kiny = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
-          const discountPct = l.retailPrice ? Math.round((1 - l.price / l.retailPrice) * 100) : 15;
-          const dist = l.distanceKm || 1.2;
-          const mins = l.deliveryMins || 15;
-
-          return `
-            <div class="grocery-card">
-              <div class="grocery-img-box">
-                <span class="proximity-badge">📍 ${dist} km</span>
-                <button class="favorite-btn" onclick="window.app.toggleFavorite(${l.id})" title="Favorite">
-                  ${l.isFav ? '❤️' : '🤍'}
-                </button>
-                <img src="${photo}" alt="${l.food}" 
-                     onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
-                <span class="grocery-price-pill ${guide.class}" style="position:absolute; bottom:8px; right:8px;">${guide.label}</span>
-              </div>
-
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                  <h4>${l.food}</h4>
-                  ${kiny ? `<small style="font-weight:700; color:var(--text-muted); font-size:11px;">${kiny}</small>` : ''}
-                </div>
-                <div class="produce-origin-strip">
-                  <span>🏪 ${l.hub || l.district}</span>
-                  <span>Stock: <b>${l.quantity} kg</b></span>
-                </div>
-                <div class="produce-origin-strip" style="margin-top:2px;">
-                  <span>Seller: <b>${l.farmer}</b></span>
-                </div>
-                <div class="delivery-eta-badge">
-                  ⚡ ${mins} min moto drop · 🚶 Free SACCO pickup
-                </div>
-              </div>
-
-              <div class="grocery-card-footer">
-                <div>
-                  <div class="grocery-cost">
-                    ${l.price.toLocaleString()} <small>RWF/kg</small>
-                  </div>
-                  ${l.retailPrice ? `
-                    <div class="grocery-retail-strike">
-                      Market: ${l.retailPrice.toLocaleString()} RWF <span style="color:var(--success); font-weight:700;">(-${discountPct}%)</span>
-                    </div>
-                  ` : ''}
-                </div>
-
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:48px; padding:4px 6px; text-align:center;" aria-label="kg">
-                  <button class="btn btn-sm ${mode === 'credit' ? 'btn-accent' : 'btn-primary'}" onclick="window.app.startBuyProduce(${l.id}, '${mode}')">
-                    ${mode === 'credit' ? 'Credit' : 'Buy'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join("")}
       </div>
     `;
   }
