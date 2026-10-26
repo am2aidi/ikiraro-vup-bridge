@@ -1225,12 +1225,12 @@ class IsokoApp {
         let navItems = [];
         if (role === "Planner") {
           navItems = [
-            { id: "dashboard", label: "📊 Overview" },
-            { id: "creditdesk", label: "💳 Credit Desk" },
-            { id: "nisr_facts", label: "📑 NISR Facts" },
-            { id: "analysis", label: "🗺️ Delays & GIS" },
-            { id: "cases", label: "🛟 Disputes" },
-            { id: "reports", label: "📄 Reports" }
+            { id: "dashboard", label: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg> Overview' },
+            { id: "creditdesk", label: '<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Credit Desk' },
+            { id: "nisr_facts", label: '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> NISR Facts' },
+            { id: "analysis", label: '<svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Delays & GIS' },
+            { id: "cases", label: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Disputes' },
+            { id: "reports", label: '<svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Reports' }
           ];
         } else if (role === "Admin") {
           navItems = [
@@ -1265,10 +1265,11 @@ class IsokoApp {
           </button>
         `).join("");
       } else {
+        const pTab = this.state.publicTab || 'market';
         topNavPill.innerHTML = `
-          <button class="${!this.state.pickRole ? 'on' : ''}" onclick="window.app.cancelPickRole()">👥 Roles</button>
-          <button onclick="document.getElementById('vupDateCard')?.scrollIntoView({behavior:'smooth'})">📅 VUP Schedule</button>
-          <button onclick="document.getElementById('nearbyStoreSection')?.scrollIntoView({behavior:'smooth'})">🛒 Fresh Produce</button>
+          <button class="${pTab === 'market' ? 'on' : ''}" onclick="window.app.setPublicTab('market')"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Fresh Market</button>
+          <button class="${pTab === 'roles' ? 'on' : ''}" onclick="window.app.setPublicTab('roles')"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Roles & Portals</button>
+          <button class="${pTab === 'schedule' ? 'on' : ''}" onclick="window.app.setPublicTab('schedule')"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> VUP Schedule</button>
         `;
       }
     }
@@ -1318,85 +1319,46 @@ class IsokoApp {
   }
 
   setNavTab(tabId) {
-    if (tabId === "analysis" || tabId === "nisr_facts") {
-      this.state.activeSubView = "analysis";
-      this.render();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      this.state.activeSubView = "dashboard";
-      this.render();
-      const el = document.getElementById(tabId + "Section") || document.getElementById(tabId);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-      else window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    this.state.activeSubView = tabId;
+    this.render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  setPublicTab(tabId) {
+    this.state.publicTab = tabId;
+    this.render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   // =========================================================================
   // 7. FIRST PAGE: "WHO ARE YOU?" (5 BIG BUTTONS)
   // =========================================================================
   renderWhoAreYouView() {
-    const lang = this.state.lang || "en";
-    const title = lang === 'rw' ? "Uri nde?" : lang === 'fr' ? "Qui êtes-vous ?" : "Who are you?";
-    const sub = lang === 'rw' 
-      ? "Hitamo uruhare rwawe. Hanyuma urinjira mu buryo bworoshye." 
-      : lang === 'fr' 
-      ? "Choisissez votre rôle. Ensuite, vous vous connecterez." 
-      : "Choose your role. Then you will log in.";
+    const tab = this.state.publicTab || "market";
+    if (tab === "roles") {
+      return this.renderPublicRolesView();
+    }
+    if (tab === "schedule") {
+      return this.renderPublicScheduleView();
+    }
+    return this.renderPublicMarketView();
+  }
 
-    const rolesList = [
-      { code: "member", key: "Family", icon: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
-      { code: "planner", key: "Planner", icon: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
-      { code: "seller", key: "Farmer", icon: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>', title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
-      { code: "shopper", key: "Shopper", icon: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
-      { code: "admin", key: "Admin", icon: '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
-    ];
-
+  renderPublicMarketView() {
     return `
-      <!-- First Page Header -->
-      <div class="head">
+      <!-- VeggieMart Top Search & Category Filter Header -->
+      <div class="head" style="margin-bottom: 16px;">
         <div>
-          <h1>${title}</h1>
-          <p class="sub">${sub}</p>
+          <h1>Fresh Farm Produce Market</h1>
+          <p class="sub">Direct from Rwandan cooperative smallholder farmers. Fast SACCO pickup or express delivery.</p>
         </div>
       </div>
 
-      <!-- 5 Big Role Cards in Vertix Grid -->
-      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; margin-bottom: 24px;">
-        ${rolesList.map(r => {
-          const rTitle = lang === 'rw' ? r.kinyTitle : lang === 'fr' ? r.frTitle : r.title;
-          const rLine = lang === 'rw' ? r.kinyLine : lang === 'fr' ? r.frLine : r.line;
-          return `
-            <div class="card pk" style="cursor:pointer; display:flex; flex-direction:column; margin-bottom:0;" onclick="window.app.pickRole('${r.code}')">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <span class="ki" style="width:40px; height:40px; border-radius:50%; background:var(--accsoft); color:var(--acc); display:grid; place-items:center; font-size:18px;">
-                  ${r.icon}
-                </span>
-                <span class="tag ${r.code === 'admin' ? 'r' : 'g'}">${r.code === 'admin' ? 'Audit' : r.key}</span>
-              </div>
-              <b style="font-size:16px; font-weight:600; display:block; margin-bottom:4px;">${rTitle}</b>
-              <p style="color:var(--mute); font-size:12px; margin-bottom:14px; line-height:1.4;">${rLine}</p>
-              <div style="margin-top:auto;">
-                <button class="mini" style="width:100%; text-align:center;">
-                  ${lang === 'rw' ? 'Injira hano →' : lang === 'fr' ? 'Accéder →' : 'Enter as ' + r.title + ' →'}
-                </button>
-              </div>
-            </div>
-          `;
-        }).join("")}
-      </div>
-
-      <!-- Rwanda VUP Payment Dates & Delay Calendar -->
-      ${this.renderVupDateCard()}
-
-      <!-- Universal Location & Proximity Bar ("The Place You Are Right Now") -->
-      ${this.renderNearbyBar()}
-
-      <!-- Produce Harvest Catalog -->
-      <!-- VeggieMart Top Search & Category Pills -->
-      <div class="vm-search-bar" style="margin-top: 24px;">
+      <div class="vm-search-bar">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
         <input type="text" id="vmSearchInput" placeholder="Search fresh beans, irish potatoes, vegetables, fruits..." oninput="window.app.filterProduceByName(this.value)">
       </div>
+
       <div class="vm-categories-row">
         ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Flours"].map(cat => `
           <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
@@ -1405,14 +1367,76 @@ class IsokoApp {
         `).join("")}
       </div>
 
-      <!-- VeggieMart Fresh Produce Catalog -->
-      ${this.renderGroceryCatalog()}
+      <!-- Proximity Distance Bar -->
+      ${this.renderNearbyBar()}
+
+      <!-- Produce Grid -->
+      ${this.renderGroceryCatalog('cash')}
     `;
   }
 
-  // =========================================================================
-  // 8. ROLE LOGIN VIEW WITH SAMPLE DROPDOWN (Section 17.1)
-  // =========================================================================
+  renderPublicRolesView() {
+    const rolesList = [
+      { code: "member", key: "Family", icon: '<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', title: "VUP Member", line: "I receive VUP support and need food bridge credit during disbursement delays." },
+      { code: "planner", key: "Planner", icon: '<svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>', title: "Sector Planner", line: "I oversee 30-district microdata, manage delay patterns, and approve credit liquidity." },
+      { code: "seller", key: "Farmer", icon: '<svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>', title: "Cooperative Farmer (Seller)", line: "I supply fresh harvest produce and receive instant Mobile Money float payouts." },
+      { code: "shopper", key: "Shopper", icon: '<svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.5"/><circle cx="18" cy="21" r="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>', title: "Ethical Shopper", line: "I buy fresh food for my household and support the 2% revolving community bridge pool." },
+      { code: "admin", key: "Admin", icon: '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>', title: "Government Auditor", line: "I audit system solvency, reconciliation records, and test payment resilience." }
+    ];
+
+    return `
+      <div class="head">
+        <div>
+          <h1>Choose Your Role Portal</h1>
+          <p class="sub">Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        ${rolesList.map(r => `
+          <div class="card pk" style="cursor:pointer; display:flex; flex-direction:column; padding:22px;" onclick="window.app.pickRole('${r.code}')">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <span class="ki" style="width:44px; height:44px; border-radius:50%; background:var(--accsoft); color:var(--acc); display:grid; place-items:center;">
+                ${r.icon}
+              </span>
+              <span class="tag ${r.code === 'admin' ? 'r' : 'g'}">${r.key}</span>
+            </div>
+            <b style="font-size:16px; font-weight:700; margin-bottom:6px;">${r.title}</b>
+            <p style="color:var(--mute); font-size:12.5px; margin-bottom:16px; line-height:1.45;">${r.line}</p>
+            <div style="margin-top:auto;">
+              <button class="btn btn-sm btn-primary" style="width:100%; justify-content:center;">
+                Enter ${r.title} Portal →
+              </button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  renderPublicScheduleView() {
+    return `
+      <div class="head">
+        <div>
+          <h1>Rwanda VUP Payment Schedule & Delays</h1>
+          <p class="sub">Evidence-based analysis of social assistance disbursement cycles across Rwanda's 30 districts.</p>
+        </div>
+      </div>
+
+      ${this.renderVupDateCard()}
+
+      <div class="card" style="margin-top:20px; padding:22px;">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:8px;">Why Isoko Bridge Exists</h3>
+        <p style="font-size:13.5px; color:var(--mute); line-height:1.6; margin-bottom:14px;">
+          Under Vision 2020 Umurenge Programme regulations, transfers are scheduled on the 15th of each month. However, NISR empirical household survey microdata ($N = 3,399$) reveals that <b>52% of beneficiaries face disbursement delays averaging 9.2 days</b> due to administrative muster roll reconciliation, Umurenge SACCO clearance windows, and banking queues.
+        </p>
+        <p style="font-size:13.5px; color:var(--mute); line-height:1.6;">
+          <b>Isoko Bridge</b> bridges this exact gap: families access zero-interest staple food credit from local farmer cooperatives, the community pool pays the farmer immediately upon delivery, and credit is settled automatically via SACCO deduction when the government transfer arrives.
+        </p>
+      </div>
+    `;
+  }
+
   renderLoginView() {
     const roleCode = this.state.pickRole || "member";
     const userList = (this.state.users && this.state.users[roleCode]) || [];
@@ -1501,231 +1525,304 @@ class IsokoApp {
   renderFamilyView() {
     const u = this.state.currentUser;
 
-    // Flow 5.1: If member has not submitted details
     if (u.status === "not_submitted") {
-      return `
-        <h2>${this.t('roleFamilyTitle')}</h2>
-        <div class="card" style="padding:22px;">
-          <h3>Add my details (VUP Verification)</h3>
-          <p class="small" style="margin-bottom:14px;">Enter your household details for VUP assistance verification. Do not enter a national ID number.</p>
-          <form onsubmit="window.app.saveMemberDetails(event)">
-            <div class="form-group">
-              <label class="form-label">Full Name</label>
-              <input id="md_name" type="text" class="form-control" value="${u.name}" required>
-            </div>
-            <div class="grid grid-cols-2" style="margin-bottom:0;">
-              <div class="form-group">
-                <label class="form-label">Phone Number (Masked)</label>
-                <input id="md_phone" type="text" class="form-control" value="078XXXX456" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">District Location</label>
-                <select id="md_district" class="form-control">
-                  ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name} (${d.province})</option>`).join("")}
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2" style="margin-bottom:0;">
-              <div class="form-group">
-                <label class="form-label">Sector</label>
-                <input id="md_sector" type="text" class="form-control" value="Central Sector" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">VUP Programme</label>
-                <select id="md_prog" class="form-control">
-                  ${NISR_DATA.programmes.map(p => `<option value="${p.name}">${p.name}</option>`).join("")}
-                  <option value="Financial Services">Financial Services</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid grid-cols-2" style="margin-bottom:0;">
-              <div class="form-group">
-                <label class="form-label">People at Home</label>
-                <input id="md_size" type="number" min="1" max="15" class="form-control" value="5" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Usual Payment Day</label>
-                <input id="md_day" type="number" min="1" max="31" class="form-control" value="15" required>
-              </div>
-            </div>
-            <div style="margin: 12px 0;">
-              <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-                <input type="checkbox" id="md_consent" required checked>
-                <span>I agree to the credit rules and to repay credit from my VUP payment.</span>
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;">Submit Verification Request</button>
-          </form>
-        </div>
-      `;
+      return this.renderFamilyNotSubmittedView();
     }
-
-    // Flow 5.1: If pending
     if (u.status === "pending") {
-      return `
-        <h2>${this.t('roleFamilyTitle')}</h2>
-        <div class="banner-notice info">
-          <div style="font-size:24px;">⏳</div>
-          <div>
-            <b>Demo mode. Waiting for approval.</b>
-            <div style="font-size:13px; margin-top:2px;">
-              Your details have been submitted. Log in as <b>Planner</b> to approve this request live, or browse the produce market below.
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Browse Produce Market</h3>
-          ${this.renderGroceryCatalog('cash')}
-        </div>
-      `;
+      return this.renderFamilyPendingView();
     }
-
-    // Flow 5.1: If verified, needs payment account
     if (u.status === "verified") {
-      return `
-        <h2>${this.t('roleFamilyTitle')}</h2>
-        <div class="banner-notice info">
-          <div style="font-size:24px;">✅</div>
-          <div>
-            <b>Request Approved! Please add your payment account.</b>
-            <div style="font-size:13px; margin-top:2px;">
-              To open bridge credit, confirm your VUP disbursement payment channel.
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="padding:22px;">
-          <h3>Add my payment account</h3>
-          <form onsubmit="window.app.savePaymentAccount(event)">
-            <div class="form-group">
-              <label class="form-label">Payment Method</label>
-              <select id="pa_method" class="form-control">
-                <option value="MTN Mobile Money">MTN Mobile Money</option>
-                <option value="Airtel Money">Airtel Money</option>
-                <option value="Umurenge SACCO">Umurenge SACCO</option>
-                <option value="Bank transfer">Bank transfer (BK)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Account or Phone Number (Masked)</label>
-              <input id="pa_acc" type="text" class="form-control" value="078XXXX456" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Account Holder Name</label>
-              <input id="pa_holder" type="text" class="form-control" value="${u.name}" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Confirm Payment Account & Open Credit</button>
-          </form>
-        </div>
-      `;
+      return this.renderFamilyPaymentAccountView();
     }
 
-    // Credit-ready member
-    const limit = this.calculateCreditLimit();
+    const sub = this.state.activeSubView || "dashboard";
+    if (sub === "credit") {
+      return this.renderFamilyCreditTab();
+    }
+    if (sub === "orders") {
+      return this.renderFamilyOrdersTab();
+    }
+
+    // Default: Fresh Food Store tab
+    return this.renderFamilyStoreTab();
+  }
+
+  renderFamilyStoreTab() {
+    const u = this.state.currentUser;
     const remaining = this.getRemainingCredit();
     const isLate = Number(u.daysLate) > 0;
-    const dailyCost = (Number(u.householdSize) || 1) * this.state.adminSettings.dailyFoodCost;
-    const familyOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerEmail === u.email || o.buyerRole === "Family");
 
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <h2>${this.t('roleFamilyTitle')}</h2>
-        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Family')">
-          🧾 Download My Statement (PDF/CSV)
+      <!-- Member Account Safety Net Status Card -->
+      <div class="card" style="padding: 20px; margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <h2 style="margin:0; font-size:20px;">${u.name}</h2>
+              <span class="tag g">VUP Direct Support</span>
+            </div>
+            <p class="sub" style="margin-top:4px;">${u.district || 'Kirehe'} District · ${u.householdSize || 5} family members · Disbursement ${isLate ? 'delayed by ' + u.daysLate + ' days' : 'on schedule'}</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11.5px; color:var(--mute);">Emergency Safety Net Credit</div>
+            <b style="font-size:20px; color:var(--acc); font-weight:800;">${remaining.toLocaleString()} RWF</b>
+            <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% Interest · Auto-deducted at SACCO</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VeggieMart Top Search & Category Filter Header -->
+      <div class="vm-search-bar">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="vmSearchInput" placeholder="Search fresh beans, irish potatoes, vegetables, fruits..." oninput="window.app.filterProduceByName(this.value)">
+      </div>
+
+      <div class="vm-categories-row">
+        ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Flours"].map(cat => `
+          <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
+            ${cat === 'All' ? 'All Staples' : cat}
+          </button>
+        `).join("")}
+      </div>
+
+      <!-- Proximity Distance Bar -->
+      ${this.renderNearbyBar()}
+
+      <!-- Produce Grid with Bridge Credit Button -->
+      ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
+    `;
+  }
+
+  renderFamilyCreditTab() {
+    const u = this.state.currentUser;
+    const limit = this.calculateCreditLimit();
+    const remaining = this.getRemainingCredit();
+    const used = limit - remaining;
+
+    return `
+      <div class="head">
+        <div>
+          <h1>My Bridge Credit & SACCO Settlement</h1>
+          <p class="sub">Transparent zero-interest social safety net credit under Rwanda VUP regulations.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Food Store
         </button>
       </div>
 
-      <div class="banner-notice ${isLate ? 'danger' : 'info'}">
-        <div style="font-size: 24px;">${isLate ? '🚨' : '✅'}</div>
+      <div class="kpis" style="margin-bottom:20px;">
+        <div class="card kp">
+          <span class="ki"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
+          <small>Total Credit Limit</small>
+          <b>${limit.toLocaleString()} RWF</b>
+          <em>14 days safety net cap</em>
+        </div>
+        <div class="card kp">
+          <span class="ki" style="background:var(--ok-soft); color:var(--ok);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <small>Available to Order</small>
+          <b style="color:var(--ok);">${remaining.toLocaleString()} RWF</b>
+          <em>ready for produce orders</em>
+        </div>
+        <div class="card kp">
+          <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <small>Open Food Credit</small>
+          <b style="color:var(--bad);">${used.toLocaleString()} RWF</b>
+          <em>to settle upon VUP payment</em>
+        </div>
+      </div>
+
+      <div class="card" style="padding:22px;">
+        <h3 style="font-size:16px; font-weight:700; margin-bottom:10px;">How Repayment Works (No Surprise Fees)</h3>
+        <p style="font-size:13.5px; color:var(--mute); line-height:1.6; margin-bottom:14px;">
+          When your delayed government VUP transfer arrives at <b>Umurenge SACCO Kirehe</b> (Account: 078XXXX456), the exact amount of food credit you used (<b>${used.toLocaleString()} RWF</b>) will be deducted automatically with <b>0% interest and 0 fees</b>. The rest of your transfer is yours to withdraw.
+        </p>
+        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Family')">
+          Download Statement (PDF / CSV)
+        </button>
+      </div>
+    `;
+  }
+
+  renderFamilyOrdersTab() {
+    const u = this.state.currentUser;
+    const familyOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerEmail === u.email || o.buyerRole === "Family");
+
+    return `
+      <div class="head">
         <div>
-          <b>${isLate ? `Disbursement Delay: Payment is ${u.daysLate} days late.` : 'Payment on schedule.'}</b>
-          <div style="font-size: 13px; margin-top: 2px;">
-            ${isLate 
-              ? `Your emergency Bridge Credit is active. Order nutritious staple food now; the pool pays the farmer first, and the credit is repaid when your VUP transfer arrives.` 
-              : `VUP assistance is up to date. You can purchase fresh produce with cash.`}
+          <h1>My Orders & Delivery Tracking</h1>
+          <p class="sub">Track fresh produce orders, cooperative dispatches, and credit settlement status.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Food Store
+        </button>
+      </div>
+
+      <!-- VeggieMart Order Progress Timeline Card -->
+      <div class="order-tracking-card">
+        <div class="ot-status-box">
+          <div class="ot-circle-check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <b style="font-size:15px; display:block;">Active Bridge Order #101 · Dry Beans (5 kg)</b>
+            <small style="color:var(--mute);">Mukamana Farm Cooperative · Free SACCO Walk-in Pickup</small>
+          </div>
+        </div>
+
+        <div class="ot-timeline">
+          <div class="ot-step">
+            <div class="ot-step-dot done">✓</div>
+            <b>Order Placed on Bridge Credit</b>
+            <small style="color:var(--mute);">16 Oct, 10:15 AM · 5 kg Dry Beans (3,900 RWF)</small>
+          </div>
+          <div class="ot-step">
+            <div class="ot-step-dot done">✓</div>
+            <b>Approved by Sector Planner</b>
+            <small style="color:var(--mute);">16 Oct, 10:20 AM · Verified active VUP beneficiary</small>
+          </div>
+          <div class="ot-step">
+            <div class="ot-step-dot done">✓</div>
+            <b>Farmer Cooperative Ready</b>
+            <small style="color:var(--mute);">16 Oct, 11:00 AM · Harvest packaged at Kirehe Co-op depot</small>
+          </div>
+          <div class="ot-step">
+            <div class="ot-step-dot active">●</div>
+            <b>Awaiting VUP Disbursement Settlement</b>
+            <small style="color:var(--mute);">Will be settled automatically upon SACCO transfer</small>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h3>My VUP payment</h3>
-        <div class="grid grid-cols-3" style="margin-bottom:0;">
-          <div>
-            <label class="form-label">Programme</label>
-            <select class="form-control" onchange="window.app.state.currentUser.programme = this.value; window.app.saveState(); window.app.render();">
-              ${NISR_DATA.programmes.map(p => `
-                <option value="${p.name}" ${u.programme === p.name ? 'selected' : ''}>${p.name}</option>
-              `).join("")}
-            </select>
-          </div>
-          <div>
-            <label class="form-label">People at home</label>
-            <input type="number" min="1" max="15" class="form-control" value="${u.householdSize || 5}" 
-              onchange="window.app.state.currentUser.householdSize = +this.value || 1; window.app.saveState(); window.app.render();">
-          </div>
-          <div>
-            <label class="form-label">Days late (${u.daysLate} d)</label>
-            <input type="range" min="0" max="30" value="${u.daysLate}" 
-              oninput="window.app.state.currentUser.daysLate = +this.value; window.app.saveState(); window.app.render();" style="width:100%;">
-          </div>
-        </div>
-
-        <div class="stats" style="margin-top:14px;">
-          <div class="stat"><b>${isLate ? 'Late' : 'On time'}</b><span>payment status</span></div>
-          <div class="stat"><b style="color:var(--primary);">${remaining.toLocaleString()} RWF</b><span>bridge credit left</span></div>
-          <div class="stat"><b>${dailyCost.toLocaleString()} RWF</b><span>basket cost per day</span></div>
-        </div>
-      </div>
-
-      <!-- Budget Meal Ideas (Section 6.2: cost only, no calorie claims) -->
-      <div class="card" style="background:var(--bg);">
-        <h4 style="font-size:14px; margin-bottom:6px;">🍲 Budget Meal Ideas (NISR Cost Guide)</h4>
-        <div style="font-size:12.5px; color:var(--text-muted); line-height:1.5;">
-          Based on 261 RWF/person/day: 120g dry beans (96 RWF), 300g sweet potato (75 RWF), 80g tomato (40 RWF), 30g onion (50 RWF). Cost per household of 5: <b>${(dailyCost).toLocaleString()} RWF / day</b>.
-        </div>
-      </div>
-
-      <!-- Proximity Locator -->
-      ${this.renderNearbyBar()}
-
-      <!-- Produce Market -->
-      <div class="card">
-        <h3>🛒 Buy Food</h3>
-        ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
-      </div>
-
-      <!-- Orders -->
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3>📋 My Orders & Credit</h3>
-          <button class="btn btn-sm btn-ghost" onclick="window.app.openStatementModal('Family')">Download CSV / PDF</button>
-        </div>
+        <h3>Order History</h3>
         ${this.renderOrdersTable(familyOrders)}
       </div>
     `;
   }
 
-  // =========================================================================
-  // 11. PLANNER DASHBOARD (ICON-FIRST, ONLY VUP FAMILIES, 3 QUEUES, ALERTS)
-  // =========================================================================
+  renderFamilyNotSubmittedView() {
+    const u = this.state.currentUser;
+    return `
+      <h2>${this.t('roleFamilyTitle')}</h2>
+      <div class="card" style="padding:22px;">
+        <h3>Add my details (VUP Verification)</h3>
+        <p class="small" style="margin-bottom:14px;">Enter your household details for VUP assistance verification. Do not enter a national ID number.</p>
+        <form onsubmit="window.app.saveMemberDetails(event)">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input id="md_name" type="text" class="form-control" value="${u.name}" required>
+          </div>
+          <div class="grid grid-cols-2" style="margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">Phone Number (Masked)</label>
+              <input id="md_phone" type="text" class="form-control" value="078XXXX456" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">District</label>
+              <select id="md_district" class="form-control">
+                ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2" style="margin-bottom:0;">
+            <div class="form-group">
+              <label class="form-label">People at Home</label>
+              <input id="md_size" type="number" min="1" max="15" class="form-control" value="5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Usual Payment Day</label>
+              <input id="md_day" type="number" min="1" max="31" class="form-control" value="15" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:14px;">Submit Verification Request</button>
+        </form>
+      </div>
+    `;
+  }
+
+  renderFamilyPendingView() {
+    return `
+      <h2>${this.t('roleFamilyTitle')}</h2>
+      <div class="card" style="padding:22px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:24px;">⏳</span>
+          <div>
+            <b>Verification Request Submitted</b>
+            <div style="font-size:13px; color:var(--mute); margin-top:2px;">
+              Your details are awaiting review by Sector Planner One. Log in as Planner to approve live.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Browse Produce Market</h3>
+        ${this.renderGroceryCatalog('cash')}
+      </div>
+    `;
+  }
+
+  renderFamilyPaymentAccountView() {
+    const u = this.state.currentUser;
+    return `
+      <h2>${this.t('roleFamilyTitle')}</h2>
+      <div class="card" style="padding:22px;">
+        <h3>Add my payment account</h3>
+        <p class="sub" style="margin-bottom:14px;">Confirm your VUP payment channel to activate emergency food bridge credit.</p>
+        <form onsubmit="window.app.savePaymentAccount(event)">
+          <div class="form-group">
+            <label class="form-label">Payment Method</label>
+            <select id="pa_method" class="form-control">
+              <option value="Umurenge SACCO">Umurenge SACCO</option>
+              <option value="MTN Mobile Money">MTN Mobile Money</option>
+              <option value="Airtel Money">Airtel Money</option>
+              <option value="Bank transfer">Bank transfer (BK)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account or Phone Number (Masked)</label>
+            <input id="pa_acc" type="text" class="form-control" value="078XXXX456" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Account Holder Name</label>
+            <input id="pa_holder" type="text" class="form-control" value="${u.name}" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Confirm Payment Account & Open Credit</button>
+        </form>
+      </div>
+    `;
+  }
+
   renderPlannerView() {
-    if (this.state.activeSubView === "nisr_facts") {
+    const sub = this.state.activeSubView || "dashboard";
+
+    if (sub === "creditdesk") {
+      return this.renderPlannerCreditDeskTab();
+    }
+    if (sub === "nisr_facts") {
       return this.renderNisrFactsDoc();
     }
+    if (sub === "analysis") {
+      return this.renderAnalysisView();
+    }
+    if (sub === "cases") {
+      return this.renderPlannerCasesTab();
+    }
+    if (sub === "reports") {
+      return this.renderPlannerReportsTab();
+    }
+
+    // Default: Executive Overview Dashboard
+    return this.renderPlannerOverviewTab();
+  }
+
+  renderPlannerOverviewTab() {
     const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
     const creditOrders = vupOrders.filter(x => x.mode === "credit");
     const totalCredit = creditOrders.reduce((sum, x) => sum + x.total, 0);
     const outstanding = this.getOutstandingCredit();
-
     const tf = this.state.timeframe || "month";
     const tfMult = tf === "week" ? 0.25 : tf === "year" ? 12 : 1;
-
-    // Approvals queue
-    const pendingMembers = [];
-    for (const u of Object.values(this.state.users?.member || [])) {
-      if (u.status === "pending") pendingMembers.push(u);
-    }
 
     return `
       <!-- Vertix Dashboard Header -->
@@ -1736,38 +1833,37 @@ class IsokoApp {
         </div>
         
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <!-- Vertix Segmented Timeframe Switcher -->
           <div class="seg">
             <button class="${tf === 'week' ? 'on' : ''}" onclick="window.app.setTimeframe('week')" title="1 week timeframe">1 Week</button>
             <button class="${tf === 'month' ? 'on' : ''}" onclick="window.app.setTimeframe('month')" title="1 month timeframe">1 Month</button>
             <button class="${tf === 'year' ? 'on' : ''}" onclick="window.app.setTimeframe('year')" title="1 year timeframe">1 Year</button>
           </div>
 
-          <button class="btn btn-sm btn-acc" onclick="window.app.openAnalysisReportModal()" title="Generate analysis report">
-            📄 Make Analysis Report
+          <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('nisr_facts')" title="View official NISR document">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg> NISR Report & PDF
           </button>
           <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
-            📥 Export VUP Report
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export Data
           </button>
         </div>
       </div>
 
-      <!-- Vertix Prominent Mandatory Banner (Section 2 Hard Rule) -->
+      <!-- Hard Rule 2 Banner -->
       <div class="card" style="background:var(--accsoft); border:1px solid rgba(14,99,94,0.3); padding:12px 18px; border-radius:18px; display:flex; align-items:center; gap:12px; margin-bottom:18px;">
-        <span style="font-size:22px; flex:none;">💡</span>
+        <span style="font-size:20px; flex:none;">💡</span>
         <div>
           <b style="font-size:13px; color:var(--acc);">The NISR data shows patterns. It cannot show why a payment was late.</b>
           <div style="font-size:11.5px; color:var(--mute);">Delays reflect administrative muster roll audits, SACCO clearance cycles, or local capacity. Investigate before acting.</div>
         </div>
       </div>
 
-      <!-- Vertix Top KPI Row: 5 Cards (Section 6.5) -->
-      <div class="kpis">
-        <div class="card kp" title="VUP families in the app. Tap to see the list">
+      <!-- Vertix 5 KPI Cards with Real SVG Stroke Icons -->
+      <div class="kpis" style="margin-bottom:20px;">
+        <div class="card kp" onclick="window.app.setNavTab('creditdesk')" style="cursor:pointer;" title="Tap to open Credit Desk">
           <span class="ki"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M17 4.5a3.5 3.5 0 0 1 0 7M22 20c0-3-2-5-5-5.5"/></svg></span>
           <small>VUP Families</small>
           <b>${Math.round(6 * tfMult)}</b>
-          <em>verified & pending</em>
+          <em>verified households</em>
         </div>
         <div class="card kp" title="Families whose VUP payment is late today">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
@@ -1775,19 +1871,19 @@ class IsokoApp {
           <b style="color:var(--bad);">${Math.round(4 * tfMult)}</b>
           <em>avg 9.2 days late</em>
         </div>
-        <div class="card kp" title="Food credit families have used. Tap to open the credit desk">
+        <div class="card kp" onclick="window.app.setNavTab('creditdesk')" style="cursor:pointer;" title="Tap to open Credit Desk">
           <span class="ki"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
           <small>Bridge Credit</small>
           <b style="color:var(--acc);">${Math.round(totalCredit * tfMult).toLocaleString()} RWF</b>
           <em>${outstanding.toLocaleString()} RWF open</em>
         </div>
-        <div class="card kp" title="Money available to pay sellers while payments are late">
+        <div class="card kp" title="Community revolving bridge float">
           <span class="ki" style="background:var(--ok-soft); color:var(--ok);"><svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 21h18"/></svg></span>
           <small>Revolving Pool</small>
           <b>${this.state.pool.balance.toLocaleString()} RWF</b>
           <em>${Math.round(this.state.pool.balance / (5 * 261))} days food cover</em>
         </div>
-        <div class="card kp" title="Things that are not going well">
+        <div class="card kp" onclick="window.app.setNavTab('cases')" style="cursor:pointer;" title="Tap to see alerts">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
           <small>Active Alerts</small>
           <b style="color:var(--bad);">3 Alerts</b>
@@ -1795,7 +1891,7 @@ class IsokoApp {
         </div>
       </div>
 
-      <!-- Vertix Interactive Rwandan Delay Bar Chart -->
+      <!-- Interactive Rwandan Delay Bar Chart -->
       <section class="card" style="margin-bottom:20px;">
         <div class="ch">
           <div>
@@ -1806,99 +1902,149 @@ class IsokoApp {
         </div>
         <div class="bars">
           <button class="bc on" title="Southern Province: 10.7 days delay">
-            <span class="tip">10.7 days</span>
+            <span class="tip">10.7 days (Nyamagabe/Huye)</span>
+            <i style="height: 85%;"></i>
+            <em>South</em>
+          </button>
+          <button class="bc on" title="Western Province: 10.7 days delay">
+            <span class="tip">10.7 days (Rusizi/Karongi)</span>
+            <i style="height: 85%;"></i>
+            <em>West</em>
+          </button>
+          <button class="bc" title="Northern Province: 8.8 days delay">
+            <span class="tip">8.8 days (Gicumbi/Musanze)</span>
+            <i style="height: 70%;"></i>
+            <em>North</em>
+          </button>
+          <button class="bc" title="Eastern Province: 8.4 days delay">
+            <span class="tip">8.4 days (Kirehe/Nyagatare)</span>
             <i style="height: 67%;"></i>
-            <em>Southern (10.7d)</em>
+            <em>East</em>
           </button>
-          <button class="bc on" title="Eastern Province: 10.7 days delay">
-            <span class="tip">10.7 days</span>
-            <i style="height: 67%;"></i>
-            <em>Eastern (10.7d)</em>
-          </button>
-          <button class="bc" title="Western Province: 9.4 days delay">
-            <span class="tip">9.4 days</span>
-            <i style="height: 58%;"></i>
-            <em>Western (9.4d)</em>
-          </button>
-          <button class="bc" title="City of Kigali: 8.3 days delay">
-            <span class="tip">8.3 days</span>
-            <i style="height: 52%;"></i>
-            <em>Kigali (8.3d)</em>
-          </button>
-          <button class="bc" title="Northern Province: 6.6 days delay">
-            <span class="tip">6.6 days</span>
-            <i style="height: 41%;"></i>
-            <em>Northern (6.6d)</em>
+          <button class="bc" title="Kigali City: 7.2 days delay">
+            <span class="tip">7.2 days (Gasabo/Nyarugenge)</span>
+            <i style="height: 57%;"></i>
+            <em>Kigali</em>
           </button>
         </div>
       </section>
 
-      ${this.renderSummaryCard(false)}
-
-      <!-- Vertix Two-Column Layout -->
-      <div class="grid g2">
-        <div class="left">
-          <!-- The Credit Desk with 3 Queues -->
-          <div id="creditdeskSection">
-            ${this.renderCreditDesk()}
+      <!-- 3 Quick Action Cards -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div class="card" style="padding:20px; display:flex; flex-direction:column;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:15px; font-weight:700;">Credit Desk Actions</h4>
+            <span class="tag r">4 Items</span>
           </div>
-
-          <!-- Problem Cases Queue -->
-          <div id="casesSection">
-            ${this.renderCasesQueue()}
-          </div>
-
-          <!-- VUP Families Orders Table -->
-          <div class="card">
-            <div class="ch">
-              <h3>VUP Beneficiary Orders (${vupOrders.length})</h3>
-              <small>Only VUP families shown (Section 6.2)</small>
-            </div>
-            ${this.renderOrdersTable(vupOrders)}
-          </div>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
+            1 family verification to approve, 1 seller payout to disburse, and 2 credit settlements due.
+          </p>
+          <button class="btn btn-sm btn-primary" style="margin-top:auto;" onclick="window.app.setNavTab('creditdesk')">
+            Open Credit Desk →
+          </button>
         </div>
 
-        <div class="left">
-          <!-- "What is not going well" Alerts Box -->
-          ${this.renderAlertsBox()}
-
-          <!-- Gemini AI Explainer Card -->
-          ${this.renderAiHelperCard()}
-
-          <!-- Member Approvals Queue for Judges -->
-          <div class="card" style="border-left: 4px solid var(--acc);">
-            <div class="ch">
-              <div>
-                <h3 style="font-size:16px;">✅ Member Approvals Queue (${pendingMembers.length} pending)</h3>
-                <small>New VUP family verification requests</small>
-              </div>
-              <span class="tag y">Live Judge Action</span>
-            </div>
-
-            ${pendingMembers.length ? `
-              <div class="table-wrap">
-                <table>
-                  <thead>
-                    <tr><th>Family</th><th>District</th><th>Household</th><th>Action</th></tr>
-                  </thead>
-                  <tbody>
-                    ${pendingMembers.map(m => `
-                      <tr>
-                        <td><b>${m.name}</b><br><small style="color:var(--mute);">${m.programme}</small></td>
-                        <td>${m.district}</td>
-                        <td>${m.householdSize} people</td>
-                        <td>
-                          <button class="btn btn-sm btn-primary" onclick="window.app.approveMember('${m.email}')">
-                            ✓ Approve
-                          </button>
-                        </td>
-                      </tr>
-                    `).join("")}
-                  </tbody>
-                </table>
-              </div>
-            ` : '<p class="small" style="color:var(--mute); text-align:center; padding:16px 0;">✓ All member applications verified</p>'}
+        <div class="card" style="padding:20px; display:flex; flex-direction:column;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:15px; font-weight:700;">NISR 30-District Facts</h4>
+            <span class="tag g">12 Sections</span>
           </div>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
+            Explore the official household survey data, statistical formulas, and download the compiled report PDF.
+          </p>
+          <button class="btn btn-sm btn-outline" style="margin-top:auto;" onclick="window.app.setNavTab('nisr_facts')">
+            Read NISR Facts & PDF →
+          </button>
+        </div>
+
+        <div class="card" style="padding:20px; display:flex; flex-direction:column;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h4 style="font-size:15px; font-weight:700;">Gemini AI Assistant</h4>
+            <span class="tag" style="background:rgba(126,34,206,.12); color:#7e22ce;">Natural AI</span>
+          </div>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
+            Query disbursement patterns, translate produce listings, and analyze sector liquidity.
+          </p>
+          <button class="btn btn-sm btn-outline" style="margin-top:auto; border-color:#7e22ce; color:#7e22ce;" onclick="window.app.openGeminiModal()">
+            Launch Gemini AI Assistant →
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderPlannerCreditDeskTab() {
+    return `
+      <div class="head">
+        <div>
+          <h1>Credit Desk Liquidity & Queues</h1>
+          <p class="sub">Three operational queues for VUP household credit verification, seller Mobile Money payouts, and SACCO loan recovery.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Overview
+        </button>
+      </div>
+
+      ${this.renderCreditDesk()}
+    `;
+  }
+
+  renderPlannerCasesTab() {
+    return `
+      <div class="head">
+        <div>
+          <h1>Payment Disputes & Banking Reversals</h1>
+          <p class="sub">Investigate administrative delays, SACCO clearance exceptions, and banking error reversals.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Overview
+        </button>
+      </div>
+
+      <div class="card" style="margin-bottom:20px;">
+        <h3>Active System Alerts</h3>
+        ${this.renderAlertsBox()}
+      </div>
+
+      ${this.renderCasesQueue()}
+    `;
+  }
+
+  renderPlannerReportsTab() {
+    return `
+      <div class="head">
+        <div>
+          <h1>Reports & Data Exports</h1>
+          <p class="sub">Export summaries and raw analytical datasets in PDF, CSV, and JSON formats.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Overview
+        </button>
+      </div>
+
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div class="card" style="padding:22px;">
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Official NISR Analytical Report</h4>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Complete 12-section PDF document compiled with household survey evidence.</p>
+          <button class="btn btn-sm btn-primary" onclick="window.app.downloadNisrPdf()">
+            Download NISR Report (PDF)
+          </button>
+        </div>
+
+        <div class="card" style="padding:22px;">
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Credit Desk Ledger Statement</h4>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Detailed statement of approved credit, seller floats, and SACCO repayments.</p>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
+            Export Ledger (CSV / PDF)
+          </button>
+        </div>
+
+        <div class="card" style="padding:22px;">
+          <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">30-District Delay Microdata</h4>
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Raw JSON and summary figures for provincial delay distributions.</p>
+          <button class="btn btn-sm btn-outline" onclick="window.app.downloadFile('rwanda-vup-delays.json', JSON.stringify(NISR_DATA.delaysByProvince, null, 2), 'application/json')">
+            Export Microdata (JSON)
+          </button>
         </div>
       </div>
     `;
@@ -2144,66 +2290,172 @@ class IsokoApp {
   // 15. SELLER SCREEN (Farmer / Cooperative)
   // =========================================================================
   renderFarmerView() {
+    const sub = this.state.activeSubView || "dashboard";
+    if (sub === "add_produce") {
+      return this.renderFarmerAddProduceTab();
+    }
+    if (sub === "listings") {
+      return this.renderFarmerListingsTab();
+    }
+    if (sub === "statements") {
+      return this.renderFarmerStatementsTab();
+    }
+    return this.renderFarmerOrdersTab();
+  }
+
+  renderFarmerOrdersTab() {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmerEmail === u.email);
     const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
 
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <h2>${this.t('roleFarmerTitle')}</h2>
-        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Farmer')">
-          🧾 Download Sales Statement (PDF/CSV)
+      <div class="head">
+        <div>
+          <h1>Orders to Deliver</h1>
+          <p class="sub">Cooperative order dispatch, customer delivery confirmation, and instant Mobile Money float payouts.</p>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('add_produce')">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add Harvest Produce
         </button>
       </div>
 
-      <div class="stats">
-        <div class="stat"><b>${myOrders.length}</b><span>orders placed</span></div>
-        <div class="stat"><b style="color:var(--success);">${mySales.toLocaleString()} RWF</b><span>completed sales</span></div>
-        <div class="stat"><b>${u.payoutMethod || 'MTN Mobile Money'}</b><span>payout account</span></div>
-      </div>
-
-      <div class="card">
-        <h3>Add a listing</h3>
-        <p class="small" style="margin-bottom:10px;">List your harvest produce with photo upload, camera, or verified gallery:</p>
-        <div class="f">
-          <select id="new_food" onchange="window.app.onProduceSelected(this.value)">
-            ${Object.keys(NISR_DATA.foodPrices).map(k => `<option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>`).join("")}
-          </select>
-          <select id="new_district">
-            ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name} (${d.province})</option>`).join("")}
-          </select>
-          <input id="new_price" type="number" placeholder="RWF per kg" value="780" oninput="window.app.updatePriceGuidePreview()">
-          <input id="new_qty" type="number" placeholder="kg available" value="100">
-          <button class="btn btn-primary btn-sm" onclick="window.app.addListing(event)">Add listing</button>
+      <div class="kpis" style="margin-bottom:20px;">
+        <div class="card kp">
+          <span class="ki"><svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+          <small>Orders Placed</small>
+          <b>${myOrders.length} Orders</b>
+          <em>active delivery queue</em>
         </div>
-
-        <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
-          <img id="listingPhotoPreview" src="assets/produce/dry_beans.jpg" style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid var(--card-border);" alt="Preview">
-          <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
-          <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('cameraUploadInput').click()">
-            📸 Take Photo / Upload File
-          </button>
-          <input type="hidden" id="new_photo_url" value="assets/produce/dry_beans.jpg">
-          <span id="priceGuidePreview" style="font-size:12.5px; color:var(--text-muted);"></span>
+        <div class="card kp">
+          <span class="ki" style="background:var(--ok-soft); color:var(--ok);"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <small>Completed Sales</small>
+          <b style="color:var(--ok);">${mySales.toLocaleString()} RWF</b>
+          <em>settled by pool float</em>
+        </div>
+        <div class="card kp">
+          <span class="ki"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></span>
+          <small>Payout Account</small>
+          <b>${u.payoutMethod || 'MTN MoMo'}</b>
+          <em>instant cashout</em>
         </div>
       </div>
 
       <div class="card">
-        <h3>Orders to deliver</h3>
+        <div class="ch">
+          <h3>Customer Orders Queue</h3>
+          <span class="tag g">Float Guaranteed</span>
+        </div>
         ${this.renderOrdersTable(this.state.orders, true)}
-        <p class="small" style="margin-top:8px; color:var(--text-muted);">Credit orders are paid by the pool on delivery via Mobile Money float.</p>
-      </div>
-
-      <div class="card">
-        <h3>My Listings</h3>
-        ${this.renderGroceryCatalog('cash')}
+        <p class="small" style="margin-top:12px; color:var(--mute);">
+          Credit orders are pre-guaranteed and paid directly from the revolving pool float upon delivery confirmation.
+        </p>
       </div>
     `;
   }
 
-  // =========================================================================
-  // 16. SHOPPER SCREEN (Ethical Shopper)
-  // =========================================================================
+  renderFarmerAddProduceTab() {
+    return `
+      <div class="head">
+        <div>
+          <h1>Add Harvest Produce Listing</h1>
+          <p class="sub">Publish your harvest directly to local VUP families and ethical shoppers with NISR Fair Price benchmarking.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
+          ← Back to Orders
+        </button>
+      </div>
+
+      <div class="card" style="padding:24px;">
+        <h3 style="margin-bottom:14px;">Produce Details & Photo</h3>
+        <div class="f" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
+          <div>
+            <label class="form-label">Crop Name</label>
+            <select id="new_food" class="form-control" onchange="window.app.onProduceSelected(this.value)">
+              ${Object.keys(NISR_DATA.foodPrices).map(k => `<option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">District Origin</label>
+            <select id="new_district" class="form-control">
+              ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name} (${d.province})</option>`).join("")}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Price (RWF / kg)</label>
+            <input id="new_price" type="number" class="form-control" placeholder="RWF per kg" value="780" oninput="window.app.updatePriceGuidePreview()">
+          </div>
+          <div>
+            <label class="form-label">Harvest Quantity (kg)</label>
+            <input id="new_qty" type="number" class="form-control" placeholder="kg available" value="100">
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px; background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:18px;">
+          <img id="listingPhotoPreview" src="assets/produce/dry_beans.jpg" style="width:56px; height:56px; object-fit:cover; border-radius:12px; border:1px solid var(--line);" alt="Preview">
+          <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
+          <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('cameraUploadInput').click()">
+            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Capture / Upload Photo
+          </button>
+          <input type="hidden" id="new_photo_url" value="assets/produce/dry_beans.jpg">
+          <span id="priceGuidePreview" style="font-size:12.5px; color:var(--mute);"></span>
+        </div>
+
+        <button class="btn btn-primary" onclick="window.app.addListing(event)" style="width:100%; justify-content:center;">
+          Publish Produce Listing to Isoko Market
+        </button>
+      </div>
+    `;
+  }
+
+  renderFarmerListingsTab() {
+    return `
+      <div class="head">
+        <div>
+          <h1>My Active Harvest Listings</h1>
+          <p class="sub">Currently published harvest items visible to buyers across Rwanda.</p>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('add_produce')">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add New Listing
+        </button>
+      </div>
+
+      ${this.renderGroceryCatalog('cash')}
+    `;
+  }
+
+  renderFarmerStatementsTab() {
+    const u = this.state.currentUser;
+    const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmerEmail === u.email);
+    const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
+
+    return `
+      <div class="head">
+        <div>
+          <h1>Sales & Settlement Statements</h1>
+          <p class="sub">Track completed dispatches, Mobile Money float payouts, and tax receipts.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Farmer')">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Statement (PDF/CSV)
+        </button>
+      </div>
+
+      <div class="card" style="padding:22px; margin-bottom:20px;">
+        <h3>Payout Summary</h3>
+        <div style="font-size:24px; font-weight:800; color:var(--ok); margin:8px 0;">
+          ${mySales.toLocaleString()} RWF
+        </div>
+        <p style="color:var(--mute); font-size:13px;">
+          All delivered orders have been settled into Umurenge SACCO float / MTN MoMo (078XXXX456).
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Delivered Order Archive</h3>
+        ${this.renderOrdersTable(myOrders)}
+      </div>
+    `;
+  }
+
   renderShopperView() {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper" || o.buyerEmail === u.email);
