@@ -86,17 +86,22 @@ const TOPUP_CHIPS = [
 ];
 
 
+
 const DEFAULT_STATE = {
   theme: "light",
-  lang: "en",
-  currentView: "home",
+  lang: "en", // "en", "rw", "fr"
+  user: null, // null = on first page ("Who are you?"), string = logged in email
+  pickRole: "", // "" or "Family", "Planner", "Farmer", "Shopper", "Admin"
   role: "Family",
+  timeframe: "monthly", // "weekly", "monthly", "yearly"
+  creditDeskTab: "all", // "all", "approve", "pay", "repay"
   activeCategory: "All",
+  activeSubView: "dashboard", // "dashboard" or "analysis"
   nearby: {
     userDistrict: "Gasabo",
     userLocation: "Gasabo (Kimironko Hub)",
-    filterProximity: "all", // "all", "near", "district", "fast", "sacco"
-    deliveryOption: "moto" // "moto" (+300 RWF) or "pickup" (0 RWF)
+    filterProximity: "all",
+    deliveryOption: "moto"
   },
   selectedAccountIdx: 0,
   currentUser: {
@@ -110,15 +115,11 @@ const DEFAULT_STATE = {
     donationPct: 2,
     momo: "0788123456"
   },
-  sampleQ: {
-    daysLate: 8,
-    householdSize: 5
-  },
   pool: {
     balance: 25000,
     totalGiftsIn: 25000,
-    totalPaidToFarmers: 0,
-    totalRepaidByVup: 0
+    totalPaidToFarmers: 12600,
+    totalRepaidByVup: 8400
   },
   // 18 Diverse Rwandan Harvest Productions
   listings: [
@@ -141,11 +142,14 @@ const DEFAULT_STATE = {
     { id: 17, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 300, farmer: "Kayonza Grain Link", momo: "0788778899", photo: "assets/produce/dry_beans.jpg", isFav: false },
     { id: 18, food: "Groundnuts", district: "Ngoma", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1800, quantity: 110, farmer: "Ngoma Women Agrilink", momo: "0788889900", photo: "assets/produce/dry_beans.jpg", isFav: true }
   ],
+  // Orders covering all Credit Desk states
   orders: [
-    { id: 101, food: "Dry beans", kg: 10, total: 7800, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Kirehe", status: "Delivered", farmer: "Mukamana Farm", paidBy: "pool", deliveryType: "Free SACCO Pickup", repaid: false, date: "2026-10-22 08:30" },
-    { id: 102, food: "Tomato", kg: 8, total: 3840, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gasabo", status: "Delivered", farmer: "Kimironko Fresh Growers", paidBy: "MTN MoMo", gift: 77, deliveryType: "Express Moto (15m)", date: "2026-10-22 09:15" }
+    { id: 101, food: "Sweet potato", kg: 20, total: 4800, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Gisagara", status: "Delivered", farmer: "Gisagara Agrilink", paidBy: "pending_pool", deliveryType: "Free SACCO Pickup", repaid: false, date: "10:15" },
+    { id: 102, food: "Tomato", kg: 8, total: 3840, mode: "cash", buyerRole: "Shopper", buyerName: "Grace Ingabire", district: "Gasabo", status: "Delivered", farmer: "Kimironko Fresh Growers", paidBy: "MTN MoMo", gift: 77, deliveryType: "Express Moto (15m)", repaid: false, date: "09:30" },
+    { id: 103, food: "Dry beans", kg: 10, total: 7800, mode: "credit", buyerRole: "Family", buyerName: "Jean Bosco Habimana", district: "Kirehe", status: "Delivered", farmer: "Mukamana Farm", paidBy: "pool", deliveryType: "Free SACCO Pickup", repaid: false, date: "Yesterday" },
+    { id: 104, food: "Irish potato", kg: 25, total: 11000, mode: "credit", buyerRole: "Family", buyerName: "Amina Uwase", district: "Nyabihu", status: "Pending Approval", farmer: "Nyabihu Potato Coop", paidBy: "pending_approval", deliveryType: "Free SACCO Pickup", repaid: false, date: "Just now" }
   ],
-  nextOrderId: 103,
+  nextOrderId: 105,
   nextListingId: 19,
   selectedDistrict: "Gasabo",
   hotspotMode: "delay",
@@ -153,40 +157,150 @@ const DEFAULT_STATE = {
   pendingCheckoutOrder: null
 };
 
+
+const ROLES = [
+  { key: "Family", title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
+  { key: "Planner", title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
+  { key: "Farmer", title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
+  { key: "Shopper", title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
+  { key: "Admin", title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
+];
+
+
+
+
 class IsokoApp {
   constructor() {
     this.state = this.loadState();
     this.map = null;
     this.mapLayer = null;
     this.mapMetric = "priority";
+    this.geminiTargetLang = "rw";
+    this.currentStatementData = null;
   }
 
   loadState() {
     try {
-      const saved = localStorage.getItem("isoko_bridge_state_v3");
-      if (saved) return JSON.parse(saved);
+      const raw = localStorage.getItem("vup_bridge_state_v7");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        return { ...this.getInitialState(), ...parsed };
+      }
     } catch (e) {
-      console.warn("Using defaults", e);
+      console.warn("Could not load stored state:", e);
     }
-    return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    return this.getInitialState();
+  }
+
+  getInitialState() {
+    return {
+      theme: "light",
+      lang: "en", // "en", "rw", "fr"
+      user: null, // null when on first page ("Who are you?"), string = logged in email
+      pickRole: "", // "" or "member", "planner", "seller", "shopper", "admin"
+      role: "Family", // "Family", "Planner", "Farmer", "Shopper", "Admin"
+      roleCode: "member", // "member", "planner", "seller", "shopper", "admin"
+      timeframe: "month", // "week", "month", "year"
+      creditDeskTab: "all", // "all", "approve", "pay", "repay"
+      activeCategory: "All",
+      activeSubView: "dashboard", // "dashboard", "analysis", "reports", "cases", "audit"
+      nearby: {
+        userDistrict: "Gasabo",
+        userLocation: "Gasabo (Kimironko Hub)",
+        filterProximity: "all",
+        deliveryOption: "moto"
+      },
+      selectedAccountIdx: 0,
+      currentUser: {
+        name: "Amina Uwase",
+        email: "amina@vupbridge.rw",
+        role: "Family",
+        roleCode: "member",
+        district: "Kirehe",
+        sector: "Gatore",
+        programme: "Direct Support",
+        householdSize: 5,
+        usualPaymentDay: 15,
+        daysLate: 8,
+        status: "credit-ready",
+        paymentMethod: "MTN Mobile Money",
+        accountNumber: "078XXXX456",
+        holderName: "Amina Uwase",
+        confirmedBy: "Planner One",
+        consentTicked: true
+      },
+      users: JSON.parse(JSON.stringify(window.VUP_SAMPLE_USERS || {})),
+      orders: JSON.parse(JSON.stringify(window.SEED_ORDERS || [])),
+      ledger: JSON.parse(JSON.stringify(window.SEED_LEDGER || [])),
+      cases: JSON.parse(JSON.stringify(window.SEED_CASES || [])),
+      auditLog: JSON.parse(JSON.stringify(window.SEED_AUDIT_LOG || [])),
+      reports: [],
+      adminSettings: JSON.parse(JSON.stringify(window.DEFAULT_ADMIN_SETTINGS || {
+        dailyFoodCost: 261,
+        creditCapDays: 14,
+        firstCreditDays: 3,
+        poolSharePct: 2,
+        amberPoolDays: 14,
+        redPoolDays: 7,
+        amberOverduePct: 10,
+        redOverduePct: 20,
+        makeNextPaymentFail: false
+      })),
+      pool: {
+        balance: 20000,
+        totalGiftsIn: 20000,
+        totalPaidToFarmers: 16600,
+        totalRepaidByVup: 8800
+      },
+      listings: [
+        { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 200, farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false },
+        { id: 2, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 320, quantity: 350, farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+        { id: 3, food: "Irish potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 500, farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: true },
+        { id: 4, food: "Tomato", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 620, quantity: 90, farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true },
+        { id: 5, food: "Cooking banana", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 290, retailPrice: 380, quantity: 250, farmer: "Nyabugogo Agro Cooperative", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false },
+        { id: 6, food: "Onion", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 1600, retailPrice: 1950, quantity: 80, farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false },
+        { id: 7, food: "Local rice", district: "Kicukiro", hub: "Gikondo Agro-Terminal", price: 1180, retailPrice: 1380, quantity: 180, farmer: "Kigali Rice Millers", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: false },
+        { id: 8, food: "Avocado", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 280, retailPrice: 350, quantity: 120, farmer: "Kigali Agro Coop", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true },
+        { id: 9, food: "Spinach", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 60, farmer: "Nyabarongo Valley Fresh", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false },
+        { id: 10, food: "Corn flour (factory)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 960, quantity: 150, farmer: "Bugarama Grain Mills", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false },
+        { id: 11, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 400, farmer: "Ruhango Cassava Farmers", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+        { id: 12, food: "Passion fruit", district: "Musanze", hub: "Musanze Central Produce Depot", price: 950, retailPrice: 1200, quantity: 70, farmer: "Musanze Highland Fruit Coop", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: true },
+        { id: 13, food: "Tree tomatoes", district: "Burera", hub: "Burera Highland Agro-Hub", price: 880, retailPrice: 1100, quantity: 85, farmer: "Burera Tamarillo Growers", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false },
+        { id: 14, food: "Carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 450, quantity: 140, farmer: "Gicumbi Organic Valley", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false },
+        { id: 15, food: "Green cabbage", district: "Musanze", hub: "Musanze Central Produce Depot", price: 260, retailPrice: 350, quantity: 220, farmer: "Volcanoes Green Coop", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false },
+        { id: 16, food: "Green peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 850, quantity: 95, farmer: "Bugesera Irrigation Scheme", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false },
+        { id: 17, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 300, farmer: "Kayonza Grain Link", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false },
+        { id: 18, food: "Groundnuts", district: "Ngoma", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1800, quantity: 110, farmer: "Ngoma Women Agrilink", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true }
+      ],
+      nextOrderId: 107,
+      nextListingId: 19,
+      nextCaseId: 3,
+      selectedDistrict: "Gasabo",
+      hotspotMode: "delay",
+      selectedPayMethod: "momo",
+      pendingCheckoutOrder: null
+    };
   }
 
   saveState() {
     try {
-      localStorage.setItem("isoko_bridge_state_v3", JSON.stringify(this.state));
-    } catch (e) {}
-    this.updateHeaderTicker();
+      localStorage.setItem("vup_bridge_state_v7", JSON.stringify(this.state));
+    } catch (e) {
+      console.warn("Could not save state to localStorage:", e);
+    }
   }
 
   resetState() {
-    this.state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    localStorage.removeItem("vup_bridge_state_v7");
+    this.state = this.getInitialState();
     this.saveState();
     this.render();
-    this.toast("State reset to demo values.", "info");
+    this.toast("Demo state has been reset to default seeded data.", "info");
   }
 
   init() {
     this.applyTheme();
+    this.updateLangButtons();
     this.render();
   }
 
@@ -195,402 +309,2050 @@ class IsokoApp {
   }
 
   toggleTheme() {
-    this.state.theme = this.state.theme === "dark" ? "light" : "dark";
+    this.state.theme = this.state.theme === "light" ? "dark" : "light";
     this.applyTheme();
     this.saveState();
   }
 
-  toggleLang() {
-    this.state.lang = this.state.lang === "en" ? "rw" : "en";
-    const btnText = document.getElementById("langBtnText");
-    if (btnText) btnText.textContent = this.state.lang === "en" ? "EN / RW" : "RW / EN";
-    this.saveState();
-    this.render();
+  // =========================================================================
+  // TRILINGUAL LOCALIZATION (EN, RW, FR)
+  // =========================================================================
+  t(key) {
+    const lang = this.state.lang || "en";
+    if (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][key]) {
+      return window.TRANSLATIONS[lang][key];
+    }
+    if (window.TRANSLATIONS && window.TRANSLATIONS.en && window.TRANSLATIONS.en[key]) {
+      return window.TRANSLATIONS.en[key];
+    }
+    return key;
   }
 
-  goHome() {
-    this.state.currentView = "home";
+  setLanguage(lang) {
+    this.state.lang = lang;
     this.saveState();
+    this.updateLangButtons();
+    this.render();
+    const names = { en: "English", rw: "Ikinyarwanda", fr: "Français" };
+    this.toast(`Language switched to ${names[lang] || lang}`, "success");
+  }
+
+  updateLangButtons() {
+    const lang = this.state.lang || "en";
+    ["en", "rw", "fr"].forEach(l => {
+      const btn = document.getElementById("langBtn" + l.charAt(0).toUpperCase() + l.slice(1));
+      if (btn) {
+        if (l === lang) {
+          btn.classList.add("btn-primary");
+          btn.classList.remove("btn-ghost");
+        } else {
+          btn.classList.remove("btn-primary");
+          btn.classList.add("btn-ghost");
+        }
+      }
+    });
+  }
+
+  // =========================================================================
+  // 1. PROTOTYPE ENTRANCE & ROLE-BASED LOGIN FLOW (Section 3 & 17)
+  // =========================================================================
+  pickRole(roleCode) {
+    this.state.pickRole = roleCode;
     this.render();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  enterRole(role, username = null) {
-    this.state.currentView = "dashboard";
-    this.state.role = role;
-    if (username) {
-      const account = NISR_DATA.demoAccounts.find(a => a.username === username);
-      if (account) this.state.currentUser = { ...this.state.currentUser, ...account };
-    } else {
-      const account = NISR_DATA.demoAccounts.find(a => a.role === role);
-      if (account) this.state.currentUser = { ...this.state.currentUser, ...account };
-    }
-    this.saveState();
+  cancelPickRole() {
+    this.state.pickRole = "";
     this.render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    this.toast(`Viewing portal as ${this.state.currentUser.name} (${role})`, "success");
   }
 
-  setUser(username) {
-    const account = NISR_DATA.demoAccounts.find(a => a.username === username);
-    if (account) {
-      this.state.currentUser = { ...this.state.currentUser, ...account };
-      this.state.role = account.role;
-      this.state.currentView = "dashboard";
-      this.saveState();
-      this.render();
-      this.toast(`Active session: ${account.name} (${account.role})`, "success");
+  onRoleLoginUserSelected(email) {
+    const roleCode = this.state.pickRole || "member";
+    const userList = (this.state.users && this.state.users[roleCode]) || [];
+    const found = userList.find(u => u.email === email);
+    if (!found) return;
+
+    const emEl = document.getElementById("protoEmail");
+    const pwEl = document.getElementById("protoPassword");
+    if (emEl) emEl.value = found.email;
+    if (pwEl) pwEl.value = found.password;
+
+    const descEl = document.getElementById("protoUserStateDesc");
+    if (descEl) descEl.textContent = found.stateDesc || found.notes || "";
+  }
+
+  handlePrototypeLogin(event) {
+    event.preventDefault();
+    const emEl = document.getElementById("protoEmail");
+    const pwEl = document.getElementById("protoPassword");
+    const email = emEl ? emEl.value.trim() : "";
+    const pass = pwEl ? pwEl.value.trim() : "";
+
+    if (!email || !pass) {
+      this.toast("Type any email and any password. This is a prototype.", "warning");
+      return;
     }
-  }
 
-  getPriceGuide(food, price) {
-    const benchmark = NISR_DATA.foodPrices[food];
-    if (!benchmark) return { label: "Fair", class: "pill-fair", ratio: 1.0, median: price };
-    const median = benchmark.median;
-    const ratio = price / median;
-    if (ratio < 0.85) return { label: "Low", class: "pill-low", ratio, median };
-    if (ratio > 1.15) return { label: "High", class: "pill-high", ratio, median };
-    return { label: "Fair", class: "pill-fair", ratio, median };
-  }
-
-  calculateCreditLimit() {
-    const u = this.state.currentUser;
-    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf;
-    const days = Number(u.daysLate) || 0;
-    const size = Number(u.householdSize) || 1;
-    if (days <= 0) return 0;
-    return Math.round(size * dpp * days);
-  }
-
-  getOutstandingCredit() {
-    return this.state.orders
-      .filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled")
-      .reduce((sum, o) => sum + o.total, 0);
-  }
-
-  getRemainingCredit() {
-    const limit = this.calculateCreditLimit();
-    const out = this.getOutstandingCredit();
-    return Math.max(0, limit - out);
-  }
-
-
-  executeOrder(listing, qty, total, mode, paidBy, gift = 0, deliveryType = "Standard Delivery", deliveryFee = 0) {
-    listing.quantity -= qty;
-    const newOrder = {
-      id: this.state.nextOrderId++,
-      food: listing.food,
-      kg: qty,
-      total: total,
-      mode: mode,
-      buyerRole: this.state.role,
-      buyerName: this.state.currentUser.name || "Customer",
-      district: listing.district,
-      hub: listing.hub || (this.state.nearby ? this.state.nearby.userLocation : "Kimironko Hub"),
-      status: "Placed",
-      farmer: listing.farmer,
-      paidBy: paidBy,
-      gift: gift,
-      deliveryType: deliveryType,
-      deliveryFee: deliveryFee,
-      repaid: false,
-      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const roleCode = this.state.pickRole || "member";
+    const roleMap = {
+      member: "Family",
+      planner: "Planner",
+      seller: "Farmer",
+      shopper: "Shopper",
+      admin: "Admin"
     };
 
-    this.state.orders.unshift(newOrder);
+    // Check if email belongs to a sample user of a different role (Section 17.1 Rule 6)
+    for (const [rCode, uList] of Object.entries(this.state.users || {})) {
+      const matched = uList.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (matched && rCode !== roleCode) {
+        const otherRoleTitle = this.getRoleTitleByCode(rCode);
+        this.toast(`This sample user is a ${otherRoleTitle}. Go back and choose ${otherRoleTitle} to see their screens. Continuing as ${this.getRoleTitleByCode(roleCode)}.`, "info");
+      }
+    }
+
+    // Match or create user profile
+    const userList = (this.state.users && this.state.users[roleCode]) || [];
+    const existing = userList.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (existing) {
+      this.state.currentUser = { ...existing };
+      this.state.role = roleMap[roleCode] || existing.role;
+      this.state.roleCode = roleCode;
+    } else {
+      // New demo user starts at 'Add my details' if member (Section 5.1 & 17.1)
+      this.state.currentUser = {
+        name: email.split("@")[0].replace(/[._]/g, " "),
+        email: email,
+        role: roleMap[roleCode],
+        roleCode: roleCode,
+        district: "Gasabo",
+        status: roleCode === "member" ? "not_submitted" : "verified",
+        householdSize: 4,
+        daysLate: 0,
+        usualPaymentDay: 15,
+        programme: "Direct Support"
+      };
+      this.state.role = roleMap[roleCode];
+      this.state.roleCode = roleCode;
+    }
+
+    this.state.user = email;
+    this.state.pickRole = "";
+    this.state.activeSubView = "dashboard";
+
     this.saveState();
     this.render();
-
-    if (mode === "credit") {
-      this.toast(`Order #${newOrder.id} placed on Bridge Credit. Pool pays farmer on delivery.`, "success");
-    } else {
-      this.toast(`Order #${newOrder.id} paid via ${paidBy}! Delivery: ${deliveryType}`, "success");
-    }
-    return newOrder;
+    this.toast(`Logged in as ${this.getRoleTitleByCode(roleCode)} (${email})`, "success");
   }
 
-  showReceipt(order, payMethod) {
-    const modal = document.getElementById("receiptModal");
-    const paper = document.getElementById("receiptPaper");
-    if (!modal || !paper) return;
+  logout() {
+    this.state.user = null;
+    this.state.pickRole = "";
+    this.state.activeSubView = "dashboard";
+    this.saveState();
+    this.render();
+    this.toast("Logged out. Returned to role selection.", "info");
+  }
 
-    paper.innerHTML = `
-      <div style="text-align: center; margin-bottom: 12px;">
-        <h3 style="font-size: 20px; font-weight: 800; letter-spacing: 2px;">ISOKO BRIDGE</h3>
-        <small style="color: #666; font-size: 10px;">RWANDA VUP FOOD MARKETPLACE</small>
-      </div>
-      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
-      <div style="display:flex; justify-content:space-between; font-size: 11px;">
-        <span>RECEIPT NO:</span><span>#IB-2026-${order.id}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size: 11px;">
-        <span>DATE:</span><span>${new Date().toLocaleDateString('en-GB')} ${order.date}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size: 11px;">
-        <span>CUSTOMER:</span><span>${order.buyerName}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size: 11px;">
-        <span>NEARBY HUB:</span><span style="font-weight:700;">${order.hub || 'Kimironko Hub'}</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size: 11px;">
-        <span>FULFILLMENT:</span><span>${order.deliveryType || 'Direct Pickup'}</span>
-      </div>
-      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
-      <div style="display:flex; justify-content:space-between; font-size: 12px; font-weight:700;">
-        <span>${order.food} (${order.kg} kg)</span>
-        <span>${order.total.toLocaleString()} RWF</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size: 11px; color:#555;">
-        <span>Farmer: ${order.farmer}</span>
-        <span>Delivery: ${order.deliveryFee ? order.deliveryFee + ' RWF' : 'FREE'}</span>
-      </div>
-      ${order.gift ? `
-        <div style="display:flex; justify-content:space-between; font-size: 11px; color: #b45309;">
-          <span>Bridge Pool Gift:</span>
-          <span>+${order.gift.toLocaleString()} RWF</span>
+  getRoleTitleByCode(code) {
+    const lang = this.state.lang || "en";
+    const r = ROLES.find(x => x.code === code || x.key === code || (code === "member" && x.key === "Family") || (code === "seller" && x.key === "Farmer"));
+    if (!r) return code;
+    return lang === "rw" ? r.kinyTitle : lang === "fr" ? r.frTitle : r.title;
+  }
+
+  setTimeframe(tf) {
+    this.state.timeframe = tf;
+    this.saveState();
+    this.render();
+  }
+
+  setCreditDeskTab(tab) {
+    this.state.creditDeskTab = tab;
+    this.render();
+  }
+
+  // =========================================================================
+  // 2. MEMBER DETAILS & VERIFICATION FLOW (Section 5.1)
+  // =========================================================================
+  saveMemberDetails(event) {
+    event.preventDefault();
+    const u = this.state.currentUser;
+    u.name = document.getElementById("md_name").value.trim();
+    u.phone = document.getElementById("md_phone").value.trim();
+    u.district = document.getElementById("md_district").value;
+    u.sector = document.getElementById("md_sector").value.trim() || "Central";
+    u.programme = document.getElementById("md_prog").value;
+    u.householdSize = parseInt(document.getElementById("md_size").value) || 4;
+    u.usualPaymentDay = parseInt(document.getElementById("md_day").value) || 15;
+    u.consentTicked = document.getElementById("md_consent").checked;
+    u.status = "pending";
+    u.daysLate = 8; // Start demo wait
+
+    // Add to audit log
+    this.state.auditLog.unshift({
+      who: u.name,
+      action: "Submitted member details",
+      target: `${u.name} (${u.district})`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: "New VUP member application"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast("Details submitted! Status: Demo mode. Waiting for approval.", "success");
+  }
+
+  savePaymentAccount(event) {
+    event.preventDefault();
+    const u = this.state.currentUser;
+    u.paymentMethod = document.getElementById("pa_method").value;
+    u.accountNumber = document.getElementById("pa_acc").value.trim();
+    u.holderName = document.getElementById("pa_holder").value.trim();
+    u.status = "credit-ready";
+
+    this.state.auditLog.unshift({
+      who: u.name,
+      action: "Added payment account",
+      target: `${u.paymentMethod} (${u.accountNumber})`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: "Account confirmed for credit repayment"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast("Payment account confirmed! You are now credit-ready.", "success");
+  }
+
+  // Planner Approvals
+  approveMemberRequest(email) {
+    const user = this.findUserByEmail(email);
+    if (!user) return;
+    user.status = "verified";
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Approved member",
+      target: `${user.name} (${user.district})`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: "Eligibility verified against VUP register"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Approved member ${user.name}! Status changed to verified.`, "success");
+  }
+
+  rejectMemberRequest(email) {
+    const reason = prompt("Enter required reason for rejection:", "Does not match sector VUP public works attendance sheet");
+    if (!reason) return;
+    const user = this.findUserByEmail(email);
+    if (!user) return;
+    user.status = "rejected";
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Rejected member",
+      target: `${user.name}`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Member ${user.name} rejected: ${reason}`, "info");
+  }
+
+  askMemberMoreInfo(email) {
+    const note = prompt("Enter required note for more info:", "Please confirm your Umurenge SACCO book number or sector of residence.");
+    if (!note) return;
+    const user = this.findUserByEmail(email);
+    if (!user) return;
+    user.status = "needs_info";
+    user.infoNote = note;
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Requested more info",
+      target: `${user.name}`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: note
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Sent information request to ${user.name}`, "info");
+  }
+
+  findUserByEmail(email) {
+    for (const uList of Object.values(this.state.users || {})) {
+      const f = uList.find(u => u.email.toLowerCase() === email.toLowerCase());
+      if (f) return f;
+    }
+    return null;
+  }
+
+  // =========================================================================
+  // 3. CREDIT DESK 3 QUEUES CONTROLLER (Approve, Pay Sellers, Repay)
+  // =========================================================================
+  approveCredit(orderId) {
+    const o = this.state.orders.find(x => x.id === orderId);
+    if (!o) return;
+    o.status = "Placed";
+    o.creditStatus = "approved";
+    o.approvedBy = this.state.currentUser.name || "Planner One";
+    o.approvedDate = new Date().toLocaleDateString('en-GB');
+
+    this.state.auditLog.unshift({
+      who: o.approvedBy,
+      action: "Approved credit request",
+      target: `Order #${orderId} (${o.food}, ${o.total} RWF)`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: "Within household credit limit"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Order #${orderId} approved! Ready for seller delivery.`, "success");
+  }
+
+  disburseToSeller(orderId) {
+    const o = this.state.orders.find(x => x.id === orderId);
+    if (!o) return;
+
+    // Admin demo switch: 'Make the next payment fail' (Section 17.3 & 17.4)
+    if (this.state.adminSettings.makeNextPaymentFail) {
+      this.state.adminSettings.makeNextPaymentFail = false;
+      this.toast(`DEMO TRIGGER: Payment to ${o.farmer} failed (Mobile Money float timeout). Reported as Case #3 for problem report & reversal testing!`, "danger");
+      
+      // Auto-create case
+      this.state.cases.unshift({
+        id: this.state.nextCaseId++,
+        type: "payment missing",
+        createdBy: o.farmer,
+        role: "Seller",
+        linkedTransaction: `Order #${orderId}`,
+        note: `Payout of ${o.total} RWF failed at mobile money switch. Reversal required.`,
+        status: "open",
+        handler: "Planner One",
+        outcome: null,
+        createdDate: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      this.saveState();
+      this.render();
+      return;
+    }
+
+    if (this.state.pool.balance < o.total) {
+      this.toast(`Pool too low! Balance (${this.state.pool.balance.toLocaleString()} RWF) is under ${o.total.toLocaleString()} RWF. Payout blocked.`, "danger");
+      return;
+    }
+
+    this.state.pool.balance -= o.total;
+    this.state.pool.totalPaidToFarmers += o.total;
+    o.paidBy = "pool";
+    o.paid = "pool";
+    o.creditStatus = "seller_paid";
+
+    // Record in Single Ledger (Section 16.3)
+    this.state.ledger.unshift({
+      id: this.state.ledger.length + 1,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: "seller_payout",
+      from: "Revolving Pool",
+      to: o.farmer,
+      amount: o.total,
+      link: `Order #${orderId}`,
+      status: "completed",
+      paymentMethod: o.paymentMethod || "MTN Mobile Money",
+      createdBy: this.state.currentUser.name || "Planner One"
+    });
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Disbursed pool payout to seller",
+      target: `${o.farmer} (${o.total.toLocaleString()} RWF)`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: `Order #${orderId} delivered confirmed`
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Disbursed ${o.total.toLocaleString()} RWF from revolving pool to ${o.farmer}!`, "success");
+  }
+
+  settleFromVup(orderId) {
+    const o = this.state.orders.find(x => x.id === orderId);
+    if (!o) return;
+    o.repaid = true;
+    o.creditStatus = "repaid";
+    o.repaidDate = new Date().toLocaleDateString('en-GB');
+
+    this.state.pool.balance += o.total;
+    this.state.pool.totalRepaidByVup += o.total;
+
+    this.state.ledger.unshift({
+      id: this.state.ledger.length + 1,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: "repayment",
+      from: "VUP Treasury Transfer",
+      to: "Revolving Pool",
+      amount: o.total,
+      link: `Order #${orderId} Repayment`,
+      status: "completed",
+      paymentMethod: o.paymentMethod || "MTN Mobile Money",
+      createdBy: this.state.currentUser.name || "Planner One"
+    });
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Repaid credit to pool",
+      target: `Order #${orderId} (${o.buyerName})`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason: "Monthly VUP transfer wave cleared"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Order #${orderId} repaid to pool! ${o.total.toLocaleString()} RWF recovered from VUP transfer.`, "success");
+  }
+
+  writeOffCredit(orderId) {
+    const reason = prompt("Enter required reason for write-off (Section 5.5):", "Family unable to repay due to illness; absorbed by revolving pool");
+    if (!reason) return;
+
+    const o = this.state.orders.find(x => x.id === orderId);
+    if (!o) return;
+
+    o.creditStatus = "written_off";
+    o.repaid = true; // Absorbed
+
+    this.state.ledger.unshift({
+      id: this.state.ledger.length + 1,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: "write-off",
+      from: "Revolving Pool",
+      to: "Write-off Reserve",
+      amount: o.total,
+      link: `Order #${orderId}`,
+      status: "written_off",
+      paymentMethod: "Social Safety Absorbed",
+      createdBy: this.state.currentUser.name || "Planner One"
+    });
+
+    this.state.auditLog.unshift({
+      who: this.state.currentUser.name || "Planner One",
+      action: "Wrote off credit",
+      target: `Order #${orderId} (${o.buyerName})`,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      reason
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Credit #${orderId} written off and absorbed by pool. Family is never punished.`, "info");
+  }
+
+  toggleMakeNextPaymentFail() {
+    this.state.adminSettings = this.state.adminSettings || {};
+    this.state.adminSettings.makeNextPaymentFail = !this.state.adminSettings.makeNextPaymentFail;
+    this.saveState();
+    this.toast(`Next payment failure demo switch: ${this.state.adminSettings.makeNextPaymentFail ? 'ENABLED' : 'DISABLED'}`, 'info');
+    return this.state.adminSettings.makeNextPaymentFail;
+  }
+
+  // =========================================================================
+  // 4. STATEMENTS, PDF/CSV EXPORTS & PROBLEM CASES (Section 16)
+  // =========================================================================
+  openStatementModal(role = null) {
+    const r = role || this.state.role;
+    const u = this.state.currentUser;
+    const stmtNum = `STMT-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    let txs = [];
+    if (r === "Family") {
+      txs = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Family");
+    } else if (r === "Farmer") {
+      txs = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm");
+    } else if (r === "Shopper") {
+      txs = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper");
+    } else if (r === "Planner") {
+      txs = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
+    } else {
+      txs = this.state.orders;
+    }
+
+    const totalOrders = txs.length;
+    const totalAmount = txs.reduce((sum, o) => sum + o.total, 0);
+    const totalCredit = txs.filter(o => o.mode === "credit").reduce((sum, o) => sum + o.total, 0);
+    const totalRepaid = txs.filter(o => o.repaid).reduce((sum, o) => sum + o.total, 0);
+
+    this.currentStatementData = {
+      stmtNum,
+      role: r,
+      userName: u.name,
+      txs,
+      totalOrders,
+      totalAmount,
+      totalCredit,
+      totalRepaid
+    };
+
+    const modal = document.getElementById("statementModal");
+    const body = document.getElementById("statementBodyContent");
+    if (!modal || !body) return;
+
+    body.innerHTML = `
+      <div style="background:var(--bg); padding:14px; border-radius:10px; margin-bottom:14px; font-size:13px; line-height:1.5;">
+        <div style="display:flex; justify-content:space-between; font-weight:700;">
+          <span>Statement Number: <b>${stmtNum}</b></span>
+          <span>Date: <b>${new Date().toLocaleDateString('en-GB')}</b></span>
         </div>
-      ` : ''}
-      <hr style="border: 0; border-top: 1px dashed #999; margin: 8px 0;">
-      <div style="display:flex; justify-content:space-between; font-size: 15px; font-weight: 800;">
-        <span>TOTAL:</span>
-        <span>${(order.total + (order.gift || 0) + (order.deliveryFee || 0)).toLocaleString()} RWF</span>
+        <div>Account: <b>${u.name}</b> (${r}) · District: <b>${u.district || 'National'}</b></div>
+        <div>Payment Channel: <b>${u.paymentMethod || 'MTN Mobile Money'} (${u.accountNumber || '078XXXX456'})</b></div>
       </div>
-      <div style="font-size: 11px; color: #555; margin-top: 6px;">
-        PAYMENT METHOD: <b>${payMethod || 'BRIDGE POOL'}</b>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tx ID</th>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Food & Qty</th>
+              <th>Amount (RWF)</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${txs.map(o => `
+              <tr>
+                <td><b>#${o.id}</b></td>
+                <td>${o.date}</td>
+                <td><span class="pill ${o.mode === 'credit' ? 'pill-urgent' : 'pill-fair'}">${o.mode === 'credit' ? 'Bridge Credit' : 'Cash Order'}</span></td>
+                <td>${o.food} (${o.kg} kg)</td>
+                <td><b>${o.total.toLocaleString()}</b></td>
+                <td><small>${o.paymentMethod || 'MoMo'}</small></td>
+                <td>${o.status} ${o.repaid ? '✓ Repaid' : ''}</td>
+                <td>
+                  <button class="btn btn-ghost btn-sm" style="font-size:11px; padding:2px 6px; color:var(--danger);" onclick="window.app.openCaseModal('Order #${o.id}')" title="Report a problem">
+                    🚩 Report
+                  </button>
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
       </div>
-      <div class="receipt-stamp">PAID<small style="font-size:7px;display:block;">APPROVED</small></div>
-      <div style="text-align: center; margin-top: 24px; font-size: 10px; color: #888;">
-        Murakoze cyane · Supporting Rwandan Farmers & Families
+
+      <div style="display:flex; justify-content:space-between; margin-top:14px; padding-top:10px; border-top:1px solid var(--card-border); font-size:13px; font-weight:700;">
+        <span>Total Orders: ${totalOrders}</span>
+        <span>Total Amount: ${totalAmount.toLocaleString()} RWF</span>
+        <span>Credit Given: ${totalCredit.toLocaleString()} RWF</span>
+        <span>Credit Repaid: ${totalRepaid.toLocaleString()} RWF</span>
+      </div>
+
+      <div style="margin-top:14px; padding:10px; background:var(--tint); border-radius:8px; font-size:11.5px; color:var(--text-main);">
+        <b>How to read this:</b> All figures are in Rwandan Francs (RWF). Bridge credit has 0% interest and 0 fees.
+        <br>
+        <b>Report a problem:</b> Quote statement number <b>${stmtNum}</b> and the Tx ID to sector planning officers.
+        <br>
+        <b>Exported by:</b> ${r} · ${u.name} · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </div>
     `;
 
     modal.classList.add("open");
   }
 
-  deliverOrder(orderId) {
-    const order = this.state.orders.find(o => o.id === orderId);
-    if (!order || order.status === "Delivered") return;
-
-    if (order.mode === "credit") {
-      if (this.state.pool.balance < order.total) {
-        this.toast("Pool balance low. Shopper donations refill the pool.", "warning");
-        return;
-      }
-      this.state.pool.balance -= order.total;
-      this.state.pool.totalPaidToFarmers += order.total;
-      order.paidBy = "pool";
-    }
-
-    order.status = "Delivered";
-    this.saveState();
-    this.render();
-    this.toast(`Order #${orderId} marked Delivered. Farmer paid via ${order.paidBy === 'pool' ? 'Bridge Pool' : 'Buyer Cash'}.`, "success");
-  }
-
-  simulateVupRepayment() {
-    let count = 0;
-    let totalRepaid = 0;
-    this.state.orders.forEach(o => {
-      if (o.mode === "credit" && o.status === "Delivered" && !o.repaid) {
-        o.repaid = true;
-        totalRepaid += o.total;
-        count++;
-      }
-    });
-
-    if (count === 0) {
-      this.toast("No delivered credit orders pending reimbursement.", "info");
-      return;
-    }
-
-    this.state.pool.balance += totalRepaid;
-    this.state.pool.totalRepaidByVup += totalRepaid;
-    this.saveState();
-    this.render();
-    this.toast(`VUP Treasury payments arrived! ${count} family credits (${totalRepaid.toLocaleString()} RWF) repaid into social pool.`, "success");
-  }
-
-  // Handle Photo Picker for Produce Listing (Upload, Camera, or Choose Ours)
-  setListingPhoto(url) {
-    const preview = document.getElementById("listingPhotoPreview");
-    const hiddenInput = document.getElementById("new_photo_url");
-    if (preview) preview.src = url;
-    if (hiddenInput) hiddenInput.value = url;
-  }
-
-  handleCustomPhotoUpload(input) {
-    if (input.files && input.files[0]) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.setListingPhoto(e.target.result);
-        this.toast("Harvest photo attached successfully!", "success");
-      };
-      reader.readAsDataURL(input.files[0]);
-    }
-  }
-
-  addListing(event) {
-    event.preventDefault();
-    const food = document.getElementById("new_food").value;
-    const district = document.getElementById("new_district").value;
-    const price = parseFloat(document.getElementById("new_price").value);
-    const quantity = parseFloat(document.getElementById("new_qty").value);
-    const momo = document.getElementById("new_momo").value || "0788123456";
-    const photoUrl = document.getElementById("new_photo_url").value || (HARVEST_GALLERY[food] ? HARVEST_GALLERY[food].img : "");
-
-    if (!price || !quantity || price <= 0 || quantity <= 0) {
-      this.toast("Please enter a valid price and quantity.", "warning");
-      return;
-    }
-
-    const newListing = {
-      id: this.state.nextListingId++,
-      food,
-      district,
-      price,
-      quantity,
-      farmer: this.state.currentUser.name || "My Farm",
-      momo,
-      photo: photoUrl
-    };
-
-    this.state.listings.unshift(newListing);
-    this.saveState();
-    this.render();
-    const guide = this.getPriceGuide(food, price);
-    this.toast(`Produce listing added with photo! Rated ${guide.label} vs NISR median.`, "success");
-  }
-
-  updateHeaderTicker() {
-    const el = document.getElementById("poolTickerAmount");
-    if (el) el.textContent = `${this.state.pool.balance.toLocaleString()} RWF`;
-  }
-
-  toast(msg, type = "info") {
-    let container = document.getElementById("toastContainer");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "toastContainer";
-      container.className = "toast-container";
-      document.body.appendChild(container);
-    }
-    const t = document.createElement("div");
-    t.className = "toast";
-    let icon = "✓";
-    if (type === "warning") icon = "⚠️";
-    if (type === "danger") icon = "✕";
-    t.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
-    container.appendChild(t);
-    setTimeout(() => {
-      t.style.opacity = "0";
-      setTimeout(() => t.remove(), 300);
-    }, 3500);
-  }
-
-  updateSampleCalc() {
-    const daysEl = document.getElementById("sq_days");
-    const sizeEl = document.getElementById("sq_size");
-    const resEl = document.getElementById("sq_result_val");
-    const textEl = document.getElementById("sq_result_text");
-    if (!daysEl || !sizeEl || !resEl) return;
-
-    const days = parseInt(daysEl.value) || 0;
-    const size = parseInt(sizeEl.value) || 1;
-    const dpp = NISR_DATA.overall.dailyFoodBasketCostRwf;
-    const totalCredit = days > 0 ? (size * dpp * days) : 0;
-
-    resEl.textContent = `${totalCredit.toLocaleString()} RWF`;
-    if (textEl) {
-      textEl.textContent = days > 0 
-        ? `Covers ${days} days of beans, sweet potatoes & vegetables for ${size} people.` 
-        : `Payment is on time. Zero credit required.`;
-    }
-  }
-
-  render() {
-    this.updateHeaderTicker();
-    const mainEl = document.getElementById("appView");
-    if (!mainEl) return;
-
-    if (this.state.currentView === "home") {
-      mainEl.innerHTML = this.renderOpeningPage();
-      this.updateSampleCalc();
-    } else {
-      mainEl.innerHTML = this.renderDashboardWrapper();
-      if (this.state.role === "Planner") {
-        this.initPlannerVisuals();
-      } else if (this.state.role === "Farmer") {
-        this.updatePriceGuidePreview();
-      }
-    }
-  }
-
-
-
-  // =========================================================================
-  // 1. SLIDING LOGIN & SIGN UP CONTROLLER (media_1792662744651.html)
-  // =========================================================================
-  openAuthModal(mode = 'login') {
-    const modal = document.getElementById("authModal");
-    if (!modal) return;
-    this.setAuthMode(mode);
-    modal.classList.add("open");
-  }
-
-  closeAuthModal() {
-    const modal = document.getElementById("authModal");
+  closeStatementModal() {
+    const modal = document.getElementById("statementModal");
     if (modal) modal.classList.remove("open");
   }
 
-  setAuthMode(mode) {
-    const card = document.getElementById("authCardV5");
-    if (card) card.setAttribute("data-mode", mode);
+  printCurrentStatement() {
+    window.print();
   }
 
-  // As user instructed: No credentials needed! 1-click sample login
-  quickLoginSample(username) {
-    const acc = NISR_DATA.demoAccounts.find(a => a.username === username);
-    if (!acc) return;
-    this.state.currentUser = { ...this.state.currentUser, ...acc };
-    this.state.role = acc.role;
-    this.state.currentView = "dashboard";
-    this.saveState();
-    this.closeAuthModal();
-    this.render();
-    this.toast(`Welcome back, ${acc.name}! Logged in as ${acc.role}.`, "success");
+  exportCurrentStatementCsv() {
+    if (!this.currentStatementData) return;
+    const d = this.currentStatementData;
+    let csv = "Tx_ID,Date,Type,Food,Quantity_KG,Amount_RWF,Payment_Method,Status,Buyer,Seller\n";
+    d.txs.forEach(o => {
+      csv += `${o.id},"${o.date}","${o.mode}","${o.food}",${o.kg},${o.total},"${o.paymentMethod || 'MoMo'}","${o.status}","${o.buyerName}","${o.farmer}"\n`;
+    });
+
+    const dl = document.createElement("a");
+    dl.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
+    dl.setAttribute("download", `VUPBridge_${d.role}_statement_${new Date().toISOString().slice(0,10)}.csv`);
+    dl.click();
+    this.toast("Statement CSV downloaded successfully!", "success");
   }
 
-  handleAuthSubmit(event, formType) {
+  // Analysis Report Generator (Section 16.4)
+  openAnalysisReportModal() {
+    const modal = document.getElementById("analysisReportModal");
+    const container = document.getElementById("analysisReportContent");
+    if (!modal || !container) return;
+
+    const tf = this.state.timeframe || "month";
+    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
+    const totalCredit = vupOrders.reduce((sum, o) => sum + o.total, 0);
+    const repaidCredit = vupOrders.filter(o => o.repaid).reduce((sum, o) => sum + o.total, 0);
+
+    container.innerHTML = `
+      <div style="border: 1px solid #fed7d7; background:#fff5f5; padding:8px 12px; border-radius:6px; margin-bottom:14px; font-size:12px; font-weight:700; color:#991b1b;">
+        Prototype. Fake money. The NISR data shows patterns. It cannot show why a payment was late.
+      </div>
+
+      <div style="font-size:14px; margin-bottom:12px;">
+        <h2 style="font-size:22px; margin-bottom:4px;">Isoko Bridge — Executive Analysis Report</h2>
+        <div style="font-size:12.5px; color:var(--text-muted);">
+          Period: <b>${tf.toUpperCase()}</b> · Scope: <b>All VUP Families (${this.state.currentUser.district})</b> · Prepared by: <b>${this.state.currentUser.name} (Planner)</b> · Date: <b>${new Date().toLocaleDateString('en-GB')}</b>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px; font-size:13.5px; line-height:1.5;">
+        <b>One-line summary:</b> Over the ${tf}, ${vupOrders.length} VUP families used emergency bridge credit totaling ${totalCredit.toLocaleString()} RWF to purchase staple food, with ${repaidCredit.toLocaleString()} RWF repaid upon VUP disbursement waves.
+      </div>
+
+      <!-- Numbers Table -->
+      <div class="table-wrap" style="margin-bottom:14px;">
+        <table>
+          <thead>
+            <tr><th>Metric</th><th>App Value</th><th>NISR Survey Benchmark</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>National Average Payment Delay</td><td>8.0 days (active)</td><td>9.2 days (overall)</td><td><span class="pill pill-fair">Improved</span></td></tr>
+            <tr><td>Wait Over 7 Days (%)</td><td>42% in app</td><td>52% national survey</td><td><span class="pill pill-fair">Cushioned</span></td></tr>
+            <tr><td>Total Food Credit Disbursed</td><td>${totalCredit.toLocaleString()} RWF</td><td>-</td><td>Active</td></tr>
+            <tr><td>Revolving Pool Repayment Velocity</td><td>94.2% on time</td><td>-</td><td><span class="pill pill-fair">Healthy</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <h4 style="font-size:15px; font-weight:800; margin-bottom:6px;">Friction Alerts & Goulots d'étranglement:</h4>
+        <ul style="padding-left:18px; font-size:13px; line-height:1.5;">
+          <li><b>Southern Province Delay Hotspot:</b> Expanded Public Works delays average 14.6 days. Administrative muster rolls require acceleration.</li>
+          <li><b>Revolving Pool Liquidity Cushion:</b> Pool balance (${this.state.pool.balance.toLocaleString()} RWF) requires shopper refill to sustain 14-day zero-default protection.</li>
+        </ul>
+      </div>
+
+      <div style="padding:10px; background:var(--bg); border-radius:8px; font-size:11.5px; color:var(--text-muted);">
+        <b>Limits note:</b> This report shows patterns, not reasons. History in the prototype is simulated. Data sources: NISR EICV7 VUP Household Microdata (3,771 households, 15,039 people).
+      </div>
+    `;
+
+    modal.classList.add("open");
+  }
+
+  closeAnalysisReportModal() {
+    const modal = document.getElementById("analysisReportModal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  printAnalysisReport() {
+    window.print();
+  }
+
+  exportAnalysisCsv() {
+    const tf = this.state.timeframe || "month";
+    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
+    let csv = "Metric,App_Value,NISR_Benchmark\n";
+    csv += `"Average Payment Delay","8.0 days","9.2 days"\n`;
+    csv += `"Share Over 7 Days","42%","52%"\n`;
+    csv += `"Total Credit Disbursed","${vupOrders.reduce((s,o)=>s+o.total,0)} RWF","N/A"\n`;
+    csv += `"Pool Balance","${this.state.pool.balance} RWF","N/A"\n`;
+
+    const dl = document.createElement("a");
+    dl.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
+    dl.setAttribute("download", `VUPBridge_Analysis_Report_${new Date().toISOString().slice(0,10)}.csv`);
+    dl.click();
+    this.toast("Analysis CSV exported successfully!", "success");
+  }
+
+  // Problem Cases (Section 16.3)
+  openCaseModal(txRef) {
+    const modal = document.getElementById("caseModal");
+    const refEl = document.getElementById("caseTxRef");
+    const txIdEl = document.getElementById("caseTxId");
+    if (!modal || !refEl) return;
+    refEl.value = txRef;
+    if (txIdEl) txIdEl.value = txRef;
+    modal.classList.add("open");
+  }
+
+  closeCaseModal() {
+    const modal = document.getElementById("caseModal");
+    if (modal) modal.classList.remove("open");
+  }
+
+  submitProblemCase(event) {
     event.preventDefault();
-    if (formType === 'login') {
-      const u = document.getElementById("li_user").value.trim();
-      const matched = NISR_DATA.demoAccounts.find(a => a.username.toLowerCase() === u.toLowerCase() || a.name.toLowerCase().includes(u.toLowerCase()));
-      if (matched) {
-        this.quickLoginSample(matched.username);
+    const txRef = document.getElementById("caseTxRef").value;
+    const type = document.getElementById("caseTypeSelect").value;
+    const note = document.getElementById("caseNoteInput").value.trim();
+
+    if (!note) {
+      this.toast("Please enter a note explaining what happened.", "warning");
+      return;
+    }
+
+    const newCase = {
+      id: this.state.nextCaseId++,
+      type,
+      createdBy: this.state.currentUser.name || "User",
+      role: this.state.role,
+      linkedTransaction: txRef,
+      note,
+      status: "open",
+      handler: "Planner One",
+      outcome: null,
+      createdDate: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    this.state.cases.unshift(newCase);
+    this.closeCaseModal();
+    this.saveState();
+    this.render();
+    this.toast(`Problem report submitted! Case #${newCase.id} created for planner review.`, "success");
+  }
+
+  resolveCase(caseId, outcome) {
+    const c = this.state.cases.find(x => x.id === caseId);
+    if (!c) return;
+    c.status = outcome === "rejected" ? "rejected" : "resolved";
+    c.outcome = outcome;
+    c.resolvedDate = new Date().toLocaleDateString('en-GB');
+
+    this.saveState();
+    this.render();
+    this.toast(`Case #${caseId} marked ${c.status} (${outcome}).`, "success");
+  }
+
+  // =========================================================================
+  // 5. GEMINI AI TRANSLATION & PLAIN-LANGUAGE INTELLIGENCE
+  // =========================================================================
+  openGeminiModal() {
+    const m = document.getElementById("geminiModal");
+    if (m) m.classList.add("open");
+  }
+
+  closeGeminiModal() {
+    const m = document.getElementById("geminiModal");
+    if (m) m.classList.remove("open");
+  }
+
+  updateGeminiTargetLang(lang) {
+    this.geminiTargetLang = lang;
+  }
+
+  async runGeminiTranslate() {
+    const inputEl = document.getElementById("geminiTextInput");
+    const outCard = document.getElementById("geminiOutputCard");
+    const outText = document.getElementById("geminiOutputText");
+    if (!inputEl || !outCard || !outText) return;
+
+    const query = inputEl.value.trim();
+    if (!query) {
+      this.toast("Please type or paste some text to translate.", "warning");
+      return;
+    }
+
+    outCard.style.display = "block";
+    outText.innerHTML = '<span class="dot-pulse"></span> <i>Translating with Google Gemini AI multilingual engine…</i>';
+
+    const target = this.geminiTargetLang || "rw";
+    const res = await window.geminiEngine.translateText(query, target);
+    outText.textContent = res;
+  }
+
+  applyWholePageTranslation() {
+    const target = this.geminiTargetLang || "rw";
+    this.setLanguage(target);
+    this.closeGeminiModal();
+  }
+
+  listenToTranslation() {
+    const outText = document.getElementById("geminiOutputText");
+    if (!outText || !outText.textContent) {
+      this.toast("Translate some text first to listen.", "info");
+      return;
+    }
+    if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(outText.textContent);
+      u.lang = this.geminiTargetLang === 'fr' ? 'fr-FR' : 'en-US';
+      window.speechSynthesis.speak(u);
+    } else {
+      this.toast("Speech synthesis not supported in this browser.", "warning");
+    }
+  }
+
+  useGeminiPrompt(promptKey) {
+    const inputEl = document.getElementById("geminiTextInput");
+    if (!inputEl) return;
+    const prompts = {
+      sobanura: "Sobanura uko Ikiraro cya VUP gifasha imiryango ibiryo byayo byatinda.",
+      "crédit vup": "Comment le crédit d'urgence Isoko Bridge protège les familles bénéficiaires VUP ?",
+      "farmer sell": "How do Rwandan smallholder farmers list crops and verify fair NISR prices?",
+      "shopper donation": "How does an ethical shopper subsidize child food security in Rwanda?",
+      "delay nisr": "Why are government VUP payments delayed according to NISR survey data?"
+    };
+    inputEl.value = prompts[promptKey] || promptKey;
+    this.runGeminiTranslate();
+  }
+
+  copyGeminiResult() {
+    const outText = document.getElementById("geminiOutputText");
+    if (outText && outText.textContent) {
+      navigator.clipboard.writeText(outText.textContent).then(() => {
+        this.toast("Translation copied to clipboard!", "success");
+      });
+    }
+  }
+
+  toggleGeminiApiKeyPrompt() {
+    const cur = localStorage.getItem("isoko_gemini_api_key") || "";
+    const key = prompt("Enter your Google Gemini API Key (optional - built-in offline engine active by default):", cur);
+    if (key !== null) {
+      localStorage.setItem("isoko_gemini_api_key", key.trim());
+      if (window.geminiEngine) window.geminiEngine.apiKey = key.trim();
+      this.toast(key.trim() ? "Gemini API key saved!" : "Using default built-in AI engine.", "info");
+    }
+  }
+
+  // Section 8 System Prompt compliance
+  explainNumbersInEasyWords(topic) {
+    const lang = this.state.lang || "en";
+    let text = "";
+    if (topic === "delay") {
+      if (lang === "rw") {
+        text = "1) Incamake: Abaturage 52 ku 100 bategereza hejuru y'icyumweru. 2) Ibigenda neza: Amasoko y'ibiribwa akora neza mu turere twose. 3) Ibidakora neza: Mu Majyepfo no mu Burasirazuba amafaranga atinda iminsi 14. 4) Icyo gukora: Gusuzuma impamvu zishoboka zo gutinda muri SACCO.";
+      } else if (lang === "fr") {
+        text = "1) Résumé : 52 % des familles attendent plus d'une semaine. 2) Ce qui va bien : Le marché vivrier approvisionne tous les districts. 3) Ce qui ne va pas : Dans le Sud et l'Est, les retards atteignent 14 jours. 4) Que vérifier ensuite : Raison possible liée aux validations manuelles, à vérifier auprès des SACCOs.";
       } else {
-        // Fallback default
-        this.state.currentUser.name = u || "Demo User";
-        this.state.currentView = "dashboard";
-        this.saveState();
-        this.closeAuthModal();
-        this.render();
-        this.toast(`Signed in as ${this.state.currentUser.name} (${this.state.role})`, "success");
+        text = "1) One-line summary: 52 out of 100 families wait over a week for VUP payments. 2) What is going well: Food markets in all districts are stocked and active. 3) What is not going well: Southern Province Expanded Public Works delays reach 14.6 days. 4) What to check next: Possible reason: manual muster roll auditing; check sector social officers.";
+      }
+    } else if (topic === "queues") {
+      if (lang === "rw") {
+        text = "1) Incamake: Amatsinda 3 arinda amafaranga y'ikigega. 2) Ibigenda neza: Abahinzi bishyurwa ako kanya bimaze kugezwa ku muryango. 3) Ibidakora neza: Inguzanyo 1 iracyari mu kirarane. 4) Icyo gukora: Kumenyesha SACCO igihe cyo kugarura amafaranga.";
+      } else if (lang === "fr") {
+        text = "1) Résumé : Les 3 files protègent l'argent sans fuite financière. 2) Ce qui va bien : Les agriculteurs sont payés dès livraison. 3) Ce qui ne va pas : 1 crédit est en retard de remboursement. 4) Que vérifier ensuite : Date de virement VUP auprès de la banque relais.";
+      } else {
+        text = "1) One-line summary: The 3 queues track approvals, farmer payouts, and VUP repayments with zero leakage. 2) What is going well: Sellers receive mobile money float upon delivery. 3) What is not going well: 1 credit is overdue. 4) What to check next: Possible reason: delayed sector bank transfer; verify with district planner.";
       }
     } else {
-      const u = document.getElementById("su_user").value.trim();
-      const role = document.getElementById("su_role").value;
-      this.state.currentUser.name = u || "New Member";
-      this.state.role = role;
-      this.state.currentView = "dashboard";
-      this.saveState();
-      this.closeAuthModal();
-      this.render();
-      this.toast(`Account created! Logged in as ${role}.`, "success");
+      if (lang === "rw") {
+        text = "1) Incamake: Ikigega kirimo 20,000 RWF yo gutabara imiryango. 2) Ibigenda neza: Abaguzi batanze inkunga yo kucyunganira. 3) Ibidakora neza: Aho ibiribwa bikenewe cyane hasaba amafaranga yiyongereye. 4) Icyo gukora: Gushishikariza abaguzi kongera inkunga y'ubushake.";
+      } else if (lang === "fr") {
+        text = "1) Résumé : Le fonds dispose de 20 000 RWF pour nourrir les familles en attente. 2) Ce qui va bien : Les dons des acheteurs solidaires renflouent le pool. 3) Ce qui ne va pas : La réserve doit atteindre 45 000 RWF pour couvrir le pic de retard. 4) Que vérifier ensuite : Augmenter la participation citoyenne solidaire.";
+      } else {
+        text = "1) One-line summary: The revolving pool holds 20,000 RWF to feed waiting households. 2) What is going well: Shopper donations provide continuous replenishment. 3) What is not going well: Liquidity in high-delay districts needs a 45,000 RWF cushion. 4) What to check next: Possible reason: higher demand during rainy season; check seller stock.";
+      }
+    }
+
+    const box = document.getElementById("aiExplainerResult");
+    if (box) {
+      box.style.display = "block";
+      box.innerHTML = `
+        <div style="font-weight:700; color:#7e22ce; margin-bottom:4px; font-size:12.5px;">✨ Gemini AI Explainer (${lang.toUpperCase()}):</div>
+        <div style="font-size:13.5px; line-height:1.5;">${text}</div>
+      `;
+    } else {
+      alert(text);
     }
   }
 
   // =========================================================================
-  // 2. UNIVERSAL LOCATION & PROXIMITY FILTERING ("The Place You Are")
+  // 6. MAIN APPLICATION RENDER ROUTER
+  // =========================================================================
+  render() {
+    this.updateHeaderTicker();
+    this.renderHeaderNavActions();
+
+    const mainEl = document.getElementById("appView");
+    if (!mainEl) return;
+
+    if (this.state.user) {
+      // User is logged in to a specific role screen
+      if (this.state.activeSubView === "analysis") {
+        mainEl.innerHTML = this.renderDashboardTopbar() + this.renderAnalysisView();
+        this.initPlannerVisuals();
+      } else {
+        mainEl.innerHTML = this.renderDashboardTopbar() + this.renderRoleScreen();
+        if (this.state.role === "Planner" || this.state.role === "Admin") {
+          this.initPlannerVisuals();
+        } else if (this.state.role === "Farmer") {
+          this.updatePriceGuidePreview();
+        }
+      }
+    } else if (this.state.pickRole !== "") {
+      // User selected a role on first page, now on login page
+      mainEl.innerHTML = this.renderLoginView();
+    } else {
+      // First Page: "Who are you?" with 5 big buttons, VUP calendar, proximity, harvest
+      mainEl.innerHTML = this.renderWhoAreYouView();
+    }
+  }
+
+  updateHeaderTicker() {
+    const amtEl = document.getElementById("poolTickerAmount");
+    const lblEl = document.getElementById("poolTickerLabel");
+    if (amtEl) amtEl.textContent = `${this.state.pool.balance.toLocaleString()} RWF`;
+    if (lblEl) lblEl.textContent = this.t("poolTickerLabel");
+  }
+
+  renderHeaderNavActions() {
+    const slot = document.getElementById("headerUserAuthSlot");
+    if (!slot) return;
+
+    if (this.state.user) {
+      slot.innerHTML = `
+        <div style="display:inline-flex; align-items:center; gap:8px; margin-left:6px;">
+          <span style="font-size:12.5px; color:var(--text-main);">
+            <span style="color:var(--text-muted);">${this.state.user}</span> · 
+            <b style="color:var(--primary);">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</b>
+          </span>
+          <button class="btn btn-sm btn-outline" style="padding:3px 10px; font-size:11px;" onclick="window.app.logout()">
+            ${this.state.lang === 'rw' ? 'Gusohoka' : this.state.lang === 'fr' ? 'Déconnexion' : 'Log out'}
+          </button>
+        </div>
+      `;
+    } else {
+      slot.innerHTML = `
+        <button class="btn btn-sm btn-primary" style="margin-left:6px; font-size:12px; font-weight:700;" onclick="window.app.pickRole('member')">
+          ${this.state.lang === 'rw' ? 'Injira' : this.state.lang === 'fr' ? 'Connexion' : 'Log In'}
+        </button>
+      `;
+    }
+  }
+
+  // =========================================================================
+  // 7. FIRST PAGE: "WHO ARE YOU?" (5 BIG BUTTONS)
+  // =========================================================================
+  renderWhoAreYouView() {
+    const lang = this.state.lang || "en";
+    const title = lang === 'rw' ? "Uri nde?" : lang === 'fr' ? "Qui êtes-vous ?" : "Who are you?";
+    const sub = lang === 'rw' 
+      ? "Hitamo uruhare rwawe. Hanyuma urinjira mu buryo bworoshye." 
+      : lang === 'fr' 
+      ? "Choisissez votre rôle. Ensuite, vous vous connecterez." 
+      : "Choose your role. Then you will log in.";
+
+    const rolesList = [
+      { code: "member", key: "Family", title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
+      { code: "planner", key: "Planner", title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
+      { code: "seller", key: "Farmer", title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
+      { code: "shopper", key: "Shopper", title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
+      { code: "admin", key: "Admin", title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
+    ];
+
+    return `
+      <!-- First Page: Who are you? -->
+      <div style="margin-bottom: 24px;">
+        <h2 style="font-size: 28px; font-weight:800; margin-bottom: 4px;">${title}</h2>
+        <p class="sub" style="font-size: 15px; margin-bottom: 16px; color:var(--text-muted);">${sub}</p>
+
+        <!-- 5 Big Role Buttons matching Reference App -->
+        <div class="pick">
+          ${rolesList.map(r => {
+            const rTitle = lang === 'rw' ? r.kinyTitle : lang === 'fr' ? r.frTitle : r.title;
+            const rLine = lang === 'rw' ? r.kinyLine : lang === 'fr' ? r.frLine : r.line;
+            return `
+              <button class="pk" onclick="window.app.pickRole('${r.code}')">
+                <b>
+                  ${rTitle}
+                  <span class="pk-badge">${r.code === 'admin' ? 'Audit' : r.key}</span>
+                </b>
+                <span>${rLine}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+      </div>
+
+      <!-- Rwanda VUP Payment Dates & Delay Calendar -->
+      ${this.renderVupDateCard()}
+
+      <!-- Universal Location & Proximity Bar ("The Place You Are Right Now") -->
+      ${this.renderNearbyBar()}
+
+      <!-- Fresh Harvest Catalog with 18 Productions, Real Photos & Distance -->
+      <div id="harvestMarketSection" style="margin-bottom: 28px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size: 20px; font-weight:800;">${this.t('catalogTitle')}</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">${this.t('catalogSub')}</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="pill pill-fair">${this.t('catalogCountBadge')}</span>
+            <span class="pill pill-neutral">${this.t('catalogMedianBadge')}</span>
+          </div>
+        </div>
+
+        <!-- Category Strip -->
+        <div class="category-strip" style="margin-bottom:14px;">
+          ${["All", "Pulses", "Staples", "Vegetables", "Grains", "Fruits"].map(cat => `
+            <button class="category-pill ${this.state.activeCategory === cat ? 'active' : ''}" 
+              onclick="window.app.state.activeCategory = '${cat}'; window.app.render();">
+              ${cat === 'All' ? '🧺' : cat === 'Pulses' ? '🫘' : cat === 'Staples' ? '🥔' : cat === 'Vegetables' ? '🥦' : cat === 'Grains' ? '🌽' : '🥑'}
+              ${this.t('cat' + cat)}
+            </button>
+          `).join("")}
+        </div>
+
+        ${this.renderGroceryCatalog('cash')}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 8. ROLE LOGIN VIEW WITH SAMPLE DROPDOWN (Section 17.1)
+  // =========================================================================
+  renderLoginView() {
+    const roleCode = this.state.pickRole || "member";
+    const userList = (this.state.users && this.state.users[roleCode]) || [];
+    const firstUser = userList[0] || { email: "demo@vupbridge.rw", password: "demo1234", stateDesc: "Standard demo profile" };
+
+    const lang = this.state.lang || "en";
+    const rTitle = this.getRoleTitleByCode(roleCode);
+
+    const headerText = lang === 'rw' 
+      ? `Injira nka ${rTitle}` 
+      : lang === 'fr' 
+      ? `Connexion en tant que ${rTitle}` 
+      : `Log in as ${rTitle}`;
+
+    const protoNotice = lang === 'rw' 
+      ? "<b>Urugero rw'Ikoranabuhanga:</b> Andika imeli n'ijambo ry'ibanga iryo ari ryo ryose. Nta kigenzurwa." 
+      : lang === 'fr' 
+      ? "<b>Prototype :</b> saisissez n'importe quel e-mail et mot de passe. Aucun contrôle n'est effectué." 
+      : "<b>Prototype:</b> type any email and any password. Nothing is checked.";
+
+    return `
+      <div style="max-width: 540px; margin: 30px auto;">
+        <h2 style="font-size: 26px; font-weight:800; margin-bottom: 8px;">${headerText}</h2>
+        <div class="sim">${protoNotice}</div>
+
+        <div class="card" style="padding: 24px;">
+          <!-- Section 17.1: Sample login dropdown for this role -->
+          <div style="margin-bottom:16px; background:var(--bg); padding:10px 12px; border-radius:8px; border:1px solid var(--card-border);">
+            <label style="font-size:12px; font-weight:700; color:var(--text-main); display:block; margin-bottom:4px;">
+              Sample login for this role (Choose another sample user):
+            </label>
+            <select class="form-control" style="font-size:13px; font-weight:600;" onchange="window.app.onRoleLoginUserSelected(this.value)">
+              ${userList.map(u => `
+                <option value="${u.email}">${u.name} — ${u.email} (${u.stateDesc || u.sells || u.notes || ''})</option>
+              `).join("")}
+            </select>
+            <div id="protoUserStateDesc" style="font-size:11.5px; color:var(--primary); margin-top:4px; font-weight:600;">
+              ${firstUser.stateDesc || firstUser.notes || ''}
+            </div>
+          </div>
+
+          <form onsubmit="window.app.handlePrototypeLogin(event)">
+            <div class="form-group">
+              <label class="form-label" style="font-weight:700;">Email</label>
+              <input id="protoEmail" type="email" class="form-control" value="${firstUser.email}" style="font-size:15px; padding:10px;" required>
+            </div>
+
+            <div class="form-group" style="margin-top:14px;">
+              <label class="form-label" style="font-weight:700;">Password</label>
+              <input id="protoPassword" type="password" class="form-control" value="${firstUser.password}" style="font-size:15px; padding:10px;" required>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:22px;">
+              <button type="submit" class="btn btn-primary btn-lg" style="flex:1; font-weight:800;">
+                Log in
+              </button>
+              <button type="button" class="btn btn-outline btn-lg" onclick="window.app.cancelPickRole()">
+                ← Back
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 9. LOGGED-IN DASHBOARD TOPBAR
+  // =========================================================================
+  renderDashboardTopbar() {
+    const lang = this.state.lang || "en";
+    const logoutTxt = lang === 'rw' ? 'Gusohoka' : lang === 'fr' ? 'Déconnexion' : 'Log out';
+    const backTxt = lang === 'rw' ? '← Ahabanza' : lang === 'fr' ? '← Accueil' : '← Home';
+
+    return `
+      <div class="dashboard-topbar" style="margin-bottom:18px;">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap:wrap;">
+          <button class="back-home-btn" onclick="window.app.logout()">
+            ${backTxt}
+          </button>
+          <div style="font-size: 13.5px;">
+            ${this.state.user} · <b style="color: var(--primary); text-transform: uppercase;">${this.getRoleTitleByCode(this.state.roleCode || 'member')}</b>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap:wrap;">
+          <button class="btn btn-sm ${this.state.roleCode === 'member' && this.state.activeSubView === 'dashboard' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.state.role='Family'; window.app.state.roleCode='member'; window.app.state.activeSubView='dashboard'; window.app.render();">👨‍👩‍👧 Member</button>
+          <button class="btn btn-sm ${this.state.roleCode === 'planner' && this.state.activeSubView === 'dashboard' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.state.role='Planner'; window.app.state.roleCode='planner'; window.app.state.activeSubView='dashboard'; window.app.render();">📊 Planner</button>
+          <button class="btn btn-sm ${this.state.roleCode === 'seller' && this.state.activeSubView === 'dashboard' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.state.role='Farmer'; window.app.state.roleCode='seller'; window.app.state.activeSubView='dashboard'; window.app.render();">🌾 Seller</button>
+          <button class="btn btn-sm ${this.state.roleCode === 'shopper' && this.state.activeSubView === 'dashboard' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.state.role='Shopper'; window.app.state.roleCode='shopper'; window.app.state.activeSubView='dashboard'; window.app.render();">🛒 Shopper</button>
+          <button class="btn btn-sm ${this.state.roleCode === 'admin' && this.state.activeSubView === 'dashboard' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.state.role='Admin'; window.app.state.roleCode='admin'; window.app.state.activeSubView='dashboard'; window.app.render();">🏛️ Admin</button>
+          <button class="btn btn-sm ${this.state.activeSubView === 'analysis' ? 'btn-primary' : 'btn-ghost'}" style="border:1px solid var(--card-border);" onclick="window.app.state.activeSubView='analysis'; window.app.render();">🗺️ Analysis & GIS</button>
+          <button class="btn btn-sm btn-outline" style="border-color:#7e22ce; color:#7e22ce;" onclick="window.app.openGeminiModal()">✨ AI</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.logout()">${logoutTxt}</button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderRoleScreen() {
+    if (this.state.role === "Family" || this.state.roleCode === "member") return this.renderFamilyView();
+    if (this.state.role === "Planner" || this.state.roleCode === "planner") return this.renderPlannerView();
+    if (this.state.role === "Farmer" || this.state.roleCode === "seller") return this.renderFarmerView();
+    if (this.state.role === "Shopper" || this.state.roleCode === "shopper") return this.renderShopperView();
+    if (this.state.role === "Admin" || this.state.roleCode === "admin") return this.renderAdminView();
+    return this.renderFamilyView();
+  }
+
+  // =========================================================================
+  // 10. MEMBER SCREENS (Section 5.1 & 6.2)
+  // =========================================================================
+  renderFamilyView() {
+    const u = this.state.currentUser;
+
+    // Flow 5.1: If member has not submitted details
+    if (u.status === "not_submitted") {
+      return `
+        <h2>${this.t('roleFamilyTitle')}</h2>
+        <div class="card" style="padding:22px;">
+          <h3>Add my details (VUP Verification)</h3>
+          <p class="small" style="margin-bottom:14px;">Enter your household details for VUP assistance verification. Do not enter a national ID number.</p>
+          <form onsubmit="window.app.saveMemberDetails(event)">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input id="md_name" type="text" class="form-control" value="${u.name}" required>
+            </div>
+            <div class="grid grid-cols-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label class="form-label">Phone Number (Masked)</label>
+                <input id="md_phone" type="text" class="form-control" value="078XXXX456" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">District Location</label>
+                <select id="md_district" class="form-control">
+                  ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name} (${d.province})</option>`).join("")}
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label class="form-label">Sector</label>
+                <input id="md_sector" type="text" class="form-control" value="Central Sector" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">VUP Programme</label>
+                <select id="md_prog" class="form-control">
+                  ${NISR_DATA.programmes.map(p => `<option value="${p.name}">${p.name}</option>`).join("")}
+                  <option value="Financial Services">Financial Services</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2" style="margin-bottom:0;">
+              <div class="form-group">
+                <label class="form-label">People at Home</label>
+                <input id="md_size" type="number" min="1" max="15" class="form-control" value="5" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Usual Payment Day</label>
+                <input id="md_day" type="number" min="1" max="31" class="form-control" value="15" required>
+              </div>
+            </div>
+            <div style="margin: 12px 0;">
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+                <input type="checkbox" id="md_consent" required checked>
+                <span>I agree to the credit rules and to repay credit from my VUP payment.</span>
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;">Submit Verification Request</button>
+          </form>
+        </div>
+      `;
+    }
+
+    // Flow 5.1: If pending
+    if (u.status === "pending") {
+      return `
+        <h2>${this.t('roleFamilyTitle')}</h2>
+        <div class="banner-notice info">
+          <div style="font-size:24px;">⏳</div>
+          <div>
+            <b>Demo mode. Waiting for approval.</b>
+            <div style="font-size:13px; margin-top:2px;">
+              Your details have been submitted. Log in as <b>Planner</b> to approve this request live, or browse the produce market below.
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Browse Produce Market</h3>
+          ${this.renderGroceryCatalog('cash')}
+        </div>
+      `;
+    }
+
+    // Flow 5.1: If verified, needs payment account
+    if (u.status === "verified") {
+      return `
+        <h2>${this.t('roleFamilyTitle')}</h2>
+        <div class="banner-notice info">
+          <div style="font-size:24px;">✅</div>
+          <div>
+            <b>Request Approved! Please add your payment account.</b>
+            <div style="font-size:13px; margin-top:2px;">
+              To open bridge credit, confirm your VUP disbursement payment channel.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:22px;">
+          <h3>Add my payment account</h3>
+          <form onsubmit="window.app.savePaymentAccount(event)">
+            <div class="form-group">
+              <label class="form-label">Payment Method</label>
+              <select id="pa_method" class="form-control">
+                <option value="MTN Mobile Money">MTN Mobile Money</option>
+                <option value="Airtel Money">Airtel Money</option>
+                <option value="Umurenge SACCO">Umurenge SACCO</option>
+                <option value="Bank transfer">Bank transfer (BK)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account or Phone Number (Masked)</label>
+              <input id="pa_acc" type="text" class="form-control" value="078XXXX456" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Account Holder Name</label>
+              <input id="pa_holder" type="text" class="form-control" value="${u.name}" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; margin-top:10px;">Confirm Payment Account & Open Credit</button>
+          </form>
+        </div>
+      `;
+    }
+
+    // Credit-ready member
+    const limit = this.calculateCreditLimit();
+    const remaining = this.getRemainingCredit();
+    const isLate = Number(u.daysLate) > 0;
+    const dailyCost = (Number(u.householdSize) || 1) * this.state.adminSettings.dailyFoodCost;
+    const familyOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerEmail === u.email || o.buyerRole === "Family");
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+        <h2>${this.t('roleFamilyTitle')}</h2>
+        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Family')">
+          🧾 Download My Statement (PDF/CSV)
+        </button>
+      </div>
+
+      <div class="banner-notice ${isLate ? 'danger' : 'info'}">
+        <div style="font-size: 24px;">${isLate ? '🚨' : '✅'}</div>
+        <div>
+          <b>${isLate ? `Disbursement Delay: Payment is ${u.daysLate} days late.` : 'Payment on schedule.'}</b>
+          <div style="font-size: 13px; margin-top: 2px;">
+            ${isLate 
+              ? `Your emergency Bridge Credit is active. Order nutritious staple food now; the pool pays the farmer first, and the credit is repaid when your VUP transfer arrives.` 
+              : `VUP assistance is up to date. You can purchase fresh produce with cash.`}
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>My VUP payment</h3>
+        <div class="grid grid-cols-3" style="margin-bottom:0;">
+          <div>
+            <label class="form-label">Programme</label>
+            <select class="form-control" onchange="window.app.state.currentUser.programme = this.value; window.app.saveState(); window.app.render();">
+              ${NISR_DATA.programmes.map(p => `
+                <option value="${p.name}" ${u.programme === p.name ? 'selected' : ''}>${p.name}</option>
+              `).join("")}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">People at home</label>
+            <input type="number" min="1" max="15" class="form-control" value="${u.householdSize || 5}" 
+              onchange="window.app.state.currentUser.householdSize = +this.value || 1; window.app.saveState(); window.app.render();">
+          </div>
+          <div>
+            <label class="form-label">Days late (${u.daysLate} d)</label>
+            <input type="range" min="0" max="30" value="${u.daysLate}" 
+              oninput="window.app.state.currentUser.daysLate = +this.value; window.app.saveState(); window.app.render();" style="width:100%;">
+          </div>
+        </div>
+
+        <div class="stats" style="margin-top:14px;">
+          <div class="stat"><b>${isLate ? 'Late' : 'On time'}</b><span>payment status</span></div>
+          <div class="stat"><b style="color:var(--primary);">${remaining.toLocaleString()} RWF</b><span>bridge credit left</span></div>
+          <div class="stat"><b>${dailyCost.toLocaleString()} RWF</b><span>basket cost per day</span></div>
+        </div>
+      </div>
+
+      <!-- Budget Meal Ideas (Section 6.2: cost only, no calorie claims) -->
+      <div class="card" style="background:var(--bg);">
+        <h4 style="font-size:14px; margin-bottom:6px;">🍲 Budget Meal Ideas (NISR Cost Guide)</h4>
+        <div style="font-size:12.5px; color:var(--text-muted); line-height:1.5;">
+          Based on 261 RWF/person/day: 120g dry beans (96 RWF), 300g sweet potato (75 RWF), 80g tomato (40 RWF), 30g onion (50 RWF). Cost per household of 5: <b>${(dailyCost).toLocaleString()} RWF / day</b>.
+        </div>
+      </div>
+
+      <!-- Proximity Locator -->
+      ${this.renderNearbyBar()}
+
+      <!-- Produce Market -->
+      <div class="card">
+        <h3>🛒 Buy Food</h3>
+        ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
+      </div>
+
+      <!-- Orders -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>📋 My Orders & Credit</h3>
+          <button class="btn btn-sm btn-ghost" onclick="window.app.openStatementModal('Family')">Download CSV / PDF</button>
+        </div>
+        ${this.renderOrdersTable(familyOrders)}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 11. PLANNER DASHBOARD (ICON-FIRST, ONLY VUP FAMILIES, 3 QUEUES, ALERTS)
+  // =========================================================================
+  renderPlannerView() {
+    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
+    const creditOrders = vupOrders.filter(x => x.mode === "credit");
+    const totalCredit = creditOrders.reduce((sum, x) => sum + x.total, 0);
+    const outstanding = this.getOutstandingCredit();
+
+    const tf = this.state.timeframe || "month";
+    const tfMult = tf === "week" ? 0.25 : tf === "year" ? 12 : 1;
+
+    // Approvals queue
+    const pendingMembers = [];
+    for (const u of Object.values(this.state.users?.member || [])) {
+      if (u.status === "pending") pendingMembers.push(u);
+    }
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+        <h2>${this.t('rolePlannerTitle')}</h2>
+        
+        <div style="display:flex; gap:8px; align-items:center;">
+          <!-- Time switch (1 week, 1 month, 1 year) -->
+          <div class="timeframe-bar">
+            <button class="${tf === 'week' ? 'active' : ''}" onclick="window.app.setTimeframe('week')" title="1 week timeframe">1 Week</button>
+            <button class="${tf === 'month' ? 'active' : ''}" onclick="window.app.setTimeframe('month')" title="1 month timeframe">1 Month</button>
+            <button class="${tf === 'year' ? 'active' : ''}" onclick="window.app.setTimeframe('year')" title="1 year timeframe">1 Year</button>
+          </div>
+
+          <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()" title="Generate analysis report">
+            📄 Make Analysis Report
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
+            📥 Export VUP Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Icon-First Top Row: 5 Cards (Section 6.5) -->
+      <div class="stats">
+        <div class="stat" title="VUP families in the app. Tap to see the list">
+          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">👥 Families</div>
+          <b>${Math.round(6 * tfMult)}</b>
+          <span>verified & pending</span>
+        </div>
+        <div class="stat" title="Families whose VUP payment is late today">
+          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">⏰ Late payments</div>
+          <b style="color:var(--danger);">${Math.round(4 * tfMult)}</b>
+          <span>avg 9.2 days late</span>
+        </div>
+        <div class="stat" title="Food credit families have used. Tap to open the credit desk">
+          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">💳 Credit</div>
+          <b style="color:var(--primary);">${Math.round(totalCredit * tfMult).toLocaleString()} RWF</b>
+          <span>${outstanding.toLocaleString()} RWF open</span>
+        </div>
+        <div class="stat" title="Money available to pay sellers while payments are late">
+          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">🏦 Pool</div>
+          <b>${this.state.pool.balance.toLocaleString()} RWF</b>
+          <span>${Math.round(this.state.pool.balance / (5 * 261))} days food cover</span>
+        </div>
+        <div class="stat" title="Things that are not going well">
+          <div style="font-size:12px; color:var(--text-muted); font-weight:700;">🚨 Alerts</div>
+          <b style="color:var(--danger);">3 alerts</b>
+          <span>active problems</span>
+        </div>
+      </div>
+
+      <!-- "What is not going well" Alerts Box (Section 7.3) -->
+      ${this.renderAlertsBox()}
+
+      <!-- Gemini AI Helper Card (Section 8: 4-part answers) -->
+      ${this.renderAiHelperCard()}
+
+      <!-- Member Approvals Queue (Section 5.1: Live Approval for Judges) -->
+      <div class="card" style="border-left: 4px solid var(--primary);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div>
+            <h3 style="font-size:17px; font-weight:800;">✅ Member Approvals Queue (${pendingMembers.length} pending)</h3>
+            <div style="font-size:12px; color:var(--text-muted);">New VUP family verification requests awaiting planner review:</div>
+          </div>
+          <span class="pill pill-urgent">Live Judge Action</span>
+        </div>
+
+        ${pendingMembers.length ? `
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Family Name</th><th>Email</th><th>District</th><th>Programme</th><th>Household</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                ${pendingMembers.map(m => `
+                  <tr>
+                    <td><b>${m.name}</b></td>
+                    <td>${m.email}</td>
+                    <td>${m.district} (${m.sector || 'Sector'})</td>
+                    <td>${m.programme}</td>
+                    <td>${m.householdSize} people</td>
+                    <td>
+                      <div style="display:flex; gap:4px;">
+                        <button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.approveMemberRequest('${m.email}')">Approve</button>
+                        <button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:11px;" onclick="window.app.askMemberMoreInfo('${m.email}')">Ask Info</button>
+                        <button class="btn btn-sm btn-ghost" style="padding:2px 8px; font-size:11px; color:var(--danger);" onclick="window.app.rejectMemberRequest('${m.email}')">Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        ` : '<p class="small" style="color:var(--text-muted);">✓ All member verification requests approved.</p>'}
+      </div>
+
+      <!-- Credit Desk with 3 Queues (Section 5.3, 5.4, 5.5) -->
+      ${this.renderCreditDesk()}
+
+      <!-- Problem Cases Queue (Section 16.3) -->
+      ${this.renderCasesQueue()}
+
+      <!-- Pool flow -->
+      <div class="card">
+        <h3>Pool flow</h3>
+        <p class="small">Gifts in: ${this.state.pool.totalGiftsIn.toLocaleString()} RWF · Paid to sellers: ${this.state.pool.totalPaidToFarmers.toLocaleString()} RWF · Repaid by VUP: ${this.state.pool.totalRepaidByVup.toLocaleString()} RWF</p>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="btn btn-primary btn-sm" onclick="window.app.simulateVupRepayment()">Simulate: VUP payments arrive</button>
+          <button class="btn btn-outline btn-sm" onclick="window.app.resetState()">Reset demo</button>
+        </div>
+      </div>
+
+      <!-- NISR Delay Table -->
+      <div class="card">
+        <h3>What NISR data says about late payments</h3>
+        <table>
+          <thead>
+            <tr><th>Programme</th><th>Average days late</th><th>Over 7 days</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Expanded Public Works</td><td style="color:var(--danger); font-weight:700;">11.0 days</td><td>63%</td></tr>
+            <tr><td>Classic Public Works</td><td>9.7 days</td><td>50%</td></tr>
+            <tr><td>Direct Support</td><td>8.3 days</td><td>51%</td></tr>
+            <tr><td>NSDS</td><td>7.7 days</td><td>42%</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:8px;">The NISR data shows patterns. It cannot show why a payment was late. Slowest places: Southern and Eastern provinces.</p>
+      </div>
+
+      <!-- Planner shows ONLY VUP Families Orders -->
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>VUP Family Orders (${vupOrders.length})</h3>
+          <span class="pill pill-fair">Filtered: Only VUP Families</span>
+        </div>
+        ${this.renderOrdersTable(vupOrders)}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 12. CREDIT DESK WITH THREE QUEUES (To Approve, To Pay Sellers, To Repay)
+  // =========================================================================
+  getToApproveQueue() {
+    return (this.state.orders || []).filter(o => o.mode === "credit" && (o.status === "Pending Approval" || o.creditStatus === "requested"));
+  }
+
+  getToPaySellersQueue() {
+    return (this.state.orders || []).filter(o => o.mode === "credit" && o.status === "Delivered" && o.paidBy !== "pool");
+  }
+
+  getToRepayQueue() {
+    return (this.state.orders || []).filter(o => o.mode === "credit" && o.status === "Delivered" && o.paidBy === "pool" && !o.repaid);
+  }
+
+  renderCreditDesk() {
+    const q1 = this.getToApproveQueue();
+    const q2 = this.getToPaySellersQueue();
+    const q3 = this.getToRepayQueue();
+
+    const lang = this.state.lang || "en";
+    const deskTitle = lang === 'rw' ? "Ibiro by'Inguzanyo (Amatsinda 3)" : lang === 'fr' ? "Bureau du Crédit (3 files d'attente)" : "The Credit Desk (3 Queues)";
+
+    return `
+      <div class="credit-desk">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <h3 style="font-size:18px; font-weight:800;">${deskTitle}</h3>
+          <button class="btn btn-ghost btn-sm" style="color:#7e22ce; font-weight:700; font-size:12px;" onclick="window.app.explainNumbersInEasyWords('queues')">
+            ✨ Explain Queues in Easy Words
+          </button>
+        </div>
+        <p class="small" style="color:var(--text-muted); margin-bottom:12px;">Track bridge credit through verification, seller payout, and treasury reimbursement:</p>
+
+        <div class="queue-grid">
+          <!-- Queue 1: To Approve -->
+          <div class="queue-card">
+            <div class="queue-head">
+              <div>
+                <b style="font-size:14.5px;">1. To Approve</b>
+                <div style="font-size:11px; color:var(--text-muted);">Eligibility check & credit cap</div>
+              </div>
+              <span class="queue-badge" style="background:#fef3c7; color:#92400e;">${q1.length} pending</span>
+            </div>
+            <div style="flex:1;">
+              ${q1.length ? q1.map(o => `
+                <div class="queue-item">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>#${o.id} ${o.food} (${o.kg} kg)</span>
+                    <b style="color:var(--primary);">${o.total.toLocaleString()} RWF</b>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Family: <b>${o.buyerName}</b> · ${o.district}</div>
+                  <button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px;" onclick="window.app.approveCredit(${o.id})">
+                    ✓ Approve Credit
+                  </button>
+                </div>
+              `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ All credit applications approved</p>'}
+            </div>
+          </div>
+
+          <!-- Queue 2: To Pay Sellers -->
+          <div class="queue-card">
+            <div class="queue-head">
+              <div>
+                <b style="font-size:14.5px;">2. To Pay Sellers</b>
+                <div style="font-size:11px; color:var(--text-muted);">Disburse pool money to farmer</div>
+              </div>
+              <span class="queue-badge" style="background:#fee2e2; color:#991b1b;">${q2.length} pending</span>
+            </div>
+            <div style="flex:1;">
+              ${q2.length ? q2.map(o => `
+                <div class="queue-item">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>#${o.id} ${o.food} (${o.kg} kg)</span>
+                    <b style="color:var(--danger);">${o.total.toLocaleString()} RWF</b>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Seller: <b>${o.farmer}</b> · Delivered ✓</div>
+                  <button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px; background:var(--ok); border-color:var(--ok);" onclick="window.app.disburseToSeller(${o.id})">
+                    💸 Pay Seller (MoMo)
+                  </button>
+                </div>
+              `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ All delivered sellers paid</p>'}
+            </div>
+          </div>
+
+          <!-- Queue 3: To Repay -->
+          <div class="queue-card">
+            <div class="queue-head">
+              <div>
+                <b style="font-size:14.5px;">3. To Repay</b>
+                <div style="font-size:11px; color:var(--text-muted);">Awaiting VUP treasury wave</div>
+              </div>
+              <span class="queue-badge" style="background:#e0e7ff; color:#3730a3;">${q3.length} open</span>
+            </div>
+            <div style="flex:1;">
+              ${q3.length ? q3.map(o => `
+                <div class="queue-item">
+                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                    <span>#${o.id} ${o.food}</span>
+                    <b style="color:#4338ca;">${o.total.toLocaleString()} RWF</b>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Family: <b>${o.buyerName}</b> ${o.isOverdue ? '<span style="color:var(--danger); font-weight:700;">(Overdue)</span>' : ''}</div>
+                  <div style="display:flex; gap:6px; margin-top:6px;">
+                    <button class="btn btn-sm btn-outline" style="flex:1; padding:4px;" onclick="window.app.settleFromVup(${o.id})">
+                      ⚡ Repay from VUP
+                    </button>
+                    <button class="btn btn-sm btn-ghost" style="padding:4px; font-size:11px; color:var(--mute);" onclick="window.app.writeOffCredit(${o.id})" title="Write-off (never punish family)">
+                      Write-off
+                    </button>
+                  </div>
+                </div>
+              `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ No open credit awaiting repayment</p>'}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 13. "WHAT IS NOT GOING WELL" ALERTS BOX (Section 7.3 Rules)
+  // =========================================================================
+  renderAlertsBox() {
+    const lang = this.state.lang || "en";
+    const title = lang === 'rw' 
+      ? "⚠️ Ibibazo Bihari Bikwiye Kwitabwaho (What is not going well):" 
+      : lang === 'fr' 
+      ? "⚠️ Ce qui ne va pas (Alertes critiques) :" 
+      : "⚠️ What is not going well (Active Problem Alerts):";
+
+    return `
+      <div class="alert-box">
+        <b style="color:var(--danger); font-size:14.5px; display:block; margin-bottom:8px;">${title}</b>
+        
+        <div class="alert-item">
+          <span style="font-size:16px;">🚨</span>
+          <div>
+            <b>Southern Province Delay Hotspot:</b> Expanded Public Works in the Southern Province reaches <b>14.6 days delay</b> (79% over 7 days). Manual attendance logs in Gisagara and Huye cause critical food security gaps.
+          </div>
+        </div>
+
+        <div class="alert-item">
+          <span style="font-size:16px;">⚠️</span>
+          <div>
+            <b>Overdue Credit in Gisagara:</b> Credit #103 (Jean Bosco Habimana, 6,000 RWF) is overdue by 14 days awaiting sector payment reconciliation.
+          </div>
+        </div>
+
+        <div class="alert-item">
+          <span style="font-size:16px;">⚠️</span>
+          <div>
+            <b>Pool Cover Liquidity:</b> Current bridge pool balance is <b>${this.state.pool.balance.toLocaleString()} RWF</b> (~15 days food cover). Buffer is approaching the 14-day amber threshold.
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Cases Queue (Section 16.3)
+  renderCasesQueue() {
+    const cases = this.state.cases || [];
+    return `
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div>
+            <h3 style="font-size:17px; font-weight:800;">🛟 Problem Cases Queue (${cases.length})</h3>
+            <div style="font-size:12px; color:var(--text-muted);">Disputed orders, missing payouts, and member problem reports:</div>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openCaseModal('General')">🚩 Report Problem</button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Case ID</th><th>Reported By</th><th>Tx Link</th><th>Problem Type</th><th>Note</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+              ${cases.map(c => `
+                <tr>
+                  <td><b>#C-${c.id}</b></td>
+                  <td>${c.createdBy} (${c.role})</td>
+                  <td><b>${c.linkedTransaction}</b></td>
+                  <td><span class="pill pill-urgent">${c.type}</span></td>
+                  <td><small>${c.note}</small></td>
+                  <td><span class="pill ${c.status === 'resolved' ? 'pill-fair' : 'pill-high'}">${c.status}</span></td>
+                  <td>
+                    ${c.status !== 'resolved' ? `
+                      <button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.resolveCase(${c.id}, 'reversal')">Resolve</button>
+                    ` : '<span style="color:var(--success); font-weight:700;">Resolved ✓</span>'}
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 14. GEMINI AI HELPER CARD (Explains Numbers in Easy Words)
+  // =========================================================================
+  renderAiHelperCard() {
+    const lang = this.state.lang || "en";
+    const aiTitle = lang === 'rw' 
+      ? "✨ Ubufasha bwa Gemini AI — 'Sobanura Iyi Mibare mu Magambo Yoroshye'" 
+      : lang === 'fr' 
+      ? "✨ Assistant Gemini AI — 'Expliquer les Chiffres en Mots Simples'" 
+      : "✨ Gemini AI Helper — 'Explain the Numbers in Easy Words'";
+
+    return `
+      <div class="ai-helper-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+          <b style="color:#7e22ce; font-size:15px;">${aiTitle}</b>
+          <button class="btn btn-outline btn-sm" style="border-color:#7e22ce; color:#7e22ce; font-size:11px; padding:2px 8px;" onclick="window.app.openGeminiModal()">
+            Open Full AI Translator 🌐
+          </button>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Click below to hear an easy, plain-language 4-part explanation of these numbers:</p>
+
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('delay')">
+            💡 Explain delay numbers in plain words
+          </button>
+          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('queues')">
+            💡 How the 3 queues protect money
+          </button>
+          <button class="ai-prompt-chip" onclick="window.app.explainNumbersInEasyWords('pool')">
+            💡 How the revolving pool stays alive
+          </button>
+        </div>
+
+        <div id="aiExplainerResult" style="display:none; background:var(--card-bg); border:1px solid rgba(126,34,206,0.3); border-radius:10px; padding:12px; margin-top:12px;"></div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 15. SELLER SCREEN (Farmer / Cooperative)
+  // =========================================================================
+  renderFarmerView() {
+    const u = this.state.currentUser;
+    const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmerEmail === u.email);
+    const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+        <h2>${this.t('roleFarmerTitle')}</h2>
+        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Farmer')">
+          🧾 Download Sales Statement (PDF/CSV)
+        </button>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><b>${myOrders.length}</b><span>orders placed</span></div>
+        <div class="stat"><b style="color:var(--success);">${mySales.toLocaleString()} RWF</b><span>completed sales</span></div>
+        <div class="stat"><b>${u.payoutMethod || 'MTN Mobile Money'}</b><span>payout account</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Add a listing</h3>
+        <p class="small" style="margin-bottom:10px;">List your harvest produce with photo upload, camera, or verified gallery:</p>
+        <div class="f">
+          <select id="new_food" onchange="window.app.onProduceSelected(this.value)">
+            ${Object.keys(NISR_DATA.foodPrices).map(k => `<option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>`).join("")}
+          </select>
+          <select id="new_district">
+            ${NISR_DATA.districts.map(d => `<option value="${d.name}">${d.name} (${d.province})</option>`).join("")}
+          </select>
+          <input id="new_price" type="number" placeholder="RWF per kg" value="780" oninput="window.app.updatePriceGuidePreview()">
+          <input id="new_qty" type="number" placeholder="kg available" value="100">
+          <button class="btn btn-primary btn-sm" onclick="window.app.addListing(event)">Add listing</button>
+        </div>
+
+        <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+          <img id="listingPhotoPreview" src="assets/produce/dry_beans.jpg" style="width:48px; height:48px; object-fit:cover; border-radius:8px; border:1px solid var(--card-border);" alt="Preview">
+          <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
+          <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('cameraUploadInput').click()">
+            📸 Take Photo / Upload File
+          </button>
+          <input type="hidden" id="new_photo_url" value="assets/produce/dry_beans.jpg">
+          <span id="priceGuidePreview" style="font-size:12.5px; color:var(--text-muted);"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Orders to deliver</h3>
+        ${this.renderOrdersTable(this.state.orders, true)}
+        <p class="small" style="margin-top:8px; color:var(--text-muted);">Credit orders are paid by the pool on delivery via Mobile Money float.</p>
+      </div>
+
+      <div class="card">
+        <h3>My Listings</h3>
+        ${this.renderGroceryCatalog('cash')}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 16. SHOPPER SCREEN (Ethical Shopper)
+  // =========================================================================
+  renderShopperView() {
+    const u = this.state.currentUser;
+    const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper" || o.buyerEmail === u.email);
+    const totalGifts = myOrders.reduce((sum, o) => sum + (o.gift || 0), 0);
+    const dpp = 5 * this.state.adminSettings.dailyFoodCost;
+    const daysFunded = (totalGifts / dpp).toFixed(1);
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+        <h2>${this.t('roleShopperTitle')}</h2>
+        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Shopper')">
+          🧾 Download Purchases & Gifts (PDF/CSV)
+        </button>
+      </div>
+
+      <p class="sub">Buy farm-fresh produce with MTN MoMo, Airtel, or BK. A small donation share refills the bridge pool that keeps waiting families fed.</p>
+
+      <div class="card">
+        <div class="f">
+          <label style="display:flex; align-items:center; gap:10px;">
+            <span>Share to pool: <b>${u.giftShare || 2}%</b></span>
+            <input type="range" min="1" max="5" value="${u.giftShare || 2}" 
+              oninput="window.app.state.currentUser.giftShare = +this.value; window.app.saveState(); window.app.render();" style="width:160px;">
+          </label>
+        </div>
+        <div class="stats" style="margin-top:12px;">
+          <div class="stat"><b style="color:var(--accent);">${totalGifts.toLocaleString()} RWF</b><span>you gave so far</span></div>
+          <div class="stat"><b style="color:var(--success);">${daysFunded}</b><span>days of food for a family of 5</span></div>
+          <div class="stat"><b>${this.state.pool.balance.toLocaleString()} RWF</b><span>pool balance today</span></div>
+        </div>
+      </div>
+
+      <!-- Nearby Proximity Bar -->
+      ${this.renderNearbyBar()}
+
+      <div class="card">
+        <h3>🛒 Buy Food</h3>
+        ${this.renderGroceryCatalog('cash')}
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>🧾 My Orders & Receipts</h3>
+          <button class="btn btn-sm btn-ghost" onclick="window.app.openStatementModal('Shopper')">Download CSV / PDF</button>
+        </div>
+        ${this.renderOrdersTable(myOrders)}
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 17. GOVERNMENT WORKER (ADMIN) SCREEN (Sees Whole System & Demo Switch)
+  // =========================================================================
+  renderAdminView() {
+    const o = this.state.orders;
+    const totalSales = o.reduce((sum, x) => sum + x.total, 0);
+
+    const allUsers = [];
+    for (const [rCode, uList] of Object.entries(this.state.users || {})) {
+      uList.forEach(u => allUsers.push({ ...u, roleCode: rCode }));
+    }
+
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+        <h2>Government worker (Admin)</h2>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()">📄 Executive Report</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')">📥 Export All Data</button>
+        </div>
+      </div>
+
+      <p class="sub">Sees the whole system: all users, all orders, total sales, settings, and the audit log. Planners see only VUP families.</p>
+
+      <div class="stats">
+        <div class="stat"><b>${allUsers.length}</b><span>users (demo)</span></div>
+        <div class="stat"><b>${o.length}</b><span>orders</span></div>
+        <div class="stat"><b style="color:var(--primary);">${totalSales.toLocaleString()} RWF</b><span>total sales</span></div>
+        <div class="stat"><b>${this.state.pool.balance.toLocaleString()} RWF</b><span>pool balance</span></div>
+      </div>
+
+      <!-- Demo Switch for Admins: 'Make the next payment fail' (Section 17.3 & 17.4) -->
+      <div class="card" style="background:var(--tint); border-left:4px solid var(--accent);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <b>Demo Switch for Admins: 'Make the next payment fail'</b>
+            <div style="font-size:12.5px; color:var(--text-muted);">
+              When toggled ON, the next seller payout will fail at the switch to test 'Report a problem' and the reversal flow from section 16.
+            </div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:700; cursor:pointer;">
+            <input type="checkbox" ${this.state.adminSettings.makeNextPaymentFail ? 'checked' : ''} 
+              onchange="window.app.state.adminSettings.makeNextPaymentFail = this.checked; window.app.saveState(); window.app.toast('Next payment failure demo switch: ' + (this.checked ? 'ENABLED' : 'DISABLED'), 'info');">
+            <span>Make next payment fail</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Credit Desk Master Overview -->
+      ${this.renderCreditDesk()}
+
+      <!-- Cases Queue -->
+      ${this.renderCasesQueue()}
+
+      <div class="card">
+        <h3>All users across system (${allUsers.length})</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Role</th><th>Email</th><th>District</th><th>Status / Programme</th></tr>
+            </thead>
+            <tbody>
+              ${allUsers.map(u => `
+                <tr>
+                  <td><b>${u.name}</b></td>
+                  <td><span class="pill pill-fair">${u.role || u.roleCode}</span></td>
+                  <td><small>${u.email}</small></td>
+                  <td>${u.district || 'National'}</td>
+                  <td><small>${u.stateDesc || u.programme || u.sells || u.notes || ''}</small></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>All orders across system (${o.length})</h3>
+          <button class="btn btn-sm btn-outline" onclick="window.app.exportDatabaseJson()">💾 Export Database JSON</button>
+        </div>
+        ${this.renderOrdersTable(o, true)}
+      </div>
+
+      <!-- Audit Log View (Section 5.1 & 16.3) -->
+      <div class="card">
+        <h3>Audit Log (Immutable Action Log)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Who</th><th>Action</th><th>Target</th><th>Date/Time</th><th>Reason</th></tr>
+            </thead>
+            <tbody>
+              ${this.state.auditLog.map(a => `
+                <tr>
+                  <td><b>${a.who}</b></td>
+                  <td>${a.action}</td>
+                  <td>${a.target}</td>
+                  <td><small>${a.date}</small></td>
+                  <td><small>${a.reason}</small></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 18. ANALYSIS & GIS OBSERVATORY (30 Districts, Microdata, Shared DB)
+  // =========================================================================
+  renderAnalysisView() {
+    return `
+      <h2>🗺️ Analysis & 30-District Geospatial Observatory</h2>
+      <p class="sub">The NISR data shows patterns. It cannot show why a payment was late. Grounded in EICV7 VUP survey microdata ($N = 3,399$ beneficiaries).</p>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Interactive Rwanda 30-District GIS Map</div>
+            <div class="card-subtitle">GeoJSON choropleth visualising payment delays and priority index across all 30 districts:</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-sm ${this.mapMetric === 'priority' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('priority')">Priority Score</button>
+            <button class="btn btn-sm ${this.mapMetric === 'delay' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('delay')">Payment Delay</button>
+            <button class="btn btn-sm ${this.mapMetric === 'poverty' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('poverty')">Poverty Rate</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3" style="margin-bottom:0;">
+          <div style="grid-column: span 2;">
+            <div id="mapContainer" style="height:380px; border-radius:12px; border:1px solid var(--card-border);"></div>
+          </div>
+          <div>
+            <div class="card" style="height:100%; padding:14px; background:var(--bg); margin:0;">
+              <div id="districtSelectedInfo">
+                ${this.renderDistrictInfo(this.state.selectedDistrict || 'Gasabo')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Inclusion Channels Table -->
+      <div class="card">
+        <h3>💳 Financial Inclusion Channels & Disbursement Speed</h3>
+        <table>
+          <thead>
+            <tr><th>Disbursement Channel</th><th>Avg Delay</th><th>>7d Late (%)</th><th>Survey Records</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><b>Mobile Money</b></td><td style="color:var(--danger); font-weight:700;">10.4 days</td><td>59%</td><td>630</td></tr>
+            <tr><td><b>Bank-type SACCO</b></td><td>9.2 days</td><td>53%</td><td>2,205</td></tr>
+            <tr><td><b>Umurenge SACCO</b></td><td style="color:var(--success); font-weight:700;">7.7 days</td><td>43%</td><td>546</td></tr>
+          </tbody>
+        </table>
+        <p class="small" style="margin-top:8px;">Umurenge SACCOs disburse fastest because funds remain locally within the administrative sector.</p>
+      </div>
+    `;
+  }
+
+  exportDatabaseJson() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state, null, 2));
+    const dl = document.createElement("a");
+    dl.setAttribute("href", dataStr);
+    dl.setAttribute("download", `VUPBridge_database_${Date.now()}.json`);
+    dl.click();
+    this.toast("Database exported successfully!", "success");
+  }
+
+  // =========================================================================
+  // 19. VUP PAYMENT CYCLE CALENDAR
+  // =========================================================================
+  renderVupDateCard() {
+    return `
+      <div class="vup-date-card">
+        <div class="vup-date-header">
+          <div>
+            <div style="font-size: 12px; font-weight:800; color:var(--accent); text-transform:uppercase;">${this.t('vupCalHeader')}</div>
+            <h3 style="font-size: 19px; font-weight:800; color:var(--text-main); margin-top:2px;">${this.t('vupCalTitle')}</h3>
+          </div>
+          <span class="pill pill-urgent">${this.t('vupCalAvgDelay')}</span>
+        </div>
+        <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
+          ${this.t('vupCalDesc')}
+        </p>
+        <div class="cycle-steps">
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">${this.t('vupStep1Time')}</span>
+            <b>${this.t('vupStep1Title')}</b>
+            <small>${this.t('vupStep1Sub')}</small>
+          </div>
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--primary);">${this.t('vupStep2Time')}</span>
+            <b>${this.t('vupStep2Title')}</b>
+            <small>${this.t('vupStep2Sub')}</small>
+          </div>
+          <div class="cycle-box active">
+            <span style="font-size: 11px; font-weight: 700; color: var(--danger);">${this.t('vupStep3Time')}</span>
+            <b style="color:var(--danger);">${this.t('vupStep3Title')}</b>
+            <small>${this.t('vupStep3Sub')}</small>
+          </div>
+          <div class="cycle-box">
+            <span style="font-size: 11px; font-weight: 700; color: var(--success);">${this.t('vupStep4Time')}</span>
+            <b>${this.t('vupStep4Title')}</b>
+            <small>${this.t('vupStep4Sub')}</small>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // =========================================================================
+  // 20. UNIVERSAL PROXIMITY BAR ("The Place You Are Right Now")
   // =========================================================================
   renderNearbyBar() {
     const nb = this.state.nearby || { userDistrict: "Gasabo", userLocation: "Gasabo (Kimironko Hub)", filterProximity: "all" };
@@ -601,7 +2363,7 @@ class IsokoApp {
         <div class="nearby-loc-badge">
           <div class="pin-icon">📍</div>
           <div>
-            <div class="loc-title">The Place You Are Right Now (Your Location):</div>
+            <div class="loc-title">${this.t('nearbyLocTitle')}</div>
             <div style="display:flex; align-items:center; gap:8px; margin-top:2px; flex-wrap:wrap;">
               <select class="form-control" style="width:auto; padding:4px 10px; font-weight:800; font-size:13px; border-radius:18px; background:var(--card-bg);" 
                       onchange="window.app.setUserDistrict(this.value)">
@@ -614,28 +2376,24 @@ class IsokoApp {
                 `).join('')}
               </select>
               <button class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:11px; border-radius:14px;" onclick="window.app.detectUserLocation()">
-                🎯 Detect My GPS
+                ${this.t('nearbyGpsBtn')}
               </button>
             </div>
           </div>
         </div>
 
-        <div class="nearby-filters-row">
-          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Show Sellers:</span>
-          <button class="hub-chip ${(!nb.filterProximity || nb.filterProximity === 'all') ? 'active' : ''}" onclick="window.app.setProximityFilter('all')">
-            🇷🇼 All Rwanda
+        <div class="nearby-chips-wrap">
+          <button class="nearby-chip ${nb.filterProximity === 'all' ? 'active' : ''}" onclick="window.app.setProximityFilter('all')">
+            ${this.t('filterAllRwanda')}
           </button>
-          <button class="hub-chip ${nb.filterProximity === 'near' ? 'active' : ''}" onclick="window.app.setProximityFilter('near')" title="Sorted closest to you first">
-            📍 Nearest (< 5 km)
+          <button class="nearby-chip ${nb.filterProximity === 'near' ? 'active' : ''}" onclick="window.app.setProximityFilter('near')">
+            ⚡ ${this.t('filterNear')}
           </button>
-          <button class="hub-chip ${nb.filterProximity === 'district' ? 'active' : ''}" onclick="window.app.setProximityFilter('district')" title="Only sellers in ${curDist}">
-            🏙️ In ${curDist}
+          <button class="nearby-chip ${nb.filterProximity === 'district' ? 'active' : ''}" onclick="window.app.setProximityFilter('district')">
+            📍 ${this.t('filterDistrict')}
           </button>
-          <button class="hub-chip ${nb.filterProximity === 'fast' ? 'active' : ''}" onclick="window.app.setProximityFilter('fast')">
-            ⚡ Fast Moto (< 20m)
-          </button>
-          <button class="hub-chip ${nb.filterProximity === 'sacco' ? 'active' : ''}" onclick="window.app.setProximityFilter('sacco')">
-            🚶 Walk-in SACCO Hub
+          <button class="nearby-chip ${nb.filterProximity === 'fast' ? 'active' : ''}" onclick="window.app.setProximityFilter('fast')">
+            🚴 ${this.t('filterFast')}
           </button>
         </div>
       </div>
@@ -648,15 +2406,12 @@ class IsokoApp {
     this.state.nearby.userLocation = `${districtName} (Local Hub)`;
     this.saveState();
     this.render();
-    this.toast(`Location set to ${districtName}! Recalculated distance to all 18 farm sellers.`, "success");
+    this.toast(`Location set to ${districtName} District. Showing nearest sellers first!`, "success");
   }
 
   detectUserLocation() {
-    this.toast("Acquiring device GPS coordinates...", "info");
-    setTimeout(() => {
-      this.setUserDistrict("Gasabo");
-      this.toast("📍 GPS calibrated: Gasabo - Kimironko Hub (±12m accuracy)", "success");
-    }, 500);
+    this.setUserDistrict("Gasabo");
+    this.toast(this.t('nearbyGpsToast'), "success");
   }
 
   setProximityFilter(filter) {
@@ -664,24 +2419,15 @@ class IsokoApp {
     this.state.nearby.filterProximity = filter;
     this.saveState();
     this.render();
-    const labels = {
-      all: "Showing all Rwandan sellers",
-      near: "Filtered to nearest sellers (< 5 km)",
-      district: `Filtered to sellers in ${this.state.nearby.userDistrict}`,
-      fast: "Filtered to fastest delivery (< 20 mins)",
-      sacco: "Filtered to local SACCO collection points"
-    };
-    this.toast(labels[filter] || "Filter applied", "info");
   }
 
   // =========================================================================
-  // 3. GROCERY CATALOG RENDERING WITH LIVE DISTANCE TO CURRENT USER LOCATION
+  // 21. 18 PRODUCTIONS CATALOG WITH DISTANCE SORTING
   // =========================================================================
   renderGroceryCatalog(mode) {
     const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
     const filter = (this.state.nearby && this.state.nearby.filterProximity) || "all";
 
-    // 1. Calculate live dynamic distance from user's current place to each seller
     let items = this.state.listings.map(l => {
       const dist = calculateRwandaDistance(curDist, l.district);
       const deliveryMins = dist <= 1.0 ? 12 : dist <= 5.0 ? 18 : dist <= 15 ? 25 : Math.round(dist * 1.5);
@@ -693,7 +2439,6 @@ class IsokoApp {
       };
     });
 
-    // 2. Category filter
     if (this.state.activeCategory && this.state.activeCategory !== "All") {
       items = items.filter(l => {
         const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
@@ -701,7 +2446,6 @@ class IsokoApp {
       });
     }
 
-    // 3. Proximity filter
     if (filter === "near") {
       items = items.filter(l => l.dynamicDistanceKm <= 5.0);
     } else if (filter === "district") {
@@ -710,7 +2454,6 @@ class IsokoApp {
       items = items.filter(l => l.dynamicDeliveryMins <= 20);
     }
 
-    // 4. Sort by distance (Nearest seller first)
     items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
 
     if (items.length === 0) {
@@ -726,12 +2469,22 @@ class IsokoApp {
       `;
     }
 
+    const lang = this.state.lang || "en";
+
     return `
       <div class="grocery-grid">
         ${items.map(l => {
           const guide = this.getPriceGuide(l.food, l.price);
           const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "assets/produce/dry_beans.jpg");
-          const kiny = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
+          
+          let displayName = l.food;
+          let kinyName = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
+          if (lang === "rw" && window.TRANSLATIONS?.rw?.produce?.[l.food]) {
+            displayName = window.TRANSLATIONS.rw.produce[l.food].name;
+          } else if (lang === "fr" && window.TRANSLATIONS?.fr?.produce?.[l.food]) {
+            displayName = window.TRANSLATIONS.fr.produce[l.food].name;
+          }
+
           const discountPct = l.retailPrice ? Math.round((1 - l.price / l.retailPrice) * 100) : 15;
           const dist = l.dynamicDistanceKm;
           const mins = l.dynamicDeliveryMins;
@@ -740,31 +2493,30 @@ class IsokoApp {
             <div class="grocery-card">
               <div class="grocery-img-box">
                 <span class="proximity-badge">
-                  📍 ${dist <= 1.0 ? '0.8 km (Near you)' : dist + ' km away'}
+                  📍 ${dist <= 1.0 ? '0.8 km (' + this.t('nearYouText') + ')' : dist + ' km ' + this.t('awayText')}
                 </span>
                 <button class="favorite-btn" onclick="window.app.toggleFavorite(${l.id})" title="Favorite">
                   ${l.isFav ? '❤️' : '🤍'}
                 </button>
-                <img src="${photo}" alt="${l.food}" 
-                     onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
+                <img src="${photo}" alt="${l.food}" onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
                 <span class="grocery-price-pill ${guide.class}" style="position:absolute; bottom:8px; right:8px;">${guide.label}</span>
               </div>
 
               <div>
                 <div style="display:flex; justify-content:space-between; align-items:baseline;">
-                  <h4>${l.food}</h4>
-                  ${kiny ? `<small style="font-weight:700; color:var(--text-muted); font-size:11px;">${kiny}</small>` : ''}
+                  <h4>${displayName}</h4>
+                  ${kinyName ? `<small style="font-weight:700; color:var(--text-muted); font-size:11px;">${kinyName}</small>` : ''}
                 </div>
                 <div class="produce-origin-strip">
                   <span>🏪 <b>${l.farmer}</b></span>
-                  <span>Stock: <b>${l.quantity} kg</b></span>
+                  <span>${this.t('stockLabel')} <b>${l.quantity} kg</b></span>
                 </div>
                 <div class="produce-origin-strip" style="margin-top:2px;">
-                  <span>📍 Origin: ${l.district} District</span>
-                  ${l.isLocalDistrict ? '<span class="pill pill-fair" style="padding:1px 6px; font-size:9px;">In Your District</span>' : ''}
+                  <span>📍 ${this.t('originLabel')} ${l.district} District</span>
+                  ${l.isLocalDistrict ? `<span class="pill pill-fair" style="padding:1px 6px; font-size:9px;">${this.t('inDistrictBadge')}</span>` : ''}
                 </div>
                 <div class="delivery-eta-badge">
-                  ⚡ ${mins <= 20 ? mins + ' min express moto' : mins + ' mins transit'} · 🚶 SACCO pickup
+                  ⚡ ${mins <= 20 ? mins + ' min ' + this.t('expressMoto') : mins + ' mins ' + this.t('transit')} · 🚶 ${this.t('saccoWalkin')}
                 </div>
               </div>
 
@@ -775,7 +2527,7 @@ class IsokoApp {
                   </div>
                   ${l.retailPrice ? `
                     <div class="grocery-retail-strike">
-                      Market: ${l.retailPrice.toLocaleString()} RWF <span style="color:var(--success); font-weight:700;">(-${discountPct}%)</span>
+                      ${this.t('marketLabel')} ${l.retailPrice.toLocaleString()} RWF <span style="color:var(--success); font-weight:700;">(-${discountPct}%)</span>
                     </div>
                   ` : ''}
                 </div>
@@ -783,7 +2535,7 @@ class IsokoApp {
                 <div style="display:flex; align-items:center; gap:6px;">
                   <input id="qty_${l.id}" type="number" min="1" max="${l.quantity}" value="5" class="form-control" style="width:48px; padding:4px 6px; text-align:center;" aria-label="kg">
                   <button class="btn btn-sm ${mode === 'credit' ? 'btn-accent' : 'btn-primary'}" onclick="window.app.startBuyProduce(${l.id}, '${mode}')">
-                    ${mode === 'credit' ? 'Credit' : 'Buy'}
+                    ${mode === 'credit' ? this.t('creditBtn') : this.t('buyBtn')}
                   </button>
                 </div>
               </div>
@@ -794,8 +2546,18 @@ class IsokoApp {
     `;
   }
 
+  toggleFavorite(id) {
+    const item = this.state.listings.find(l => l.id === id);
+    if (item) {
+      item.isFav = !item.isFav;
+      this.saveState();
+      this.render();
+      this.toast(item.isFav ? `Added ${item.food} to favorites ❤️` : `Removed ${item.food} from favorites`, "info");
+    }
+  }
+
   // =========================================================================
-  // 4. PHONE PAYMENT FLOW CONTROLLER (media_1792662744615.html)
+  // 22. PHONE ORDER & PAYMENT FLOW (media_1792662744615.html)
   // =========================================================================
   startBuyProduce(listingId, mode) {
     const listing = this.state.listings.find(l => l.id === listingId);
@@ -820,9 +2582,8 @@ class IsokoApp {
         this.toast(`Exceeds available bridge credit limit (${remaining.toLocaleString()} RWF left).`, "danger");
         return;
       }
-      this.executeOrder(listing, qty, total, "credit", "pool");
+      this.executeOrder(listing, qty, total, "credit", "pending_approval", 0, "Free SACCO Pickup");
     } else {
-      // Open Phone Frame Payment Flow from media_1792662744615.html
       this.state.pendingCheckoutOrder = { listing, qty, total };
       this.openPhonePayModal(listing, qty, total);
     }
@@ -832,13 +2593,12 @@ class IsokoApp {
     const modal = document.getElementById("payModal");
     if (!modal) return;
 
-    const donationPct = this.state.currentUser.donationPct || 2;
+    const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
     const gift = Math.round(total * (donationPct / 100));
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const deliveryFee = isPickup ? 0 : 300;
     const grandTotal = total + gift + deliveryFee;
 
-    // Fill Page 2 (Confirm order)
     const imgEl = document.getElementById("orderProduceImg");
     const badgeEl = document.getElementById("orderProduceBadge");
     if (imgEl) imgEl.src = listing.photo || "assets/produce/dry_beans.jpg";
@@ -847,8 +2607,8 @@ class IsokoApp {
     document.getElementById("rcV2").textContent = `${listing.food} (${qty} kg)`;
     document.getElementById("rfV2").textContent = `${total.toLocaleString()} RWF`;
     document.getElementById("rdModeV2").innerHTML = isPickup 
-      ? '🚶 Walk-in SACCO Hub (FREE) ▾' 
-      : '🚴 Express Moto (+300 RWF) ▾';
+      ? this.t('checkoutDeliveryPickup') 
+      : this.t('checkoutDeliveryMoto');
     document.getElementById("rgV2").textContent = `+${gift.toLocaleString()} RWF (${donationPct}%)`;
     document.getElementById("rtV2").textContent = `${grandTotal.toLocaleString()} RWF`;
 
@@ -871,11 +2631,16 @@ class IsokoApp {
       const el = document.getElementById(pid);
       if (el) el.classList.remove("on");
     });
-    const target = document.getElementById("p" + n + "_v2");
-    if (target) target.classList.add("on");
 
-    const scr = document.getElementById("scrV2");
-    if (scr) scr.classList.toggle("dark", n === 5);
+    const targetMap = { 2: "p2_v2", 6: "p6_v2", 3: "p3_v2", 4: "p4_v2", 5: "p5_v2" };
+    const cur = document.getElementById(targetMap[n] || "p2_v2");
+    if (cur) cur.classList.add("on");
+
+    const clock = document.getElementById("clockV2");
+    if (clock) {
+      const d = new Date();
+      clock.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
   }
 
   goToPaymentMethods() {
@@ -884,46 +2649,42 @@ class IsokoApp {
   }
 
   renderPaymentAccountsList() {
-    const listEl = document.getElementById("mlV2");
-    const fieldsEl = document.getElementById("flV2");
-    const ppEl = document.getElementById("ppV2");
-    if (!listEl || !this.state.pendingCheckoutOrder) return;
+    const mlist = document.getElementById("mlV2");
+    const flist = document.getElementById("flV2");
+    if (!mlist || !flist) return;
 
-    const p = this.state.pendingCheckoutOrder;
-    const donationPct = this.state.currentUser.donationPct || 2;
-    const gift = Math.round(p.total * (donationPct / 100));
-    const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
-    const deliveryFee = isPickup ? 0 : 300;
-    const grandTotal = p.total + gift + deliveryFee;
+    mlist.innerHTML = RWANDA_PAYMENT_ACCOUNTS.map((a, i) => `
+      <div class="mitem-v2 ${i === this.state.selectedAccountIdx ? 'on' : ''}" onclick="window.app.selectPaymentAccount(${i})">
+        <span class="mico-v2" style="${a.c}">${a.l}</span>
+        <div style="flex:1">
+          <b>${a.n}</b>
+          <div style="font-size:11px;color:var(--mute);">${a.s}</div>
+        </div>
+        <div style="text-align:right">
+          <span style="font-weight:700;font-size:13px">${a.credit ? 'Credit Limit' : a.bal.toLocaleString() + ' RWF'}</span>
+        </div>
+      </div>
+    `).join("");
 
-    const sel = this.state.selectedAccountIdx || 0;
-
-    listEl.innerHTML = RWANDA_PAYMENT_ACCOUNTS.map((m, i) => `
-      <button type="button" class="m-v2 ${i === sel ? 'on' : ''}" onclick="window.app.selectPaymentAccount(${i})">
-        <span class="lg-v2" style="${m.c}">${m.l}</span>
-        <span style="flex:1; min-width:0;">
-          <b>${m.n}</b>
-          <small>${m.s}</small>
-        </span>
-        <span class="am-v2">
-          ${m.bal.toLocaleString()} RWF
-          <small>${m.credit ? 'credit left' : 'balance'}</small>
-        </span>
-        <span class="r-v2"></span>
-      </button>
-    `).join('');
-
-    fieldsEl.innerHTML = `
-      <div class="bal-v2">Add demo money to selected account:</div>
+    flist.innerHTML = `
+      <div style="font-size:12px;font-weight:700;margin:6px 0 4px;color:var(--text-muted);">${this.t('checkoutTopupChips')}</div>
       <div class="chips-v2">
         ${TOPUP_CHIPS.map(c => `
           <button type="button" class="chip-v2" onclick="window.app.topupSelectedAccount(${c.v})">${c.l}</button>
-        `).join('')}
+        `).join("")}
       </div>
-      <div class="err-v2" id="payErrMsgV2"></div>
+      <div id="payErrorV2" style="color:var(--danger);font-size:12px;margin-top:6px;min-height:16px;"></div>
     `;
 
-    if (ppEl) ppEl.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
+    const p = this.state.pendingCheckoutOrder;
+    if (p) {
+      const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
+      const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
+      const deliveryFee = isPickup ? 0 : 300;
+      const grandTotal = p.total + Math.round(p.total * (donationPct / 100)) + deliveryFee;
+      const pp = document.getElementById("ppV2");
+      if (pp) pp.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
+    }
   }
 
   selectPaymentAccount(i) {
@@ -932,48 +2693,38 @@ class IsokoApp {
   }
 
   topupSelectedAccount(amt) {
-    const sel = this.state.selectedAccountIdx || 0;
-    RWANDA_PAYMENT_ACCOUNTS[sel].bal += amt;
+    const acc = RWANDA_PAYMENT_ACCOUNTS[this.state.selectedAccountIdx];
+    acc.bal += amt;
     this.renderPaymentAccountsList();
-    const errEl = document.getElementById("payErrMsgV2");
-    if (errEl) {
-      errEl.style.color = "#2e8b57";
-      errEl.textContent = `Added ${amt.toLocaleString()} RWF to ${RWANDA_PAYMENT_ACCOUNTS[sel].n}!`;
-    }
+    const errEl = document.getElementById("payErrorV2");
+    if (errEl) errEl.textContent = "";
+    this.toast(`Added ${amt.toLocaleString()} RWF demo balance to ${acc.n}`, "success");
   }
 
   processPhonePayment() {
     const p = this.state.pendingCheckoutOrder;
     if (!p) return;
 
-    const sel = this.state.selectedAccountIdx || 0;
-    const acc = RWANDA_PAYMENT_ACCOUNTS[sel];
-    const donationPct = this.state.currentUser.donationPct || 2;
-    const gift = Math.round(p.total * (donationPct / 100));
+    const acc = RWANDA_PAYMENT_ACCOUNTS[this.state.selectedAccountIdx];
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const deliveryFee = isPickup ? 0 : 300;
+    const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
+    const gift = Math.round(p.total * (donationPct / 100));
     const grandTotal = p.total + gift + deliveryFee;
 
-    const errEl = document.getElementById("payErrMsgV2");
     if (acc.bal < grandTotal) {
-      if (errEl) {
-        errEl.style.color = "#c0392b";
-        errEl.textContent = `Not enough ${acc.credit ? 'credit' : 'balance'}. Add ${(grandTotal - acc.bal).toLocaleString()} RWF more.`;
-      }
+      const errEl = document.getElementById("payErrorV2");
+      if (errEl) errEl.textContent = `Insufficient balance (${acc.bal.toLocaleString()} RWF). Click a + chip to top up!`;
       return;
     }
 
     acc.bal -= grandTotal;
-
-    // Refill bridge pool
     this.state.pool.balance += gift;
     this.state.pool.totalGiftsIn += gift;
 
-    // Execute order record
-    const deliveryType = isPickup ? "Free Walk-in SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
+    const deliveryType = isPickup ? "Free SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
     const newOrder = this.executeOrder(p.listing, p.qty, p.total, "cash", acc.by, gift, deliveryType, deliveryFee);
 
-    // Page 3: Terminal Processing
     const isMobile = acc.t === 'mobile';
     document.getElementById("vtV2").textContent = acc.l || 'MOMO';
     this.goPhonePage(3);
@@ -986,15 +2737,13 @@ class IsokoApp {
     setTimeout(() => {
       t3.textContent = "Approved ✓";
       t3s.textContent = "";
-    }, 2800);
+    }, 2400);
 
     setTimeout(() => {
-      // Page 4: Order Placed
       document.getElementById("pdV2").textContent = `${grandTotal.toLocaleString()} RWF`;
       document.getElementById("pdFulV2").textContent = deliveryType;
       this.goPhonePage(4);
 
-      // Prepare receipt data
       document.getElementById("recNumV2").textContent = `#IB-2026-${newOrder.id}`;
       document.getElementById("recDateV2").textContent = `${new Date().toLocaleDateString('en-GB')} ${newOrder.date}`;
       document.getElementById("recCustV2").textContent = newOrder.buyerName.toUpperCase();
@@ -1006,7 +2755,7 @@ class IsokoApp {
       document.getElementById("recGiftV2").textContent = `+${newOrder.gift.toLocaleString()} RWF`;
       document.getElementById("recTotV2").textContent = `${grandTotal.toLocaleString()} RWF`;
       document.getElementById("recPayByV2").textContent = `PAID BY ${acc.by}`;
-    }, 3800);
+    }, 3200);
   }
 
   triggerReceiptPrinter() {
@@ -1033,12 +2782,12 @@ class IsokoApp {
 
     setTimeout(() => {
       if (stamp) stamp.classList.add('on');
-    }, 3200);
+    }, 2800);
 
     setTimeout(() => {
       if (pt) pt.style.opacity = 0;
       if (rbtn) rbtn.classList.add('on');
-    }, 3800);
+    }, 3400);
   }
 
   closePayFlow() {
@@ -1047,454 +2796,189 @@ class IsokoApp {
     this.render();
   }
 
+  executeOrder(listing, qty, total, mode, paidBy, gift = 0, deliveryType = "Standard Delivery", deliveryFee = 0) {
+    listing.quantity -= qty;
+    const newOrder = {
+      id: this.state.nextOrderId++,
+      food: listing.food,
+      kg: qty,
+      total: total,
+      mode: mode,
+      buyerRole: this.state.role,
+      buyerName: this.state.currentUser.name || "Customer",
+      buyerEmail: this.state.currentUser.email || "user@vupbridge.rw",
+      district: listing.district,
+      hub: listing.hub || (this.state.nearby ? this.state.nearby.userLocation : "Kimironko Hub"),
+      status: mode === "credit" ? "Pending Approval" : "Placed",
+      creditStatus: mode === "credit" ? "requested" : "n/a",
+      farmer: listing.farmer,
+      farmerEmail: listing.farmerEmail || "farmer@vupbridge.rw",
+      paidBy: paidBy,
+      paymentMethod: paidBy === "pending_approval" ? (this.state.currentUser.paymentMethod || "MTN Mobile Money") : paidBy,
+      gift: gift,
+      deliveryType: deliveryType,
+      deliveryFee: deliveryFee,
+      repaid: false,
+      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
 
+    this.state.orders.unshift(newOrder);
 
-  toggleFavorite(id) {
-    const item = this.state.listings.find(l => l.id === id);
-    if (item) {
-      item.isFav = !item.isFav;
-      this.saveState();
-      this.render();
-      this.toast(item.isFav ? `Added ${item.food} to favorites ❤️` : `Removed ${item.food} from favorites`, "info");
+    // If cash order, add entry to ledger
+    if (mode === "cash") {
+      this.state.ledger.unshift({
+        id: this.state.ledger.length + 1,
+        date: newOrder.date,
+        type: "order",
+        from: newOrder.buyerName,
+        to: newOrder.farmer,
+        amount: total,
+        link: `Order #${newOrder.id}`,
+        status: "completed",
+        paymentMethod: paidBy,
+        createdBy: newOrder.buyerName
+      });
+      if (gift > 0) {
+        this.state.ledger.unshift({
+          id: this.state.ledger.length + 1,
+          date: newOrder.date,
+          type: "gift",
+          from: newOrder.buyerName,
+          to: "Revolving Pool",
+          amount: gift,
+          link: `Order #${newOrder.id} (${gift} RWF Pool Gift)`,
+          status: "completed",
+          paymentMethod: paidBy,
+          createdBy: newOrder.buyerName
+        });
+      }
+    }
+
+    this.saveState();
+    this.render();
+
+    if (mode === "credit") {
+      this.toast(`Order #${newOrder.id} placed on Bridge Credit. Submitted to Credit Desk for verification.`, "success");
+    } else {
+      this.toast(`Order #${newOrder.id} paid via ${paidBy}! Delivery: ${deliveryType}`, "success");
+    }
+    return newOrder;
+  }
+
+  deliverOrder(orderId) {
+    const order = this.state.orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    if (order.mode === "credit") {
+      order.status = "Delivered";
+      order.creditStatus = "to_pay_seller";
+      order.paidBy = "pending_pool";
+      this.toast(`Order #${orderId} marked Delivered. Moved to Credit Desk: To Pay Sellers queue!`, "success");
+    } else {
+      order.status = "Delivered";
+      this.toast(`Order #${orderId} delivered! Seller paid by buyer.`, "success");
+    }
+
+    this.saveState();
+    this.render();
+  }
+
+  simulateVupRepayment() {
+    let count = 0;
+    this.state.orders.forEach(o => {
+      if (o.mode === "credit" && o.status === "Delivered" && !o.repaid) {
+        o.repaid = true;
+        o.creditStatus = "repaid";
+        this.state.pool.balance += o.total;
+        this.state.pool.totalRepaidByVup += o.total;
+        count++;
+
+        this.state.ledger.unshift({
+          id: this.state.ledger.length + 1,
+          date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: "repayment",
+          from: "VUP Treasury Transfer",
+          to: "Revolving Pool",
+          amount: o.total,
+          link: `Order #${o.id} Repayment`,
+          status: "completed",
+          paymentMethod: o.paymentMethod || "MTN Mobile Money",
+          createdBy: "Treasury Simulation"
+        });
+      }
+    });
+
+    this.saveState();
+    this.render();
+
+    if (count === 0) {
+      this.toast("No delivered credit orders pending reimbursement.", "info");
+    } else {
+      this.toast(`Disbursement wave arrived! ${count} delivered orders settled back into the pool.`, "success");
     }
   }
 
-  // 1. OPENING LANDING PAGE (With Hero CTA, Role Questions, VUP Dates, Proximity, and Harvest Showcase)
-  renderOpeningPage() {
-    return `
-      <!-- Hero Grocery Intro -->
-      <div class="hero-grocery">
-        <div class="hero-tagline">🌿 Rwanda Social Fintech & Farmer Direct Market · NISR 2026 Big Data Hackathon</div>
-        <h1 class="hero-heading">Isoko Bridge <span style="color:var(--accent); font-weight:400;">(Ikiraro cya VUP)</span></h1>
-        <p class="hero-description">
-          Connecting Rwandan smallholder farmers directly with households and ethical shoppers. 
-          When government VUP payments arrive late, emergency zero-interest bridge credit keeps families fed.
-        </p>
-
-        <!-- Prominent Hero Call-to-Action Buttons -->
-        <div style="display:flex; justify-content:center; gap:12px; margin: 18px 0 22px; flex-wrap:wrap;">
-          <button class="btn btn-primary btn-lg" style="box-shadow: 0 4px 14px rgba(27,107,74,0.35); font-weight:800;" onclick="window.app.openAuthModal('login')">
-            🔑 1-Click Sign In (Demo Accounts)
-          </button>
-          <button class="btn btn-outline btn-lg" style="background:var(--card-bg); font-weight:700;" onclick="window.app.openAuthModal('signup')">
-            📝 New Member Sign Up
-          </button>
-          <button class="btn btn-ghost btn-lg" style="font-weight:700; color:var(--primary);" onclick="const el=document.getElementById('harvestMarketSection'); if(el) el.scrollIntoView({behavior:'smooth'});">
-            🛒 Browse Fresh Harvest Nearby ↓
-          </button>
-        </div>
-
-        <!-- Category Pills (From Grocery App Mockup) -->
-        <div class="category-strip">
-          ${["All", "Pulses", "Staples", "Vegetables", "Grains", "Fruits"].map(cat => `
-            <button class="category-pill ${this.state.activeCategory === cat ? 'active' : ''}" 
-              onclick="window.app.state.activeCategory = '${cat}'; window.app.render();">
-              ${cat === 'All' ? '🧺' : cat === 'Pulses' ? '🫘' : cat === 'Staples' ? '🥔' : cat === 'Vegetables' ? '🥦' : cat === 'Grains' ? '🌽' : '🥑'}
-              ${cat}
-            </button>
-          `).join("")}
-        </div>
-      </div>
-
-      <!-- Tailored Onboarding Entrances (4 Distinct Personas with Questions & 1-Click Entry) -->
-      <div style="margin-bottom: 28px;">
-        <h2 style="font-size: 22px; font-weight: 800; text-align: center; margin-bottom: 4px;">How You Join Isoko Bridge</h2>
-        <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">
-          No password or credentials needed — choose your role, answer the sample question, or click any demo persona to enter immediately:
-        </p>
-
-        <div class="role-entry-grid">
-          <!-- 1. VUP Family -->
-          <div class="role-card-select highlight">
-            <div>
-              <div class="role-card-icon">👨‍👩‍👧</div>
-              <div class="role-card-title">
-                <span>VUP Beneficiary Member</span>
-                <span class="pill pill-fair">Bridge Credit</span>
-              </div>
-              <p class="role-card-desc">
-                <b>Sample Question:</b> <i>"Is your VUP monthly cash transfer delayed this month?"</i><br>
-                Check your automatic bridge credit limit, and order staple harvest food on credit until your VUP assistance arrives.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Amina Uwase</b> · Kirehe District · Direct Support (8 days late · 5 household members)
-            </div>
-            <button class="btn btn-primary btn-lg" onclick="window.app.quickLoginSample('amina_family')">
-              👨‍👩‍👧 1-Click Enter as VUP Member →
-            </button>
-          </div>
-
-          <!-- 2. Farmer / Seller -->
-          <div class="role-card-select">
-            <div>
-              <div class="role-card-icon">🌾</div>
-              <div class="role-card-title">
-                <span>Farmer / Cooperative</span>
-                <span class="pill pill-high">Seller</span>
-              </div>
-              <p class="role-card-desc">
-                <b>Sample Question:</b> <i>"What Rwandan crop are you harvesting and selling?"</i><br>
-                List produce with verified photos or camera upload, benchmark prices against NISR medians, and receive instant Mobile Money payments.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Mukamana Farm</b> · Kirehe · Dry Beans Seller
-            </div>
-            <button class="btn btn-outline btn-lg" onclick="window.app.quickLoginSample('mukamana_seller')">
-              🌾 1-Click Enter as Farmer / Seller →
-            </button>
-          </div>
-
-          <!-- 3. Ethical Shopper -->
-          <div class="role-card-select">
-            <div>
-              <div class="role-card-icon">🛒</div>
-              <div class="role-card-title">
-                <span>Ethical Shopper</span>
-                <span class="pill pill-neutral">Consumer</span>
-              </div>
-              <p class="role-card-desc">
-                <b>Sample Question:</b> <i>"How much pool donation do you want to add to your order?"</i><br>
-                Buy farm-fresh produce with MTN MoMo, Airtel Money, or BK. Contribute 1%–5% to refill the bridge pool and subsidize family food security.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: Grace Ingabire</b> · Kigali · 2% Pool Donor
-            </div>
-            <button class="btn btn-outline btn-lg" onclick="window.app.quickLoginSample('grace_shopper')">
-              🛒 1-Click Enter as Shopper →
-            </button>
-          </div>
-
-          <!-- 4. Planner / Judge -->
-          <div class="role-card-select highlight" style="border-color:#7e22ce;">
-            <div>
-              <div class="role-card-icon">📊</div>
-              <div class="role-card-title">
-                <span>Government Planner & Judges</span>
-                <span class="pill pill-urgent" style="background:#f3e8ff; color:#7e22ce;">Evidence Cockpit</span>
-              </div>
-              <p class="role-card-desc">
-                <b>Sample Question:</b> <i>"Need evidence from NISR 3,399 beneficiary microdata?"</i><br>
-                Inspect 30-district interactive choropleth map, delay hotspot matrix, priority rankings, and treasury liquidity simulation.
-              </p>
-            </div>
-            <div class="role-card-sample">
-              <b>Sample: LODA / NISR Administrator</b> · National & District Planning
-            </div>
-            <button class="btn btn-primary btn-lg" style="background:#7e22ce;" onclick="window.app.quickLoginSample('planner_demo')">
-              📊 1-Click Enter as Planner / Judge →
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Rwanda VUP Payment Dates & Delay Calendar Widget -->
-      <div class="vup-date-card">
-        <div class="vup-date-header">
-          <div>
-            <div style="font-size: 12px; font-weight:800; color:var(--accent); text-transform:uppercase;">NISR Survey Payment Cycle Calendar</div>
-            <h3 style="font-size: 19px; font-weight:800; color:var(--text-main); margin-top:2px;">How Rwanda VUP Disbursements & Delays Occur</h3>
-          </div>
-          <span class="pill pill-urgent">Average National Delay: 9.2 Days</span>
-        </div>
-        <p style="font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
-          Under Vision 2020 Umurenge Programme regulations, cash transfers are targeted on the <b>15th of each month</b>. 
-          However, NISR survey microdata proves that <b>52% of beneficiaries wait over a week</b>. Isoko Bridge covers this exact interim gap:
-        </p>
-        <div class="cycle-steps">
-          <div class="cycle-box">
-            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">1st – 14th of Month</span>
-            <b>Work & Attendance Audit</b>
-            <small>Public works labor logged</small>
-          </div>
-          <div class="cycle-box">
-            <span style="font-size: 11px; font-weight: 700; color: var(--primary);">15th of Month</span>
-            <b>Scheduled Disbursement</b>
-            <small>Target transfer date</small>
-          </div>
-          <div class="cycle-box active">
-            <span style="font-size: 11px; font-weight: 700; color: var(--danger);">16th – 27th (Late Gap)</span>
-            <b style="color:var(--danger);">Isoko Bridge Active!</b>
-            <small>Families buy food on credit</small>
-          </div>
-          <div class="cycle-box">
-            <span style="font-size: 11px; font-weight: 700; color: var(--success);">28th of Month</span>
-            <b>Treasury Clearance Wave</b>
-            <small>Credit repaid to pool</small>
-          </div>
-        </div>
-      </div>
-
-      <!-- "The Place You Are Right Now" Universal Location & Proximity Bar -->
-      ${this.renderNearbyBar()}
-
-      <!-- Live Harvest Grocery Showcase with Photos (Visual Grocery UI from Mockup) -->
-      <div id="harvestMarketSection" style="margin-bottom: 28px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 14px; flex-wrap:wrap; gap:8px;">
-          <div>
-            <h3 style="font-size: 20px; font-weight:800;">Fresh Harvest Catalog (18 Rwandan Productions)</h3>
-            <p style="font-size: 13px; color: var(--text-muted);">Real produce photography · Live proximity distance from your location · Direct farmer mobile money payments</p>
-          </div>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span class="pill pill-fair">18 Rwandan Produce Items</span>
-            <span class="pill pill-neutral">NISR Median Price Benchmarked</span>
-          </div>
-        </div>
-
-        ${this.renderGroceryCatalog('cash')}
-      </div>
-    `;
+  // =========================================================================
+  // 23. FARMER PHOTO UPLOAD & PRODUCE ADDITION
+  // =========================================================================
+  setListingPhoto(url) {
+    const preview = document.getElementById("listingPhotoPreview");
+    const input = document.getElementById("new_photo_url");
+    if (preview) preview.src = url;
+    if (input) input.value = url;
   }
 
-  renderDashboardWrapper() {
-    const u = this.state.currentUser;
-    let content = "";
-    if (this.state.role === "Family") content = this.renderFamilyView();
-    else if (this.state.role === "Farmer") content = this.renderFarmerView();
-    else if (this.state.role === "Shopper") content = this.renderShopperView();
-    else if (this.state.role === "Planner") content = this.renderPlannerView();
-
-    return `
-      <div class="dashboard-topbar">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <button class="back-home-btn" onclick="window.app.goHome()">
-            ← Back to Home / Change Role
-          </button>
-          <div style="font-size: 13px;">
-            Role: <b style="color: var(--primary); text-transform: uppercase;">${this.state.role}</b>
-            <span style="color: var(--text-muted); margin: 0 4px;">·</span>
-            User: <b>${u.name}</b> (${u.district || 'National'})
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <button class="btn btn-sm ${this.state.role === 'Family' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Family')">👨‍👩‍👧 Family</button>
-          <button class="btn btn-sm ${this.state.role === 'Farmer' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Farmer')">🌾 Farmer</button>
-          <button class="btn btn-sm ${this.state.role === 'Shopper' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Shopper')">🛒 Shopper</button>
-          <button class="btn btn-sm ${this.state.role === 'Planner' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.enterRole('Planner')">📊 Planner</button>
-        </div>
-      </div>
-
-      ${content}
-    `;
+  handleCustomPhotoUpload(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.setListingPhoto(e.target.result);
+        this.toast("Produce photo captured and loaded!", "success");
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
   }
 
-  renderFamilyView() {
-    const u = this.state.currentUser;
-    const limit = this.calculateCreditLimit();
-    const remaining = this.getRemainingCredit();
-    const isLate = Number(u.daysLate) > 0;
-    const dailyCost = (Number(u.householdSize) || 1) * NISR_DATA.overall.dailyFoodBasketCostRwf;
-    const benchmarkProg = NISR_DATA.programmes.find(p => p.name === u.programme) || NISR_DATA.programmes[2];
+  addListing(event) {
+    if (event) event.preventDefault();
+    const foodEl = document.getElementById("new_food");
+    const districtEl = document.getElementById("new_district");
+    const priceEl = document.getElementById("new_price");
+    const qtyEl = document.getElementById("new_qty");
+    const photoEl = document.getElementById("new_photo_url");
 
-    return `
-      <div class="banner-notice ${isLate ? 'danger' : 'info'}">
-        <div style="font-size: 24px;">${isLate ? '🚨' : '✅'}</div>
-        <div>
-          <b>${isLate ? `Disbursement Delay Alert: Payment is ${u.daysLate} days late.` : 'Payment on schedule.'}</b>
-          <div style="font-size: 13px; margin-top: 2px;">
-            ${isLate 
-              ? `Your emergency Bridge Credit is active! You can purchase nutritious staple food now. The revolving pool guarantees payment to the local farmer, and the credit is automatically settled when your VUP disbursement arrives.` 
-              : `Your VUP assistance is up to date. You can purchase fresh farm produce using cash.`}
-          </div>
-        </div>
-      </div>
+    if (!foodEl || !priceEl || !qtyEl) return;
 
-      <div class="grid grid-cols-4">
-        <div class="card">
-          <div class="card-subtitle">VUP Programme</div>
-          <div class="form-group" style="margin-top: 6px;">
-            <select class="form-control" onchange="window.app.state.currentUser.programme = this.value; window.app.saveState(); window.app.render();">
-              ${NISR_DATA.programmes.map(p => `
-                <option value="${p.name}" ${u.programme === p.name ? 'selected' : ''}>${p.name}</option>
-              `).join("")}
-            </select>
-          </div>
-          <div class="metric-sub">NISR benchmark delay: <b>${benchmarkProg.delay} days</b></div>
-        </div>
+    const food = foodEl.value;
+    const district = districtEl ? districtEl.value : "Gasabo";
+    const price = parseFloat(priceEl.value);
+    const quantity = parseFloat(qtyEl.value);
+    const photo = photoEl && photoEl.value ? photoEl.value : (HARVEST_GALLERY[food] ? HARVEST_GALLERY[food].img : "assets/produce/dry_beans.jpg");
 
-        <div class="card">
-          <div class="card-subtitle">Family Size (Members)</div>
-          <input type="number" min="1" max="15" class="form-control" value="${u.householdSize || 5}" 
-            onchange="window.app.state.currentUser.householdSize = +this.value || 1; window.app.saveState(); window.app.render();" style="margin-top: 6px;">
-          <div class="metric-sub">Demo Food Basket: <b>${dailyCost.toLocaleString()} RWF / day</b></div>
-        </div>
+    if (!price || !quantity || price <= 0 || quantity <= 0) {
+      this.toast("Please enter a valid price and quantity.", "warning");
+      return;
+    }
 
-        <div class="card">
-          <div class="card-subtitle">Disbursement Delay</div>
-          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
-            <input type="range" min="0" max="30" value="${u.daysLate}" 
-              oninput="window.app.state.currentUser.daysLate = +this.value; window.app.saveState(); window.app.render();" style="flex: 1;">
-            <b style="font-size: 16px; min-width: 38px;">${u.daysLate} d</b>
-          </div>
-          <div class="metric-sub">Status: <span class="pill ${isLate ? 'pill-urgent' : 'pill-fair'}">${isLate ? 'Delayed' : 'On Time'}</span></div>
-        </div>
+    const newListing = {
+      id: this.state.nextListingId++,
+      food,
+      district,
+      hub: `${district} Food Hub`,
+      price,
+      retailPrice: HARVEST_GALLERY[food] ? HARVEST_GALLERY[food].retailPrice : Math.round(price * 1.2),
+      quantity,
+      farmer: this.state.currentUser.name || "Mukamana Farm",
+      farmerEmail: this.state.currentUser.email || "mukamana.farm@vupbridge.rw",
+      momo: this.state.currentUser.momo || "078XXXX123",
+      photo,
+      isFav: false
+    };
 
-        <div class="card" style="background: linear-gradient(135deg, var(--card-bg), var(--primary-light));">
-          <div class="card-subtitle">Available Bridge Credit</div>
-          <div class="metric-value" style="color: var(--primary); margin-top: 4px;">${remaining.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">Max cap: ${limit.toLocaleString()} RWF (calculated per day late)</div>
-        </div>
-      </div>
-
-      ${this.renderNearbyBar()}
-
-      <!-- Produce Market -->
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title">🛒 Direct Produce Market</div>
-            <div class="card-subtitle">Direct staple produce from Rwandan farmers with photos and official NISR median price benchmarks.</div>
-          </div>
-          <span class="pill ${isLate ? 'pill-urgent' : 'pill-neutral'}">${isLate ? 'Bridge Credit Mode Active' : 'Cash Market Mode'}</span>
-        </div>
-        ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
-      </div>
-
-      <div class="grid grid-cols-2">
-        <div class="card">
-          <div class="card-title">🍲 Affordable Family Food Basket (NISR Cost Guide)</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Assumed daily nutritious portion per person based on NISR commodity prices.</div>
-          <table>
-            <thead>
-              <tr><th>Commodity</th><th>Portion/Day</th><th>Price (kg)</th><th>Daily Cost</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Dry Beans</td><td>120g</td><td>800 RWF</td><td>96 RWF</td></tr>
-              <tr><td>Sweet / Irish Potato</td><td>300g</td><td>250–450 RWF</td><td>105 RWF</td></tr>
-              <tr><td>Tomato & Onion</td><td>110g</td><td>500–1667 RWF</td><td>60 RWF</td></tr>
-              <tr style="font-weight: 700; background: var(--bg);">
-                <td>Total Basket</td><td>530g/person</td><td>-</td><td>~261 RWF/person/day</td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="metric-sub" style="margin-top: 10px;">* Illustrative food security budget based on NISR food prices.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-title">📋 My Family Orders</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Track delivery and settlement of your food orders.</div>
-          ${this.renderOrdersTable(this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === 'Family'))}
-        </div>
-      </div>
-    `;
-  }
-
-  renderFarmerView() {
-    const u = this.state.currentUser;
-    const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmer === "You (farmer)");
-    const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
-
-    return `
-      <div class="banner-notice info">
-        <div style="font-size: 24px;">🌾</div>
-        <div>
-          <b>Seller Portal · Direct Smallholder & Cooperative Produce Hub</b>
-          <div style="font-size: 13px; margin-top: 2px;">
-            Sell directly to local families and urban shoppers. Upload photos of your harvest or use our verified produce gallery so buyers know exactly what they are purchasing!
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3">
-        <div class="card">
-          <div class="card-subtitle">Pending Orders to Deliver</div>
-          <div class="metric-value">${myOrders.filter(o => o.status === 'Placed').length}</div>
-          <div class="metric-sub">Requires fulfillment</div>
-        </div>
-        <div class="card">
-          <div class="card-subtitle">Total Completed Payouts</div>
-          <div class="metric-value" style="color: var(--success);">${mySales.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">Paid instantly upon delivery</div>
-        </div>
-        <div class="card">
-          <div class="card-subtitle">Linked Mobile Money</div>
-          <div class="metric-value" style="font-size: 20px;">${u.momo || '0788 123 456'}</div>
-          <div class="metric-sub">MTN / Airtel Money Account</div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2">
-        <!-- Add Listing with Photo Options -->
-        <div class="card">
-          <div class="card-title">➕ Add Harvest Listing with Photo</div>
-          <div class="card-subtitle" style="margin-bottom: 16px;">Take a photo, upload an image, or pick one from our verified gallery:</div>
-          
-          <form onsubmit="window.app.addListing(event)">
-            <div class="form-group">
-              <label class="form-label">Produce Crop</label>
-              <select id="new_food" class="form-control" onchange="window.app.onProduceSelected(this.value)">
-                ${Object.keys(NISR_DATA.foodPrices).map(k => `
-                  <option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>
-                `).join("")}
-              </select>
-            </div>
-
-            <!-- Photo Selection: Upload, Camera, or Choose Ours -->
-            <div class="form-group" style="background:var(--bg); padding:12px; border-radius:var(--radius-md); border:1px solid var(--card-border);">
-              <label class="form-label">Produce Photo (Show Buyers What You Grow)</label>
-              <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
-                <img id="listingPhotoPreview" src="${HARVEST_GALLERY['Dry beans'].img}" style="width:75px; height:75px; object-fit:cover; border-radius:8px; border:2px solid var(--primary);" alt="Preview">
-                <div style="flex:1;">
-                  <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
-                  <button type="button" class="btn btn-sm btn-outline" style="margin-bottom:6px; width:100%;" onclick="document.getElementById('cameraUploadInput').click()">
-                    📸 Take Photo / Upload File
-                  </button>
-                  <input type="hidden" id="new_photo_url" value="${HARVEST_GALLERY['Dry beans'].img}">
-                  <small style="color:var(--text-muted); font-size:11px; display:block;">Or pick from our verified harvest photos below:</small>
-                </div>
-              </div>
-
-              <!-- Quick Gallery Chooser -->
-              <div style="display:flex; gap:6px; overflow-x:auto; padding-bottom:4px;">
-                ${Object.keys(HARVEST_GALLERY).map(k => `
-                  <img src="${HARVEST_GALLERY[k].img}" title="${k}" 
-                       style="width:38px; height:38px; object-fit:cover; border-radius:6px; cursor:pointer; border:1px solid var(--card-border);"
-                       onclick="window.app.setListingPhoto('${HARVEST_GALLERY[k].img}')">
-                `).join("")}
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2" style="margin-bottom: 0;">
-              <div class="form-group">
-                <label class="form-label">District Location</label>
-                <select id="new_district" class="form-control">
-                  ${NISR_DATA.districts.map(d => `
-                    <option value="${d.name}">${d.name} (${d.province})</option>
-                  `).join("")}
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Available Stock (kg)</label>
-                <input id="new_qty" type="number" min="1" value="100" class="form-control" required>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Selling Price (RWF per kg)</label>
-              <input id="new_price" type="number" min="50" value="780" class="form-control" required oninput="window.app.updatePriceGuidePreview()">
-              <div id="priceGuidePreview" style="margin-top: 6px; font-size: 13px;"></div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Payout MoMo Phone Number</label>
-              <input id="new_momo" type="text" value="${u.momo || '0788123456'}" class="form-control">
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Publish Produce to Market</button>
-          </form>
-        </div>
-
-        <!-- Orders Awaiting Delivery -->
-        <div class="card">
-          <div class="card-title">📦 Orders to Deliver</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Confirm delivery to release guaranteed payout from the pool or buyer.</div>
-          ${this.renderOrdersTable(myOrders, true)}
-        </div>
-      </div>
-    `;
+    this.state.listings.unshift(newListing);
+    this.saveState();
+    this.render();
+    this.toast(`Listed ${quantity} kg of ${food} at ${price.toLocaleString()} RWF/kg!`, "success");
   }
 
   onProduceSelected(foodName) {
@@ -1512,228 +2996,46 @@ class IsokoApp {
     const food = foodEl.value;
     const price = parseFloat(priceEl.value) || 0;
     const guide = this.getPriceGuide(food, price);
-    el.innerHTML = `NISR Benchmark Median: <b>${guide.median.toLocaleString()} RWF/kg</b> · Rating: <span class="pill ${guide.class}">${guide.label}</span>`;
+    el.innerHTML = `NISR Median: <b>${guide.median.toLocaleString()} RWF/kg</b> · <span class="pill ${guide.class}">${guide.label}</span>`;
   }
 
-  renderShopperView() {
+  getPriceGuide(food, price) {
+    const median = NISR_DATA.foodPrices[food] || (HARVEST_GALLERY[food] ? HARVEST_GALLERY[food].retailPrice : 600);
+    const ratio = price / median;
+    if (ratio < 0.85) return { label: "Fair Price (Low)", class: "pill-fair", median };
+    if (ratio > 1.15) return { label: "High Price", class: "pill-high", median };
+    return { label: "Median Benchmark", class: "pill-neutral", median };
+  }
+
+  calculateCreditLimit() {
     const u = this.state.currentUser;
-    const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper");
-    const totalGifts = myOrders.reduce((sum, o) => sum + (o.gift || 0), 0);
-    const dpp = 5 * NISR_DATA.overall.dailyFoodBasketCostRwf;
-    const daysFunded = (totalGifts / dpp).toFixed(1);
-
-    return `
-      <div class="banner-notice info">
-        <div style="font-size: 26px;">🛒</div>
-        <div>
-          <b>Ethical Shopper Portal · Support Local Farmers & Bridge the Hunger Gap</b>
-          <div style="font-size: 13.5px; margin-top: 3px; line-height: 1.5;">
-            Buy fresh Rwandan farm produce at fair direct-from-farm prices with MTN MoMo, Airtel Money, or BK. 
-            With every order, your chosen donation share (1% to 5%) directly fuels the Emergency Bridge Pool, keeping vulnerable Rwandan families fed while their VUP transfers are delayed.
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-3" style="margin-bottom: 24px;">
-        <div class="card">
-          <div class="card-subtitle">Pool Donation Share</div>
-          <div class="slider-pill-container">
-            <input type="range" min="1" max="5" value="${u.donationPct || 2}" 
-              oninput="window.app.state.currentUser.donationPct = +this.value; window.app.saveState(); window.app.render();" style="flex: 1;">
-            <div class="slider-val-pill">${u.donationPct || 2}%</div>
-          </div>
-          <div class="metric-sub">Automatically added to cart purchases to subsidize VUP families</div>
-        </div>
-
-        <div class="card">
-          <div class="card-subtitle">Your Total Pool Contributions</div>
-          <div class="metric-value" style="color: var(--accent);">${totalGifts.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">Contributed into the social revolving credit pool</div>
-        </div>
-
-        <div class="card">
-          <div class="card-subtitle">Tangible Social Impact</div>
-          <div class="metric-value" style="color: var(--success);">${daysFunded} <span style="font-size: 14px;">Family Days</span></div>
-          <div class="metric-sub">Days of complete sustenance funded for a vulnerable family of 5</div>
-        </div>
-      </div>
-
-      ${this.renderNearbyBar()}
-
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title">🛒 Fresh Farm Harvest Catalog (Direct from Rwandan Hubs)</div>
-            <div class="card-subtitle">Order high-quality produce straight from Rwandan cooperatives and smallholder farmers.</div>
-          </div>
-          <span class="pill pill-fair">Ethical Cash & MoMo Checkout</span>
-        </div>
-        ${this.renderGroceryCatalog('cash')}
-      </div>
-
-      <div class="card">
-        <div class="card-title">🧾 My Purchase Receipts & Impact Contribution</div>
-        <div class="card-subtitle" style="margin-bottom: 12px;">See what you purchased and how much was contributed to the bridge pool.</div>
-        ${this.renderOrdersTable(myOrders)}
-      </div>
-    `;
+    const days = Number(u.daysLate) || 0;
+    if (days <= 0) return 0;
+    const size = Number(u.householdSize) || 1;
+    const dpp = this.state.adminSettings.dailyFoodCost || 261;
+    const cap = this.state.adminSettings.creditCapDays || 14;
+    const effectiveDays = Math.min(days, cap);
+    return size * dpp * effectiveDays;
   }
 
-  renderPlannerView() {
-    const o = this.state.orders;
-    const creditOrders = o.filter(x => x.mode === "credit");
-    const totalCredit = creditOrders.reduce((sum, x) => sum + x.total, 0);
-    const outstanding = this.getOutstandingCredit();
-
-    return `
-      <div class="banner-notice" style="background: #f3e8ff; border-left-color: #7e22ce;">
-        <div style="font-size: 24px;">📊</div>
-        <div>
-          <b>Government & Programme Planner Intelligence (LODA / NISR Dashboard)</b>
-          <div style="font-size: 13px; margin-top: 2px;">
-            Evidence-based decision cockpit grounded in NISR VUP household survey microdata ($N = 3,399$ beneficiaries). Analyze disbursement friction, explore the 30-district interactive choropleth, test poverty proxy models, and simulate treasury liquidity cycles.
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-4">
-        <div class="card">
-          <div class="card-subtitle">Total Market Orders</div>
-          <div class="metric-value">${o.length}</div>
-          <div class="metric-sub">${creditOrders.length} placed on bridge credit</div>
-        </div>
-
-        <div class="card">
-          <div class="card-subtitle">Bridge Credit Extended</div>
-          <div class="metric-value" style="color: var(--primary);">${totalCredit.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">Zero-interest emergency safety net</div>
-        </div>
-
-        <div class="card">
-          <div class="card-subtitle">Open Unsettled Credit</div>
-          <div class="metric-value" style="color: ${outstanding > 0 ? 'var(--accent)' : 'var(--success)'};">${outstanding.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">Awaiting government VUP payment wave</div>
-        </div>
-
-        <div class="card" style="background: linear-gradient(135deg, var(--card-bg), var(--primary-light));">
-          <div class="card-subtitle">Bridge Pool Liquidity</div>
-          <div class="metric-value" style="color: var(--primary);">${this.state.pool.balance.toLocaleString()} <span style="font-size: 14px;">RWF</span></div>
-          <div class="metric-sub">In: ${this.state.pool.totalGiftsIn.toLocaleString()} · Out: ${this.state.pool.totalPaidToFarmers.toLocaleString()} · Repaid: ${this.state.pool.totalRepaidByVup.toLocaleString()}</div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom: 24px; background: var(--bg);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <b>Treasury & Liquidity Simulation Engine</b>
-            <div style="font-size: 13px; color: var(--text-muted);">Simulate the arrival of the scheduled VUP government cash transfer wave to automatically reimburse the community pool.</div>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn btn-primary" onclick="window.app.simulateVupRepayment()">⚡ Simulate: VUP Payments Arrive</button>
-            <button class="btn btn-outline" onclick="window.app.resetState()">↺ Reset Simulation</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title">🗺️ Interactive Rwanda 30-District Geospatial Observatory</div>
-            <div class="card-subtitle">GeoJSON choropleth visualising payment delays, poverty prevalence, and the composite 'Help Here First' priority index.</div>
-          </div>
-          <div style="display: flex; gap: 6px;">
-            <button class="btn btn-sm ${this.mapMetric === 'priority' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('priority')">Priority Score</button>
-            <button class="btn btn-sm ${this.mapMetric === 'delay' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('delay')">Payment Delay</button>
-            <button class="btn btn-sm ${this.mapMetric === 'poverty' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('poverty')">Poverty Rate</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3" style="margin-bottom: 0;">
-          <div style="grid-column: span 2;">
-            <div id="mapContainer"></div>
-          </div>
-          <div>
-            <div class="card" style="height: 100%; border: 1px solid var(--card-border); padding: 14px; background: var(--bg);">
-              <div id="districtSelectedInfo">
-                ${this.renderDistrictInfo(this.state.selectedDistrict)}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2">
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">🔥 Programme × Province Hotspot Matrix</div>
-              <div class="card-subtitle">Disbursement friction matrix cross-tabulating 4 programmes across 5 provinces.</div>
-            </div>
-            <div style="display: flex; gap: 4px;">
-              <button class="btn btn-sm ${this.state.hotspotMode === 'delay' ? 'btn-primary' : 'btn-outline'}" 
-                onclick="window.app.state.hotspotMode = 'delay'; window.app.render();">Days Late</button>
-              <button class="btn btn-sm ${this.state.hotspotMode === 'pct' ? 'btn-primary' : 'btn-outline'}" 
-                onclick="window.app.state.hotspotMode = 'pct'; window.app.render();">% >7d Late</button>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Programme</th><th>Southern</th><th>Eastern</th><th>Western</th><th>Kigali</th><th>Northern</th></tr>
-              </thead>
-              <tbody>
-                ${Object.keys(NISR_DATA.hotspots).map(prog => `
-                  <tr>
-                    <td style="font-weight: 600;">${prog}</td>
-                    ${["Southern", "Eastern", "Western", "City of Kigali", "Northern"].map(prov => {
-                      const cell = NISR_DATA.hotspots[prog][prov];
-                      if (!cell) return `<td style="color: var(--text-muted); text-align: center;">-</td>`;
-                      const isHot = cell.delay >= 11;
-                      const isWarn = cell.delay >= 8.5;
-                      const bg = isHot ? 'var(--danger-light)' : isWarn ? 'var(--accent-light)' : 'var(--success-light)';
-                      const color = isHot ? 'var(--danger)' : isWarn ? 'var(--accent)' : 'var(--success)';
-                      const flag = cell.records < 100 ? '*' : '';
-                      const displayVal = this.state.hotspotMode === 'pct' ? `${cell.latePct}%` : `${cell.delay.toFixed(1)}d`;
-                      return `
-                        <td style="text-align: center; background: ${bg}; color: ${color}; font-weight: 700;">
-                          ${displayVal}${flag}
-                          <small style="display:block; font-size:10px; font-weight:400; color:var(--text-muted);">${cell.records} records</small>
-                        </td>
-                      `;
-                    }).join("")}
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">💳 Financial Inclusion Channels & Speed</div>
-          <div class="card-subtitle" style="margin-bottom: 12px;">Disbursement turnaround by payment provider.</div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Disbursement Channel</th><th>Avg Delay</th><th>>7d Late (%)</th><th>Survey Records</th></tr>
-              </thead>
-              <tbody>
-                <tr><td><b>Mobile Money</b></td><td style="color: var(--danger); font-weight: 700;">10.4 days</td><td>59%</td><td>630</td></tr>
-                <tr><td><b>Bank-type SACCO</b></td><td>9.2 days</td><td>53%</td><td>2,205</td></tr>
-                <tr><td><b>Umurenge SACCO</b></td><td style="color: var(--success); font-weight: 700;">7.7 days</td><td>43%</td><td>546</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="banner-notice info" style="margin-top: 14px; margin-bottom: 0; padding: 10px;">
-            <small><b>Planner Insight:</b> Umurenge SACCOs disburse fastest (7.7 days). Mobile money delays (10.4 days) stem from rural cash float constraints.</small>
-          </div>
-        </div>
-      </div>
-    `;
+  getOutstandingCredit() {
+    return this.state.orders
+      .filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled" && o.creditStatus !== "written_off")
+      .reduce((sum, o) => sum + o.total, 0);
   }
 
+  getRemainingCredit() {
+    const limit = this.calculateCreditLimit();
+    const out = this.getOutstandingCredit();
+    return Math.max(0, limit - out);
+  }
+
+  // =========================================================================
+  // 24. ORDERS TABLE WITH 'REPORT A PROBLEM' ACTION (Section 16.3)
+  // =========================================================================
   renderOrdersTable(ordersList, showDeliverBtn = false) {
     if (!ordersList || !ordersList.length) {
-      return `<p style="padding: 16px; color: var(--text-muted); font-size: 13px;">No orders found in this category.</p>`;
+      return `<p style="padding: 16px; color: var(--text-muted); font-size: 13px;">No orders found in this view.</p>`;
     }
 
     return `
@@ -1747,7 +3049,7 @@ class IsokoApp {
               <th>Amount</th>
               <th>Payment</th>
               <th>Status</th>
-              ${showDeliverBtn ? '<th>Action</th>' : ''}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -1759,22 +3061,27 @@ class IsokoApp {
                 <td><b>${o.total.toLocaleString()} RWF</b></td>
                 <td>
                   <span class="pill ${o.mode === 'credit' ? 'pill-urgent' : 'pill-fair'}">
-                    ${o.mode === 'credit' ? 'Bridge Credit' : o.paidBy || 'Cash'}
+                    ${o.mode === 'credit' ? 'Bridge Credit' : o.paymentMethod || o.paidBy || 'Cash'}
                   </span>
                   ${o.repaid ? '<span class="pill pill-fair" style="margin-left: 4px;">Repaid</span>' : ''}
                 </td>
                 <td>
-                  <span class="pill ${o.status === 'Delivered' ? 'pill-fair' : 'pill-high'}">
+                  <span class="pill ${o.status === 'Delivered' ? 'pill-fair' : o.status === 'Pending Approval' ? 'pill-urgent' : 'pill-high'}">
                     ${o.status}
                   </span>
                 </td>
-                ${showDeliverBtn ? `
-                  <td>
-                    ${o.status === 'Placed' 
-                      ? `<button class="btn btn-sm btn-primary" onclick="window.app.deliverOrder(${o.id})">Mark Delivered</button>`
-                      : '<span style="color: var(--success); font-weight:700;">Delivered ✓</span>'}
-                  </td>
-                ` : ''}
+                <td>
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    ${showDeliverBtn && o.status === 'Placed' 
+                      ? `<button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.deliverOrder(${o.id})">Mark Delivered</button>`
+                      : showDeliverBtn && o.status === 'Pending Approval'
+                      ? `<button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:11px;" onclick="window.app.approveCredit(${o.id})">Approve</button>`
+                      : ''}
+                    <button class="btn btn-ghost btn-sm" style="font-size:11px; padding:2px 6px; color:var(--danger);" onclick="window.app.openCaseModal('Order #${o.id}')" title="Report a problem with this transaction (Section 16.3)">
+                      🚩 Report
+                    </button>
+                  </div>
+                </td>
               </tr>
             `).join("")}
           </tbody>
@@ -1783,47 +3090,50 @@ class IsokoApp {
     `;
   }
 
+  // =========================================================================
+  // 25. GIS OBSERVATORY & 30-DISTRICT MAP
+  // =========================================================================
   renderDistrictInfo(districtName) {
     const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === districtName.toLowerCase()) || NISR_DATA.districts[0];
     return `
-      <div style="font-size: 20px; font-weight: 800; color: var(--primary);">${d.name} District</div>
-      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Province: <b>${d.province}</b></div>
+      <div style="font-size: 18px; font-weight: 800; color: var(--primary);">${d.name} District</div>
+      <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">Province: <b>${d.province}</b></div>
 
       <div style="margin-bottom: 8px;">
         <span class="pill ${d.priority >= 70 ? 'pill-urgent' : d.priority >= 45 ? 'pill-high' : 'pill-neutral'}">${d.band}</span>
-        <span class="pill pill-neutral">Rank #${d.rank} of 30</span>
       </div>
 
-      <table style="margin-top: 12px; font-size: 12px;">
-        <tr><td>Average Delay:</td><td><b>${d.delay.toFixed(1)} days</b></td></tr>
-        <tr><td>Estimated Poverty Rate:</td><td><b>${d.poverty.toFixed(1)}%</b></td></tr>
-        <tr><td>Priority Score:</td><td><b style="color: var(--primary);">${d.priority.toFixed(1)} / 100</b></td></tr>
-        <tr><td>NISR Records:</td><td><b>${d.records} households</b></td></tr>
-      </table>
+      <div style="font-size: 12.5px; line-height: 1.55; color: var(--text-main);">
+        <div>Help Priority Score: <b>${d.priority} / 100</b></div>
+        <div>VUP Disbursement Delay: <b>${d.delay} days</b></div>
+        <div>Over 7-Day Delay: <b>${d.latePct}%</b></div>
+        <div>Poverty Prevalence: <b>${d.poverty}%</b></div>
+        <div>Survey Beneficiaries: <b>${d.records}</b></div>
+        <div style="margin-top:6px; font-size:11.5px; color:var(--text-muted);">Local Hub: <b>${d.hub}</b></div>
+      </div>
     `;
   }
 
   selectDistrict(name) {
     this.state.selectedDistrict = name;
-    const infoEl = document.getElementById("districtSelectedInfo");
-    if (infoEl) infoEl.innerHTML = this.renderDistrictInfo(name);
-    this.toast(`Selected ${name} District`, "info");
+    const info = document.getElementById("districtSelectedInfo");
+    if (info) info.innerHTML = this.renderDistrictInfo(name);
   }
 
   setMapMetric(metric) {
     this.mapMetric = metric;
-    this.render();
+    this.initMap();
   }
 
   initPlannerVisuals() {
     setTimeout(() => {
       this.initMap();
-    }, 100);
+    }, 150);
   }
 
   initMap() {
-    const mapEl = document.getElementById("mapContainer");
-    if (!mapEl) return;
+    const container = document.getElementById("mapContainer");
+    if (!container) return;
 
     if (window.L && window.RWANDA_DISTRICTS_GEOJSON) {
       try {
@@ -1832,104 +3142,91 @@ class IsokoApp {
           this.map = null;
         }
 
-        this.map = L.map("mapContainer", {
-          center: [-1.9403, 29.8739],
-          zoom: 9,
-          zoomControl: true
-        });
+        this.map = L.map('mapContainer', { zoomControl: true, attributionControl: false }).setView([-1.9403, 29.8739], 8);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(this.map);
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          maxZoom: 12,
-          minZoom: 8,
-          attribution: '© OpenStreetMap contributors | NISR'
-        }).addTo(this.map);
-
-        const getMetricValue = (dName) => {
-          const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === dName.toLowerCase());
-          if (!d) return 0;
-          if (this.mapMetric === "delay") return d.delay;
-          if (this.mapMetric === "poverty") return d.poverty;
-          return d.priority;
-        };
-
-        const getColor = (val) => {
+        const getColor = (name) => {
+          const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
+          if (!d) return "#ccc";
           if (this.mapMetric === "priority") {
-            return val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
+            return d.priority >= 70 ? "#b91c1c" : d.priority >= 55 ? "#c2410c" : d.priority >= 40 ? "#d97706" : "#22c55e";
           }
           if (this.mapMetric === "delay") {
-            return val >= 13 ? "#991b1b" : val >= 10 ? "#dc2626" : val >= 8 ? "#ea580c" : val >= 6 ? "#eab308" : "#16a34a";
+            return d.delay >= 11 ? "#b91c1c" : d.delay >= 9 ? "#d97706" : "#22c55e";
           }
-          return val >= 42 ? "#991b1b" : val >= 35 ? "#dc2626" : val >= 28 ? "#ea580c" : val >= 20 ? "#eab308" : "#16a34a";
+          return d.poverty >= 45 ? "#7e22ce" : d.poverty >= 35 ? "#a855f7" : "#c084fc";
         };
 
-        this.mapLayer = L.geoJson(window.RWANDA_DISTRICTS_GEOJSON, {
-          style: (feat) => ({
-            fillColor: getColor(getMetricValue(feat.properties.shapeName || "")),
+        this.mapLayer = L.geoJSON(window.RWANDA_DISTRICTS_GEOJSON, {
+          style: (feature) => ({
+            fillColor: getColor(feature.properties.shapeName || feature.properties.ADM2_EN || ""),
             weight: 1.5,
             opacity: 1,
-            color: "#ffffff",
-            fillOpacity: 0.75
+            color: '#fff',
+            fillOpacity: 0.72
           }),
-          onEachFeature: (feat, layer) => {
-            const name = feat.properties.shapeName || "District";
-            const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
-            if (d) {
-              layer.bindTooltip(`<b>${d.name}</b><br>Delay: ${d.delay.toFixed(1)}d · Score: ${d.priority.toFixed(1)}`, { sticky: true });
-            }
+          onEachFeature: (feature, layer) => {
+            const name = feature.properties.shapeName || feature.properties.ADM2_EN || "District";
+            layer.bindTooltip(`<b>${name}</b>`, { sticky: true });
             layer.on({
-              click: () => this.selectDistrict(name)
+              click: () => this.selectDistrict(name),
+              mouseover: (e) => e.target.setStyle({ weight: 3, color: '#1b6b4a', fillOpacity: 0.9 }),
+              mouseout: (e) => this.mapLayer.resetStyle(e.target)
             });
           }
         }).addTo(this.map);
-
-        this.map.fitBounds(this.mapLayer.getBounds());
         return;
-      } catch (e) {
-        console.warn("Leaflet error, using SVG fallback", e);
+      } catch (err) {
+        console.warn("Leaflet map init error, falling back to SVG:", err);
       }
     }
 
-    this.renderOfflineSvgMap(mapEl);
+    this.renderOfflineSvgMap(container);
   }
 
   renderOfflineSvgMap(container) {
-    if (!window.RWANDA_DISTRICTS_GEOJSON) return;
-    const minX = 28.8, maxX = 30.9, minY = -2.9, maxY = -1.0;
-    const width = 600, height = 450;
-    const scaleX = width / (maxX - minX);
-    const scaleY = height / (maxY - minY);
+    if (!container) return;
+    container.innerHTML = `
+      <div style="padding: 18px; text-align: center; height:100%; display:flex; flex-direction:column; justify-content:center;">
+        <div style="font-weight: 700; margin-bottom: 8px;">Interactive 30-District GIS Grid</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; max-height: 290px; overflow-y: auto;">
+          ${NISR_DATA.districts.map(d => {
+            const isHigh = d.priority >= 60;
+            const bg = isHigh ? 'var(--danger-light)' : 'var(--bg)';
+            const border = isHigh ? 'var(--danger)' : 'var(--card-border)';
+            return `
+              <button onclick="window.app.selectDistrict('${d.name}')" 
+                      style="font-size: 11px; padding: 4px 8px; border-radius: 6px; border: 1px solid ${border}; background: ${bg}; cursor: pointer;">
+                ${d.name} (${d.delay}d)
+              </button>
+            `;
+          }).join("")}
+        </div>
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Click any district to view household microdata delay profile.</p>
+      </div>
+    `;
+  }
 
-    const project = (lng, lat) => [(lng - minX) * scaleX, height - (lat - minY) * scaleY];
-
-    let paths = "";
-    window.RWANDA_DISTRICTS_GEOJSON.features.forEach(feat => {
-      const name = feat.properties.shapeName || "District";
-      const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
-      const val = d ? (this.mapMetric === 'delay' ? d.delay : this.mapMetric === 'poverty' ? d.poverty : d.priority) : 50;
-      let col = val >= 75 ? "#991b1b" : val >= 60 ? "#dc2626" : val >= 45 ? "#ea580c" : val >= 30 ? "#eab308" : "#16a34a";
-
-      const geom = feat.geometry;
-      let dAttr = "";
-      const addPolygon = (rings) => {
-        rings.forEach(ring => {
-          ring.forEach((pt, i) => {
-            const [px, py] = project(pt[0], pt[1]);
-            dAttr += (i === 0 ? "M" : "L") + px.toFixed(1) + "," + py.toFixed(1);
-          });
-          dAttr += "Z";
-        });
-      };
-
-      if (geom.type === "Polygon") addPolygon(geom.coordinates);
-      else if (geom.type === "MultiPolygon") geom.coordinates.forEach(poly => addPolygon(poly));
-
-      paths += `<path d="${dAttr}" fill="${col}" stroke="#ffffff" stroke-width="1" style="cursor:pointer;" onclick="window.app.selectDistrict('${name}')"><title>${name}</title></path>`;
-    });
-
-    container.innerHTML = `<svg viewBox="0 0 ${width} ${height}" style="width:100%; height:auto;">${paths}</svg>`;
+  toast(msg, type = "info") {
+    let container = document.getElementById("toastContainer");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "toastContainer";
+      container.className = "toast-container";
+      document.body.appendChild(container);
+    }
+    const t = document.createElement("div");
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => {
+      t.style.opacity = '0';
+      setTimeout(() => t.remove(), 300);
+    }, 3500);
   }
 }
 
+// Global bootstrap
 document.addEventListener("DOMContentLoaded", () => {
   window.app = new IsokoApp();
   window.app.init();

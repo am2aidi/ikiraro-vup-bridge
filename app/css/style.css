@@ -1672,3 +1672,205 @@ tr:last-child td {
   font-size: 11px;
   font-weight: 700;
 }
+
+/* ==========================================================================
+   VUP BRIDGE PROTOTYPE EXTENSIONS (WHO ARE YOU, LOGIN, CREDIT DESK, AI HELPER)
+   ========================================================================== */
+.sim {
+  font-size: 13.5px;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sim b { color: var(--accent); }
+
+.pick {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 18px 0 26px;
+}
+.pk {
+  text-align: left;
+  background: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  cursor: pointer;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: var(--transition);
+  position: relative;
+  box-shadow: var(--shadow-sm);
+}
+.pk:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.pk b {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pk span {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.pk .pk-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(14, 99, 94, 0.1);
+  color: var(--primary);
+}
+
+/* Timeframe Bar */
+.timeframe-bar {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--bg);
+  padding: 3px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+}
+.timeframe-bar button {
+  border: 0;
+  background: transparent;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+.timeframe-bar button.active {
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+/* Credit Desk 3 Queues */
+.credit-desk { margin: 20px 0; }
+.queue-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.queue-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.queue-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--card-border);
+}
+.queue-badge {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.queue-item {
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.queue-item:last-child { margin-bottom: 0; }
+
+/* What is Not Going Well Alerts */
+.alert-box {
+  background: #fff5f5;
+  border: 1px solid #fed7d7;
+  border-left: 5px solid var(--danger);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin: 16px 0;
+}
+[data-theme="dark"] .alert-box {
+  background: #2b1717;
+  border-color: #552323;
+}
+.alert-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.alert-item:last-child { margin-bottom: 0; }
+
+/* Gemini AI Helper Card */
+.ai-helper-card {
+  background: linear-gradient(135deg, rgba(126, 34, 206, 0.07), rgba(27, 107, 74, 0.07));
+  border: 1px solid rgba(126, 34, 206, 0.28);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin: 16px 0;
+}
+.ai-prompt-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--card-bg);
+  border: 1px solid rgba(126, 34, 206, 0.3);
+  color: #7e22ce;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 3px;
+  transition: all 0.2s;
+}
+.ai-prompt-chip:hover {
+  background: #7e22ce;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* Gemini Modal Content */
+.gemini-modal-content {
+  background: var(--card-bg);
+  border-radius: var(--radius-xl);
+  max-width: 640px;
+  width: 95vw;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+}
+.gemini-header {
+  background: linear-gradient(135deg, #1b6b4a, #7e22ce);
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

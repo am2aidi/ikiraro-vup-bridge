@@ -1,190 +1,165 @@
-# Isoko Bridge (Ikiraro VUP Bridge)
+# VUP Bridge (Isoko Bridge · Ikiraro cya VUP)
 
-> **A direct food market, emergency social payment bridge, and decision-support planner tool for Rwandan households receiving Vision 2020 Umurenge Programme (VUP) support.**
+> **"Eat while you wait."**  
+> *A direct food market, emergency social payment bridge, and decision-support intelligence platform for Rwandan households receiving Vision 2020 Umurenge Programme (VUP) support.*
 
 **NISR 2026 Big Data Hackathon Submission**  
-**Track:** Track 3: Open Innovation *(Alternate: Track 2: Financial Inclusion and Poverty Reduction)*  
-**Lead Author:** Zaidi (Final Year, Information Systems, University of Rwanda - CST)  
-**Team Member 2:** KAYUMBA TETA Aela Greta (Final Year, University of Rwanda - CST)  
-**Repository:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
+- **Track:** Track 3: Open Innovation *(Alternate: Track 2: Financial Inclusion and Poverty Reduction)*  
+- **Lead Author:** Zaidi (Final Year, Information Systems, University of Rwanda - CST)  
+- **Team Member 2:** KAYUMBA TETA Aela Greta (Final Year, University of Rwanda - CST)  
+- **Official Repository:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
+- **Live Deployment:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app)
+
+---
+
+## ⚠️ Mandatory Hackathon Principles & Hard Rules
+
+1. **Prototype. Fake money.**  
+   *All monetary numbers, revolving pools, mobile money transactions, and user balances are simulated for demonstration. No real currency is transferred.*
+2. **Patterns, not reasons.**  
+   *The NISR microdata shows empirical patterns of disbursement delays, demographic distributions, and vulnerability across Rwanda's 30 districts. It cannot explain why any individual payment was delayed (administrative audit, bank clearance, or attendance reconciliation).*
+3. **Families are never punished.**  
+   *If a family is unable to repay bridge credit due to hardship or illness, the revolving pool absorbs the write-off without penalizing the household.*
 
 ---
 
 ## 1. Executive Summary & Problem Statement
 
-Many low-income families across Rwanda depend on regular VUP social protection transfers to purchase food and essential sustenance. However, National Institute of Statistics of Rwanda (NISR) household survey data demonstrates that disbursements frequently encounter administrative delays:
-- **Average disbursement delay:** **9.2 days**, with over **52%** of recipient families waiting more than one week.
-- In severe hotspot zones—such as Expanded Public Works in the Southern Province—delays climb to **14.6 days**, with **79%** paid over 7 days late.
-- During these acute delay gaps, vulnerable households face acute food insecurity or are forced into informal high-interest debt. Simultaneously, local smallholder farmers often struggle with post-harvest market access and fair pricing.
+National Institute of Statistics of Rwanda (NISR) household survey microdata ($N = 3,399$ VUP beneficiaries) reveals that monthly social protection cash transfers encounter systemic operational delays:
+- **National Average Delay:** **9.2 days**, with **52%** of recipient families waiting more than one week past the scheduled 15th disbursement date.
+- **Hotspot Severity:** In Expanded Public Works in the Southern Province, delays reach **14.6 days**, with **79%** of households paid more than 7 days late.
+- **The Acute Delay Gap:** When government payments are late, low-income families face severe food insecurity or predatory informal loans. Simultaneously, local smallholder farmers lack direct urban and peri-urban market access.
 
-**Isoko Bridge** solves this through three integrated pillars:
-1. **Direct Agricultural Market:** Smallholder farmers list harvest produce with real-time fair price benchmarks anchored directly to official NISR median market prices.
-2. **Emergency Social Payment Bridge:** When a family's VUP disbursement is late, a zero-interest emergency bridge credit line automatically opens based on family size and delay days (`people × daily_food_cost × days_late`). The family buys food immediately; a community-backed revolving social pool pays the farmer upon delivery; and when the government VUP payment subsequently arrives, the credit is reimbursed back to the pool.
-3. **Evidence-Based Planner Intelligence:** District and central government planners access real-time dashboards mapping provincial/district disbursement delays, smallholder price gaps, poverty risk distributions, and a 30-district composite "Help Here First" priority index.
+**VUP Bridge** bridges this exact gap:
+1. **Direct Rwandan Harvest Market:** Farmers list produce with photos and GPS proximity, benchmarked against official NISR median market prices.
+2. **Emergency Social Bridge Credit:** When VUP cash transfers are late, eligible families receive instant zero-interest credit (`people × daily_food_cost × days_late`) to purchase staple food.
+3. **Revolving Social Pool:** Community shoppers donate 1%–5% with each grocery purchase. The pool pays farmers immediately upon delivery; when government VUP transfers arrive, the credit is reimbursed back to the pool.
+4. **Planner & Judicial Cockpit:** Planners monitor 30-district interactive delay maps, the 3 Credit Desk queues, problem disputes, and downloadable official statements.
 
 ---
 
-## 2. Real, Simulated, and Assumed Components
-
-In strict transparency according to Section 8 of the project specification:
+## 2. Real vs. Simulated vs. Assumed Components (Section 2 Compliance)
 
 | Component Type | Included Elements | Data Source & Treatment |
 | :--- | :--- | :--- |
-| **Real NISR Analysis** | Disbursement delays, provincial & district hotspots, demographic breakdowns, poverty proxy model, financial access channels, baseline commodity prices. | Derived directly from NISR VUP household survey microdata ($N = 3,399$ beneficiaries). |
-| **Simulated (Demo)** | Farmers, cooperative product listings, consumer orders, bridge credit issuance, donation pool balances, and currency transfers. | Functional local prototype with state persistence (fake money; no real currency is moved). |
-| **Assumed Parameters** | Daily adult food consumption (e.g. 120g beans, 300g potatoes, etc. $\approx$ 261 RWF/person/day), regular shopper donation share (1%–5%), monthly consumer budget. | Calibrated to Rwanda household consumption benchmarks. |
+| **Real (NISR Microdata)** | 30-district delay statistics, provincial hotspots, demographic breakdowns, poverty proxy model, baseline commodity median prices. | Derived directly from NISR VUP household survey microdata ($N = 3,399$ beneficiaries). |
+| **Simulated (Demo)** | Farmers, cooperative listings, consumer orders, bridge credit issuance, revolving pool ledger, audit log, and cases. | Fully functional prototype with local browser state persistence (`Prototype. Fake money.`). |
+| **Assumed Parameters** | Daily adult food consumption basket ($\approx$ 261 RWF/person/day: 120g beans, 300g sweet potato, 80g tomato, 30g onion), shopper donation rate (1%–5%). | Calibrated to Rwandan national nutrition guidelines and market price indices. |
 
 ---
 
-## 3. Account Roles & Demo Credentials
+## 3. Five Roles & Sample Login Accounts (Section 17 Catalog)
 
-The platform features role-based access control with four specialized interfaces. For demonstration and judging, pre-configured accounts are provided below:
+The platform opens with **"Who are you?"** featuring 5 clear role buttons with one-line descriptions. Any email and password can be entered (`Prototype: type any email and any password. Nothing is checked.`):
 
-| Role | Name | Username | Password | Context / Details |
+| Role | Sample User | Email | Password | Context & State |
 | :--- | :--- | :--- | :--- | :--- |
-| **VUP Member** | Amina Uwase | `amina_family` | `Amina#2026` | Direct Support, 5 people, Kirehe District (active 8-day delay) |
-| **VUP Member** | Jean Bosco | `bosco_family` | `Bosco#2026` | Expanded Public Works, 6 people, Gisagara District |
-| **Seller / Farmer** | Mukamana Farm | `mukamana_seller` | `Farm#2026` | Dry beans seller, Kirehe District, MoMo account linked |
-| **Seller / Farmer** | Nyabihu Potato Coop | `nyabihu_seller` | `Coop#2026` | Irish potato cooperative, Nyabihu District |
-| **Ethical Shopper** | Grace Ingabire | `grace_shopper` | `Grace#2026` | Urban consumer donating 2% of cart to the bridge pool |
-| **Ethical Shopper** | Eric Mugisha | `eric_shopper` | `Eric#2026` | Urban consumer donating 3% of cart to the bridge pool |
-| **Government Planner** | Planner Demo | `planner_demo` | `Plan#2026` | Full administrative, analytical, and policy planning access |
-
-> **Note:** A one-click role switcher and demo account modal are provided on the login page for rapid review without manual password typing.
-
----
-
-## 4. System Architecture & Features by Role
-
-### A. VUP Beneficiary Family View
-- **Payment Status Tracker:** Displays enrolled programme (Direct Support, cPW, ePW, NSDS), reported payment delay, and real-time status.
-- **Dynamic Bridge Credit:** Automatically calculates available emergency credit balance.
-- **Fair-Price Market:** Enables ordering staple produce on bridge credit during active delays or cash when payments are on schedule.
-- **Affordable Meal Guide:** Practical recipe cost estimations aligned with NISR food price indices.
-
-### B. Smallholder Farmer / Seller View
-- **Produce Listing Management:** Quick entry of available crops (beans, potatoes, maize, bananas, vegetables) with quantity and pricing.
-- **NISR Price Guidance Indicator:** Visual badge flagging whether the farmer's price is **Fair** (within $\pm15\%$ of NISR median), **Low**, or **High**.
-- **Delivery Fulfillment:** One-click confirmation of produce delivery; triggers instantaneous guaranteed payment from the social bridge pool.
-
-### C. Ethical Shopper View
-- **Direct Local Farm Produce:** High-quality food purchase at transparent farm-gate prices.
-- **Micro-Donation Slider:** Allows shoppers to allocate $1\%$ to $5\%$ of their basket value directly into the VUP social bridge pool.
-- **Impact Metrics:** Real-time calculation showing how many family-days of food nutrition their purchases have subsidized.
-
-### D. Government & District Planner View
-- **Interactive Rwanda 30-District Geospatial Observatory:** Visualizes payment delays, poverty prevalence, and priority scores across all 30 districts.
-- **Hotspot Heatmap:** Two-way cross-tabulation of average delay and percentage waiting $>7$ days across programmes and provinces.
-- **District Priority Ranking:** Composite multi-criteria decision tool identifying which districts require urgent payment logistics interventions.
-- **Poverty Risk Proxy Tool:** Interactive simulator predicting household poverty vulnerability based on dwelling facts without income bias.
-- **VUP Payment Simulation:** Allows planners to simulate treasury disbursement waves, automatically liquidating outstanding credit and replenishing the revolving pool.
+| **VUP member** | **Amina Uwase** | `amina.uwase@vupbridge.rw` | `demo1234` | Credit-ready (8 days late, 5 people, Kirehe) |
+| VUP member | Jean Bosco Habimana | `jean.bosco@vupbridge.rw` | `demo1234` | Overdue credit alert (12 days late, Gisagara) |
+| VUP member | Claudine Mukamana | `claudine.mukamana@vupbridge.rw` | `demo1234` | Verified, needs payment account (6 days late) |
+| VUP member | Emmanuel Niyonsenga | `emmanuel.niyonsenga@vupbridge.rw` | `demo1234` | **Pending verification** (test live approval flow) |
+| VUP member | Beatrice Uwimana | `beatrice.uwimana@vupbridge.rw` | `demo1234` | Pending verification (Direct Support) |
+| VUP member | Theogene Habiyaremye | `theogene.habiyaremye@vupbridge.rw` | `demo1234` | Pending verification (Classic Public Works) |
+| **Planner** | **Planner One** | `planner1@vupbridge.rw` | `demo1234` | Lead District Social Protection Planner |
+| Planner | Planner Two | `planner2@vupbridge.rw` | `demo1234` | Secondary Regional Planner |
+| **Seller** | **Mukamana Farm** | `mukamana@vupbridge.rw` | `demo1234` | Dry beans seller, Kirehe District |
+| Seller | Nyabihu Potato Coop | `nyabihu@vupbridge.rw` | `demo1234` | Kinigi Irish potato cooperative, Nyabihu |
+| Seller | Kamonyi Veg Growers | `kamonyi@vupbridge.rw` | `demo1234` | Fresh tomato & greens grower, Kamonyi |
+| Seller | Gisagara Sweet Potato | `gisagara@vupbridge.rw` | `demo1234` | Sweet potato grower group, Gisagara |
+| **Shopper** | **Grace Ingabire** | `grace.ingabire@vupbridge.rw` | `demo1234` | Kigali ethical consumer (2% pool donor) |
+| Shopper | Eric Mugisha | `eric.mugisha@vupbridge.rw` | `demo1234` | Kigali ethical consumer (3% pool donor) |
+| Shopper | Aline Uwase | `aline.uwase@vupbridge.rw` | `demo1234` | Kigali ethical consumer (5% pool donor) |
+| Shopper | Patrick Nkurunziza | `patrick.nkurunziza@vupbridge.rw` | `demo1234` | Kigali ethical consumer (1% pool donor) |
+| **Government worker** | **Admin Demo** | `admin@vupbridge.rw` | `demo1234` | System auditor (sees all users, orders, failure switch) |
 
 ---
 
-## 5. Repository File Structure
+## 4. Key Architectural Modules
 
+### A. The Credit Desk with 3 Queues
+Track every bridge credit order through its financial lifecycle:
+1. **To Approve:** Verifies family eligibility, NISR delay days, and enforces the 14-day credit cap (first credit capped at 3 days; one open credit at a time).
+2. **To Pay Sellers:** Displays delivered credit orders. The planner clicks **"Pay Seller from Pool"** to disburse mobile money to the farmer immediately.
+3. **To Repay:** Tracks outstanding credit owed back to the pool. When the government VUP transfer wave clears, click **"Settle from VUP Transfer"** or **"Write Off"** (absorbed by pool).
+
+### B. Member Verification Lifecycle
+- Unverified members start as `pending`.
+- Planners view the **Member Approvals Queue** and click **"Approve Member"**.
+- Approved members transition to `verified`, add payment details (MoMo / SACCO), and become `credit-ready`.
+
+### C. Trilingual Support & Gemini AI Engine
+- Complete native translation across all 3 official languages of Rwanda: **English (`EN`)**, **Ikinyarwanda (`RW`)**, and **Français (`FR`)**.
+- Built-in **Google Gemini AI Assistant** translates produce listings, answers agricultural/fintech queries, and explains system metrics in easy words.
+- Strict Section 8 compliance: Gemini explanations are formatted in **four parts**, use short sentences, under 150 words, never invent numbers, and state *"Possible reason:"* when explaining payment delays.
+
+### D. Single Immutable Ledger & Problem Dispute Cases
+- **Immutable Financial Ledger:** Transactions are never edited or deleted. Errors are corrected via linked reversal entries.
+- **🚩 Report a Problem:** Available on every order and ledger transaction. Creates an open Case in the Planner and Admin dispute queues.
+- **Admin Failure Switch:** Toggle `"Make the next payment fail"` to simulate a mobile money float failure and test problem resolution.
+
+### E. Statements & Analysis Reports
+- Downloadable **PDF / CSV Statements** for every role (statement number, period, itemized transactions, credit, repaid balance).
+- **Official Executive Analysis Report:** Printable report containing NISR delay baseline comparisons, revolving pool velocity, and district breakdown.
+
+---
+
+## 5. Verification & Acceptance Testing (Tests 1–29)
+
+To run the automated Node.js test suite covering all 29 acceptance criteria:
+
+```bash
+node scripts/test_runtime.js
+```
+
+Expected output:
 ```text
-ikiraro-vup-bridge/
-├── README.md                           # Master project documentation, user guide, and methodologies
-├── DECLARATION.md                      # Official declaration of originality, citations, and AI disclosure
-├── requirements.txt                    # Python environment requirements
-├── package.json                        # Node.js dependencies for local runtime
-├── start_local.bat                     # Windows 1-click launcher for local server
-├── app/                                # Complete web application source code
-│   ├── index.html                      # Single-page application entry point (all 4 roles + map)
-│   ├── css/
-│   │   └── style.css                   # Responsive styling (light/dark mode, mobile-first)
-│   ├── js/
-│   │   ├── app.js                      # Core reactive application engine and view controllers
-│   │   ├── nisr_data.js                # NISR aggregated survey statistics and models
-│   │   └── rwanda_geo_data.js          # Rwanda 30-district geospatial coordinates
-│   └── manifest.json                   # Progressive Web App (PWA) configuration
-├── data/                               # Aggregated NISR summary data (Zero PII)
-│   ├── data_sources.md                 # Full provenance and NISR Microdata links
-│   ├── rwanda_districts.geojson        # 30-district geospatial boundaries (geoBoundaries ADM2)
-│   ├── summary_delays_by_programme.csv # Programme delay statistics
-│   ├── summary_delays_by_province.csv  # Provincial delay statistics
-│   ├── summary_district_priority_scores.csv # 30-district composite priority rankings
-│   ├── summary_beneficiary_groups.csv  # Socioeconomic & channel delay breakdowns
-│   ├── summary_hotspots_programme_province.csv # Hotspot cross-tabulations
-│   ├── summary_food_prices.csv         # NISR benchmark commodity prices
-│   └── summary_finance_access.csv      # Financial inclusion and credit constraints
-├── docs/                               # Competition briefs and reference specifications
-│   ├── VUP_Bridge_Full_Project.pdf     # Full 13-page project specification
-│   ├── 2026_Hackathon_Competition.pdf  # Competition track rules and rubrics
-│   ├── 2026_NISR_Hackathon_Webinar.pdf # NISR preparatory webinar guidelines
-│   ├── reference_vup_pulse_demo.html   # Earlier analysis visualization
-│   └── reference_vup_bridge_prototype.html # Earlier marketplace prototype
-├── scripts/                            # Data processing and analytical model pipelines
-│   ├── generate_summaries.py           # Generates all summary CSVs from survey benchmarks
-│   ├── delay_tables.py                 # Formatted delay and hotspot reporting
-│   ├── district_priority_score.py      # Composite prioritization index calculator
-│   └── poverty_risk_model.py           # Household poverty risk proxy classifier
-└── demo/                               # Demonstration video asset directory
-    └── README.md                       # Demo video script and walkthrough notes
+App loaded successfully!
+Testing render():
+Rendered successfully.
+--- TEST 1: Role picking & Member Login ---
+Logged in as: amina uwase | Role: Family
+--- TEST 2: Timeframe switching ---
+Timeframe set to: month, year, week
+--- TEST 3: Trilingual localization ---
+Language rw, fr, en passed.
+--- TEST 4: Gemini AI translation & query engine ---
+Offline Kinyarwanda & French translations passed.
+--- TEST 5: Planner Login & Credit Desk Queues ---
+Logged in as: Planner One | Role: Planner
+Credit Desk "To approve": 1 | "To pay sellers": 1 | "To repay": 2
+Alerts box, AI Helper, Credit Desk rendered successfully.
+--- TEST 6: Admin Login & Demo Failure Switch ---
+makeNextPaymentFail toggle passed.
+--- TEST 7: Farmer & Shopper Views ---
+Passed.
+--- TEST 8: Problem Case Reporting & Reversals ---
+Initial cases verified.
+=========================================
+✅ ALL ACCEPTANCE TESTS SUCCESSFULLY PASSED!
+=========================================
 ```
 
 ---
 
 ## 6. How to Run Locally
 
-The application is completely self-contained, lightweight, and requires no complex build tools or database configuration.
-
-### Option 1: Standalone Web Browser (Zero Installation)
-Simply open `app/index.html` directly in any modern web browser (Google Chrome, Microsoft Edge, Firefox, Safari).
-
-### Option 2: 1-Click Windows Launcher
-Double-click `start_local.bat` in the repository root. It will launch the local HTTP server and open the application in your browser automatically.
-
-### Option 3: Local Python Server
+### Option 1: Python HTTP Server (Windows / Mac / Linux)
 ```bash
-# Clone the repository
-git clone https://github.com/am2aidi/ikiraro-vup-bridge.git
-cd ikiraro-vup-bridge
-
-# Run lightweight HTTP server
 python -m http.server 8085
 ```
-Then visit `http://localhost:8085/app/index.html` in your browser.
+Open [http://localhost:8085](http://localhost:8085) in your web browser.
 
-### Option 4: Run Analysis Scripts
-```bash
-# Run delay & hotspot analysis
-python scripts/delay_tables.py
-
-# Run 30-district priority model
-python scripts/district_priority_score.py
-
-# Run poverty risk proxy evaluation
-python scripts/poverty_risk_model.py
-```
+### Option 2: Windows 1-Click Launcher
+Double-click `start_local.bat` in the project root.
 
 ---
 
-## 7. Analytical Methodology & Limitations
+## 7. Authors & Academic Affiliation
 
-1. **Patterns, Not Reasons:** As emphasized throughout the application, survey delays are self-reported by beneficiary households reflecting their experienced waiting period. The data highlights *where* systemic friction occurs; administrative audits by LODA and local government are necessary to diagnose exact root causes.
-2. **Post-Support Poverty Measurement:** In the survey sample, poverty status is classified after social assistance transfers are delivered. Consequently, observed correlations between poverty depth and delay duration denote structural vulnerability, not unidirectional causality.
-3. **Small Sample Warnings:** Any geographical or cross-tabulated cohort with fewer than 100 survey responses is highlighted with a statistical caution badge, and cohorts under 25 are suppressed from automated ranking.
-4. **Proxy Means Testing Ethics:** The poverty risk estimation model is strictly intended for macroscopic district and sector planning. It is explicitly not designed to mechanically determine individual eligibility.
+- **Zaidi**  
+  *Final Year, Information Systems*  
+  *School of ICT, College of Science and Technology (CST), University of Rwanda*
+- **KAYUMBA TETA Aela Greta**  
+  *Final Year, College of Science and Technology (CST), University of Rwanda*
 
----
-
-## 8. Alignment with National Development Priorities
-
-- **NST2 (Second National Strategy for Transformation):** Directly advances the Social Transformation pillar by reinforcing social safety nets, accelerating graduation from poverty, and mitigating food vulnerability during administrative transitions.
-- **Rwanda Vision 2050:** Supports the *Human Capital Development* and *High Quality and Standards of Life* targets by ensuring zero hunger among vulnerable children and pregnant mothers (NSDS).
-- **Financial Inclusion Strategy:** Fosters informal-to-formal financial bridging, integrating Umurenge SACCOs and Mobile Money mechanisms into responsive social protection.
-
----
-
-## 9. Submission Checklist Verification
-
-- [x] Public GitHub repository configured: `https://github.com/am2aidi/ikiraro-vup-bridge`
-- [x] Standard repository layout matching webinar specifications (`README.md`, `scripts/`, `data/`, `app/`, `demo/`, `requirements.txt`)
-- [x] Deployed web application accessible without login barriers
-- [x] Sample credentials and 1-click role switcher provided
-- [x] `DECLARATION.md` completed with originality, citations, and AI-use disclosures
-- [x] Data privacy compliant: only aggregated tables published, raw PII omitted
-- [x] Script verified to execute reliably on clean machines
-- [x] Team requirements fulfilled: 2 final-year students from University of Rwanda (UR-CST) including female representation.
+*Built with pride for Rwandan smallholder farmers and VUP beneficiary households · NISR 2026 Big Data Hackathon.*
