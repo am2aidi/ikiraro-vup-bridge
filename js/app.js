@@ -282,7 +282,11 @@ class IsokoApp {
       selectedDistrict: "Gasabo",
       hotspotMode: "delay",
       selectedPayMethod: "momo",
-      pendingCheckoutOrder: null
+      pendingCheckoutOrder: null,
+      cart: [],
+      notifications: [],
+      pendingCartListingId: null,
+      activityPeriod: "30d"
     };
   }
 
@@ -466,6 +470,7 @@ class IsokoApp {
     this.state.roleCode = roleCode;
     this.state.pickRole = "";
     this.state.activeSubView = "dashboard";
+    if (this.state.pendingCartListingId) { const listingId=this.state.pendingCartListingId; this.state.pendingCartListingId=null; this.addToCart(listingId); }
     this.saveState();
     this.render();
     this.toast("Your demo account is ready.", "success");
@@ -516,6 +521,7 @@ class IsokoApp {
     this.state.pickRole = "";
     this.state.authMode = "login";
     this.state.activeSubView = "dashboard";
+    if (this.state.pendingCartListingId) { const listingId=this.state.pendingCartListingId; this.state.pendingCartListingId=null; this.addToCart(listingId); }
     this.saveState();
     this.render();
     this.toast(`Welcome, ${account.name || email}.`, "success");
@@ -605,6 +611,7 @@ class IsokoApp {
     const user = this.findUserByEmail(email);
     if (!user) return;
     user.status = "verified";
+    this.addNotification(`Your Isoko Bridge account has been approved. You can now use your member dashboard.`, { targetEmail: user.email, type: "account" });
 
     this.state.auditLog.unshift({
       who: this.state.currentUser.name || "Planner One",
@@ -678,6 +685,7 @@ class IsokoApp {
     o.creditStatus = "approved";
     o.approvedBy = this.state.currentUser.name || "Planner One";
     o.approvedDate = new Date().toLocaleDateString('en-GB');
+    this.addNotification(`Your food credit order #${orderId} was approved.`, { targetEmail: o.buyerEmail, type: "credit" });
 
     this.state.auditLog.unshift({
       who: o.approvedBy,
@@ -726,6 +734,7 @@ class IsokoApp {
 
     this.state.pool.balance -= o.total;
     this.state.pool.totalPaidToFarmers += o.total;
+    this.addNotification(`Payment of ${o.total.toLocaleString()} RWF for order #${orderId} was sent to ${o.farmer}.`, { targetEmail: o.farmerEmail, type: "payment" });
     o.paidBy = "pool";
     o.paid = "pool";
     o.creditStatus = "seller_paid";
@@ -760,12 +769,14 @@ class IsokoApp {
   settleFromVup(orderId) {
     const o = this.state.orders.find(x => x.id === orderId);
     if (!o) return;
+    const due = Math.max(0, Number(o.total) - Number(o.repaidAmount || 0));
+    o.repaidAmount = Number(o.repaidAmount || 0) + due;
     o.repaid = true;
     o.creditStatus = "repaid";
     o.repaidDate = new Date().toLocaleDateString('en-GB');
 
-    this.state.pool.balance += o.total;
-    this.state.pool.totalRepaidByVup += o.total;
+    this.state.pool.balance += due;
+    this.state.pool.totalRepaidByVup += due;
 
     this.state.ledger.unshift({
       id: this.state.ledger.length + 1,
@@ -773,7 +784,7 @@ class IsokoApp {
       type: "repayment",
       from: "VUP Treasury Transfer",
       to: "Revolving Pool",
-      amount: o.total,
+      amount: due,
       link: `Order #${orderId} Repayment`,
       status: "completed",
       paymentMethod: o.paymentMethod || "MTN Mobile Money",
@@ -788,9 +799,37 @@ class IsokoApp {
       reason: "Monthly VUP transfer wave cleared"
     });
 
+    this.addNotification(`Food credit order #${orderId} was repaid from the simulated VUP transfer.`, { targetEmail: o.buyerEmail, type: "credit" });
     this.saveState();
     this.render();
-    this.toast(`Order #${orderId} repaid to pool! ${o.total.toLocaleString()} RWF recovered from VUP transfer.`, "success");
+    this.toast(`Order #${orderId} repaid to pool! ${due.toLocaleString()} RWF recovered from VUP transfer.`, "success");
+  }
+
+  recordVupPayment() {
+    const email = document.getElementById("vupPaymentEmail")?.value;
+    const amount = Number(document.getElementById("vupPaymentAmount")?.value);
+    const family = (this.state.users?.member || []).find(user => user.email === email);
+    if (!family || !Number.isFinite(amount) || amount <= 0) { this.toast("Choose a family and enter an amount above zero.", "warning"); return; }
+    const orders = (this.state.orders || []).filter(order => order.mode === "credit" && order.status === "Delivered" && order.paidBy === "pool" && order.creditStatus !== "written_off" && !order.repaid && (order.buyerEmail === email || (!order.buyerEmail && order.buyerName === family.name))).sort((a,b)=>(a.id||0)-(b.id||0));
+    let left = amount, repaid = 0;
+    orders.forEach(order => {
+      if (left <= 0) return;
+      const due = Math.max(0, Number(order.total) - Number(order.repaidAmount || 0));
+      const part = Math.min(left, due);
+      order.repaidAmount = Number(order.repaidAmount || 0) + part;
+      left -= part; repaid += part;
+      if (order.repaidAmount >= Number(order.total)) { order.repaid = true; order.creditStatus = "repaid"; order.repaidDate = new Date().toLocaleDateString("en-GB"); }
+      else order.creditStatus = "partly_repaid";
+    });
+    const wallet = Math.max(0, Number(family.vupWalletBalance || 0)) + left;
+    family.vupWalletBalance = wallet;
+    if (this.state.currentUser?.email === email) this.state.currentUser.vupWalletBalance = wallet;
+    this.state.pool.balance += repaid;
+    this.state.pool.totalRepaidByVup += repaid;
+    this.state.ledger.unshift({ id: this.state.ledger.length + 1, date: new Date().toISOString(), type: "VUP payment received", from: "Simulated VUP payment", to: family.name, amount, repaymentAmount: repaid, walletAmount: left, link: "VUP payment", status: "completed", paymentMethod: family.paymentMethod || "VUP payout" });
+    this.addNotification(`A VUP payment of ${amount.toLocaleString()} RWF was recorded. ${repaid.toLocaleString()} RWF paid food credit; ${left.toLocaleString()} RWF added to your food wallet.`, { targetEmail: email, type: "payment" });
+    this.saveState(); this.render();
+    this.toast(`${repaid.toLocaleString()} RWF paid toward food credit. ${left.toLocaleString()} RWF is now in ${family.name}'s VUP wallet.`, "success");
   }
 
   writeOffCredit(orderId) {
@@ -1067,6 +1106,7 @@ class IsokoApp {
       id: this.state.nextCaseId++,
       type,
       createdBy: this.state.currentUser.name || "User",
+      createdByEmail: this.state.currentUser.email || "",
       role: this.state.role,
       linkedTransaction: txRef,
       note,
@@ -1077,6 +1117,8 @@ class IsokoApp {
     };
 
     this.state.cases.unshift(newCase);
+    this.addNotification(`Your problem report #${newCase.id} was sent to the planner.`, { targetEmail: newCase.createdByEmail, type: "case" });
+    this.addNotification(`Problem report #${newCase.id} needs review.`, { targetRoles: ["planner", "admin"], type: "case" });
     this.closeCaseModal();
     this.saveState();
     this.render();
@@ -1089,6 +1131,7 @@ class IsokoApp {
     c.status = outcome === "rejected" ? "rejected" : "resolved";
     c.outcome = outcome;
     c.resolvedDate = new Date().toLocaleDateString('en-GB');
+    this.addNotification(`Problem report #${caseId} was ${c.status}.`, { targetEmail: c.createdByEmail, type: "case" });
 
     this.saveState();
     this.render();
@@ -1151,6 +1194,12 @@ class IsokoApp {
       // User is logged in to a specific role screen
       if (this.state.activeSubView === "settings") {
         mainEl.innerHTML = this.renderSettingsView();
+      } else if (this.state.activeSubView === "cart") {
+        mainEl.innerHTML = this.renderCartView();
+      } else if (this.state.activeSubView === "activity") {
+        mainEl.innerHTML = this.renderActivityView();
+      } else if (this.state.activeSubView === "notifications") {
+        mainEl.innerHTML = this.renderNotificationsView();
       } else if (this.state.activeSubView === "analysis") {
         mainEl.innerHTML = this.renderDashboardTopbar() + this.renderAnalysisView();
         this.initPlannerVisuals();
@@ -1191,6 +1240,8 @@ class IsokoApp {
       credit: "bi-credit-card",
       nisr_facts: "bi-file-earmark-text",
       analysis: "bi-graph-up-arrow",
+      activity: "bi-clock-history",
+      cart: "bi-basket2",
       cases: "bi-shield-exclamation",
       reports: "bi-download",
       users: "bi-people",
@@ -1211,12 +1262,12 @@ class IsokoApp {
     const item = (id, fallback) => ({ id, label: copy[id] || fallback, icon: icon[id] || icon.dashboard });
     let items = [];
     if (this.state.user) {
-      if (role === "Planner") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
-      else if (role === "Admin") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
-      else if (role === "Family") items = [item("dashboard", "Food basket"), item("credit", "Bridge credit"), item("orders", "Orders"), item("settings", "Settings")];
-      else if (role === "Farmer") items = [item("dashboard", "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("settings", "Settings")];
-      else items = [item("dashboard", "Shop"), item("pool", "Pool impact"), item("settings", "Settings")];
-      nav.innerHTML = items.map(entry => `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
+      if (role === "Planner") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
+      else if (role === "Admin") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
+      else if (role === "Family") items = [item("dashboard", "Food basket"), item("cart", "My cart"), item("credit", "Bridge credit"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
+      else if (role === "Farmer") items = [item("dashboard", "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
+      else items = [item("dashboard", "Shop"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
+      nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
       items = [
@@ -1232,7 +1283,7 @@ class IsokoApp {
     if (this.state.user) {
       const user = this.state.currentUser || {};
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-      slot.innerHTML = `<div class="av" aria-hidden="true">${this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="btn btn-sm btn-outline" onclick="window.app.logout()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> ${lang === "rw" ? "Sohoka" : lang === "fr" ? "Déconnexion" : "Log out"}</button>`;
+      slot.innerHTML = `<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i>${this.getUnreadNotifications().length ? `<span class="notification-count">${Math.min(99,this.getUnreadNotifications().length)}</span>` : ""}</button><div class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="btn btn-sm btn-outline" onclick="window.app.logout()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> ${lang === "rw" ? "Sohoka" : lang === "fr" ? "Déconnexion" : "Log out"}</button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
@@ -1526,6 +1577,7 @@ class IsokoApp {
         </section>
         <section class="card settings-card settings-account">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-person" aria-hidden="true"></i></span><div><h3>Your account</h3><p>Your profile details for this demo.</p></div></div>
+          <div class="profile-photo-row"><div class="av profile-photo-preview ${user.profilePhoto ? "has-photo" : ""}">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="Profile photo">` : this.escapeHtml((user.name || "U").slice(0,2).toUpperCase())}</div><div><b>Profile photo</b><p>Choose a photo from your device. It stays on this device.</p><label class="btn btn-sm btn-outline" for="profilePhotoInput"><i class="bi bi-camera" aria-hidden="true"></i> ${user.profilePhoto ? "Change photo" : "Add photo"}</label><input id="profilePhotoInput" type="file" accept="image/*" hidden onchange="window.app.handleProfilePhotoUpload(this)">${user.profilePhoto ? ` <button class="btn btn-sm btn-ghost" onclick="window.app.removeProfilePhoto()">Remove</button>` : ""}</div></div>
           <dl class="settings-account-list"><div><dt>Name</dt><dd>${this.escapeHtml(user.name || this.state.user || "User")}</dd></div><div><dt>Role</dt><dd>${this.escapeHtml(roleName)}</dd></div><div><dt>Email</dt><dd>${this.escapeHtml(user.email || this.state.user || "Not added")}</dd></div><div><dt>District</dt><dd>${this.escapeHtml(user.district || "Not added")}</dd></div></dl>
         </section>
         <section class="card settings-card">
@@ -1553,6 +1605,7 @@ class IsokoApp {
     }
 
     const sub = this.state.activeSubView || "dashboard";
+    if (sub === "cart") return this.renderCartView();
     if (sub === "credit") {
       return this.renderFamilyCreditTab();
     }
@@ -1581,12 +1634,16 @@ class IsokoApp {
             <p class="sub" style="margin-top:4px;">${u.district || 'Kirehe'} District · ${u.householdSize || 5} family members · Disbursement ${isLate ? 'delayed by ' + u.daysLate + ' days' : 'on schedule'}</p>
           </div>
           <div style="text-align:right;">
+            <div class="wallet-balance-label"><i class="bi bi-wallet2" aria-hidden="true"></i> VUP food wallet</div>
+            <b class="wallet-balance-amount">${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b>
             <div style="font-size:11.5px; color:var(--mute);">Emergency Safety Net Credit</div>
             <b style="font-size:20px; color:var(--acc); font-weight:800;">${remaining.toLocaleString()} RWF</b>
             <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% Interest · Auto-deducted at SACCO</div>
           </div>
         </div>
       </div>
+
+      <section class="market-promo-banner"><span class="market-promo-icon"><i class="bi bi-basket2" aria-hidden="true"></i></span><div><b>Fresh food, at a fair price</b><p>Shop local harvests and choose a safe demo payment method at checkout.</p></div><button class="btn btn-primary" onclick="window.app.setNavTab('cart')"><i class="bi bi-cart3" aria-hidden="true"></i> Cart${this.cartCount() ? ` · ${this.cartCount()}` : ""}</button></section>
 
       <!-- VeggieMart Top Search & Category Filter Header -->
       <div class="vm-search-bar">
@@ -1606,7 +1663,7 @@ class IsokoApp {
       ${this.renderNearbyBar()}
 
       <!-- Produce Grid with Bridge Credit Button -->
-      ${this.renderGroceryCatalog(isLate ? 'credit' : 'cash')}
+      ${this.renderGroceryCatalog('cash')}
     `;
   }
 
@@ -1834,12 +1891,17 @@ class IsokoApp {
   }
 
   renderPlannerOverviewTab() {
-    const vupOrders = this.state.orders.filter(o => o.buyerRole === "Family" || o.mode === "credit");
-    const creditOrders = vupOrders.filter(x => x.mode === "credit");
-    const totalCredit = creditOrders.reduce((sum, x) => sum + x.total, 0);
-    const outstanding = this.getOutstandingCredit();
+    const memberUsers = this.state.users?.member || [];
+    const familyCount = memberUsers.length || 6;
+    const lateCount = memberUsers.filter(user => Number(user.daysLate) > 0).length;
+    const activeAlertCount = (this.state.cases || []).filter(item => !["closed", "resolved"].includes(String(item.status || "").toLowerCase())).length;
     const tf = this.state.timeframe || "month";
-    const tfMult = tf === "week" ? 0.25 : tf === "year" ? 12 : 1;
+    const periodEnd = new Date(); periodEnd.setHours(23,59,59,999);
+    const periodStart = new Date(periodEnd); periodStart.setDate(periodStart.getDate() - (tf === "week" ? 6 : tf === "year" ? 364 : 29)); periodStart.setHours(0,0,0,0);
+    const vupOrders = this.state.orders.filter(order => { const date=this.parseOrderDate(order.date); return date && date >= periodStart && date <= periodEnd && (order.buyerRole === "Family" || order.mode === "credit"); });
+    const creditOrders = vupOrders.filter(order => order.mode === "credit");
+    const totalCredit = creditOrders.reduce((sum, order) => sum + (Number(order.total)||0), 0);
+    const outstanding = creditOrders.filter(order => !order.repaid && order.creditStatus !== "written_off").reduce((sum,order)=>sum+Math.max(0,Number(order.total)-Number(order.repaidAmount||0)),0);
     const provinceMaxDelay = Math.max(...NISR_DATA.provinces.map(p => p.delay));
 
     return `
@@ -1880,19 +1942,19 @@ class IsokoApp {
         <div class="card kp" onclick="window.app.setNavTab('creditdesk')" style="cursor:pointer;" title="Tap to open Credit Desk">
           <span class="ki"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6M17 4.5a3.5 3.5 0 0 1 0 7M22 20c0-3-2-5-5-5.5"/></svg></span>
           <small>VUP Families</small>
-          <b>${Math.round(6 * tfMult)}</b>
-          <em>sample dashboard count</em>
+          <b>${familyCount}</b>
+          <em>family demo accounts</em>
         </div>
         <div class="card kp" title="Families whose VUP payment is late today">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-          <small>Late Payments</small>
-          <b style="color:var(--bad);">${Math.round(4 * tfMult)}</b>
-          <em>avg 9.2 days late</em>
+          <small>Late in demo records</small>
+          <b style="color:var(--bad);">${lateCount}</b>
+          <em>NISR average: ${NISR_DATA.overall.averageDelayDays.toFixed(1)} days</em>
         </div>
         <div class="card kp" onclick="window.app.setNavTab('creditdesk')" style="cursor:pointer;" title="Tap to open Credit Desk">
           <span class="ki"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
           <small>Bridge Credit</small>
-          <b style="color:var(--acc);">${Math.round(totalCredit * tfMult).toLocaleString()} RWF</b>
+          <b style="color:var(--acc);">${totalCredit.toLocaleString()} RWF</b>
           <em>${outstanding.toLocaleString()} RWF open</em>
         </div>
         <div class="card kp" title="Community revolving bridge float">
@@ -1904,19 +1966,21 @@ class IsokoApp {
         <div class="card kp" onclick="window.app.setNavTab('cases')" style="cursor:pointer;" title="Tap to see alerts">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
           <small>Active Alerts</small>
-          <b style="color:var(--bad);">3 Alerts</b>
+          <b style="color:var(--bad);">${activeAlertCount}</b>
           <em>attention needed</em>
         </div>
       </div>
+
+      <section class="nisr-hero-banner card"><div class="nisr-hero-icon"><i class="bi bi-bar-chart-line" aria-hidden="true"></i></div><div class="nisr-hero-copy"><span class="tag g">NISR survey · 2023–24</span><h2>About ${NISR_DATA.overall.averageDelayDays.toFixed(1)} days average wait</h2><p>${NISR_DATA.overall.pctOver7DaysLate}% of surveyed VUP beneficiaries waited more than 7 days. These results show a national pattern, not a live family payment.</p></div><div class="nisr-hero-actions"><button class="btn btn-primary" onclick="window.app.setNavTab('analysis')"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Read the analysis</button><button class="btn btn-outline" onclick="window.app.setNavTab('nisr_facts')"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> NISR source</button></div></section>
 
       <!-- Interactive Rwandan Delay Bar Chart -->
       <section class="card" style="margin-bottom:20px;">
         <div class="ch">
           <div>
             <h3>Average VUP Disbursement Delay by Province</h3>
-            <p class="sub" style="margin-top:4px;">NISR household survey · average reported wait: 9.2 days</p>
+            <p class="sub" style="margin-top:4px;">NISR household survey · average reported wait: ${NISR_DATA.overall.averageDelayDays.toFixed(1)} days</p>
           </div>
-            <span class="tag y">52% waited over 7 days</span>
+            <span class="tag y">${NISR_DATA.overall.pctOver7DaysLate}% waited over 7 days</span>
         </div>
         <div class="bars" role="list" aria-label="Average payment delay by province">
           ${NISR_DATA.provinces.map((p, index) => `<button class="bc ${index < 2 ? 'on' : ''}" title="${p.name}: ${p.delay.toFixed(1)} days; ${p.latePct}% over 7 days; ${p.records} records" aria-label="${p.name}: ${p.delay.toFixed(1)} days average delay, ${p.latePct}% over 7 days, ${p.records} survey records">
@@ -1930,10 +1994,10 @@ class IsokoApp {
         <div class="card" style="padding:20px; display:flex; flex-direction:column;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <h4 style="font-size:15px; font-weight:700;">Credit Desk Actions</h4>
-            <span class="tag r">4 Items</span>
+            <span class="tag r">${this.getToApproveQueue().length + this.getToPaySellersQueue().length + this.getToRepayQueue().length} items</span>
           </div>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
-            1 family verification to approve, 1 seller payout to disburse, and 2 credit settlements due.
+            ${this.getToApproveQueue().length} credit requests, ${this.getToPaySellersQueue().length} seller payments, and ${this.getToRepayQueue().length} repayments need review.
           </p>
           <button class="btn btn-sm btn-primary" style="margin-top:auto;" onclick="window.app.setNavTab('creditdesk')">
             Open Credit Desk →
@@ -1984,6 +2048,7 @@ class IsokoApp {
         </button>
       </div>
 
+      <section class="card payout-receipt-card"><div class="settings-title"><span class="settings-icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span><div><h3>Record a VUP payment received</h3><p>Enter the simulated amount received. The system pays due food credit first, then adds the rest to the family's VUP wallet.</p></div></div><div class="payout-receipt-fields"><label>Family account<select class="form-control" id="vupPaymentEmail">${(this.state.users?.member || []).map(user=>`<option value="${this.escapeHtml(user.email)}">${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}</select></label><label>Amount received (RWF)<input class="form-control" id="vupPaymentAmount" type="number" min="0" step="100" placeholder="Example: 20,000"></label><button class="btn btn-primary" onclick="window.app.recordVupPayment()"><i class="bi bi-check-circle" aria-hidden="true"></i> Record payment</button></div><small>Prototype. Fake money. No real VUP payment is checked or moved.</small></section>
       ${this.renderCreditDesk()}
     `;
   }
@@ -2435,6 +2500,7 @@ class IsokoApp {
   }
 
   renderShopperView() {
+    if (this.state.activeSubView === "cart") return this.renderCartView();
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper" || o.buyerEmail === u.email);
     const totalGifts = myOrders.reduce((sum, o) => sum + (o.gift || 0), 0);
@@ -2529,6 +2595,7 @@ class IsokoApp {
 
     const totalSales = this.state.orders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
     const cases = this.state.cases || [];
+    const activeCases = cases.filter(item => !["closed", "resolved", "rejected"].includes(String(item.status || "").toLowerCase())).length;
 
     return `
       <!-- Vertix Admin Header -->
@@ -2584,7 +2651,7 @@ class IsokoApp {
         <div class="card kp">
           <span class="ki" style="background:var(--bad-soft); color:var(--bad);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6m5.6 5.6 3.6 3.6m0-12.8-3.6 3.6m-5.6 5.6-3.6 3.6"/></svg></span>
           <small>Problem Cases</small>
-          <b style="color:var(--bad);">${cases.length} Open</b>
+          <b style="color:var(--bad);">${activeCases} Open</b>
           <em>audit queue</em>
         </div>
       </div>
@@ -2594,7 +2661,7 @@ class IsokoApp {
           <div>
             <span class="tag g">NISR EICV7 · 2023–24</span>
             <h3 style="margin:8px 0 4px;">National payment-delay analysis</h3>
-            <p class="sub">Early survey estimates: an average wait of 9.2 days; 52% waited over 7 days. These numbers may change after final checks.</p>
+            <p class="sub">Early survey estimates: ${NISR_DATA.overall.averageDelayDays.toFixed(1)} days average wait; ${NISR_DATA.overall.pctOver7DaysLate}% waited over 7 days. These results show patterns, not the reason for an individual delay.</p>
           </div>
           <button class="btn btn-sm btn-primary" onclick="window.app.setNavTab('analysis')">Open NISR Analysis →</button>
         </div>
@@ -2678,6 +2745,124 @@ class IsokoApp {
     }
     return { start, end, from: this.localDateInput(start), to: this.localDateInput(end), label };
   }
+
+  getUnreadNotifications() {
+    const email = this.state.currentUser?.email;
+    return (this.state.notifications || []).filter(note => !note.read && (!note.targetEmail || note.targetEmail === email) && (!note.targetRoles || note.targetRoles.includes(this.state.roleCode)));
+  }
+
+  addNotification(message, options = {}) {
+    if (!Array.isArray(this.state.notifications)) this.state.notifications = [];
+    this.state.notifications.unshift({ id: Date.now() + Math.random(), message, date: new Date().toISOString(), read: false, targetEmail: options.targetEmail || "", targetRoles: options.targetRoles || null, type: options.type || "info" });
+    this.state.notifications = this.state.notifications.slice(0, 100);
+  }
+
+  openNotifications() { this.state.activeSubView = "notifications"; this.render(); }
+  markNotificationsRead() {
+    const email = this.state.currentUser?.email;
+    (this.state.notifications || []).forEach(note => { if ((!note.targetEmail || note.targetEmail === email) && (!note.targetRoles || note.targetRoles.includes(this.state.roleCode))) note.read = true; });
+    this.saveState(); this.render();
+  }
+
+  renderNotificationsView() {
+    const email = this.state.currentUser?.email;
+    const notes = (this.state.notifications || []).filter(note => (!note.targetEmail || note.targetEmail === email) && (!note.targetRoles || note.targetRoles.includes(this.state.roleCode)));
+    return `<div class="head"><div><h1>Notifications</h1><p class="sub">Recent updates for your account.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.markNotificationsRead()">Mark all as read</button></div><section class="card notification-list">${notes.length ? notes.map(note => `<article class="notification-row ${note.read ? "" : "unread"}"><span class="notification-dot" aria-hidden="true"></span><div><b>${this.escapeHtml(note.message)}</b><small>${new Date(note.date).toLocaleString()}</small></div></article>`).join("") : `<div class="empty-state"><i class="bi bi-bell" aria-hidden="true"></i><b>You are all caught up</b><span>New order, payment, and account updates will appear here.</span></div>`}</section>`;
+  }
+
+  getUserActivityOrders() {
+    const user = this.state.currentUser || {}, role = this.state.role;
+    return (this.state.orders || []).filter(order => role === "Planner" || role === "Admin" || (role === "Farmer" ? order.farmerEmail === user.email || order.farmer === user.name : order.buyerEmail === user.email || order.buyerName === user.name));
+  }
+
+  getUserActivityLedger() {
+    const user = this.state.currentUser || {}, role = this.state.role;
+    const dateRange = this.getUserActivityPeriod();
+    return (this.state.ledger || []).filter(entry => {
+      const date = this.parseOrderDate(entry.date);
+      if (!date || date < dateRange.start || date > dateRange.end) return false;
+      if (role === "Planner" || role === "Admin") return true;
+      if (role === "Farmer") return entry.to === user.name || entry.to === "Revolving Pool" && entry.from === user.name;
+      return entry.from === user.name || entry.to === user.name;
+    });
+  }
+
+  getUserActivityPeriod() {
+    const key = this.state.activityPeriod || "30d", today = new Date(), end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const start = new Date(end);
+    if (key === "7d") start.setDate(start.getDate() - 6);
+    else if (key === "12m") start.setMonth(start.getMonth() - 12);
+    else if (key === "30d") start.setDate(start.getDate() - 29);
+    if (key === "custom" && this.state.activityFrom && this.state.activityTo) {
+      const [fy,fm,fd] = this.state.activityFrom.split("-").map(Number), [ty,tm,td] = this.state.activityTo.split("-").map(Number);
+      start.setFullYear(fy, fm - 1, fd); end.setFullYear(ty, tm - 1, td);
+    }
+    const label = key === "today" ? "Today" : key === "7d" ? "Last 7 days" : key === "12m" ? "Last 12 months" : key === "custom" ? `${start.toLocaleDateString("en-GB")} – ${end.toLocaleDateString("en-GB")}` : "Last 30 days";
+    return { start, end, label };
+  }
+
+  setActivityPeriod(period) {
+    this.state.activityPeriod = period;
+    if (period === "custom") { const from = new Date(); from.setDate(from.getDate()-29); this.state.activityFrom ||= this.localDateInput(from); this.state.activityTo ||= this.localDateInput(new Date()); }
+    this.saveState(); this.render();
+  }
+  applyActivityDates() {
+    const from = document.getElementById("activityFrom")?.value, to = document.getElementById("activityTo")?.value;
+    if (!from || !to || from > to) { this.toast("Choose a valid start date and end date.", "warning"); return; }
+    this.state.activityPeriod="custom"; this.state.activityFrom=from; this.state.activityTo=to; this.saveState(); this.render();
+  }
+
+  renderActivityView() {
+    const period = this.getUserActivityPeriod();
+    const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
+    const total = rows.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
+    const ledgerRows = this.getUserActivityLedger();
+    return `<div class="head"><div><h1>Activity summary</h1><p class="sub">Orders and payments for these dates. Prototype only; no real money is moved.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button></div><section class="activity-controls card"><label>Show<select class="form-control" onchange="window.app.setActivityPeriod(this.value)">${[["today","Today"],["7d","Last 7 days"],["30d","Last 30 days"],["12m","Last 12 months"],["custom","Choose dates"]].map(([key,label])=>`<option value="${key}" ${this.state.activityPeriod===key?"selected":""}>${label}</option>`).join("")}</select></label>${this.state.activityPeriod === "custom" ? `<label>From<input class="form-control" id="activityFrom" type="date" value="${this.state.activityFrom || ""}"></label><label>To<input class="form-control" id="activityTo" type="date" value="${this.state.activityTo || ""}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyActivityDates()">Apply dates</button>` : ""}<span class="tag g">${period.label}</span></section><div class="nisr-kpis activity-kpis"><article class="card"><small>Orders</small><strong>${rows.length}</strong><span>In this date range</span></article><article class="card"><small>Order value</small><strong>${total.toLocaleString()} RWF</strong><span>Simulated activity</span></article><article class="card"><small>Money records</small><strong>${ledgerRows.length}</strong><span>Payments, gifts, and pool activity</span></article></div><section class="card admin-list-card"><div class="ch"><h3>Orders</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows.length ? rows.map(order=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(order.date))}</td><td>#${this.escapeHtml(String(order.id))}</td><td>${this.escapeHtml(order.food)} · ${Number(order.kg)||0} kg</td><td>${order.mode === "credit" ? "Food credit" : "Cash"}</td><td>${(Number(order.total)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(order.status || "Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No orders found for these dates.</td></tr>`}</tbody></table></div></section><section class="card admin-list-card"><div class="ch"><h3>Payments and money records</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Status</th></tr></thead><tbody>${ledgerRows.length ? ledgerRows.map(entry=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(entry.date))}</td><td>${this.escapeHtml(String(entry.type||"Payment").replace(/_/g," "))}</td><td>${this.escapeHtml(entry.from||"—")}</td><td>${this.escapeHtml(entry.to||"—")}</td><td>${(Number(entry.amount)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.status||"Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No payment records found for these dates.</td></tr>`}</tbody></table></div></section>`;
+  }
+
+  cartCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
+  addToCart(listingId) {
+    const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
+    if (!listing) return;
+    if (!this.state.user) { this.state.pendingCartListingId = listingId; this.state.publicTab = "roles"; this.render(); this.toast("Choose a role and log in to add this food to your cart.", "info"); return; }
+    const qty = Number(document.getElementById(`qty_${listingId}`)?.value || 1);
+    if (!Number.isFinite(qty) || qty <= 0 || qty > listing.quantity) { this.toast(`Choose a quantity from 1 to ${listing.quantity} kg.`, "warning"); return; }
+    if (!Array.isArray(this.state.cart)) this.state.cart = [];
+    const line = this.state.cart.find(item => Number(item.listingId) === Number(listingId));
+    if (line) line.qty = Math.min(listing.quantity, line.qty + qty); else this.state.cart.push({ listingId: listing.id, qty });
+    this.saveState(); this.renderHeaderNavActions(); this.toast(`${listing.food} added to your cart.`, "success");
+  }
+  updateCartQuantity(listingId, qty) {
+    const line = (this.state.cart || []).find(item => Number(item.listingId) === Number(listingId));
+    const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
+    if (!line || !listing) return;
+    if (qty <= 0) this.state.cart = this.state.cart.filter(item => Number(item.listingId) !== Number(listingId));
+    else line.qty = Math.min(Number(qty), listing.quantity);
+    this.saveState(); this.render();
+  }
+  renderCartView() {
+    const lines = (this.state.cart || []).map(line => ({ ...line, listing: this.state.listings.find(item => Number(item.id) === Number(line.listingId)) })).filter(line => line.listing);
+    const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0), giftPct = Number(this.state.currentUser?.giftShare || this.state.currentUser?.donationPct || 2), gift = Math.round(subtotal*giftPct/100), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
+    return `<div class="head"><div><h1>Your cart</h1><p class="sub">Check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per kg</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> kg</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>Food</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div><div><span>Pool gift · ${giftPct}%</span><b>${gift.toLocaleString()} RWF</b></div><div class="cart-grand-total"><span>Total today</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div><p>Prototype. Fake money. No real payment is made.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Continue to payment</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
+  }
+  checkoutCart() {
+    const items = (this.state.cart || []).map(line => ({ listing: this.state.listings.find(item=>Number(item.id)===Number(line.listingId)), qty: Number(line.qty) })).filter(line=>line.listing);
+    if (!items.length) return;
+    if (items.some(line => line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("One item has changed stock. Please check your cart.", "warning"); this.render(); return; }
+    const total = items.reduce((sum,line)=>sum+line.qty*line.listing.price,0);
+    this.state.pendingCheckoutOrder = { items, total };
+    this.openPhonePayModal(items[0].listing, items[0].qty, total);
+  }
+
+  handleProfilePhotoUpload(input) {
+    const file = input.files?.[0]; if (!file) return;
+    if (!file.type.startsWith("image/")) { this.toast("Choose an image file.", "warning"); return; }
+    if (file.size > 8 * 1024 * 1024) { this.toast("Choose a photo smaller than 8 MB.", "warning"); input.value=""; return; }
+    const reader = new FileReader();
+    reader.onload = () => { const image = new Image(); image.onload = () => { const scale = Math.min(1, 512 / Math.max(image.width,image.height)), canvas = document.createElement("canvas"); canvas.width=Math.round(image.width*scale); canvas.height=Math.round(image.height*scale); canvas.getContext("2d").drawImage(image,0,0,canvas.width,canvas.height); const photo=canvas.toDataURL("image/jpeg",0.82); this.state.currentUser.profilePhoto=photo; const list=this.state.users?.[this.state.roleCode]||[]; const match=list.find(person=>person.email===this.state.currentUser.email); if(match) match.profilePhoto=photo; this.saveState(); this.render(); this.toast("Profile photo updated.","success"); }; image.src=reader.result; };
+    reader.readAsDataURL(file);
+  }
+  removeProfilePhoto() { if (this.state.currentUser) delete this.state.currentUser.profilePhoto; (this.state.users?.[this.state.roleCode]||[]).forEach(person=>{if(person.email===this.state.currentUser?.email) delete person.profilePhoto;}); this.saveState(); this.render(); }
 
   parseOrderDate(value) {
     if (!value) return null;
@@ -3082,12 +3267,12 @@ class IsokoApp {
                   <div class="vm-price-wrap">
                     <b>${l.price.toLocaleString()}</b> <small>RWF/kg</small>
                   </div>
-                  <button class="vm-add-btn" onclick="window.app.startBuyProduce(${l.id}, '${mode || 'cash'}')" title="Add to cart" aria-label="Add ${this.escapeHtml(displayName)} to cart">
+                  <button class="vm-add-btn" onclick="window.app.${mode === 'credit' ? `startBuyProduce(${l.id}, 'credit')` : `addToCart(${l.id})`}" title="${mode === 'credit' ? 'Order with food credit' : 'Add to cart'}" aria-label="${mode === 'credit' ? 'Order' : 'Add'} ${this.escapeHtml(displayName)} ${mode === 'credit' ? 'with food credit' : 'to cart'}">
                     <i class="bi bi-cart-plus" aria-hidden="true"></i>
                   </button>
                 </div>
 
-                ${mode === 'credit' ? `
+                ${mode === 'credit' || this.state.roleCode === 'member' ? `
                   <button class="vm-credit-order-btn" onclick="window.app.startBuyProduce(${l.id}, 'credit')">
                     Order on Bridge Credit (0%)
                   </button>
@@ -3147,10 +3332,7 @@ class IsokoApp {
         return;
       }
       this.executeOrder(listing, qty, total, "credit", "pending_approval", 0, "Free SACCO Pickup");
-    } else {
-      this.state.pendingCheckoutOrder = { listing, qty, total };
-      this.openPhonePayModal(listing, qty, total);
-    }
+    } else this.addToCart(listingId);
   }
 
   openPhonePayModal(listing, qty, total) {
@@ -3163,12 +3345,13 @@ class IsokoApp {
     const deliveryFee = isPickup ? 0 : 300;
     const grandTotal = total + gift + deliveryFee;
 
+    const items = this.state.pendingCheckoutOrder?.items || [{ listing, qty }];
     const imgEl = document.getElementById("orderProduceImg");
     const badgeEl = document.getElementById("orderProduceBadge");
     if (imgEl) imgEl.src = listing.photo || "assets/produce/dry_beans.jpg";
     if (badgeEl) badgeEl.textContent = `${listing.food} · ${listing.farmer}`;
 
-    document.getElementById("rcV2").textContent = `${listing.food} (${qty} kg)`;
+    document.getElementById("rcV2").textContent = items.length > 1 ? `${items.length} food items` : `${listing.food} (${qty} kg)`;
     document.getElementById("rfV2").textContent = `${total.toLocaleString()} RWF`;
     document.getElementById("rdModeV2").innerHTML = isPickup 
       ? this.t('checkoutDeliveryPickup') 
@@ -3185,8 +3368,9 @@ class IsokoApp {
     this.state.nearby.deliveryOption = this.state.nearby.deliveryOption === 'pickup' ? 'moto' : 'pickup';
     if (this.state.pendingCheckoutOrder) {
       const p = this.state.pendingCheckoutOrder;
-      this.openPhonePayModal(p.listing, p.qty, p.total);
-    }
+      const items = p.items || [{ listing: p.listing, qty: p.qty }];
+      this.openPhonePayModal(items[0].listing, items[0].qty, p.total);
+    } else this.render();
   }
 
   goPhonePage(n) {
@@ -3217,7 +3401,9 @@ class IsokoApp {
     const flist = document.getElementById("flV2");
     if (!mlist || !flist) return;
 
-    mlist.innerHTML = RWANDA_PAYMENT_ACCOUNTS.map((a, i) => `
+    if (this.state.selectedAccountIdx >= this.getAvailablePaymentAccounts().length) this.state.selectedAccountIdx = 0;
+
+    mlist.innerHTML = this.getAvailablePaymentAccounts().map((a, i) => `
       <div class="mitem-v2 ${i === this.state.selectedAccountIdx ? 'on' : ''}" onclick="window.app.selectPaymentAccount(${i})">
         <span class="mico-v2" style="${a.c}">${a.l}</span>
         <div style="flex:1">
@@ -3251,13 +3437,20 @@ class IsokoApp {
     }
   }
 
+  getAvailablePaymentAccounts() {
+    const accounts = [...RWANDA_PAYMENT_ACCOUNTS];
+    if (this.state.roleCode === "member" && Number(this.state.currentUser?.vupWalletBalance) > 0) accounts.push({ n: "VUP food wallet", s: "Available VUP payment balance", t: "wallet", c: "background:#0e635e;color:#fff", l: "VUP", by: "VUP food wallet", bal: Number(this.state.currentUser.vupWalletBalance), wallet: true });
+    return accounts;
+  }
+
   selectPaymentAccount(i) {
     this.state.selectedAccountIdx = i;
     this.renderPaymentAccountsList();
   }
 
   topupSelectedAccount(amt) {
-    const acc = RWANDA_PAYMENT_ACCOUNTS[this.state.selectedAccountIdx];
+    const acc = this.getAvailablePaymentAccounts()[this.state.selectedAccountIdx];
+    if (!acc || acc.wallet) return;
     acc.bal += amt;
     this.renderPaymentAccountsList();
     const errEl = document.getElementById("payErrorV2");
@@ -3269,39 +3462,59 @@ class IsokoApp {
     const p = this.state.pendingCheckoutOrder;
     if (!p) return;
 
-    const acc = RWANDA_PAYMENT_ACCOUNTS[this.state.selectedAccountIdx];
+    const acc = this.getAvailablePaymentAccounts()[this.state.selectedAccountIdx];
+    if (!acc) return;
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const deliveryFee = isPickup ? 0 : 300;
     const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
     const gift = Math.round(p.total * (donationPct / 100));
     const grandTotal = p.total + gift + deliveryFee;
+    const items = p.items || [{ listing: p.listing, qty: p.qty }];
+    if (items.some(line => !line.listing || line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("An item is no longer available in that quantity. Review your cart.", "warning"); this.closePayFlow(); return; }
 
-    if (acc.bal < grandTotal) {
+    const availableBalance = acc.wallet ? Number(this.state.currentUser?.vupWalletBalance || 0) : acc.bal;
+    if (availableBalance < grandTotal) {
       const errEl = document.getElementById("payErrorV2");
-      if (errEl) errEl.textContent = `Insufficient balance (${acc.bal.toLocaleString()} RWF). Click a + chip to top up!`;
+      if (errEl) errEl.textContent = `Insufficient balance (${availableBalance.toLocaleString()} RWF).`;
       return;
     }
 
-    acc.bal -= grandTotal;
+    if (acc.wallet) {
+      this.state.currentUser.vupWalletBalance = Math.max(0, availableBalance - grandTotal);
+      const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
+      if (family) family.vupWalletBalance = this.state.currentUser.vupWalletBalance;
+    } else acc.bal -= grandTotal;
     this.state.pool.balance += gift;
     this.state.pool.totalGiftsIn += gift;
 
     const deliveryType = isPickup ? "Free SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
-    const newOrder = this.executeOrder(p.listing, p.qty, p.total, "cash", acc.by, gift, deliveryType, deliveryFee);
+    let assignedGift = 0;
+    const createdOrders = items.map((line, index) => {
+      const itemTotal = Math.round(line.qty * line.listing.price);
+      const itemGift = index === items.length - 1 ? gift - assignedGift : Math.round(gift * itemTotal / p.total);
+      assignedGift += itemGift;
+      return this.executeOrder(line.listing, line.qty, itemTotal, "cash", acc.by, itemGift, deliveryType, index === 0 ? deliveryFee : 0);
+    });
+    const newOrder = createdOrders[0];
+    this.state.cart = [];
+    this.state.pendingCheckoutOrder = null;
+    this.state.selectedAccountIdx = 0;
+    this.addNotification(`Your payment of ${grandTotal.toLocaleString()} RWF was approved for ${createdOrders.length} food item${createdOrders.length === 1 ? "" : "s"}.`, { targetEmail: this.state.currentUser.email, type: "payment" });
+    this.saveState();
+    this.renderHeaderNavActions();
 
-    const isMobile = acc.t === 'mobile';
     document.getElementById("vtV2").textContent = acc.l || 'MOMO';
     this.goPhonePage(3);
 
     const t3 = document.getElementById("t3V2");
     const t3s = document.getElementById("t3sV2");
-    t3.textContent = isMobile ? "Check your phone" : "Processing…";
-    t3s.textContent = isMobile ? `Approve ${grandTotal.toLocaleString()} RWF with your PIN (*182#)` : "Communicating with bank host…";
+    t3.textContent = "Demo payment approved";
+    t3s.textContent = "This is a prototype. No real money was moved.";
 
     setTimeout(() => {
       t3.textContent = "Approved ✓";
       t3s.textContent = "";
-    }, 2400);
+    }, 450);
 
     setTimeout(() => {
       document.getElementById("pdV2").textContent = `${grandTotal.toLocaleString()} RWF`;
@@ -3313,13 +3526,13 @@ class IsokoApp {
       document.getElementById("recCustV2").textContent = newOrder.buyerName.toUpperCase();
       document.getElementById("recSellerV2").textContent = newOrder.farmer.toUpperCase();
       document.getElementById("recHubV2").textContent = newOrder.hub.toUpperCase();
-      document.getElementById("recItemV2").textContent = `${newOrder.food} (${newOrder.kg} kg)`;
-      document.getElementById("recItemCostV2").textContent = `${newOrder.total.toLocaleString()} RWF`;
+      document.getElementById("recItemV2").textContent = items.length > 1 ? `${items.length} food items · ${items.map(line => line.listing.food).join(", ")}` : `${newOrder.food} (${newOrder.kg} kg)`;
+      document.getElementById("recItemCostV2").textContent = `${p.total.toLocaleString()} RWF`;
       document.getElementById("recDelV2").textContent = isPickup ? "FREE (SACCO)" : "300 RWF (Moto)";
-      document.getElementById("recGiftV2").textContent = `+${newOrder.gift.toLocaleString()} RWF`;
+      document.getElementById("recGiftV2").textContent = `+${gift.toLocaleString()} RWF`;
       document.getElementById("recTotV2").textContent = `${grandTotal.toLocaleString()} RWF`;
       document.getElementById("recPayByV2").textContent = `PAID BY ${acc.by}`;
-    }, 3200);
+    }, 900);
   }
 
   triggerReceiptPrinter() {
@@ -3383,10 +3596,13 @@ class IsokoApp {
       deliveryType: deliveryType,
       deliveryFee: deliveryFee,
       repaid: false,
-      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      date: new Date().toLocaleString("sv-SE")
     };
 
     this.state.orders.unshift(newOrder);
+    this.addNotification(`New order #${newOrder.id}: ${newOrder.food} · ${newOrder.kg} kg.`, { targetEmail: newOrder.buyerEmail, type: "order" });
+    this.addNotification(`New order #${newOrder.id} for ${newOrder.food} is ready to process.`, { targetEmail: newOrder.farmerEmail, type: "order" });
+    this.addNotification(`Order #${newOrder.id} was placed and is ready for review.`, { targetRoles: ["planner", "admin"], type: "order" });
 
     // If cash order, add entry to ledger
     if (mode === "cash") {
@@ -3585,7 +3801,7 @@ class IsokoApp {
   getOutstandingCredit() {
     return this.state.orders
       .filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled" && o.creditStatus !== "written_off")
-      .reduce((sum, o) => sum + o.total, 0);
+      .reduce((sum, o) => sum + Math.max(0, Number(o.total) - Number(o.repaidAmount || 0)), 0);
   }
 
   getRemainingCredit() {
@@ -3912,21 +4128,19 @@ class IsokoApp {
     const role = this.state.role || 'Family';
     const email = (this.state.currentUser && this.state.currentUser.email) || 'user@vupbridge.rw';
     const today = new Date().toISOString().slice(0, 10);
-    const rows = this.state.orders.filter(o => {
-      if (role === 'Family') return o.buyerEmail === email || o.buyerRole === 'Family';
-      if (role === 'Farmer') return o.farmerEmail === email || o.farmer === (this.state.currentUser && this.state.currentUser.name);
-      return o.buyerEmail === email;
-    });
+    const period = this.getUserActivityPeriod();
+    const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
+    const ledgerRows = this.getUserActivityLedger();
 
     const csvContent = [
-      'Prototype. Fake money.',
-      `Statement for ${email} generated ${new Date().toISOString()}`,
-      'order_id,date,food,amount_rwf,mode,status,payment_method',
-      ...rows.map(o => [o.id, o.date || today, `"${o.food || 'Fresh staple'}"`, o.total, o.mode, o.status, `"${o.payMethod || 'MTN Mobile Money'}"`].join(','))
+      ['Prototype. Fake money.', `Activity period: ${period.label}`, `Account: ${email}`, `Created: ${new Date().toLocaleString("en-GB")}`].map(value=>this.csvCell(value)).join(','),
+      ['Record type','ID','Date','Food or payment','Amount RWF','Type','Status','Payment method'].map(value=>this.csvCell(value)).join(','),
+      ...rows.map(order => ['Order',order.id, this.getOrderDateLabel(order.date || today), order.food || 'Fresh staple', Number(order.total)||0, order.mode, order.status, order.paymentMethod || order.paidBy || 'Not recorded'].map(value=>this.csvCell(value)).join(',')),
+      ...ledgerRows.map(entry => ['Money record',entry.link || entry.id,this.getOrderDateLabel(entry.date || today),`${entry.from || ""} → ${entry.to || ""}`,Number(entry.amount)||0,entry.type,entry.status,entry.paymentMethod].map(value=>this.csvCell(value)).join(','))
     ].join('\n');
 
-    this.downloadFile(`VUPBridge_${role}_statement_${today}.csv`, csvContent, 'text/csv');
-    this.toast(`Statement for ${email} downloaded successfully`, 'success');
+    this.downloadFile(`VUPBridge_${role}_activity_${today}.csv`, `\uFEFF${csvContent}`, 'text/csv;charset=utf-8');
+    this.toast(`${rows.length + ledgerRows.length} activity records for ${period.label} downloaded.`, 'success');
   }
 
   downloadAuditCsv() {
