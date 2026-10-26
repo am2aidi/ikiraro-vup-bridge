@@ -25,16 +25,16 @@
 
 ## 1. Executive Summary & Problem Statement
 
-National Institute of Statistics of Rwanda (NISR) household survey microdata ($N = 3,399$ VUP beneficiaries) reveals that monthly social protection cash transfers encounter systemic operational delays:
-- **National Average Delay:** **9.2 days**, with **52%** of recipient families waiting more than one week past the scheduled 15th disbursement date.
-- **Hotspot Severity:** In Expanded Public Works in the Southern Province, delays reach **14.6 days**, with **79%** of households paid more than 7 days late.
+The prepared NISR EICV7 VUP survey summary in this prototype reports delays in monthly social protection transfers. These figures are early, unweighted estimates from the supplied project materials, not a live feed:
+- **National average delay:** **9.2 days**; **52%** of records report a wait longer than 7 days.
+- **Example hotspot:** Expanded Public Works in the Southern Province shows **14.6 days** average delay and **79%** waiting more than 7 days in the provided summary.
 - **The Acute Delay Gap:** When government payments are late, low-income families face severe food insecurity or predatory informal loans. Simultaneously, local smallholder farmers lack direct urban and peri-urban market access.
 
 **VUP Bridge** bridges this exact gap:
 1. **Direct Rwandan Harvest Market:** Farmers list produce with photos and GPS proximity, benchmarked against official NISR median market prices.
 2. **Emergency Social Bridge Credit:** When VUP cash transfers are late, eligible families receive instant zero-interest credit (`people × daily_food_cost × days_late`) to purchase staple food.
 3. **Revolving Social Pool:** Community shoppers donate 1%–5% with each grocery purchase. The pool pays farmers immediately upon delivery; when government VUP transfers arrive, the credit is reimbursed back to the pool.
-4. **Planner & Judicial Cockpit:** Planners monitor 30-district interactive delay maps, the 3 Credit Desk queues, problem disputes, and downloadable official statements.
+4. **Planner & Admin dashboards:** Users can explore the bundled district summaries, the 3 Credit Desk queues, problem reports, and downloadable prototype records.
 
 ---
 
@@ -42,9 +42,9 @@ National Institute of Statistics of Rwanda (NISR) household survey microdata ($N
 
 | Component Type | Included Elements | Data Source & Treatment |
 | :--- | :--- | :--- |
-| **NISR survey summaries** | 30-district delay statistics, provincial hotspots, demographic breakdowns, poverty proxy model, baseline commodity median prices. | EICV7 VUP 2023–24 summary values included in the prototype. The supplied build brief labels these figures early and unweighted; show them as provisional until a final weighted analysis is confirmed. |
-| **Simulated (Demo)** | Farmers, cooperative listings, consumer orders, bridge credit issuance, revolving pool ledger, audit log, and cases. | Fully functional prototype with local browser state persistence (`Prototype. Fake money.`). |
-| **Assumed Parameters** | Daily adult food consumption basket ($\approx$ 261 RWF/person/day: 120g beans, 300g sweet potato, 80g tomato, 30g onion), shopper donation rate (1%–5%). | Calibrated to Rwandan national nutrition guidelines and market price indices. |
+| **Bundled NISR survey summaries** | National, programme, province, programme-by-province, district, group, and commodity-price summaries. | Included in `js/nisr_data.js`; fixed 2023–24 EICV7 VUP survey baseline. The supplied build brief labels the provided summary figures early and unweighted. Treat them as provisional until the final weighted analysis is confirmed. |
+| **Simulated (Demo)** | Accounts, listings, orders, checkout, VUP wallet, bridge credit, pool ledger, audit log, and cases. | Stored in browser `localStorage`. `Prototype. Fake money.` No real payment or VUP transfer is made. |
+| **Assumed Parameters** | Example daily food basket and shopper pool gift rate. | Demo settings, not live NISR measurements. Check the source and units before using a benchmark for real pricing or policy. |
 
 ---
 
@@ -87,10 +87,9 @@ Track every bridge credit order through its financial lifecycle:
 - Planners view the **Member Approvals Queue** and click **"Approve Member"**.
 - Approved members transition to `verified`, add payment details (MoMo / SACCO), and become `credit-ready`.
 
-### C. Trilingual Support & Gemini AI Engine
-- Complete native translation across all 3 official languages of Rwanda: **English (`EN`)**, **Ikinyarwanda (`RW`)**, and **Français (`FR`)**.
-- Built-in **Google Gemini AI Assistant** translates produce listings, answers agricultural/fintech queries, and explains system metrics in easy words.
-- Strict Section 8 compliance: Gemini explanations are formatted in **four parts**, use short sentences, under 150 words, never invent numbers, and state *"Possible reason:"* when explaining payment delays.
+### C. Language Support
+- The language selector uses translations bundled with the app in English (EN), Kinyarwanda (RW), and French (FR).
+- No Gemini translator or other translation API is connected.
 
 ### D. Single Immutable Ledger & Problem Dispute Cases
 - **Immutable Financial Ledger:** Transactions are never edited or deleted. Errors are corrected via linked reversal entries.
@@ -99,7 +98,7 @@ Track every bridge credit order through its financial lifecycle:
 
 ### E. Statements & Analysis Reports
 - Downloadable **PDF / CSV Statements** for every role (statement number, period, itemized transactions, credit, repaid balance).
-- **Official Executive Analysis Report:** Printable report containing NISR delay baseline comparisons, revolving pool velocity, and district breakdown.
+- **Analysis report:** Printable report containing the provisional NISR baseline, simulated pool activity, and district summaries.
 
 ### F. Planner/Admin NISR Analysis Workspace
 - The overview dashboard links to a plain-language NISR analysis with national, programme, province, district, payment-method, demographic, and sample-size comparisons.
@@ -107,8 +106,23 @@ Track every bridge credit order through its financial lifecycle:
 - Download the NISR analysis as CSV, print/save a combined NISR and selected-period activity report as PDF, or download the selected-period transactions as CSV.
 - The report labels simulated activity and provisional survey summaries. It explains that the survey shows patterns, not individual causes, and does not establish a household's current payment status.
 
----
 
+### NISR data source, coverage, and limits
+
+The dashboard reads prepared summary values from `js/nisr_data.js`; it does not download current data from NISR. The values identify an EICV7 VUP survey baseline, and the supplied build brief describes them as early, unweighted estimates. They are provisional and have not been independently recalculated from raw survey records for this prototype.
+
+The bundled summaries cover national totals and delays; VUP programme and province comparisons; programme-by-province hotspots; group comparisons for poverty level, payment channel, rural or urban area, gender, and age; district delay, poverty, price index, priority score, and sample count; and food price benchmarks. Rwanda district boundaries are bundled in `js/rwanda_geo_data.js`. The map can show the bundled district measures, but the district data does not include a district-level share of households waiting over seven days.
+
+The separate `Microdata.zip` supplied for the project contains raw NISR Stata (`.dta`) survey modules. The ZIP is not in this repository, and the browser does not read those files. So the dashboard does **not** include every detail or personal record from the raw survey. It shows only the prepared, grouped values listed above. Survey patterns cannot explain a particular family's delay or confirm its current payment or eligibility.
+
+### Live API and external services
+
+- **NISR API:** None is connected. Survey figures stay fixed until the bundled summary file is changed. Date filters apply only to simulated prototype activity.
+- **Payments and login:** No real bank, SACCO, MTN MoMo, Airtel Money, or identity service is connected. Demo accounts, balances, orders, and payments are saved in browser storage and are not real transactions.
+- **Map:** District boundaries are local. Leaflet, fonts, and icons may load from external CDNs; CARTO may provide background map tiles when available. These services do not provide NISR survey data. The map has a local SVG fallback.
+- **Languages:** English, Kinyarwanda, and French text is bundled. The translation helper works offline and does not send text to Gemini or another translation API.
+
+---
 ## 5. Verification & Acceptance Testing (Tests 1–29)
 
 To run the automated Node.js test suite covering all 29 acceptance criteria:
@@ -128,7 +142,7 @@ Logged in as: amina uwase | Role: Family
 Timeframe set to: month, year, week
 --- TEST 3: Trilingual localization ---
 Language rw, fr, en passed.
---- TEST 4: Gemini AI translation & query engine ---
+--- TEST 4: Offline language helper ---
 Offline Kinyarwanda & French translations passed.
 --- TEST 5: Planner Login & Credit Desk Queues ---
 Logged in as: Planner One | Role: Planner

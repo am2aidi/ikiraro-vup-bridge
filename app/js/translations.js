@@ -580,10 +580,7 @@ const TRANSLATIONS = {
  * With contextual Rwandan social protection (VUP) and agricultural expertise.
  */
 class GeminiAIEngine {
-  constructor() {
-    this.apiKey = localStorage.getItem("isoko_gemini_api_key") || "";
-    this.apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
-  }
+  constructor() {}
 
   // Pre-compiled verified translations for agricultural, fintech, and VUP domain
   getOfflineKnowledgeBase(query, targetLang) {
@@ -633,7 +630,7 @@ class GeminiAIEngine {
     return null;
   }
 
-  // Live Translation Function
+  // Offline translation helper. The website does not send translation text to an API.
   async translateText(text, targetLang, sourceLang = "auto") {
     if (!text || !text.trim()) return "";
 
@@ -643,36 +640,7 @@ class GeminiAIEngine {
       return offlineMatch;
     }
 
-    // 2. If API Key is present, make live request to Gemini API
-    if (this.apiKey) {
-      try {
-        const langNames = { en: "English", rw: "Kinyarwanda", fr: "French" };
-        const prompt = `You are an expert bilingual Rwandan linguist and agricultural fintech assistant for "Isoko Bridge" (Ikiraro cya VUP). 
-Translate the following text accurately into ${langNames[targetLang] || targetLang}.
-Preserve local Rwandan terms properly (e.g. VUP, SACCO, MoMo, Ikiraro, Umurenge, Kinigi, Kirehe).
-Only return the direct translated text without conversational preamble:
-"${text}"`;
-
-        const resp = await fetch(`${this.apiUrl}?key=${this.apiKey}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 600 }
-          })
-        });
-
-        if (resp.ok) {
-          const data = await resp.json();
-          const translated = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (translated) return translated.trim();
-        }
-      } catch (err) {
-        console.warn("Gemini API live request fallback:", err);
-      }
-    }
-
-    // 3. High quality fallback translator using domain-specific lexical engine
+    // Use the local fallback only; never transmit user text to a translation service.
     return this.fallbackLexicalTranslate(text, targetLang);
   }
 
