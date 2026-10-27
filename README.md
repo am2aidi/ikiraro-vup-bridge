@@ -76,31 +76,34 @@ The platform opens with **"Who are you?"** featuring 5 clear role buttons with o
 
 ## 4. Key Architectural Modules
 
-### A. The Credit Desk with 3 Queues
-Track every bridge credit order through its financial lifecycle:
-1. **To Approve:** Verifies family eligibility, NISR delay days, and enforces the 14-day credit cap (first credit capped at 3 days; one open credit at a time).
-2. **To Pay Sellers:** Displays delivered credit orders. The planner clicks **"Pay Seller from Pool"** to disburse mobile money to the farmer immediately.
-3. **To Repay:** Tracks outstanding credit owed back to the pool. When the government VUP transfer wave clears, click **"Settle from VUP Transfer"** or **"Write Off"** (absorbed by pool).
+### A. Automatic food credit and payment tracking
+- An admin records each member's **work days** and **unpaid VUP amount** from a work or payment record.
+- Available food credit is **unpaid VUP amount minus open food credit**. A member can use the available amount at checkout without planner approval. The prototype adds no interest or fee.
+- After a credit order is delivered, an admin records the seller payment. When an admin records a VUP payment, the app repays open credit first and puts any remaining amount in the member's VUP food wallet.
+- A planner can read the payment record and help with a case. Planners cannot edit the amount owed, issue credit, send money, write off debt, or record a VUP payment. Admins manage those actions.
 
-### B. Member Verification Lifecycle
+### B. Checkout payment choices
+Members and shoppers can choose a payment method at checkout: cash on delivery or pickup, MTN MoMo demo, Airtel Money demo, or bank/SACCO demo. Members can also use an available VUP food wallet or automatic VUP food credit. Digital choices are simulations in this prototype. A live provider connection needs merchant access, a secure backend, and payment-provider approval; none is configured here.
+
+### C. Member Verification Lifecycle
 - Unverified members start as `pending`.
 - Planners view the **Member Approvals Queue** and click **"Approve Member"**.
 - Approved members transition to `verified`, add payment details (MoMo / SACCO), and become `credit-ready`.
 
-### C. Language Support
+### D. Language Support
 - The language selector uses translations bundled with the app in English (EN), Kinyarwanda (RW), and French (FR).
 - No Gemini translator or other translation API is connected.
 
-### D. Single Immutable Ledger & Problem Dispute Cases
+### E. Single Immutable Ledger & Problem Dispute Cases
 - **Immutable Financial Ledger:** Transactions are never edited or deleted. Errors are corrected via linked reversal entries.
 - **🚩 Report a Problem:** Available on every order and ledger transaction. Creates an open Case in the Planner and Admin dispute queues.
 - **Admin Failure Switch:** Toggle `"Make the next payment fail"` to simulate a mobile money float failure and test problem resolution.
 
-### E. Statements & Analysis Reports
+### F. Statements & Analysis Reports
 - Downloadable **PDF / CSV Statements** for every role (statement number, period, itemized transactions, credit, repaid balance).
 - **Analysis report:** Printable report containing the provisional NISR baseline, simulated pool activity, and district summaries.
 
-### F. Planner/Admin NISR Analysis Workspace
+### G. Planner/Admin NISR Analysis Workspace
 - The overview dashboard links to a plain-language NISR analysis with national, programme, province, district, payment-method, demographic, and sample-size comparisons.
 - The EICV7 baseline is fixed to the **2023–24 survey period**. The activity filter (Today, last 7 days, last 30 days, last 12 months, or custom dates) applies only to simulated prototype orders; it never changes or re-dates NISR results.
 - Download the NISR analysis as CSV, print/save a combined NISR and selected-period activity report as PDF, or download the selected-period transactions as CSV.

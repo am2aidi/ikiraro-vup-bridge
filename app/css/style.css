@@ -2444,6 +2444,7 @@ tr:last-child td {
   width: 100%;
 }
 .phone-modal-wrapper .m-v2.on { border-color: #000; }
+.phone-modal-wrapper .m-v2:disabled { opacity: .52; cursor: not-allowed; }
 .phone-modal-wrapper .m-v2 .lg-v2 { width: 34px; height: 24px; border-radius: 6px; display: grid; place-items: center; font-size: 8px; font-weight: 800; color: #fff; flex: none; }
 .phone-modal-wrapper .m-v2 small { display: block; font-weight: 400; color: #8a8a8e; font-size: 10px; }
 .phone-modal-wrapper .m-v2 .r-v2 { margin-left: auto; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #ccc; flex: none; }
@@ -2458,6 +2459,8 @@ tr:last-child td {
 .phone-modal-wrapper .chip-v2:active { transform: scale(0.95); }
 .phone-modal-wrapper .bal-v2 { font-size: 11px; color: #8a8a8e; }
 .phone-modal-wrapper .err-v2 { color: #c0392b; font-size: 11px; min-height: 14px; }
+.phone-modal-wrapper .payment-demo-note { margin: 3px 0 0; color: #65716b; font-size: 10.5px; line-height: 1.45; }
+.phone-modal-wrapper #payErrorV2 { color: #b42318; font-size: 11px; min-height: 16px; line-height: 1.4; }
 
 /* Terminal */
 .phone-modal-wrapper .term-v2 { margin: auto; width: 240px; text-align: center; }

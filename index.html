@@ -103,7 +103,7 @@
         <section class="page-v2" id="p6_v2" style="overflow-y:auto">
           <button class="back-v2" onclick="window.app.goPhonePage(2)" aria-label="back">‹</button>
           <h1>Pay with</h1>
-          <p class="sub-v2">Pick a saved account. Amounts in RWF.</p>
+          <p class="sub-v2">Choose one way to pay. Each option shows whether it is real or simulated.</p>
           <div class="mlist-v2" id="mlV2"></div>
           <div class="fields-v2" id="flV2"></div>
           <button class="pay-pill-btn-v2" id="goBtnV2" style="margin-top:auto;flex:none" onclick="window.app.processPhonePayment()"><span class="t" id="ppV2">Pay</span></button>
@@ -142,7 +142,7 @@
             <p class="sub-v2" id="t4V2">Your harvest food is being packed at the nearest hub.<br>We will notify you upon dispatch.</p>
           </div>
           <div class="sheet-v2" style="margin-top:14px">
-            <div class="row-v2"><span>Paid Amount</span><span id="pdV2">4,278 RWF</span></div>
+            <div class="row-v2"><span id="pdLabelV2">Order total</span><span id="pdV2">4,278 RWF</span></div>
             <div class="row-v2" style="font-weight:500;font-size:12px"><span>Fulfillment</span><span id="pdFulV2">15–25 mins (Express Moto)</span></div>
           </div>
           <div class="btns" style="margin-top:auto; display:flex; flex-direction:column; gap:8px;">
@@ -173,10 +173,10 @@
               <div class="l-v2"><span>Bridge Pool Gift</span><span id="recGiftV2">+78 RWF</span></div>
               <hr>
               <div class="tot-v2"><span>TOTAL</span><span id="recTotV2">4,278 RWF</span></div>
-              <div class="l-v2" style="color:#888"><span id="recPayByV2">PAID BY MTN MOMO</span><span>APPROVED</span></div>
+              <div class="l-v2" style="color:#888"><span id="recPayByV2">PAYMENT METHOD</span><span id="recApprovalV2">DEMO ONLY</span></div>
               <div class="bars-v2" id="barsV2"></div>
               <div class="ty-v2">Murakoze cyane · Supporting Rwandan Farmers</div>
-              <div class="stamp-v2" id="stampV2"><span>PAID<small>APPROVED</small></span></div>
+              <div class="stamp-v2" id="stampV2"><span id="recStampV2">DEMO<small>NO REAL MONEY</small></span></div>
             </div>
           </div>
           <div class="status-t-v2" id="ptV2">Printing your receipt…</div>
@@ -342,6 +342,40 @@
           <button type="submit" class="btn btn-primary btn-sm" style="flex:1;">Submit Problem Report</button>
           <button type="button" class="btn btn-outline btn-sm" onclick="window.app.closeCaseModal()">Cancel</button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin-only VUP work and unpaid amount record -->
+  <div id="vupWorkRecordModal" class="auth-overlay-backdrop" role="dialog" aria-modal="true" aria-labelledby="vupWorkRecordTitle">
+    <div class="card" style="max-width:520px;width:92vw;padding:22px;background:var(--card-bg);border-radius:var(--radius-xl);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+        <div><h2 id="vupWorkRecordTitle" style="font-size:19px;margin:0;">Update VUP work record</h2><p id="vupWorkMemberName" class="sub" style="margin:4px 0 0;"></p></div>
+        <button class="btn btn-sm btn-ghost" type="button" onclick="document.getElementById('vupWorkRecordModal').classList.remove('open')" aria-label="Close">✕</button>
+      </div>
+      <form onsubmit="window.app.saveVupWorkRecord(event)">
+        <input id="vupWorkEmail" type="hidden">
+        <div class="form-group"><label class="form-label" for="vupDaysWorked">Public works days in this pay period (if applicable)</label><input id="vupDaysWorked" class="form-control" type="number" min="0" step="1" required></div>
+        <div class="form-group" style="margin-top:12px;"><label class="form-label" for="vupAmountOwed">Unpaid VUP amount (RWF)</label><input id="vupAmountOwed" class="form-control" type="number" min="0" step="100" required></div>
+        <p class="sub">Enter the amount confirmed by a work or payment record. This prototype will use it to set food credit available to the member.</p>
+        <div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-primary" type="submit">Save work record</button><button class="btn btn-outline" type="button" onclick="document.getElementById('vupWorkRecordModal').classList.remove('open')">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Planner / admin case review -->
+  <div id="caseResolveModal" class="auth-overlay-backdrop" role="dialog" aria-modal="true" aria-labelledby="caseResolveTitle">
+    <div class="card" style="max-width:520px;width:92vw;padding:22px;background:var(--card-bg);border-radius:var(--radius-xl);">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;">
+        <div><h2 id="caseResolveTitle" style="font-size:19px;margin:0;">Review a problem case</h2><p id="caseResolveSummary" class="sub" style="margin:4px 0 0;"></p></div>
+        <button class="btn btn-sm btn-ghost" type="button" onclick="document.getElementById('caseResolveModal').classList.remove('open')" aria-label="Close">✕</button>
+      </div>
+      <form onsubmit="window.app.saveCaseResolution(event)">
+        <input id="caseResolveId" type="hidden">
+        <div class="form-group"><label class="form-label" for="caseResolveAction">Next step</label><select id="caseResolveAction" class="form-control"><option value="resolved">I fixed or explained the issue</option><option value="needs_admin">Ask an admin to review</option><option value="rejected">This report is not a system problem</option></select></div>
+        <div class="form-group" style="margin-top:12px;"><label class="form-label" for="caseResolveNote">What did you check or change?</label><textarea id="caseResolveNote" class="form-control" rows="4" placeholder="Write a short note. The member and admin can read it." required></textarea></div>
+        <p class="sub">Planners can help members and send money issues to an admin. Only admins can change payments or balances.</p>
+        <div style="display:flex;gap:8px;margin-top:16px;"><button class="btn btn-primary" type="submit">Save case update</button><button class="btn btn-outline" type="button" onclick="document.getElementById('caseResolveModal').classList.remove('open')">Cancel</button></div>
       </form>
     </div>
   </div>
