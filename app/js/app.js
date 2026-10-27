@@ -2253,45 +2253,87 @@ class IsokoApp {
     const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
       <section class="auth-scene" aria-labelledby="authTitle">
-        <div class="auth-card" data-mode="${isSignup ? "signup" : "login"}">
-          <aside class="auth-welcome">
-            <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
-            <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
-            <h1 id="authTitle">${isSignup ? text("create") : text("welcome")}</h1>
-            <p>${isSignup ? text("signupSub") : text("loginSub")}</p>
-            <div class="auth-switch">
-              <span>${isSignup ? text("already") : text("newHere")}</span>
-              ${canSignUp ? `<button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("create")}</button>` : `<small>Use the organization demo account.</small>`}
-            </div>
-          </aside>
-          <div class="auth-form-panel">
+        <!-- Glowing Circuit SVG Background (login-form-v5.html) -->
+        <svg class="auth-bg-circuit" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 220H140L180 260H300"/>
+          <path d="M0 560H220L260 520H340"/>
+          <path d="M1200 180H1040L1000 220H900"/>
+          <path d="M1200 600H980L940 560H860"/>
+          <path d="M300 0V90L340 130"/>
+          <path d="M900 800V700L860 660"/>
+          <circle cx="300" cy="260" r="5"/>
+          <circle cx="340" cy="520" r="5" style="animation-delay:.8s"/>
+          <circle cx="900" cy="220" r="5" style="animation-delay:1.4s"/>
+          <circle cx="860" cy="560" r="5" style="animation-delay:.4s"/>
+          <circle cx="340" cy="130" r="4" style="animation-delay:1s"/>
+          <circle cx="860" cy="660" r="4" style="animation-delay:1.8s"/>
+        </svg>
+
+        <div class="auth-card" id="authCard" data-mode="${mode}">
+          <!-- Left Panel: Login Form (login-form-v5.html) -->
+          <div class="auth-form-panel auth-panel-login" id="protoLoginPanel">
             <div class="auth-form-heading">
-              <div><span class="auth-eyebrow">${isSignup ? text("newAccount") : text("account")}</span><h2>${isSignup ? text("signUp") : text("logIn")}</h2></div>
+              <div><span class="auth-eyebrow">${text("account")}</span><h2>${text("logIn")}</h2></div>
               <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
             </div>
-            ${isSignup ? `
-              <form class="auth-form" onsubmit="window.app.handlePrototypeSignup(event)" autocomplete="on">
-                <label for="signupName">${text("fullName")}</label><div class="auth-field"><i class="bi bi-person" aria-hidden="true"></i><input id="signupName" name="name" autocomplete="name" placeholder="${text("fullName")}" required></div>
-                <label for="signupEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
-                <label for="signupPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
-                <p class="auth-help">${text("safe")}</p>
-                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> ${text("signUp")}</button>
-              </form>
-            ` : `
-              <form class="auth-form" onsubmit="window.app.handlePrototypeLogin(event)" autocomplete="on">
-                <label for="demoUserSelect">${text("sample")}</label>
-                <select id="demoUserSelect" class="auth-select" onchange="window.app.onRoleLoginUserSelected(this.value)">
-                  ${userList.map(user => `<option value="${this.escapeHtml(user.email)}" ${user.email === firstUser.email ? "selected" : ""}>${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}
-                </select>
-                <p class="auth-help" id="protoUserStateDesc">${this.escapeHtml(firstUser.stateDesc || firstUser.notes || text("chooseDemo"))}</p>
-                <label for="protoEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="protoEmail" name="email" type="email" autocomplete="username" value="${this.escapeHtml(firstUser.email || "")}" placeholder="name@example.com" required></div>
-                <label for="protoPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="protoPassword" name="password" type="password" autocomplete="current-password" value="${this.escapeHtml(firstUser.password || "")}" placeholder="Your password" required></div>
-                <p class="auth-help">${text("note")}</p>
-                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${text("logIn")}</button>
-              </form>
-            `}
-            ${canSignUp ? `<p class="auth-mobile-switch">${isSignup ? text("haveAccount") : text("needAccount")} <button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("signUp")}</button></p>` : ""}
+            <form class="auth-form" onsubmit="window.app.handlePrototypeLogin(event)" autocomplete="on">
+              <label for="demoUserSelect">${text("sample")}</label>
+              <select id="demoUserSelect" class="auth-select" onchange="window.app.onRoleLoginUserSelected(this.value)">
+                ${userList.map(user => `<option value="${this.escapeHtml(user.email)}" ${user.email === firstUser.email ? "selected" : ""}>${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}
+              </select>
+              <p class="auth-help" id="protoUserStateDesc">${this.escapeHtml(firstUser.stateDesc || firstUser.notes || text("chooseDemo"))}</p>
+              <label for="protoEmail">${text("email")}</label>
+              <div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="protoEmail" name="email" type="email" autocomplete="username" value="${this.escapeHtml(firstUser.email || "")}" placeholder="name@example.com" required></div>
+              <label for="protoPassword">${text("password")}</label>
+              <div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="protoPassword" name="password" type="password" autocomplete="current-password" value="${this.escapeHtml(firstUser.password || "")}" placeholder="Your password" required></div>
+              <p class="auth-help">${text("note")}</p>
+              <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${text("logIn")}</button>
+            </form>
+            ${canSignUp ? `<p class="auth-mobile-switch">${text("needAccount")} <button type="button" onclick="window.app.setAuthMode('signup')">${text("signUp")}</button></p>` : ""}
           </div>
+
+          <!-- Right Panel: Sign Up Form (login-form-v5.html) -->
+          <div class="auth-form-panel auth-panel-signup" id="protoSignupPanel">
+            <div class="auth-form-heading">
+              <div><span class="auth-eyebrow">${text("newAccount")}</span><h2>${text("signUp")}</h2></div>
+              <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
+            </div>
+            <form class="auth-form" onsubmit="window.app.handlePrototypeSignup(event)" autocomplete="on">
+              <label for="signupName">${text("fullName")}</label>
+              <div class="auth-field"><i class="bi bi-person" aria-hidden="true"></i><input id="signupName" name="name" autocomplete="name" placeholder="${text("fullName")}" required></div>
+              <label for="signupEmail">${text("email")}</label>
+              <div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+              <label for="signupPassword">${text("password")}</label>
+              <div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
+              <p class="auth-help">${text("safe")}</p>
+              <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> ${text("signUp")}</button>
+            </form>
+            <p class="auth-mobile-switch">${text("haveAccount")} <button type="button" onclick="window.app.setAuthMode('login')">${text("logIn")}</button></p>
+          </div>
+
+          <!-- Sliding Diagonal Overlay (login-form-v5.html) -->
+          <aside class="auth-welcome auth-diagonal-overlay" aria-hidden="true">
+            <div class="auth-overlay-msg m-signup">
+              <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
+              <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
+              <h1>${text("create")}</h1>
+              <p>${text("signupSub")}</p>
+              <div class="auth-switch">
+                <span>${text("already")}</span>
+                <button type="button" onclick="window.app.setAuthMode('login')">${text("logIn")}</button>
+              </div>
+            </div>
+            <div class="auth-overlay-msg m-login">
+              <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
+              <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
+              <h1>${text("welcome")}</h1>
+              <p>${text("loginSub")}</p>
+              <div class="auth-switch">
+                <span>${text("newHere")}</span>
+                ${canSignUp ? `<button type="button" onclick="window.app.setAuthMode('signup')">${text("create")}</button>` : `<small>Organization demo account.</small>`}
+              </div>
+            </div>
+          </aside>
         </div>
       </section>
     `;

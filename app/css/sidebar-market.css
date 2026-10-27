@@ -218,43 +218,186 @@
   .auth-mobile-switch { display: none; }
 }
 
-/* Match the reference sign-in flow: the welcome panel slides across the card. */
+/* Glowing Circuit Background & Diagonal Morphing Overlay (login-form-v5.html) */
+.auth-scene {
+  position: relative;
+  width: min(100%, 1020px);
+  margin: clamp(12px, 3vh, 32px) auto;
+  padding-inline: clamp(0px, 2vw, 16px);
+}
+svg.auth-bg-circuit {
+  position: absolute;
+  inset: -30px;
+  width: calc(100% + 60px);
+  height: calc(100% + 60px);
+  z-index: 0;
+  pointer-events: none;
+  opacity: .75;
+}
+svg.auth-bg-circuit path {
+  fill: none;
+  stroke: rgba(16, 185, 129, .38);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 5px rgba(16, 185, 129, .5));
+}
+svg.auth-bg-circuit circle {
+  fill: #10b981;
+  filter: drop-shadow(0 0 6px #10b981);
+  animation: authCircuitPulse 2.4s ease-in-out infinite;
+}
+@keyframes authCircuitPulse {
+  50% { opacity: .25; }
+}
+
+.auth-diagonal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  z-index: 4;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: linear-gradient(148deg, rgba(12,133,85,.97), rgba(7,78,68,.97));
+  border-right: 1px solid rgba(16, 185, 129, .5);
+  clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+  transition: transform .7s cubic-bezier(.7,0,.2,1), clip-path .7s cubic-bezier(.7,0,.2,1);
+  will-change: transform, clip-path;
+}
+.auth-diagonal-overlay::after {
+  content: ""; position: absolute; width: 300px; height: 300px; right: -160px; bottom: -170px;
+  border: 1px solid rgba(255,255,255,.22); border-radius: 50%;
+  box-shadow: 0 0 0 28px rgba(255,255,255,.045), 0 0 0 58px rgba(255,255,255,.035); pointer-events: none;
+}
+.auth-overlay-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 34px 44px;
+  box-sizing: border-box;
+  color: #fff;
+  transition: opacity .45s ease, filter .45s ease;
+}
+.auth-overlay-msg h1 { font-size: clamp(22px, 2.5vw, 28px); font-weight: 750; line-height: 1.2; margin: 10px 0 8px; color: #fff; }
+.auth-overlay-msg p { font-size: 13px; color: rgba(240,255,248,.82); line-height: 1.5; margin: 0 0 16px; }
+
+/* Desktop dual-panel with diagonal overlay (login-form-v5.html) */
 @media (min-width: 761px) {
   .auth-card {
     display: block;
     position: relative;
-    min-height: 520px;
+    min-height: 540px;
+    height: 540px;
     overflow: hidden;
   }
-  .auth-welcome {
-    position: absolute;
-    z-index: 2;
-    inset: 0 auto 0 0;
-    box-sizing: border-box;
-    width: 50%;
-    min-height: 0;
-    border-radius: 28px 0 0 28px;
-    transition: transform .68s cubic-bezier(.7,0,.2,1), border-radius .68s cubic-bezier(.7,0,.2,1);
-    will-change: transform;
-  }
   .auth-form-panel {
-    box-sizing: border-box;
+    position: absolute;
+    top: 0;
     width: 50%;
-    min-height: 520px;
-    margin-left: 50%;
-    transition: margin-left .68s cubic-bezier(.7,0,.2,1);
+    height: 100%;
+    padding: 32px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;
+    box-sizing: border-box;
+    transition: opacity .5s ease, filter .5s ease, transform .6s cubic-bezier(.7,0,.2,1);
   }
-  .auth-card[data-mode="signup"] .auth-welcome {
-    transform: translateX(100%);
-    border-radius: 0 28px 28px 0;
+  .auth-panel-login { left: 0; }
+  .auth-panel-signup { right: 0; }
+
+  /* Signup state */
+  .auth-card[data-mode="signup"] .auth-panel-login {
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
+    transform: translateX(-30px);
   }
-  .auth-card[data-mode="signup"] .auth-form-panel { margin-left: 0; }
+  .auth-card[data-mode="signup"] .auth-panel-signup {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+    transform: none;
+  }
+  .auth-card[data-mode="signup"] .m-login {
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  .auth-card[data-mode="signup"] .m-signup {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+  }
+
+  /* Login state: overlay slides to right */
+  .auth-card[data-mode="login"] .auth-diagonal-overlay {
+    transform: translateX(81.8%);
+    clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
+    border-right: 0;
+    border-left: 1px solid rgba(16, 185, 129, .5);
+  }
+  .auth-card[data-mode="login"] .auth-panel-signup {
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
+    transform: translateX(30px);
+  }
+  .auth-card[data-mode="login"] .auth-panel-login {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+    transform: none;
+  }
+  .auth-card[data-mode="login"] .m-signup {
+    opacity: 0;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+  .auth-card[data-mode="login"] .m-login {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+  }
 }
 
+/* Mobile responsive fallback */
 @media (max-width: 760px) {
-  .auth-card { display: flex; position: relative; min-height: 0; overflow: visible; }
-  .auth-welcome { position: relative; inset: auto; z-index: auto; width: 100%; transform: none !important; border-radius: 22px 22px 0 0; }
-  .auth-form-panel { width: 100%; min-height: 0; margin: 0 !important; }
+  .auth-card {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    min-height: 0;
+    overflow: visible;
+  }
+  .auth-diagonal-overlay {
+    position: relative;
+    inset: auto;
+    z-index: auto;
+    width: 100%;
+    transform: none !important;
+    clip-path: none !important;
+    border-radius: 22px 22px 0 0;
+    padding: 22px;
+  }
+  .auth-overlay-msg {
+    position: relative;
+    inset: auto;
+    padding: 0;
+  }
+  .auth-card[data-mode="signup"] .m-login { display: none !important; }
+  .auth-card[data-mode="login"] .m-signup { display: none !important; }
+  .auth-card[data-mode="signup"] .auth-panel-login { display: none !important; }
+  .auth-card[data-mode="login"] .auth-panel-signup { display: none !important; }
+  .auth-form-panel {
+    width: 100%;
+    min-height: 0;
+    margin: 0 !important;
+    padding: 22px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
