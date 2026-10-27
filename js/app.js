@@ -451,6 +451,12 @@ class IsokoApp {
       toggle.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
       toggle.classList.toggle("collapsed", !expanded);
     }
+    const edgeToggle = document.getElementById("railEdgeToggle");
+    if (edgeToggle) {
+      edgeToggle.setAttribute("aria-expanded", String(expanded));
+      edgeToggle.title = expanded ? "Collapse menu" : "Expand menu";
+      edgeToggle.setAttribute("aria-label", expanded ? "Collapse menu" : "Expand menu");
+    }
   }
 
   toggleSidebar() {
@@ -3419,12 +3425,12 @@ class IsokoApp {
         ${this.renderMarketHero("Fresh food, at a fair price", "Shop local harvests, compare sellers, and support families through Agaseke.", "assets/produce/irish_potato.jpg")}
         <section class="shopper-overview-card card" aria-label="Shopping and community summary">
           <div class="shopper-overview-profile"><span class="shopper-overview-avatar"><i class="bi bi-person-heart" aria-hidden="true"></i></span><div><b>${this.escapeHtml(u.name || "Shopper")}</b><small>Local shopper · ${this.escapeHtml(u.district || "Rwanda")}</small></div></div>
-          <div class="shopper-overview-metrics"><article><span>Orders</span><b>${myOrders.length}</b></article><article><span>Your Agaseke gifts</span><b>${totalAgasekeGiven.toLocaleString()} RWF</b></article><article><span>Community pool</span><b>${agasekePool.toLocaleString()} RWF</b></article><article><span>Families supported</span><b>${familiesHelped}</b></article></div>
+          <div class="shopper-overview-metrics"><article><span>Orders</span><b>${myOrders.length}</b></article><article><span>Your Agaseke donations</span><b>${totalAgasekeGiven.toLocaleString()} RWF</b></article><article><span>Delivery Hub</span><b>${this.escapeHtml(u.district || "Kigali")}</b></article><article><span>Cart</span><b>${this.cartCount()} ${this.cartCount() === 1 ? "item" : "items"}</b></article></div>
         </section>
         ${this.renderMarketplaceTools()}
         <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Buy directly from farmers and local market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
         ${this.renderGroceryCatalog("cash", { showControls: false })}
-        <section class="shopper-bottom-grid"><article class="card agaseke-control-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-heart-pulse" aria-hidden="true"></i></span><div><h2>Agaseke contribution</h2><p>Choose how much to add to each order.</p></div></div><div class="agaseke-options" role="group" aria-label="Choose Agaseke contribution">${[10, 20, 50, 100, 0].map(amt => `<button type="button" class="agaseke-option ${currentAgaseke === amt ? "on" : ""}" aria-pressed="${currentAgaseke === amt}" onclick="window.app.setShopperAgasekeAmount(${amt})">${amt === 0 ? "None" : `${amt} RWF`}</button>`).join("")}</div><small>Every contribution supports food relief for families who need help.</small></article><article class="card shopper-orders-card"><div class="shopper-orders-heading"><div><h2>My orders</h2><p>Check your past purchases and receipts.</p></div><button class="icon-action" onclick="window.app.openStatementModal('Shopper')" title="Download purchases and receipts" aria-label="Download purchases and receipts"><i class="bi bi-download" aria-hidden="true"></i></button></div>${this.renderOrdersTable(myOrders)}</article></section>
+        <section class="shopper-bottom-grid"><article class="card shopper-orders-card" style="grid-column: 1 / -1;"><div class="shopper-orders-heading"><div><h2>My orders & receipts</h2><p>Check your past purchases, delivered produce, and solidarity contributions.</p></div><button class="icon-action" onclick="window.app.openStatementModal('Shopper')" title="Download purchases and receipts" aria-label="Download purchases and receipts"><i class="bi bi-download" aria-hidden="true"></i></button></div>${this.renderOrdersTable(myOrders)}</article></section>
       </div>
     `;
   }
@@ -4243,22 +4249,31 @@ class IsokoApp {
     }, 0);
   }
   getAgasekeContributionAmount() {
-    if (this.state.roleCode !== "shopper") return 0;
+    if (this.state.shopperAgasekeAmount !== undefined) {
+      return Math.max(0, Math.round(Number(this.state.shopperAgasekeAmount) || 0));
+    }
     const amount = Number(this.state.currentUser?.agasekeContribution);
     return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 10;
   }
   setShopperAgasekeAmount(amount) {
-    if (this.state.roleCode !== "shopper") return;
-    const allowed = [0, 10, 20, 50, 100];
-    const value = Number(amount);
-    if (!allowed.includes(value)) return;
+    const value = Math.max(0, Math.round(Number(amount) || 0));
+    this.state.shopperAgasekeAmount = value;
     if (!this.state.currentUser) this.state.currentUser = {};
     this.state.currentUser.agasekeContribution = value;
     const email = String(this.state.user || "").toLowerCase();
-    const account = (this.state.users || []).find(user => String(user.email || "").toLowerCase() === email);
-    if (account) account.agasekeContribution = value;
+    for (const r in this.state.users || {}) {
+      const list = this.state.users[r] || [];
+      const account = list.find(u => String(u.email || "").toLowerCase() === email);
+      if (account) account.agasekeContribution = value;
+    }
     this.saveState();
-    this.render();
+    if (this.state.pendingCheckoutOrder) {
+      const p = this.state.pendingCheckoutOrder;
+      const items = p.items || [{ listing: p.listing, qty: p.qty }];
+      this.openPhonePayModal(items[0].listing, items[0].qty, p.total);
+    } else {
+      this.render();
+    }
   }
   addToCart(listingId) {
     const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
@@ -4281,10 +4296,88 @@ class IsokoApp {
   }
   renderCartView() {
     const lines = (this.state.cart || []).map(line => ({ ...line, listing: this.state.listings.find(item => Number(item.id) === Number(line.listingId)) })).filter(line => line.listing);
-    const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0);
+    const subtotal = lines.reduce((sum, line) => sum + line.qty * line.listing.price, 0);
     const gift = this.getAgasekeContributionAmount(), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
     const count = this.cartCount(), qtyCount = this.cartQuantityCount();
-    return `<div class="head"><div><h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1><p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>${count} ${count === 1 ? "product" : "products"}</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div>${gift ? `<div><span>Agaseke Relief</span><b>${gift.toLocaleString()} RWF</b></div>` : `<div><span>Agaseke Relief</span><b>Not added</b></div>`}<div class="cart-grand-total"><span>Food total</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div>${this.state.roleCode === "member" ? `<p><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}<p class="sub">Choose cash, a demo payment method, your VUP wallet, or available VUP credit at the next step.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Choose how to pay</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
+    const grandTotal = subtotal + gift + fee;
+    return `
+      <div class="head">
+        <div>
+          <h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1>
+          <p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button>
+      </div>
+      ${lines.length ? `
+        <div class="cart-layout">
+          <section class="card cart-items">
+            ${lines.map(line => `
+              <article class="cart-line">
+                <img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt="">
+                <div class="cart-line-main">
+                  <b>${this.escapeHtml(line.listing.food)}</b>
+                  <small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small>
+                  <label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label>
+                </div>
+                <strong>${(line.qty * line.listing.price).toLocaleString()} RWF</strong>
+                <button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+              </article>
+            `).join("")}
+          </section>
+          <aside class="card cart-summary">
+            <h2>Payment Separation</h2>
+            <div style="display:flex; justify-content:space-between; margin:8px 0;">
+              <span>Produce Subtotal (${count} items)</span>
+              <b>${subtotal.toLocaleString()} RWF</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0;">
+              <span>Delivery</span>
+              <button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Express Moto · 300 RWF" : "SACCO Pickup · Free"}</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:8px 0; font-size:12px; color:var(--mute);">
+              <span>District Market Levy (2%)</span>
+              <span style="color:#0e8555; font-weight:700;">Exempt (Smallholder Co-op)</span>
+            </div>
+
+            <!-- Agaseke Relief Fund Selector -->
+            <div class="agaseke-donation-card">
+              <div class="agaseke-donation-header">
+                <b><i class="bi bi-heart-pulse"></i> Agaseke Relief Contribution</b>
+                <span>${gift ? `+${gift.toLocaleString()} RWF` : "0 RWF (Exempt)"}</span>
+              </div>
+              <p class="agaseke-donation-desc">
+                10 RWF default micro-saving per order — small enough for anyone, yet collectively feeds Ubudehe 1 & 2 vulnerable families. Choose or increase your contribution:
+              </p>
+              <div class="agaseke-donation-chips">
+                ${[10, 50, 100, 250, 500, 0].map(amt => `
+                  <button type="button" class="agaseke-chip ${gift === amt ? 'active' : ''}" onclick="window.app.setShopperAgasekeAmount(${amt})">
+                    ${amt === 10 ? '10 RWF (Default)' : amt === 0 ? 'Exempt' : `+${amt} RWF`}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="cart-grand-total" style="display:flex; justify-content:space-between; margin-top:12px; font-size:16.5px; font-weight:800; border-top:1px dashed var(--line); padding-top:10px;">
+              <span>Total to pay</span>
+              <b style="color:var(--on);">${grandTotal.toLocaleString()} RWF</b>
+            </div>
+
+            ${this.state.roleCode === "member" ? `<p class="sub" style="margin-top:10px;"><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}
+            <p class="sub" style="font-size:11.5px; margin-top:6px;">Choose cash, Mobile Money, your VUP wallet, or available VUP credit at the next step.</p>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:12px; font-weight:750;" onclick="window.app.checkoutCart()">
+              <i class="bi bi-lock" aria-hidden="true"></i> Proceed to Pay (${grandTotal.toLocaleString()} RWF)
+            </button>
+          </aside>
+        </div>
+      ` : `
+        <section class="card empty-state">
+          <i class="bi bi-basket" aria-hidden="true"></i>
+          <b>Your cart is empty</b>
+          <span>Add fresh food from the market to start an order.</span>
+          <button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button>
+        </section>
+      `}
+    `;
   }
   checkoutCart() {
     const items = (this.state.cart || []).map(line => ({ listing: this.state.listings.find(item=>Number(item.id)===Number(line.listingId)), qty: Number(line.qty) })).filter(line=>line.listing);
@@ -4941,8 +5034,20 @@ class IsokoApp {
     document.getElementById("rdModeV2").innerHTML = isPickup 
       ? this.t('checkoutDeliveryPickup') 
       : this.t('checkoutDeliveryMoto');
-    document.getElementById("rgV2").textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
-    document.getElementById("rtV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+    const rgEl = document.getElementById("rgV2");
+    if (rgEl) rgEl.textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
+    const rtEl = document.getElementById("rtV2");
+    if (rtEl) rtEl.textContent = `${grandTotal.toLocaleString()} RWF`;
+
+    const chipContainer = document.getElementById("phoneAgasekeChips");
+    if (chipContainer) {
+      const chips = chipContainer.querySelectorAll(".agaseke-chip");
+      chips.forEach(chip => {
+        const match = chip.getAttribute("onclick")?.match(/\d+/);
+        const amt = match ? Number(match[0]) : 0;
+        chip.classList.toggle("active", amt === gift);
+      });
+    }
 
     this.goPhonePage(2);
     modal.classList.add("open");
@@ -5002,7 +5107,7 @@ class IsokoApp {
     const p = this.state.pendingCheckoutOrder;
     const isPickup = this.state.nearby?.deliveryOption === "pickup";
     const isCredit = selected?.credit;
-    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
+    const gift = !isCredit ? this.getAgasekeContributionAmount() : 0;
     const deliveryFee = isCredit || isPickup ? 0 : 300;
     const total = (Number(p?.total) || 0) + gift + deliveryFee;
     const payButton = document.getElementById("goBtnV2");
@@ -5083,7 +5188,7 @@ class IsokoApp {
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const isCredit = Boolean(acc.credit), isCash = Boolean(acc.cash);
     const deliveryFee = isCredit || isPickup ? 0 : 300;
-    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
+    const gift = !isCredit ? this.getAgasekeContributionAmount() : 0;
     const grandTotal = p.total + gift + deliveryFee;
     const items = p.items || [{ listing: p.listing, qty: p.qty }];
     if (items.some(line => !line.listing || line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("An item is no longer available in that quantity. Review your cart.", "warning"); this.closePayFlow(); return; }

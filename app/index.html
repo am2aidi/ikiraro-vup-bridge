@@ -100,8 +100,19 @@
                 🚴 Express Moto (+300 RWF) ▾
               </span>
             </div>
-            <div class="row-v2"><span>Bridge Pool Gift</span><span id="rgV2">+78 RWF (2%)</span></div>
-            <div class="row-v2"><span>Total today</span><span id="rtV2">4,278 RWF</span></div>
+            <div class="row-v2" style="border-bottom:none; padding-bottom:2px;">
+              <span>Agaseke Relief Fund</span>
+              <span id="rgV2" style="font-weight:700; color:#0e8555;">+10 RWF (Default)</span>
+            </div>
+            <div class="agaseke-donation-chips" id="phoneAgasekeChips" style="padding: 4px 0 8px;">
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(10)">10 RWF (Default)</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(50)">50 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(100)">100 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(250)">250 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(500)">500 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(0)">Exempt</button>
+            </div>
+            <div class="row-v2" style="border-top:1px dashed rgba(16,185,129,0.25); padding-top:8px;"><span>Total today</span><span id="rtV2">4,210 RWF</span></div>
           </div>
           <button class="pay-pill-btn-v2" id="payBtnV2" onclick="window.app.goToPaymentMethods()"><span class="t">Choose how to pay</span><span class="d-v2"></span><span class="d-v2"></span><span class="d-v2"></span></button>
           <p class="note-v2">Prototype. Fake money. Demo balances only—no real payment is sent.</p>
