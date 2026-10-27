@@ -177,7 +177,8 @@ const DEFAULT_STATE = {
 const ROLES = [
   { key: "Family", title: "VUP member", line: "I receive VUP support", kinyTitle: "Umuryango wa VUP", kinyLine: "Mpagarariye umuryango ufashwa na VUP", frTitle: "Bénéficiaire VUP", frLine: "Je reçois les allocations VUP" },
   { key: "Planner", title: "Planner", line: "I manage VUP families and their credit", kinyTitle: "Umugenzuzi wa VUP", kinyLine: "Ngenzura imiryango ifashwa na VUP n'inguzanyo", frTitle: "Planificateur", frLine: "Je gère les familles VUP et leur crédit" },
-  { key: "Farmer", title: "Seller", line: "I sell food", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
+  { key: "Farmer", title: "Farmer", line: "I sell food I grow", kinyTitle: "Umucuruzi w'Umusaruro", kinyLine: "Ngurisha umusaruro w'ubuhinzi", frTitle: "Vendeur Agricole", frLine: "Je vends des produits vivriers" },
+  { key: "Trader", title: "Market trader", line: "I sell food from local markets", kinyTitle: "Umucuruzi wo ku isoko", kinyLine: "Ngurisha ibiribwa byo ku isoko", frTitle: "Commerçant du marché", frLine: "Je vends des produits du marché" },
   { key: "Shopper", title: "Shopper", line: "I buy food and help the pool", kinyTitle: "Umuguzi", kinyLine: "Ngura ibiribwa kandi ngaterera inkunga ikigega", frTitle: "Acheteur Solidaire", frLine: "J'achète des vivres et soutiens le fonds" },
   { key: "Admin", title: "Government worker (optional)", line: "I see the whole system", kinyTitle: "Umukozi wa Leta (Ibyifuzo)", kinyLine: "Mbona imikorere yose ya gahunda", frTitle: "Agent Gouvernemental (optionnel)", frLine: "J'ai une vue globale sur tout le système" }
 ];
@@ -203,12 +204,16 @@ class IsokoApp {
         const parsed = JSON.parse(raw);
         const init = this.getInitialState();
         if (parsed.listings && parsed.listings.length < init.listings.length) {
-          const userCreated = parsed.listings.filter(l => l.id >= 35);
+          const userCreated = parsed.listings.filter(l => l.id > 46);
           parsed.listings = [...init.listings, ...userCreated];
         }
         const state = { ...init, ...parsed };
+        state.agasekePool = typeof state.agasekePool === "number" ? state.agasekePool : 145210;
+        state.agasekeDisbursed = typeof state.agasekeDisbursed === "number" ? state.agasekeDisbursed : 35000;
+        state.agasekeAssistedCount = typeof state.agasekeAssistedCount === "number" ? state.agasekeAssistedCount : 7;
         const seededMembers = new Map((init.users?.member || []).map(user => [user.email, user]));
         state.users ||= {};
+        if (!state.users.trader?.length && window.VUP_SAMPLE_USERS?.trader?.length) state.users.trader = JSON.parse(JSON.stringify(window.VUP_SAMPLE_USERS.trader));
         state.users.member ||= [];
         state.users.member = state.users.member.map(user => {
           const seeded = seededMembers.get(user.email) || {};
@@ -219,6 +224,7 @@ class IsokoApp {
             governmentAmountOwed: Number.isFinite(Number(user.governmentAmountOwed)) ? Number(user.governmentAmountOwed) : Number(seeded.governmentAmountOwed || 0)
           };
         });
+        this.ensureTraderListings(state);
         state.orders = (state.orders || []).map(order => {
           if (order.mode !== "credit" || !(order.creditStatus === "requested" || order.status === "Pending Approval")) return order;
           return { ...order, status: "Placed", creditStatus: "approved", approvedBy: "System (automatic)", approvedDate: order.approvedDate || new Date().toLocaleDateString("en-GB"), paidBy: "VUP amount owed" };
@@ -232,7 +238,25 @@ class IsokoApp {
     } catch (e) {
       console.warn("Could not load stored state:", e);
     }
-    return this.getInitialState();
+    const fresh = this.getInitialState();
+    this.ensureTraderListings(fresh);
+    return fresh;
+  }
+
+  ensureTraderListings(state) {
+    const traderEmail = "umutima.market@vupbridge.rw";
+    const items = [
+      { food: "Hass avocado", price: 320, retailPrice: 380, quantity: 65, unit: "kg", photo: "assets/produce/avocado.jpg", category: "Fruits" },
+      { food: "Cooking banana", price: 310, retailPrice: 360, quantity: 90, unit: "kg", photo: "assets/produce/cooking_banana.jpg", category: "Fruits" },
+      { food: "Farm chicken eggs", price: 3700, retailPrice: 4300, quantity: 24, unit: "tray", photo: "assets/produce/dry_beans.jpg", category: "Dairy" }
+    ];
+    state.listings ||= [];
+    let nextId = Math.max(1, ...(state.listings || []).map(listing => (Number(listing.id) || 0) + 1));
+    items.forEach(item => {
+      if (state.listings.some(listing => listing.farmerEmail === traderEmail && listing.food === item.food)) return;
+      state.listings.push({ id: nextId++, ...item, district: "Gasabo", sector: "Kimironko", hub: "Kimironko Market", farmer: "Umutima Market Traders", farmerEmail: traderEmail, sellerType: "trader", momo: "078XXXX321", isFav: false });
+    });
+    state.nextListingId = Math.max(Number(state.nextListingId) || 1, nextId);
   }
 
   getInitialState() {
@@ -249,6 +273,7 @@ class IsokoApp {
       analysisTo: "",
       creditDeskTab: "all", // "all", "approve", "pay", "repay"
       activeCategory: "All",
+      sellerTypeFilter: "all",
       searchQuery: "",
       selectedDistrictFilter: "all",
       selectedSellerFilter: null,
@@ -305,44 +330,61 @@ class IsokoApp {
         totalRepaidByVup: 8800
       },
       listings: [
-        { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 850, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 2, food: "Yellow beans", district: "Ngoma", hub: "Ngoma Agro-Hub", price: 820, retailPrice: 950, quantity: 180, unit: "kg", farmer: "Ngoma Bean Cooperative", farmerEmail: "ngoma.beans@vupbridge.rw", momo: "078XXXX234", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 3, food: "Climbing beans", district: "Musanze", hub: "Musanze Highland Depot", price: 790, retailPrice: 900, quantity: 300, unit: "kg", farmer: "Burera Terrace Farmers", farmerEmail: "burera.farmers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
-        { id: 4, food: "Kinigi Irish potato", district: "Musanze", hub: "Kinigi Potato Center", price: 420, retailPrice: 480, quantity: 650, unit: "kg", farmer: "Kinigi Highland Union", farmerEmail: "kinigi.union@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/irish_potato.jpg", isFav: true, category: "Tubers" },
-        { id: 5, food: "Kuruseke potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 380, retailPrice: 440, quantity: 500, unit: "kg", farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 6, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 280, quantity: 350, unit: "kg", farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 7, food: "Orange sweet potato", district: "Huye", hub: "Huye Women Agrilink", price: 270, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.women@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 8, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 260, quantity: 420, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 9, food: "Fresh tomato", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 550, quantity: 120, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true, category: "Vegetables" },
-        { id: 10, food: "Red onion", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 1500, retailPrice: 1650, quantity: 95, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false, category: "Vegetables" },
-        { id: 11, food: "Green cabbage", district: "Musanze", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 12, food: "Fresh carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 420, quantity: 170, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
-        { id: 13, food: "Spinach / Dodo", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 280, quantity: 80, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.fresh@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 14, food: "Green bell peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 800, quantity: 95, unit: "kg", farmer: "Bugesera Irrigation Scheme", farmerEmail: "bugesera.irrig@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 15, food: "Isombe (Cassava leaves)", district: "Muhanga", hub: "Muhanga Valley Hub", price: 290, retailPrice: 350, quantity: 150, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.valley@vupbridge.rw", momo: "078XXXX891", photo: "assets/produce/spinach.jpg", isFav: true, category: "Vegetables" },
-        { id: 16, food: "Cooking banana", district: "Rwamagana", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 340, quantity: 380, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.banana@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
-        { id: 17, food: "Sweet banana (Kamaramasenge)", district: "Gatsibo", hub: "Kabarore Fruit Terminal", price: 460, retailPrice: 550, quantity: 190, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.fruit@vupbridge.rw", momo: "078XXXX672", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
-        { id: 18, food: "Hass avocado", district: "Karongi", hub: "Karongi Lake Depot", price: 270, retailPrice: 320, quantity: 140, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.lake@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
-        { id: 19, food: "Passion fruit", district: "Nyamagabe", hub: "Nyamagabe Highland Hub", price: 920, retailPrice: 1100, quantity: 110, unit: "kg", farmer: "Nyamagabe Highland Fruit Coop", farmerEmail: "nyamagabe.fruit@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
-        { id: 20, food: "Tree tomatoes (Tamarillo)", district: "Burera", hub: "Burera Highland Agro-Hub", price: 820, retailPrice: 980, quantity: 85, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false, category: "Fruits" },
-        { id: 21, food: "Bugesera mangoes", district: "Bugesera", hub: "Nyamata Fresh Depot", price: 620, retailPrice: 750, quantity: 200, unit: "kg", farmer: "Bugesera Tropical Fruit Union", farmerEmail: "bugesera.tropical@vupbridge.rw", momo: "078XXXX441", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
-        { id: 22, food: "Golden papaya", district: "Ngoma", hub: "Ngoma Sunrise Center", price: 390, retailPrice: 480, quantity: 130, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.sunrise@vupbridge.rw", momo: "078XXXX552", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
-        { id: 23, food: "Local rice (Bugarama)", district: "Rusizi", hub: "Bugarama Rice Mill", price: 1150, retailPrice: 1350, quantity: 340, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Grains" },
-        { id: 24, food: "Local rice (Mukunguri)", district: "Kamonyi", hub: "Mukunguri Valley Terminal", price: 1080, retailPrice: 1250, quantity: 220, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "078XXXX790", photo: "assets/produce/local_rice.jpg", isFav: false, category: "Grains" },
-        { id: 25, food: "Fresh sweet corn", district: "Nyagatare", hub: "Nyagatare Agro-Depot", price: 320, retailPrice: 400, quantity: 450, unit: "kg", farmer: "Nyagatare Grain Producers", farmerEmail: "nyagatare.grain@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 26, food: "Dry maize grain", district: "Kayonza", hub: "Kayonza Central Silos", price: 490, retailPrice: 580, quantity: 600, unit: "kg", farmer: "Kayonza Maize Millers", farmerEmail: "kayonza.maize@vupbridge.rw", momo: "078XXXX013", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 27, food: "Corn flour (Kawunga)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.mills@vupbridge.rw", momo: "078XXXX014", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 28, food: "Cassava flour", district: "Nyanza", hub: "Nyanza Central Hub", price: 440, retailPrice: 540, quantity: 270, unit: "kg", farmer: "Nyanza Flour Millers", farmerEmail: "nyanza.flour@vupbridge.rw", momo: "078XXXX015", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 29, food: "Sorghum flour", district: "Nyamasheke", hub: "Nyamasheke Mills", price: 720, retailPrice: 850, quantity: 180, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.mills@vupbridge.rw", momo: "078XXXX016", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 30, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 320, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.grain@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 31, food: "Groundnuts", district: "Kirehe", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 160, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.women@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
-        { id: 32, food: "Fresh farm milk", district: "Gicumbi", hub: "Gicumbi Milk Collection Center", price: 420, retailPrice: 500, quantity: 500, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.dairy@vupbridge.rw", momo: "078XXXX991", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
-        { id: 33, food: "Farm chicken eggs", district: "Bugesera", hub: "Bugesera Poultry Hub", price: 3600, retailPrice: 4200, quantity: 90, unit: "tray", farmer: "Bugesera Poultry Cooperative", farmerEmail: "bugesera.poultry@vupbridge.rw", momo: "078XXXX992", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Dairy" },
-        { id: 34, food: "Nyungwe forest honey", district: "Nyaruguru", hub: "Kibeho Agro-Point", price: 3200, retailPrice: 3800, quantity: 75, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "078XXXX993", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" }
+        { id: 1, food: "Dry beans", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 850, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 2, food: "Yellow beans", district: "Ngoma", sector: "Kibungo", hub: "Ngoma Agro-Hub", price: 820, retailPrice: 950, quantity: 180, unit: "kg", farmer: "Ngoma Bean Cooperative", farmerEmail: "ngoma.beans@vupbridge.rw", momo: "078XXXX234", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 3, food: "Climbing beans", district: "Musanze", sector: "Kinigi", hub: "Musanze Highland Depot", price: 790, retailPrice: 900, quantity: 300, unit: "kg", farmer: "Burera Terrace Farmers", farmerEmail: "burera.farmers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
+        { id: 4, food: "Kinigi Irish potato", district: "Musanze", sector: "Muhoza", hub: "Kinigi Potato Center", price: 420, retailPrice: 480, quantity: 650, unit: "kg", farmer: "Kinigi Highland Union", farmerEmail: "kinigi.union@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/irish_potato.jpg", isFav: true, category: "Tubers" },
+        { id: 5, food: "Kuruseke potato", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 380, retailPrice: 440, quantity: 500, unit: "kg", farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 6, food: "Sweet potato", district: "Gisagara", sector: "Save", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 280, quantity: 350, unit: "kg", farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 7, food: "Orange sweet potato", district: "Huye", sector: "Ngoma", hub: "Huye Women Agrilink", price: 270, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.women@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 8, food: "Cassava roots", district: "Ruhango", sector: "Kinazi", hub: "Ruhango Central Market Point", price: 220, retailPrice: 260, quantity: 420, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 9, food: "Fresh tomato", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 550, quantity: 120, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true, category: "Vegetables" },
+        { id: 10, food: "Red onion", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Farmers Depot", price: 1500, retailPrice: 1650, quantity: 95, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false, category: "Vegetables" },
+        { id: 11, food: "Green cabbage", district: "Musanze", sector: "Remera", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 12, food: "Fresh carrots", district: "Gicumbi", sector: "Kaniga", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 420, quantity: 170, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
+        { id: 13, food: "Spinach / Dodo", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 280, quantity: 80, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.fresh@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 14, food: "Green bell peppers", district: "Bugesera", sector: "Nyamata", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 800, quantity: 95, unit: "kg", farmer: "Bugesera Irrigation Scheme", farmerEmail: "bugesera.irrig@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 15, food: "Isombe (Cassava leaves)", district: "Muhanga", sector: "Nyamabuye", hub: "Muhanga Valley Hub", price: 290, retailPrice: 350, quantity: 150, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.valley@vupbridge.rw", momo: "078XXXX891", photo: "assets/produce/spinach.jpg", isFav: true, category: "Vegetables" },
+        { id: 16, food: "Cooking banana", district: "Rwamagana", sector: "Kigabiro", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 340, quantity: 380, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.banana@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
+        { id: 17, food: "Sweet banana (Kamaramasenge)", district: "Gatsibo", sector: "Kabarore", hub: "Kabarore Fruit Terminal", price: 460, retailPrice: 550, quantity: 190, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.fruit@vupbridge.rw", momo: "078XXXX672", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
+        { id: 18, food: "Hass avocado", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 270, retailPrice: 320, quantity: 140, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.lake@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
+        { id: 19, food: "Passion fruit", district: "Nyamagabe", sector: "Gasaka", hub: "Nyamagabe Highland Hub", price: 920, retailPrice: 1100, quantity: 110, unit: "kg", farmer: "Nyamagabe Highland Fruit Coop", farmerEmail: "nyamagabe.fruit@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
+        { id: 20, food: "Tree tomatoes (Tamarillo)", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 820, retailPrice: 980, quantity: 85, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false, category: "Fruits" },
+        { id: 21, food: "Bugesera mangoes", district: "Bugesera", sector: "Mayange", hub: "Nyamata Fresh Depot", price: 620, retailPrice: 750, quantity: 200, unit: "kg", farmer: "Bugesera Tropical Fruit Union", farmerEmail: "bugesera.tropical@vupbridge.rw", momo: "078XXXX441", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
+        { id: 22, food: "Golden papaya", district: "Ngoma", sector: "Rukira", hub: "Ngoma Sunrise Center", price: 390, retailPrice: 480, quantity: 130, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.sunrise@vupbridge.rw", momo: "078XXXX552", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
+        { id: 23, food: "Local rice (Bugarama)", district: "Rusizi", sector: "Bugarama", hub: "Bugarama Rice Mill", price: 1150, retailPrice: 1350, quantity: 340, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Grains" },
+        { id: 24, food: "Local rice (Mukunguri)", district: "Kamonyi", sector: "Musambira", hub: "Mukunguri Valley Terminal", price: 1080, retailPrice: 1250, quantity: 220, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "078XXXX790", photo: "assets/produce/local_rice.jpg", isFav: false, category: "Grains" },
+        { id: 25, food: "Fresh sweet corn", district: "Nyagatare", sector: "Matimba", hub: "Nyagatare Agro-Depot", price: 320, retailPrice: 400, quantity: 450, unit: "kg", farmer: "Nyagatare Grain Producers", farmerEmail: "nyagatare.grain@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 26, food: "Dry maize grain", district: "Kayonza", sector: "Mukarange", hub: "Kayonza Central Silos", price: 490, retailPrice: 580, quantity: 600, unit: "kg", farmer: "Kayonza Maize Millers", farmerEmail: "kayonza.maize@vupbridge.rw", momo: "078XXXX013", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 27, food: "Corn flour (Kawunga)", district: "Nyarugenge", sector: "Kigali", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.mills@vupbridge.rw", momo: "078XXXX014", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 28, food: "Cassava flour", district: "Nyanza", sector: "Busasamana", hub: "Nyanza Central Hub", price: 440, retailPrice: 540, quantity: 270, unit: "kg", farmer: "Nyanza Flour Millers", farmerEmail: "nyanza.flour@vupbridge.rw", momo: "078XXXX015", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 29, food: "Sorghum flour", district: "Nyamasheke", sector: "Kagano", hub: "Nyamasheke Mills", price: 720, retailPrice: 850, quantity: 180, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.mills@vupbridge.rw", momo: "078XXXX016", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 30, food: "Soybeans", district: "Kayonza", sector: "Rwinkwavu", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 320, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.grain@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 31, food: "Groundnuts", district: "Kirehe", sector: "Mahama", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 160, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.women@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
+        { id: 32, food: "Fresh farm milk", district: "Gicumbi", sector: "Byumba", hub: "Gicumbi Milk Collection Center", price: 420, retailPrice: 500, quantity: 500, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.dairy@vupbridge.rw", momo: "078XXXX991", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
+        { id: 33, food: "Farm chicken eggs", district: "Bugesera", sector: "Gashora", hub: "Bugesera Poultry Hub", price: 3600, retailPrice: 4200, quantity: 90, unit: "tray", farmer: "Bugesera Poultry Cooperative", farmerEmail: "bugesera.poultry@vupbridge.rw", momo: "078XXXX992", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Dairy" },
+        { id: 34, food: "Nyungwe forest honey", district: "Nyaruguru", sector: "Kibeho", hub: "Kibeho Agro-Point", price: 3200, retailPrice: 3800, quantity: 75, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "078XXXX993", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" },
+        { id: 35, food: "Fresh ginger", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1200, retailPrice: 1450, quantity: 130, unit: "kg", farmer: "Rulindo Spice Cooperative", farmerEmail: "rulindo.spice@vupbridge.rw", momo: "078XXXX101", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
+        { id: 36, food: "High-altitude green peas", district: "Gicumbi", sector: "Miyove", hub: "Miyove Highland Hub", price: 1100, retailPrice: 1350, quantity: 150, unit: "kg", farmer: "Miyove Pea Farmers", farmerEmail: "miyove.peas@vupbridge.rw", momo: "078XXXX102", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
+        { id: 37, food: "Fermented milk (Ikivuguto)", district: "Nyagatare", sector: "Karangazi", hub: "Nyagatare Milk Center", price: 650, retailPrice: 800, quantity: 300, unit: "L", farmer: "Karangazi Dairy Union", farmerEmail: "karangazi.dairy@vupbridge.rw", momo: "078XXXX103", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
+        { id: 38, food: "Lake Kivu fresh fish (Isambaza)", district: "Rubavu", sector: "Gisenyi", hub: "Gisenyi Lake Depot", price: 2800, retailPrice: 3400, quantity: 95, unit: "kg", farmer: "Lake Kivu Fishermen Union", farmerEmail: "kivu.fish@vupbridge.rw", momo: "078XXXX104", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
+        { id: 39, food: "Traditional sorghum grain", district: "Burera", sector: "Nemba", hub: "Cyanika Agro Hub", price: 540, retailPrice: 650, quantity: 240, unit: "kg", farmer: "Burera Grain Cooperative", farmerEmail: "burera.grain@vupbridge.rw", momo: "078XXXX105", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 40, food: "Red kidney beans", district: "Gisagara", sector: "Ndora", hub: "Save Agrilink Point", price: 810, retailPrice: 940, quantity: 260, unit: "kg", farmer: "Ndora Farmers Cooperative", farmerEmail: "ndora.farmers@vupbridge.rw", momo: "078XXXX106", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 41, food: "Fresh pineapple", district: "Rwamagana", sector: "Karenge", hub: "Karenge Fruit Center", price: 380, retailPrice: 480, quantity: 320, unit: "kg", farmer: "Rwamagana Tropical Growers", farmerEmail: "rwamagana.tropical@vupbridge.rw", momo: "078XXXX107", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
+        { id: 42, food: "Specialty Arabica coffee cherries", district: "Rutsiro", sector: "Murunda", hub: "Murunda Washing Station", price: 1600, retailPrice: 2100, quantity: 180, unit: "kg", farmer: "Rutsiro Specialty Coffee Coop", farmerEmail: "rutsiro.coffee@vupbridge.rw", momo: "078XXXX108", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
+        { id: 43, food: "French green beans", district: "Rubavu", sector: "Rugerero", hub: "Rugerero Export Hub", price: 750, retailPrice: 900, quantity: 140, unit: "kg", farmer: "Rubavu Vegetable Growers", farmerEmail: "rubavu.veg@vupbridge.rw", momo: "078XXXX109", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 44, food: "High-altitude mountain tea", district: "Nyamagabe", sector: "Kitabi", hub: "Kitabi Tea Center", price: 1200, retailPrice: 1500, quantity: 110, unit: "kg", farmer: "Kitabi Smallholder Tea Farmers", farmerEmail: "kitabi.tea@vupbridge.rw", momo: "078XXXX110", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 45, food: "Organic white honey", district: "Gasabo", sector: "Rutunga", hub: "Rutunga Agro-Terminal", price: 3400, retailPrice: 4000, quantity: 80, unit: "kg", farmer: "Gasabo Beekeepers Association", farmerEmail: "gasabo.honey@vupbridge.rw", momo: "078XXXX111", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" },
+        { id: 46, food: "Yellow maize grain", district: "Nyarugenge", sector: "Mageragere", hub: "Mageragere Farmers Point", price: 470, retailPrice: 560, quantity: 480, unit: "kg", farmer: "Mageragere Cooperative", farmerEmail: "mageragere.coop@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" }
       ],
       nextOrderId: 107,
-      nextListingId: 35,
+      nextListingId: 47,
       nextCaseId: 3,
+      agasekePool: 145210,
+      agasekeDisbursed: 35000,
+      agasekeAssistedCount: 7,
+      farmerTaxExempt: false,
+      newListingFood: "Dry beans",
       selectedDistrict: "Gasabo",
       hotspotMode: "delay",
       selectedPayMethod: "momo",
@@ -512,14 +554,14 @@ class IsokoApp {
       this.toast("This email already has an account. Please log in.", "info");
       return;
     }
-    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", shopper: "Shopper", admin: "Admin" };
+    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", trader: "Farmer", shopper: "Shopper", admin: "Admin" };
     const account = {
       name, email, password,
       role: roleMap[roleCode] || "Family",
       roleCode,
       district: "Gasabo",
       sector: "",
-      status: roleCode === "member" ? "not_submitted" : roleCode === "seller" ? "pending" : "verified",
+      status: roleCode === "member" ? "not_submitted" : ["seller", "trader"].includes(roleCode) ? "pending" : "verified",
       householdSize: 4,
       daysWorked: 0,
       governmentAmountOwed: 0,
@@ -579,7 +621,7 @@ class IsokoApp {
       this.toast("That password does not match this account. Try again.", "warning");
       return;
     }
-    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", shopper: "Shopper", admin: "Admin" };
+    const roleMap = { member: "Family", planner: "Planner", seller: "Farmer", trader: "Farmer", shopper: "Shopper", admin: "Admin" };
     this.state.currentUser = { ...account };
     this.state.role = roleMap[roleCode] || account.role;
     this.state.roleCode = roleCode;
@@ -604,7 +646,7 @@ class IsokoApp {
 
   getRoleTitleByCode(code) {
     const lang = this.state.lang || "en";
-    const r = ROLES.find(x => x.code === code || x.key === code || (code === "member" && x.key === "Family") || (code === "seller" && x.key === "Farmer"));
+    const r = ROLES.find(x => x.code === code || x.key === code || (code === "member" && x.key === "Family") || (code === "seller" && x.key === "Farmer") || (code === "trader" && x.key === "Trader"));
     if (!r) return code;
     return lang === "rw" ? r.kinyTitle : lang === "fr" ? r.frTitle : r.title;
   }
@@ -1097,13 +1139,17 @@ class IsokoApp {
         <b>In this period:</b> ${report.transactions.length} simulated orders worth ${report.totalValue.toLocaleString()} RWF, including ${report.creditOrders.length} food-credit orders (${totalCredit.toLocaleString()} RWF). ${repaidCredit.toLocaleString()} RWF of the recorded credit orders is marked repaid.
       </div>
 
+      <h3 style="font-size:15px;margin:12px 0 6px;">Published NISR payment timing</h3>
+      ${this.renderPublishedTimelinessTable()}
+
+      <h3 style="font-size:15px;margin:12px 0 6px;">Exploratory project summary (provisional)</h3>
       <div class="table-wrap" style="margin-bottom:14px;">
         <table>
-          <thead><tr><th>NISR survey finding</th><th>Summary</th><th>Sample</th><th>How to read it</th></tr></thead>
+          <thead><tr><th>Project-prepared estimate</th><th>Summary</th><th>Sample</th><th>How to read it</th></tr></thead>
           <tbody>
-            <tr><td>National average delay</td><td>${NISR_DATA.overall.averageDelayDays.toFixed(1)} days</td><td>${NISR_DATA.overall.totalBeneficiaries.toLocaleString()} beneficiary records</td><td>Survey baseline, not live status</td></tr>
-            <tr><td>Waited more than 7 days</td><td>${NISR_DATA.overall.pctOver7DaysLate}%</td><td>Project summary</td><td>About half of surveyed beneficiaries</td></tr>
-            <tr><td>Longest listed hotspot</td><td>14.6 days · ${NISR_DATA.hotspots['Expanded Public Works'].Southern.latePct}% over 7 days</td><td>n = ${NISR_DATA.hotspots['Expanded Public Works'].Southern.records}</td><td>Expanded Public Works, Southern Province</td></tr>
+            <tr><td>National average delay</td><td>${NISR_DATA.overall.averageDelayDays.toFixed(1)} days</td><td>${NISR_DATA.overall.totalBeneficiaries.toLocaleString()} prepared records</td><td>Unweighted project summary; not an official NISR published estimate</td></tr>
+            <tr><td>Waited more than 7 days</td><td>${NISR_DATA.overall.pctOver7DaysLate}%</td><td>Prepared summary</td><td>Exploratory; definition and weights need review</td></tr>
+            <tr><td>Longest listed hotspot</td><td>14.6 days · ${NISR_DATA.hotspots['Expanded Public Works'].Southern.latePct}% over 7 days</td><td>n = ${NISR_DATA.hotspots['Expanded Public Works'].Southern.records}</td><td>Prepared project summary; not an official NISR published estimate</td></tr>
             <tr><td>Prototype activity</td><td>${report.transactions.length} orders · ${report.totalValue.toLocaleString()} RWF</td><td>Simulated</td><td>Filtered to selected activity period</td></tr>
           </tbody>
         </table>
@@ -1122,7 +1168,7 @@ class IsokoApp {
       <div class="table-wrap" style="margin-bottom:14px;"><table><thead><tr><th>Order</th><th>Date</th><th>Buyer</th><th>District</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>${report.transactions.length ? report.transactions.map(o=>`<tr><td>#${this.escapeHtml(o.id)}</td><td>${this.escapeHtml(this.getOrderDateLabel(o.date))}</td><td>${this.escapeHtml(o.buyerName || 'Demo buyer')}</td><td>${this.escapeHtml(o.district || '—')}</td><td>${this.escapeHtml(o.food || 'Food order')} (${Number(o.kg)||0} kg)</td><td>${o.mode === 'credit' ? 'Food credit' : 'Cash'}</td><td>${(Number(o.total)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(o.status || 'Recorded')}</td></tr>`).join('') : '<tr><td colspan="8">No prototype transactions in this period.</td></tr>'}</tbody></table></div>
 
       <div style="padding:10px;background:var(--bg);border-radius:8px;font-size:11.5px;color:var(--text-muted);line-height:1.5;">
-        <b>Source and limits:</b> NISR EICV7 VUP household survey, 2023–24 (<a href="https://microdata.statistics.gov.rw/index.php/catalog/121">catalogue entry</a>). The build brief marks the supplied summary figures as early, unweighted estimates pending a final weighted analysis. Interpret them as provisional. Sample guide: 100+ records is more stable, 25–99 needs caution, and fewer than 25 should be suppressed or pooled. Survey time is fixed; the selected activity period filters only simulated prototype orders. The survey shows patterns, not causes, and must not be used to decide an individual's eligibility.
+        <b>Sources and limits:</b> Official payment timing: NISR EICV7 VUP Thematic Report (2025), tables 4.2, 4.5, 4.8, and 4.11 (<a href="${this.escapeHtml((window.NISR_PUBLISHED_DATA || {}).sourceUrl || 'https://microdata.statistics.gov.rw/index.php/catalog/121')}">open NISR report</a>). Project-prepared average-delay summaries are separate early, unweighted estimates and remain provisional. Sample-size labels are warnings, not guarantees of precision. Survey time is fixed; the selected activity period filters only simulated prototype orders. Survey patterns do not show individual causes or determine eligibility.
       </div>
     `;
 
@@ -1340,6 +1386,8 @@ class IsokoApp {
     const role = this.state.role || "Family";
     const icon = {
       dashboard: "bi-grid-1x2",
+      payroll: "bi-cash-stack",
+      agaseke: "bi-heart-pulse",
       creditdesk: "bi-credit-card",
       credit: "bi-credit-card",
       nisr_facts: "bi-file-earmark-text",
@@ -1358,19 +1406,19 @@ class IsokoApp {
       settings: "bi-gear"
     };
     const navText = {
-      en: { dashboard: "Overview", creditdesk: "Credit desk", nisr_facts: "NISR facts", analysis: "NISR analysis", cases: "Disputes", reports: "Reports", users: "Users", ledger: "Ledger", credit: "Bridge credit", orders: "Orders", add_produce: "Add produce", listings: "My listings", pool: "Pool impact", settings: "Settings", market: "Fresh market", roles: "Roles and sign in", schedule: "VUP schedule" },
-      rw: { dashboard: "Incamake", creditdesk: "Inguzanyo", nisr_facts: "Amakuru ya NISR", analysis: "Isesengura rya NISR", cases: "Ibibazo", reports: "Raporo", users: "Abakoresha", ledger: "Ibyakozwe", credit: "Inguzanyo y'ibiribwa", orders: "Ibyatumijwe", add_produce: "Ongeraho umusaruro", listings: "Ibyo ncuruza", pool: "Ikigega rusange", settings: "Igenamiterere", market: "Isoko ry'ibiribwa", roles: "Uruhare no kwinjira", schedule: "Gahunda ya VUP" },
-      fr: { dashboard: "Vue d'ensemble", creditdesk: "Crédit", nisr_facts: "Données NISR", analysis: "Analyse NISR", cases: "Litiges", reports: "Rapports", users: "Utilisateurs", ledger: "Registre", credit: "Crédit alimentaire", orders: "Commandes", add_produce: "Ajouter des produits", listings: "Mes annonces", pool: "Fonds commun", settings: "Paramètres", market: "Marché", roles: "Rôles et connexion", schedule: "Calendrier VUP" }
+      en: { dashboard: "Overview", payroll: "VUP Payroll", agaseke: "Agaseke Relief", creditdesk: "Credit desk", nisr_facts: "NISR facts", analysis: "NISR analysis", cases: "Disputes", reports: "Reports", users: "Users", ledger: "Ledger", credit: "Bridge credit & Ejo Heza", orders: "Orders", add_produce: "Add produce", listings: "My listings", pool: "Pool impact", settings: "Settings", market: "Fresh market", roles: "Roles and sign in", schedule: "VUP schedule" },
+      rw: { dashboard: "Incamake", payroll: "Imihembo ya VUP", agaseke: "Agaseke k'Ubumwe", creditdesk: "Inguzanyo", nisr_facts: "Amakuru ya NISR", analysis: "Isesengura rya NISR", cases: "Ibibazo", reports: "Raporo", users: "Abakoresha", ledger: "Ibyakozwe", credit: "Inguzanyo & Ejo Heza", orders: "Ibyatumijwe", add_produce: "Ongeraho umusaruro", listings: "Ibyo ncuruza", pool: "Ikigega rusange", settings: "Igenamiterere", market: "Isoko ry'ibiribwa", roles: "Uruhare no kwinjira", schedule: "Gahunda ya VUP" },
+      fr: { dashboard: "Vue d'ensemble", payroll: "Paie VUP", agaseke: "Fonds Agaseke", creditdesk: "Crédit", nisr_facts: "Données NISR", analysis: "Analyse NISR", cases: "Litiges", reports: "Rapports", users: "Utilisateurs", ledger: "Registre", credit: "Crédit & Ejo Heza", orders: "Commandes", add_produce: "Ajouter des produits", listings: "Mes annonces", pool: "Fonds commun", settings: "Paramètres", market: "Marché", roles: "Rôles et connexion", schedule: "Calendrier VUP" }
     };
     const copy = navText[lang] || navText.en;
     const item = (id, fallback) => ({ id, label: copy[id] || fallback, icon: icon[id] || icon.dashboard });
     let items = [];
     if (this.state.user) {
-      if (role === "Planner") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
-      else if (role === "Admin") items = [item("dashboard", "Overview"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
-      else if (role === "Family") items = [item("dashboard", "Food basket"), item("cart", "My cart"), item("credit", "Bridge credit"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
-      else if (role === "Farmer") items = [item("dashboard", "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
-      else items = [item("dashboard", "Shop"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
+      if (role === "Planner") items = [item("dashboard", "Overview"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
+      else if (role === "Admin") items = [item("dashboard", "Overview"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
+      else if (role === "Family") items = [item("dashboard", "Food basket"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
+      else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
+      else items = [item("dashboard", "Shop & Agaseke"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
       nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
@@ -1381,13 +1429,23 @@ class IsokoApp {
       ];
       nav.innerHTML = items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
     }
+    const accountSlot = document.getElementById("railAccountSlot");
+    const footerSlot = document.getElementById("railFooterSlot");
+    if (accountSlot) {
+      if (this.state.user) {
+        const user = this.state.currentUser || {};
+        const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
+        accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" data-tip="Profile and settings"><span class="rail-avatar">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="rail-account-copy rail-label"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><i class="bi bi-gear rail-label" aria-hidden="true"></i></button>`;
+      } else accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setPublicTab('roles')" title="Sign in or create an account" data-tip="Sign in or create an account"><span class="rail-avatar"><i class="bi bi-person" aria-hidden="true"></i></span><span class="rail-account-copy rail-label"><b>Welcome</b><small>Sign in or join</small></span></button>`;
+    }
+    if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
     if (!slot) return;
     if (this.state.user) {
       const user = this.state.currentUser || {};
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-      slot.innerHTML = `<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i>${this.getUnreadNotifications().length ? `<span class="notification-count">${Math.min(99,this.getUnreadNotifications().length)}</span>` : ""}</button><div class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="btn btn-sm btn-outline" onclick="window.app.logout()"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> ${lang === "rw" ? "Sohoka" : lang === "fr" ? "Déconnexion" : "Log out"}</button>`;
+      slot.innerHTML = `<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i>${this.getUnreadNotifications().length ? `<span class="notification-count">${Math.min(99,this.getUnreadNotifications().length)}</span>` : ""}</button><div class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
@@ -1480,7 +1538,7 @@ class IsokoApp {
 
       <!-- @uxui_faran Category Pills Row -->
       <div class="vm-categories-row" style="margin-bottom:16px;">
-        ${["All", "Beans", "Tubers", "Vegetables", "Flours", "Fruits"].map(cat => `
+        ${["All", "Beans", "Tubers", "Vegetables", "Grains", "Fruits", "Dairy"].map(cat => `
           <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
             ${cat === 'All' ? 'All Staples' : cat}
           </button>
@@ -1526,6 +1584,7 @@ class IsokoApp {
       { code: "member", key: "Family", icon: '<i class="bi bi-people" aria-hidden="true"></i>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
       { code: "planner", key: "Planner", icon: '<i class="bi bi-bar-chart-line" aria-hidden="true"></i>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
       { code: "seller", key: "Farmer", icon: '<i class="bi bi-shop" aria-hidden="true"></i>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
+      { code: "trader", key: "Trader", icon: '<i class="bi bi-shop-window" aria-hidden="true"></i>', title: "Market trader", line: "I sell food bought from local markets and suppliers." },
       { code: "shopper", key: "Shopper", icon: '<i class="bi bi-cart3" aria-hidden="true"></i>', title: "Ethical Shopper", line: "I buy food for my household." },
       { code: "admin", key: "Admin", icon: '<i class="bi bi-shield-lock" aria-hidden="true"></i>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
     ];
@@ -1759,7 +1818,7 @@ class IsokoApp {
       </div>
 
       <div class="vm-categories-row">
-        ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Flours"].map(cat => `
+        ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Grains", "Fruits", "Dairy"].map(cat => `
           <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
             ${cat === 'All' ? 'All Staples' : cat}
           </button>
@@ -1977,6 +2036,12 @@ class IsokoApp {
   renderPlannerView() {
     const sub = this.state.activeSubView || "dashboard";
 
+    if (sub === "payroll") {
+      return this.renderPlannerPayrollTab();
+    }
+    if (sub === "agaseke") {
+      return this.renderAgasekeManagementTab();
+    }
     if (sub === "creditdesk") {
       return this.renderPlannerCreditDeskTab();
     }
@@ -2482,24 +2547,48 @@ class IsokoApp {
   }
 
   renderFarmerAddProduceTab() {
+    const isTrader = this.state.roleCode === "trader";
+    const selectedFood = this.state.newListingFood || "Dry beans";
+    const info = HARVEST_GALLERY[selectedFood] || { kiny: "Ibihingwa", category: "Staples", img: "assets/produce/dry_beans.jpg", price: 780, unit: "kg" };
+    const defaultPrice = info.price || 780;
+    const isExempt = !!this.state.farmerTaxExempt;
+
     return `
       <div class="head">
         <div>
-          <h1>Add Harvest Produce Listing</h1>
-          <p class="sub">Publish your harvest directly to local VUP families and ethical shoppers with NISR Fair Price benchmarking.</p>
+          <h1>${isTrader ? "Add market food listing" : "Add farm produce listing"}</h1>
+          <p class="sub">${isTrader ? "List food you source from local markets and suppliers." : "List food you grow for families and shoppers."} Buyers can see the price, unit, location, and seller type.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
           ← Back to Orders
         </button>
       </div>
 
-      <div class="card" style="padding:24px;">
-        <h3 style="margin-bottom:14px;">Produce Details & Photo</h3>
+      <!-- Quick Rwandan Produce Preset Selector -->
+      <div class="card" style="padding:18px 20px; margin-bottom:16px; border-radius:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <b style="font-size:13.5px; font-weight:700;"><i class="bi bi-lightning-charge" style="color:var(--accent);"></i> 🇷🇼 Quick food preset</b>
+          <small style="color:var(--mute);">Tap any Rwandan staple to auto-fill photo and NISR benchmark</small>
+        </div>
+        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin;">
+          ${Object.entries(HARVEST_GALLERY).slice(0, 14).map(([name, crop]) => `
+            <button type="button" class="btn btn-sm ${name === selectedFood ? 'btn-primary' : 'btn-outline'}"
+              style="display:flex; align-items:center; gap:6px; flex:0 0 auto; border-radius:12px; padding:6px 12px; font-size:12px;"
+              onclick="window.app.selectFarmerCropPreset('${name}')">
+              <img src="${crop.img}" style="width:20px; height:20px; border-radius:6px; object-fit:cover;" alt="">
+              <span>${name}</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>
+
+      <div class="card" style="padding:24px; border-radius:20px;">
+        <h3 style="margin-bottom:14px;">Food item and photo</h3>
         <div class="f" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
           <div>
-            <label class="form-label">Crop Name</label>
+            <label class="form-label">Food item</label>
             <select id="new_food" class="form-control" onchange="window.app.onProduceSelected(this.value)">
-              ${Object.keys(NISR_DATA.foodPrices).map(k => `<option value="${k}">${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>`).join("")}
+              ${Object.keys(NISR_DATA.foodPrices).map(k => `<option value="${k}" ${k === selectedFood ? 'selected' : ''}>${k} (${HARVEST_GALLERY[k] ? HARVEST_GALLERY[k].kiny : ''})</option>`).join("")}
             </select>
           </div>
           <div>
@@ -2509,27 +2598,65 @@ class IsokoApp {
             </select>
           </div>
           <div>
-            <label class="form-label">Price (RWF / kg)</label>
-            <input id="new_price" type="number" class="form-control" placeholder="RWF per kg" value="780" oninput="window.app.updatePriceGuidePreview()">
+            <label class="form-label">Gross Price (RWF / <span class="listing-unit-label">${info.unit || 'kg'}</span>)</label>
+            <input id="new_price" type="number" class="form-control listing-unit-placeholder" placeholder="RWF per unit" value="${defaultPrice}" oninput="window.app.updatePriceGuidePreview()">
           </div>
           <div>
-            <label class="form-label">Harvest Quantity (kg)</label>
-            <input id="new_qty" type="number" class="form-control" placeholder="kg available" value="100">
+            <label class="form-label">Harvest Quantity (<span class="listing-unit-label">${info.unit || 'kg'}</span>)</label>
+            <input id="new_qty" type="number" class="form-control listing-unit-placeholder" placeholder="available stock" value="100">
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px; background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:18px;">
-          <img id="listingPhotoPreview" src="assets/produce/dry_beans.jpg" style="width:56px; height:56px; object-fit:cover; border-radius:12px; border:1px solid var(--line);" alt="Preview">
-          <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
-          <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('cameraUploadInput').click()">
-            <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Capture / Upload Photo
-          </button>
-          <input type="hidden" id="new_photo_url" value="assets/produce/dry_beans.jpg">
-          <span id="priceGuidePreview" style="font-size:12.5px; color:var(--mute);"></span>
+        <!-- Custom Photo Upload or Captured Image with Preset Preview -->
+        <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:14px; background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:18px;">
+          <img id="listingPhotoPreview" src="${info.img}" style="width:60px; height:60px; object-fit:cover; border-radius:14px; border:1px solid var(--line);" alt="Preview">
+          <div style="flex:1; min-width:200px;">
+            <input type="file" id="cameraUploadInput" accept="image/*" capture="environment" style="display:none;" onchange="window.app.handleCustomPhotoUpload(this)">
+            <button type="button" class="btn btn-sm btn-outline" onclick="document.getElementById('cameraUploadInput').click()">
+              <i class="bi bi-camera" aria-hidden="true"></i> ${isTrader ? "Upload a market product photo" : "Take farm photo / upload file"}
+            </button>
+            <span id="customPhotoBadge" style="display:none; margin-left:8px;" class="tag g"><i class="bi bi-check-circle"></i> Custom Photo Attached</span>
+            <input type="hidden" id="new_photo_url" value="${info.img}">
+            <div id="priceGuidePreview" style="font-size:12.5px; color:var(--mute); margin-top:6px;"></div>
+          </div>
         </div>
 
-        <button class="btn btn-primary" onclick="window.app.addListing(event)" style="width:100%; justify-content:center;">
-          Publish Produce Listing to Isoko Market
+        <!-- Transparent Tax & Net Calculation Breakdown Card -->
+        <div class="card" style="background:var(--soft); border:1px solid var(--line); border-radius:16px; padding:16px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+            <b style="font-size:13.5px; color:var(--ink);"><i class="bi bi-receipt"></i> Statutory Tax & Community Agaseke Breakdown</b>
+            <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
+              <input type="checkbox" id="taxExemptCheckbox" ${isExempt ? 'checked' : ''} onchange="window.app.toggleFarmerTaxExemption(this.checked)">
+              <span><b>Smallholder Tax-Exempt Status</b> (Certified Cooperative Exemption)</span>
+            </label>
+          </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:10px; margin-bottom:12px;">
+            <div style="background:var(--card); padding:10px 12px; border-radius:12px; border:1px solid var(--line);">
+              <small style="color:var(--mute); display:block;">Gross Listing Price</small>
+              <b id="calcGrossPrice" style="font-size:15px;">${defaultPrice} RWF</b> <span style="font-size:11px;">/${info.unit || 'kg'}</span>
+            </div>
+            <div style="background:var(--card); padding:10px 12px; border-radius:12px; border:1px solid var(--line);">
+              <small style="color:var(--mute); display:block;">District Market Levy (2%)</small>
+              <b id="calcTaxLevy" style="font-size:15px; color:${isExempt ? 'var(--mute)' : 'var(--accent)'};">${isExempt ? '0 RWF (Exempt)' : `${Math.round(defaultPrice * 0.02)} RWF`}</b>
+            </div>
+            <div style="background:var(--card); padding:10px 12px; border-radius:12px; border:1px solid var(--line);">
+              <small style="color:var(--mute); display:block;">Agaseke Solidarity Levy</small>
+              <b style="font-size:15px; color:var(--success);">10 RWF</b> <span style="font-size:11px;">/ order</span>
+            </div>
+            <div style="background:var(--card); padding:10px 12px; border-radius:12px; border:1px solid var(--line);">
+              <small style="color:var(--mute); display:block;">Net Payout to Farmer</small>
+              <b id="calcNetPayout" style="font-size:15px; color:var(--success);">${isExempt ? defaultPrice : defaultPrice - Math.round(defaultPrice * 0.02)} RWF</b> <span style="font-size:11px;">/${info.unit || 'kg'}</span>
+            </div>
+          </div>
+
+          <p class="sub" style="margin:0; font-size:11.5px; line-height:1.4;">
+            📢 <b>RRA & District Market Notice</b>: Under Rwandan local government market regulations, agricultural produce sold through formal trade links is subject to a 2% district market levy unless your cooperative holds a registered smallholder agricultural tax exemption certificate. Every transaction also channels a micro-levy of 10 RWF to the Agaseke k'Ubumwe Social Fund to protect food access for vulnerable neighbors.
+          </p>
+        </div>
+
+        <button class="btn btn-primary" onclick="window.app.addListing(event)" style="width:100%; justify-content:center; padding:12px; font-weight:700;">
+          <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Publish Produce Listing to Isoko Market
         </button>
       </div>
     `;
@@ -2586,34 +2713,82 @@ class IsokoApp {
 
   renderShopperView() {
     if (this.state.activeSubView === "cart") return this.renderCartView();
-    const u = this.state.currentUser;
+    const u = this.state.currentUser || {};
     const myOrders = this.state.orders.filter(o => o.buyerName === u.name || o.buyerRole === "Shopper" || o.buyerEmail === u.email);
-    const totalGifts = myOrders.reduce((sum, o) => sum + (o.gift || 0), 0);
-    const dpp = 5 * this.state.adminSettings.dailyFoodCost;
-    const daysFunded = (totalGifts / dpp).toFixed(1);
+    const totalAgasekeGiven = myOrders.reduce((sum, o) => sum + (o.gift || o.agasekeGift || 0), 0);
+    const currentAgaseke = u.agasekeContribution !== undefined ? u.agasekeContribution : 10;
+    const agasekePool = this.state.agasekePool || 145210;
+    const familiesHelped = Math.max(1, Math.floor(agasekePool / 5000));
 
     return `
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <h2>${this.t('roleShopperTitle')}</h2>
+        <div>
+          <h2>${this.t('roleShopperTitle') || 'Ethical Marketplace & Solidarity'}</h2>
+          <p class="sub" style="margin:2px 0 0;">Buy fresh farm harvest direct from rural cooperatives with transparent community micro-savings.</p>
+        </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Shopper')">
-          🧾 Download Purchases & Gifts (PDF/CSV)
+          🧾 Download Purchases & Agaseke Receipts (PDF/CSV)
         </button>
       </div>
 
-      <p class="sub">Buy farm-fresh produce with MTN MoMo, Airtel, or BK. A small donation share refills the bridge pool that keeps waiting families fed.</p>
-
-      <div class="card">
-        <div class="f">
-          <label style="display:flex; align-items:center; gap:10px;">
-            <span>Share to pool: <b>${u.giftShare || 2}%</b></span>
-            <input type="range" min="1" max="5" value="${u.giftShare || 2}" 
-              oninput="window.app.state.currentUser.giftShare = +this.value; window.app.saveState(); window.app.render();" style="width:160px;">
-          </label>
+      <!-- Civil Servants & Conscious Shoppers Banner -->
+      <div class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 99, 94, 0.18)); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 20px; padding: 18px 22px; margin-bottom: 16px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+          <div style="flex:1; min-width:280px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span class="tag g" style="font-weight:700;">🇷🇼 Gahunda y'Abakozi ba Leta n'Abaguzi</span>
+              <span class="tag" style="background:rgba(52,211,153,0.18); color:var(--on);">Direct Farm Gate</span>
+            </div>
+            <h3 style="font-size:17px; font-weight:800; margin:4px 0 6px; color:var(--ink);">
+              Empower Smallholders · Support Vulnerable Neighbors with Agaseke
+            </h3>
+            <p style="font-size:12.5px; color:var(--mute); margin:0 0 10px; line-height:1.45;">
+              We encourage government employees, civil servants, institutional buyers, and urban citizens to purchase fresh produce directly on Isoko Bridge. Smallholder farmers receive fair gate prices with zero middlemen commission, while each purchase micro-funds emergency food relief for families in Ubudehe Category 1.
+            </p>
+          </div>
+          <div style="flex:0 0 auto; text-align:right;">
+            <span class="tag g" style="font-size:12px; padding:6px 12px;">Zero Middlemen Markups</span>
+          </div>
         </div>
+      </div>
+
+      <!-- Agaseke k'Ubumwe Micro-Solidarity Control & Pool Stats -->
+      <div class="card" style="border-radius:20px; padding:20px; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+          <div>
+            <h3 style="display:flex; align-items:center; gap:8px; margin:0 0 4px; font-size:15.5px;">
+              <i class="bi bi-heart-pulse" style="color:var(--accent);"></i>
+              Agaseke k'Ubumwe Micro-Solidarity Contribution
+            </h3>
+            <p class="sub" style="margin:0; font-size:12px;">
+              10 RWF default micro-saving per order — small enough for anyone, yet collectively feeds vulnerable families.
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <span style="font-size:12px; font-weight:600; color:var(--mute); margin-right:4px;">Your contribution:</span>
+            ${[10, 20, 50, 100, 0].map(amt => `
+              <button class="btn btn-sm ${currentAgaseke === amt ? 'btn-primary' : 'btn-outline'}" 
+                style="padding:4px 10px; font-size:11.5px; border-radius:8px;"
+                onclick="window.app.setShopperAgasekeAmount(${amt})">
+                ${amt === 10 ? '10 RWF (Default)' : amt === 0 ? 'Exempt' : `${amt} RWF`}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
         <div class="stats" style="margin-top:12px;">
-          <div class="stat"><b style="color:var(--accent);">${totalGifts.toLocaleString()} RWF</b><span>you gave so far</span></div>
-          <div class="stat"><b style="color:var(--success);">${daysFunded}</b><span>days of food for a family of 5</span></div>
-          <div class="stat"><b>${this.state.pool.balance.toLocaleString()} RWF</b><span>pool balance today</span></div>
+          <div class="stat">
+            <b style="color:var(--accent);">${totalAgasekeGiven.toLocaleString()} RWF</b>
+            <span>your Agaseke gifts</span>
+          </div>
+          <div class="stat">
+            <b style="color:var(--success);">${agasekePool.toLocaleString()} RWF</b>
+            <span>Agaseke relief pool today</span>
+          </div>
+          <div class="stat">
+            <b>${familiesHelped} families</b>
+            <span>emergency relief capacity</span>
+          </div>
         </div>
       </div>
 
@@ -2716,6 +2891,8 @@ class IsokoApp {
 
   renderAdminView() {
     const sub = this.state.activeSubView || "dashboard";
+    if (sub === "payroll") return this.renderPlannerPayrollTab();
+    if (sub === "agaseke") return this.renderAgasekeManagementTab();
     if (sub === "nisr_facts") {
       return this.renderNisrFactsDoc();
     }
@@ -3066,6 +3243,29 @@ class IsokoApp {
     return { period, transactions, creditOrders, totalValue: transactions.reduce((sum, order) => sum + (Number(order.total) || 0), 0) };
   }
 
+  getPublishedTimeliness() {
+    return (window.NISR_PUBLISHED_DATA && window.NISR_PUBLISHED_DATA.timeliness) || [];
+  }
+
+  renderPublishedTimelinessTable() {
+    const rows = this.getPublishedTimeliness();
+    if (!rows.length) return "";
+    const source = window.NISR_PUBLISHED_DATA;
+    return `
+      <section class="card" aria-labelledby="nisr-published-title" style="margin-bottom:18px;">
+        <div class="card-header" style="align-items:flex-start;">
+          <div><h2 id="nisr-published-title" class="card-title">Published NISR payment timing</h2>
+          <p class="card-subtitle">How soon the most recent VUP payment arrived, by programme.</p></div>
+          <span class="tag g">Official report</span>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Programme</th><th>On time</th><th>1–10 days late</th><th>11–20 days late</th><th>More than 20 days late</th></tr></thead>
+          <tbody>${rows.map(row => `<tr><th scope="row">${this.escapeHtml(row.programme)}</th><td>${row.onTime.toFixed(1)}%</td><td>${row.days1to10.toFixed(1)}%</td><td>${row.days11to20.toFixed(1)}%</td><td>${row.over20.toFixed(1)}%</td></tr>`).join("")}</tbody>
+        </table></div>
+        <p class="small" style="margin:10px 0 0;">These are NISR's published categories for the latest reported payment, not average delay days. They show how often each delay band was reported, not why a delay happened. Source: <a href="${this.escapeHtml(source.sourceUrl)}" target="_blank" rel="noopener">${this.escapeHtml(source.title)}</a>; ${rows.map(row => `${this.escapeHtml(row.table)}, p. ${row.page}`).join(" · ")}.</p>
+      </section>`;
+  }
+
   renderAnalysisView() {
     const overall = NISR_DATA.overall;
     const period = this.getAnalysisPeriod();
@@ -3086,7 +3286,9 @@ class IsokoApp {
         </div>
       </div>
 
-      <div class="card nisr-truth-note"><b>Before you read:</b> These NISR survey numbers are early estimates. They may change after the final checks. The date filter below changes demo orders only; it does not change the 2023–24 survey results. Survey results show patterns, not the reason one person's payment was late. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">View the NISR survey source</a>.</div>
+      <div class="card nisr-truth-note"><b>How to read this page:</b> The table below uses results published by NISR for the most recent VUP payment. The summary cards and map later on use early project-prepared estimates and still need review. Their average-day figures are a different measure, so do not compare them as if they were the same statistic. The date filter changes demo orders only. Survey results show patterns, not the reason one person's payment was late. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">View the NISR survey source</a>.</div>
+
+      ${this.renderPublishedTimelinessTable()}
 
       <div class="nisr-kpis">
         <article class="card"><small>Average delay</small><strong>${overall.averageDelayDays.toFixed(1)} days</strong><span>Across ${overall.totalBeneficiaries.toLocaleString()} VUP beneficiary records</span></article>
@@ -3315,12 +3517,83 @@ class IsokoApp {
     this.render();
   }
 
-  // =========================================================================
-  // 21. 18 PRODUCTIONS CATALOG WITH DISTANCE SORTING
-  // =========================================================================
-    renderGroceryCatalog(mode) {
+  filterProduceByName(query) {
+    this.state.searchQuery = (query || "").trim();
+    const q = this.state.searchQuery.toLowerCase();
+    const container = document.getElementById("produceGridContainer");
+    if (container) {
+      const cards = container.querySelectorAll(".vm-product-card");
+      let visibleCount = 0;
+      cards.forEach(card => {
+        const text = (card.textContent || "").toLowerCase();
+        if (!q || text.includes(q)) {
+          card.style.display = "";
+          visibleCount++;
+        } else {
+          card.style.display = "none";
+        }
+      });
+      let emptyMsg = document.getElementById("searchEmptyNotice");
+      if (visibleCount === 0) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement("div");
+          emptyMsg.id = "searchEmptyNotice";
+          emptyMsg.style.cssText = "grid-column: 1 / -1; text-align: center; padding: 30px 16px; background: var(--card); border: 1px dashed var(--line); border-radius: 20px; margin: 12px 0;";
+          emptyMsg.innerHTML = `<p style="margin:0; font-weight:600; color:var(--ink);">No produce found matching "${this.escapeHtml(query)}"</p><small style="color:var(--mute);">Try searching for beans, potatoes, tomatoes, rice, or dairy.</small>`;
+          container.appendChild(emptyMsg);
+        }
+      } else if (emptyMsg) {
+        emptyMsg.remove();
+      }
+    } else {
+      this.render();
+    }
+  }
+
+  setDistrictFilter(district) {
+    this.state.selectedDistrictFilter = district;
+    this.saveState();
+    this.render();
+  }
+
+  setProduceSort(sortKey) {
+    this.state.produceSort = sortKey;
+    this.saveState();
+    this.render();
+  }
+
+  setSellerFilter(sellerName) {
+    this.state.selectedSellerFilter = sellerName;
+    this.saveState();
+    this.render();
+  }
+
+  clearSellerFilter() {
+    this.state.selectedSellerFilter = null;
+    this.state.selectedDistrictFilter = "all";
+    this.state.searchQuery = "";
+    this.saveState();
+    this.render();
+  }
+
+  resetMarketFilters() {
+    this.state.selectedSellerFilter = null;
+    this.state.selectedDistrictFilter = "all";
+    this.state.searchQuery = "";
+    this.state.activeCategory = "All";
+    this.state.produceSort = "distance";
+    if (this.state.nearby) this.state.nearby.filterProximity = "all";
+    this.saveState();
+    this.render();
+  }
+
+  renderGroceryCatalog(mode) {
     const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
     const filter = (this.state.nearby && this.state.nearby.filterProximity) || "all";
+    const selectedDist = this.state.selectedDistrictFilter || "all";
+    const sellerFilterName = this.state.selectedSellerFilter;
+    const sortKey = this.state.produceSort || "distance";
+    const searchQuery = (this.state.searchQuery || "").trim().toLowerCase();
 
     let items = this.state.listings.map(l => {
       const dist = calculateRwandaDistance(curDist, l.district);
@@ -3333,12 +3606,35 @@ class IsokoApp {
       };
     });
 
+    const sellerFilter = this.state.sellerTypeFilter || "all";
+    if (sellerFilter !== "all") items = items.filter(l => (l.sellerType || (l.farmerEmail === "umutima.market@vupbridge.rw" ? "trader" : "farmer")) === sellerFilter);
+
+    if (searchQuery) {
+      items = items.filter(l => {
+        const kiny = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
+        const sector = l.sector || "";
+        return l.food.toLowerCase().includes(searchQuery) ||
+               kiny.toLowerCase().includes(searchQuery) ||
+               l.farmer.toLowerCase().includes(searchQuery) ||
+               l.district.toLowerCase().includes(searchQuery) ||
+               sector.toLowerCase().includes(searchQuery);
+      });
+    }
+
     if (this.state.activeCategory && this.state.activeCategory !== "All") {
       items = items.filter(l => {
         const cat = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].category : "Staples";
         return cat.toLowerCase().includes(this.state.activeCategory.toLowerCase()) || 
                l.food.toLowerCase().includes(this.state.activeCategory.toLowerCase());
       });
+    }
+
+    if (selectedDist !== "all") {
+      items = items.filter(l => l.district.toLowerCase() === selectedDist.toLowerCase());
+    }
+
+    if (sellerFilterName) {
+      items = items.filter(l => l.farmer.toLowerCase().includes(sellerFilterName.toLowerCase()));
     }
 
     if (filter === "near") {
@@ -3349,77 +3645,123 @@ class IsokoApp {
       items = items.filter(l => l.dynamicDeliveryMins <= 20);
     }
 
-    items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
-
-    if (items.length === 0) {
-      return `
-        <div style="text-align:center; padding: 40px 20px; background:var(--card); border:1px solid var(--line); border-radius:24px; margin-bottom: 24px;">
-          <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--mute);fill:none;margin-bottom:8px;"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2M9 9h.01M15 9h.01"/></svg>
-          <h4 style="font-size: 16px; font-weight:700;">No farm produce found for this filter in ${curDist}</h4>
-          <p style="font-size: 13px; color:var(--mute); margin-bottom: 14px;">Try selecting "All Staples" or changing your district location.</p>
-          <button class="btn btn-sm btn-primary" onclick="window.app.setProximityFilter('all'); window.app.state.activeCategory='All'; window.app.render();">
-            Show All Rwanda Sellers (18 items)
-          </button>
-        </div>
-      `;
+    if (sortKey === "price_asc") {
+      items.sort((a, b) => a.price - b.price);
+    } else if (sortKey === "price_desc") {
+      items.sort((a, b) => b.price - a.price);
+    } else if (sortKey === "stock") {
+      items.sort((a, b) => b.quantity - a.quantity);
+    } else {
+      items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
     }
 
-    const lang = this.state.lang || "en";
+    const hasActiveFilters = selectedDist !== "all" || sellerFilterName || searchQuery || (this.state.activeCategory && this.state.activeCategory !== "All") || filter !== "all";
 
     return `
-      <div class="vm-grocery-grid" id="produceGridContainer">
-        ${items.map(l => {
-          const guide = this.getPriceGuide(l.food, l.price);
-          const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "assets/produce/dry_beans.jpg");
-          
-          let displayName = l.food;
-          let kinyName = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
-          if (lang === "rw" && window.TRANSLATIONS?.rw?.produce?.[l.food]) {
-            displayName = window.TRANSLATIONS.rw.produce[l.food].name;
-          } else if (lang === "fr" && window.TRANSLATIONS?.fr?.produce?.[l.food]) {
-            displayName = window.TRANSLATIONS.fr.produce[l.food].name;
-          }
+      <!-- Market Toolbar: District Filter, Proximity Sort, and Active Filter Strip -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding:10px 14px; background:var(--soft); border-radius:16px; border:1px solid var(--line);">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
+            <i class="bi bi-geo-alt"></i> District:
+            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setDistrictFilter(this.value)">
+              <option value="all" ${selectedDist === 'all' ? 'selected' : ''}>All Rwanda (30 Districts)</option>
+              ${NISR_DATA.districts.map(d => `<option value="${d.name}" ${selectedDist.toLowerCase() === d.name.toLowerCase() ? 'selected' : ''}>${d.name} (${d.province})</option>`).join("")}
+            </select>
+          </label>
 
-          const dist = l.dynamicDistanceKm;
+          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
+            <i class="bi bi-sort-numeric-down"></i> Sort:
+            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setProduceSort(this.value)">
+              <option value="distance" ${sortKey === 'distance' ? 'selected' : ''}>Nearest First</option>
+              <option value="price_asc" ${sortKey === 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
+              <option value="price_desc" ${sortKey === 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
+              <option value="stock" ${sortKey === 'stock' ? 'selected' : ''}>Highest Stock</option>
+            </select>
+          </label>
+        </div>
 
-          return `
-            <div class="vm-product-card">
-              <div class="vm-product-img-box">
-                <span class="vm-badge-distance">
-                  <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  ${dist <= 1.0 ? '0.8 km' : dist + ' km'}
-                </span>
-                <span class="vm-badge-guide ${guide.class}">${guide.label}</span>
-                <img src="${photo}" alt="${displayName}" class="vm-product-img" onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
-              </div>
-
-              <div class="vm-product-info">
-                <div class="vm-product-origin">
-                  ${l.farmer} · ${l.district}
-                </div>
-                <div class="vm-product-title">${displayName}</div>
-                <div class="vm-product-kiny">${kinyName || 'Fresh Harvest'}</div>
-                <div class="vm-product-stock">${l.quantity} kg available</div>
-
-                <div class="vm-product-bottom">
-                  <div class="vm-price-wrap">
-                    <b>${l.price.toLocaleString()}</b> <small>RWF/kg</small>
-                  </div>
-                  <button class="vm-add-btn" onclick="window.app.${mode === 'credit' ? `startBuyProduce(${l.id}, 'credit')` : `addToCart(${l.id})`}" title="${mode === 'credit' ? 'Order with food credit' : 'Add to cart'}" aria-label="${mode === 'credit' ? 'Order' : 'Add'} ${this.escapeHtml(displayName)} ${mode === 'credit' ? 'with food credit' : 'to cart'}">
-                    <i class="bi bi-cart-plus" aria-hidden="true"></i>
-                  </button>
-                </div>
-
-                ${mode === 'credit' || this.state.roleCode === 'member' ? `
-                  <button class="vm-credit-order-btn" onclick="window.app.startBuyProduce(${l.id}, 'credit')">
-                    Order on Bridge Credit (0%)
-                  </button>
-                ` : ''}
-              </div>
-            </div>
-          `;
-        }).join("")}
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${hasActiveFilters ? `
+            <button class="btn btn-sm btn-ghost" style="padding:4px 8px; font-size:11.5px; color:var(--accent);" onclick="window.app.resetMarketFilters()">
+              <i class="bi bi-x-circle"></i> Reset Filters
+            </button>
+          ` : ''}
+          <span class="tag g" style="font-size:11px; padding:3px 8px;">${items.length} crops listed</span>
+        </div>
       </div>
+
+      <div class="seller-filter-row" role="group" aria-label="Filter by seller" style="margin-bottom:12px;">
+        ${[["all", "All sellers"], ["farmer", "Farmer Co-ops"], ["trader", "Market traders"]].map(([value, label]) => `<button type="button" class="vm-cat-pill ${(sellerFilter === value) ? "on" : ""}" onclick="window.app.state.sellerTypeFilter='${value}'; window.app.render();">${label}</button>`).join("")}
+      </div>
+
+      ${items.length === 0 ? `
+        <div style="text-align:center; padding: 40px 20px; background:var(--card); border:1px solid var(--line); border-radius:24px; margin-bottom: 24px;">
+          <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:var(--mute);fill:none;margin-bottom:8px;"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2M9 9h.01M15 9h.01"/></svg>
+          <h4 style="font-size: 16px; font-weight:700;">No farm produce found matching your filters</h4>
+          <p style="font-size: 13px; color:var(--mute); margin-bottom: 14px;">Try resetting your filters or selecting "All Rwanda (30 Districts)".</p>
+          <button class="btn btn-sm btn-primary" onclick="window.app.resetMarketFilters()">
+            Show All Nationwide Produce (${this.state.listings.length} items)
+          </button>
+        </div>
+      ` : `
+        <div class="vm-grocery-grid" id="produceGridContainer">
+          ${items.map(l => {
+            const guide = this.getPriceGuide(l.food, l.price);
+            const photo = l.photo || (HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].img : "assets/produce/dry_beans.jpg");
+            
+            let displayName = l.food;
+            let kinyName = HARVEST_GALLERY[l.food] ? HARVEST_GALLERY[l.food].kiny : "";
+            if (this.state.lang === "rw" && window.TRANSLATIONS?.rw?.produce?.[l.food]) {
+              displayName = window.TRANSLATIONS.rw.produce[l.food].name;
+            } else if (this.state.lang === "fr" && window.TRANSLATIONS?.fr?.produce?.[l.food]) {
+              displayName = window.TRANSLATIONS.fr.produce[l.food].name;
+            }
+
+            const dist = l.dynamicDistanceKm;
+
+            return `
+              <div class="vm-product-card">
+                <div class="vm-product-img-box">
+                  <span class="vm-badge-distance">
+                    <svg viewBox="0 0 24 24" style="width:11px;height:11px;stroke:#fff;fill:none;stroke-width:2.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    ${dist <= 1.0 ? '0.8 km' : dist + ' km'}
+                  </span>
+                  <span class="vm-badge-guide ${guide.class}">${guide.label}</span>
+                  <img src="${photo}" alt="${displayName}" class="vm-product-img" onerror="this.onerror=null; this.src='assets/produce/dry_beans.jpg';">
+                </div>
+
+                <div class="vm-product-info">
+                  <div class="vm-product-origin">
+                    ${l.farmer} · ${l.sector ? `${l.sector}, ` : ''}${l.district} <span class="seller-type-badge">${(l.sellerType || "farmer") === "trader" ? "Trader" : "Co-op"}</span>
+                  </div>
+                  <div class="vm-product-title">${displayName}</div>
+                  <div class="vm-product-kiny">${kinyName || 'Fresh Harvest'}</div>
+                  <div class="vm-product-stock">${l.quantity} ${l.unit || "kg"} available</div>
+
+                  <div class="vm-product-bottom">
+                    <div class="vm-price-wrap">
+                      <b>${l.price.toLocaleString()}</b> <small>RWF/${l.unit || "kg"}</small>
+                    </div>
+                    <button class="vm-add-btn" onclick="window.app.${mode === 'credit' ? `startBuyProduce(${l.id}, 'credit')` : `addToCart(${l.id})`}" title="${mode === 'credit' ? 'Order with food credit' : 'Add to cart'}" aria-label="${mode === 'credit' ? 'Order' : 'Add'} ${this.escapeHtml(displayName)} ${mode === 'credit' ? 'with food credit' : 'to cart'}">
+                      <i class="bi bi-cart-plus" aria-hidden="true"></i>
+                    </button>
+                  </div>
+
+                  ${mode === 'credit' || this.state.roleCode === 'member' ? `
+                    <button class="vm-credit-order-btn" onclick="window.app.startBuyProduce(${l.id}, 'credit')">
+                      Order on Bridge Credit (0%)
+                    </button>
+                  ` : `
+                    <button class="vm-credit-order-btn" style="background:var(--acc); color:#fff; border-color:transparent; margin-top:6px;" onclick="window.app.startBuyProduce(${l.id}, 'cash')">
+                      Buy Direct (MoMo / Card)
+                    </button>
+                  `}
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `}
     `;
   }
 
@@ -3889,6 +4231,8 @@ class IsokoApp {
 
     const newListing = {
       id: this.state.nextListingId++,
+      sellerType: this.state.roleCode === "trader" ? "trader" : "farmer",
+      unit: HARVEST_GALLERY[food]?.unit || "kg",
       food,
       district,
       hub: `${district} Food Hub`,
@@ -3905,10 +4249,13 @@ class IsokoApp {
     this.state.listings.unshift(newListing);
     this.saveState();
     this.render();
-    this.toast(`Listed ${quantity} kg of ${food} at ${price.toLocaleString()} RWF/kg!`, "success");
+    this.toast(`Listed ${quantity} ${newListing.unit} of ${food} at ${price.toLocaleString()} RWF per ${newListing.unit}.`, "success");
   }
 
   onProduceSelected(foodName) {
+    const unit = HARVEST_GALLERY[foodName]?.unit || "kg";
+    document.querySelectorAll(".listing-unit-label").forEach(el => el.textContent = unit);
+    document.querySelectorAll(".listing-unit-placeholder").forEach(el => el.textContent = unit);
     if (HARVEST_GALLERY[foodName]) {
       this.setListingPhoto(HARVEST_GALLERY[foodName].img);
     }
@@ -3923,7 +4270,7 @@ class IsokoApp {
     const food = foodEl.value;
     const price = parseFloat(priceEl.value) || 0;
     const guide = this.getPriceGuide(food, price);
-    el.innerHTML = `NISR Median: <b>${guide.median.toLocaleString()} RWF/kg</b> · <span class="pill ${guide.class}">${guide.label}</span>`;
+    el.innerHTML = `Reference price: <b>${guide.median.toLocaleString()} RWF/${HARVEST_GALLERY[food]?.unit || "kg"}</b> · <span class="pill ${guide.class}">${guide.label}</span>`;
   }
 
   getPriceGuide(food, price) {
@@ -4197,7 +4544,7 @@ class IsokoApp {
   downloadNisrCsv() {
     const rows = this.getNisrSummaryCsvRows();
     const today = new Date().toISOString().slice(0, 10);
-    this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, rows.map(r => r.join(',')).join('\n'), 'text/csv');
+    this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, `\uFEFF${rows.map(r => r.map(value => this.csvCell(value)).join(',')).join('\r\n')}`, 'text/csv;charset=utf-8');
     this.toast('NISR analytical tables (CSV) downloaded successfully', 'success');
   }
 
@@ -4214,6 +4561,12 @@ class IsokoApp {
       ["NISR survey", "Survey period", "2023–24", "", "EICV7 VUP", "Fixed survey baseline; not a live time series"],
       ["NISR survey", "Average payment delay", NISR_DATA.overall.averageDelayDays, "days", NISR_DATA.overall.totalBeneficiaries, "Current project summary; provisional pending final weighted analysis"],
       ["NISR survey", "Beneficiaries waiting over 7 days", NISR_DATA.overall.pctOver7DaysLate, "%", NISR_DATA.overall.totalBeneficiaries, "Current project summary; provisional pending final weighted analysis"],
+      ...this.getPublishedTimeliness().flatMap(row => [
+        ["Official NISR published latest-payment timing", `${row.programme}: on time`, row.onTime, "%", "People involved in programme", `${row.table}, p. ${row.page}; ${window.NISR_PUBLISHED_DATA.title}`],
+        ["Official NISR published latest-payment timing", `${row.programme}: 1–10 days late`, row.days1to10, "%", "People involved in programme", `${row.table}, p. ${row.page}; ${window.NISR_PUBLISHED_DATA.title}`],
+        ["Official NISR published latest-payment timing", `${row.programme}: 11–20 days late`, row.days11to20, "%", "People involved in programme", `${row.table}, p. ${row.page}; ${window.NISR_PUBLISHED_DATA.title}`],
+        ["Official NISR published latest-payment timing", `${row.programme}: more than 20 days late`, row.over20, "%", "People involved in programme", `${row.table}, p. ${row.page}; ${window.NISR_PUBLISHED_DATA.title}`]
+      ]),
       ...NISR_DATA.programmes.map(p => ["NISR programme", p.name, p.delay, "average days late", p.records, `${p.latePct}% waited over 7 days; provisional project summary`]),
       ...NISR_DATA.provinces.map(p => ["NISR province", p.name, p.delay, "average days late", p.records, `${p.latePct}% waited over 7 days; provisional project summary`]),
       ...NISR_DATA.districts.map(d => ["NISR district", d.name, d.records < 25 ? "" : d.delay, "average days late", d.records < 25 ? "suppressed" : d.records, `${d.province}; priority score ${d.records < 25 ? "suppressed" : d.priority}; ${d.records < 25 ? "n<25, suppress" : d.records < 100 ? "n<100, caution" : "n>=100"}`]),
@@ -4308,33 +4661,50 @@ class IsokoApp {
   }
 
   getNisrSummaryCsvRows() {
-    const NISR = [['Expanded Public Works', 11.0, 63, 796], ['Classic Public Works', 9.7, 50, 925], ['Direct Support', 8.3, 51, 1003], ['NSDS', 7.7, 42, 675]];
-    const PROV = [['Southern', 10.7, 64, 675], ['Eastern', 10.7, 59, 762], ['Western', 9.4, 55, 789], ['City of Kigali', 8.3, 47, 358], ['Northern', 6.6, 34, 815]];
-    const PG = [['Severely poor', 11.0, 62, 174], ['Moderately poor', 9.7, 56, 875], ['Not poor', 8.9, 50, 2350]];
-    const PM = [['Mobile money', 10.4, 59, 630], ['Umurenge SACCO', 7.7, 43, 546]];
-    const SX = [['Women', 9.2, 52, 2468], ['Men', 9.2, 52, 931]];
-    const DIS_slow = [['Kirehe', 15.5, null, 70], ['Gisagara', 14.9, null, 77], ['Karongi', 13.2, null, 100], ['Kicukiro', 12.4, null, 27], ['Gatsibo', 12.2, null, 92]];
-    const DIS_fast = [['Nyabihu', 4.5, null, 63], ['Musanze', 5.1, null, 70], ['Gicumbi', 6.3, null, 297], ['Rwamagana', 6.3, null, 55], ['Rubavu', 6.6, null, 76]];
-    const PR = [['Sweet potato', 250], ['Cooking banana', 300], ['Salt', 400], ['Avocado', 400], ['Irish potato', 450], ['Tomato', 500], ['Dry beans', 800], ['Corn flour', 1000], ['Local rice', 1200], ['Onion (about)', 1667], ['Groundnut flour', 2000], ['Small dry fish', 3030]];
+    const rows = [["Dataset", "Programme / group", "Measure", "Value", "Unit", "Sample or scope", "Source and notes"]];
+    const add = (dataset, name, metric, value, unit, sample, note) => rows.push([dataset, name, metric, value, unit, sample, note]);
+    const sampleNote = count => count < 25
+      ? `n=${count}; suppressed in summary`
+      : count < 100
+        ? `n=${count}; small-sample caution, not a precision guarantee`
+        : `n=${count}; no small-sample warning, not a precision guarantee`;
 
-    const cD = d => d > 10 ? ['ba', '✖', 'High delay'] : d >= 7 ? ['wa', '▲', 'Medium delay'] : ['ok', '✔', 'Low delay'];
-    const cN = n => n < 25 ? ['ba', '✖', 'Under 25: hide'] : n < 100 ? ['wa', '▲', 'Small sample'] : ['ok', '✔', 'Reliable'];
-    const cP = p => p > 1500 ? ['ba', '✖', 'High cost'] : p >= 500 ? ['wa', '▲', 'Mid cost'] : ['ok', '✔', 'Cheap staple'];
+    const official = window.NISR_PUBLISHED_DATA || {};
+    (official.timeliness || []).forEach(item => {
+      const source = `${official.title || "NISR EICV7 VUP Thematic Report"}, ${item.table}, p. ${item.page}; latest reported payment`;
+      [["On time", item.onTime], ["1–10 days late", item.days1to10], ["11–20 days late", item.days11to20], ["More than 20 days late", item.over20]]
+        .forEach(([band, value]) => add("Official NISR published result", item.programme, band, value, "%", "People involved in programme", source));
+    });
 
-    const o = [
-      ['Prototype. Fake money. NISR EICV7 2023-2024 summary. Early unweighted values. Patterns, not reasons.'],
-      ['section', 'name', 'avg_days_late', 'over_7_days_pct', 'records', 'delay_class', 'sample_class']
-    ];
-    const add = (sc, rows) => rows.forEach(r => o.push([sc, r[0], r[1], r[2] == null ? '' : r[2], r[3], cD(r[1])[2], cN(r[3])[2]]));
-    add('programme', NISR);
-    add('province', PROV);
-    add('poverty group', PG);
-    add('payment method', PM);
-    add('sex', SX);
-    add('district slowest', DIS_slow);
-    add('district fastest', DIS_fast);
-    PR.forEach(r => o.push(['food price rwf per kg', r[0], r[1], '', '', cP(r[1])[2], '']));
-    return o;
+    add("Exploratory project summary", "All programme rows", "Average delay", NISR_DATA.overall.averageDelayDays, "days", NISR_DATA.overall.totalBeneficiaries, "Prepared, early, unweighted project estimate; not the official NISR published statistic.");
+    add("Exploratory project summary", "All programme rows", "Average delay over 7 days", NISR_DATA.overall.pctOver7DaysLate, "%", NISR_DATA.overall.totalBeneficiaries, "Prepared project estimate; definition and weights need review.");
+    (NISR_DATA.programmes || []).forEach(item => {
+      add("Exploratory programme summary", item.name, "Average delay", item.delay, "days", item.records, "Prepared, early, unweighted project estimate; not the official NISR published statistic.");
+      add("Exploratory programme summary", item.name, "Records over 7 days", item.latePct, "%", item.records, "Prepared project estimate; definition and weights need review.");
+    });
+    (NISR_DATA.provinces || []).forEach(item => {
+      add("Exploratory province summary", item.name, "Average delay", item.delay, "days", item.records, "Prepared, early, unweighted project estimate; not the official NISR published statistic.");
+      add("Exploratory province summary", item.name, "Records over 7 days", item.latePct, "%", item.records, "Prepared project estimate; definition and weights need review.");
+    });
+    Object.entries(NISR_DATA.groups || {}).forEach(([group, items]) => items.forEach(item => {
+      const suppressed = item.records < 25;
+      add("Exploratory group summary", `${group}: ${item.name}`, "Average delay", suppressed ? "" : item.delay, "days", sampleNote(item.records), "Prepared project estimate; not an official NISR published statistic.");
+      add("Exploratory group summary", `${group}: ${item.name}`, "Records over 7 days", suppressed ? "" : item.latePct, "%", sampleNote(item.records), "Prepared project estimate; definition and weights need review.");
+    }));
+    (NISR_DATA.districts || []).forEach(item => {
+      const suppressed = item.records < 25;
+      add("Exploratory district map input", item.name, "Average delay", suppressed ? "" : item.delay, "days", sampleNote(item.records), `${item.province}; prepared project estimate, not official NISR published statistic.`);
+      add("Exploratory district map input", item.name, "Priority score", suppressed ? "" : item.priority, "prototype points", sampleNote(item.records), "Rule-based prototype score, not NISR policy or a validated prediction.");
+    });
+    Object.entries(NISR_DATA.hotspots || {}).forEach(([programme, provinces]) => Object.entries(provinces).filter(([, item]) => item).forEach(([province, item]) => {
+      const suppressed = item.records < 25;
+      add("Exploratory programme/province summary", `${programme}: ${province}`, "Average delay", suppressed ? "" : item.delay, "days", sampleNote(item.records), "Prepared project estimate, not official NISR published statistic.");
+      add("Exploratory programme/province summary", `${programme}: ${province}`, "Records over 7 days", suppressed ? "" : item.latePct, "%", sampleNote(item.records), "Prepared project estimate; definition and weights need review.");
+    }));
+    Object.entries(NISR_DATA.foodPrices || {}).forEach(([food, item]) => add(
+      "Exploratory food-price guide", food, "Reference price", item.median, `RWF per ${item.unit}`, "", `${item.category}; prepared price input, not reproduced from raw survey module.`
+    ));
+    return rows;
   }
 
   renderSummaryCard(adm = false) {
