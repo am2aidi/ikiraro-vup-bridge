@@ -7,6 +7,18 @@
 **NISR 2026 Big Data Hackathon · Track 3: Open Innovation**
 **Live prototype:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/) · **Source code:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)
 
+The idea connects to Rwanda's [NST2 2024–2029 social transformation priorities](https://www.minecofin.gov.rw/fileadmin/user_upload/Minecofin/Publications/STRATEGIES/NST_2/NST2_2024-2029_Abridged.pdf), including poverty graduation and access to social security and income support. This is a student concept that may support discussion of those priorities; it is not an official government programme or partnership.
+
+## Market sellers and the next product catalogue
+
+The prototype now has two seller paths: **farmers** list food they grow, and **market traders** list food they source from local markets or suppliers. Buyers can filter the catalogue by seller type and by product group, including beans, tubers, vegetables, grains, fruits, and dairy. Listings show the seller type, location, stock unit, and price. The same prototype seller dashboard is used for both paths; trader accounts keep their `trader` role code so the app can distinguish them in the catalogue.
+
+Demo market trader sign-in: `umutima.market@vupbridge.rw` / `Market#2026`. This is a public prototype credential, not a secure account. The current app is a static demo and does not verify trader identity or connect to a live payment service.
+
+### Future product catalogue
+
+A good next step is a searchable catalogue for all locally available products. Add approved categories and products over time, then let shoppers filter by product, seller type (farmer or trader), district, price, stock, and delivery options. Each listing should say who sells it, where it came from, its unit and current price, and when the stock was last updated. Admins should be able to review sellers and listings. These catalogue and verification rules need confirmation from the project team before real sellers use the service.
+
 ## The idea
 
 A delayed social payment can make it hard for a household to buy food on time. At the same time, local farmers need a clear way to reach buyers. Isoko Bridge explores one way to help both sides:
@@ -66,15 +78,21 @@ The summaries include national, programme, province, programme-by-province, dist
 
 ### Analysis in this prototype
 
+The dashboard now starts with a separate table of official NISR figures for the timing of the latest reported VUP payment: on time, 1–10 days late, 11–20 days late, and more than 20 days late. The table cites the NISR EICV7 VUP Thematic Report (2025), Tables 4.2, 4.5, 4.8, and 4.11. This published measure is different from the project's average-delay estimates below. The official values are sourced from the [NISR report](https://microdata.statistics.gov.rw/index.php/catalog/121/download/1095) and included in the analysis CSV export.
+
 The current analysis tells this story from the prepared summary: **reported VUP payment waits are not the same across every programme, province, district, or payment channel.** It shows a 9.2-day average wait across 3,399 beneficiary records, a 7.5-day median, and 52% of records reporting a wait longer than 7 days. Expanded Public Works averages 11.0 days in the programme table; Southern and Eastern provinces each average 10.7 days. The longest programme-by-province result in the bundle is Expanded Public Works in Southern Province: 14.6 days, 79% over 7 days, and 140 records. These are descriptive comparisons, not proof that a location or payment channel caused the delay.
 
 The dashboard presents the findings with summary cards, a programme comparison, expandable province/district/group tables, and a 30-district map. The map can show the bundled delay, poverty, or priority measure. Food listings can be compared with a bundled NISR price benchmark. A min–max rule-based district priority index is calculated as **45% normalized delay + 40% normalized poverty rate + 15% normalized food-price index**. The weights and bands are prototype choices, not an NISR policy rule or a tested prediction. The date controls apply to simulated orders only. Analysis and transaction data can be printed/saved as PDF or downloaded as CSV.
 
-The summary CSVs are included so people can inspect the values. However, [`scripts/generate_summaries.py`](scripts/generate_summaries.py) currently writes values stored as lists in the script; it does **not** read the raw `.dta` microdata or recalculate the survey statistics. The raw-file extraction, variable definitions, weighting, missing-value handling, and final checks therefore cannot be reproduced from that script alone. The project labels the current summary as early and unweighted. A separate experimental proxy model in [`scripts/poverty_risk_model.py`](scripts/poverty_risk_model.py) is not connected to the app and has not been validated for real decisions. The dashboard does not run a predictive or AI model.
+The summary CSVs are included so people can inspect the values. However, [`scripts/generate_summaries.py`](scripts/generate_summaries.py) currently writes values stored as lists in the script; it does **not** read the raw `.dta` microdata or recalculate the survey statistics. The supplied count of 3,399 matches the combined row count of the four programme modules, but it is not a count of unique households and some rows do not have a delay answer. The raw-file extraction, variable definitions, weighting, missing-value handling, and final checks therefore cannot be reproduced from that generator alone. The project labels the current summary as early and unweighted. A separate experimental proxy model in [`scripts/poverty_risk_model.py`](scripts/poverty_risk_model.py) is not connected to the app and has not been validated for real decisions. The dashboard does not run a predictive or AI model.
 
-The separate `Microdata.zip` supplied to the project contains raw survey modules. It is not included in this repository, and the browser app does not read the raw Stata files. This prototype does not contain every survey variable or household record, and the grouped figures do not verify a person's current payment or eligibility.
+An aggregate-only audit script is now available at [`scripts/audit_vup_microdata.py`](scripts/audit_vup_microdata.py). It reads the four local VUP programme modules, takes the average of each row's available answers for up to three recent-payment delay questions, and reports unweighted and household-weighted results by programme and province. It does not expose household IDs, write raw rows, or change the dashboard. I ran it on the supplied `Microdata.zip`: the unweighted programme averages were 8.29 days for Direct Support, 9.38 for Classic Public Works, 10.96 for Expanded Public Works, and 7.70 for NSDS. The corresponding weighted averages were 9.27, 9.36, 11.93, and 8.26 days. These differences show why the prepared baseline must be checked before it is presented as final. The weighted results are an audit aid, not an approved final estimate: this script does not calculate survey standard errors or reconcile households appearing in more than one programme. It does not make a combined national estimate.
 
-The repository does include the prepared CSV summaries and a data-source note at [`data/data_sources.md`](data/data_sources.md). Rwanda district boundaries are in [`data/rwanda_districts.geojson`](data/rwanda_districts.geojson); the source note attributes them to geoBoundaries / NISR geodata. The raw survey files remain available only through the [NISR catalogue](https://microdata.statistics.gov.rw/index.php/catalog/121), subject to its access process.
+To repeat the local audit, install the Python packages from `requirements.txt` and run `python scripts/audit_vup_microdata.py --input "path/to/Microdata.zip"`. Add `--output "path/outside/the/repository/vup-delay-audit.csv"` to save the aggregate table. Keep the raw archive and generated output out of the public repository unless NISR rules and the team authorize sharing.
+
+The `Microdata.zip` used for the local audit is not included in this repository, and the browser app does not read the raw Stata files. Team members must obtain and handle the source files under NISR's access terms. This prototype does not contain every survey variable or household record, and the grouped figures do not verify a person's current payment or eligibility.
+
+The repository does include the prepared CSV summaries and a data-source note at [`data/data_sources.md`](data/data_sources.md). Rwanda district boundaries are in [`data/rwanda_districts.geojson`](data/rwanda_districts.geojson); the source note attributes them to geoBoundaries / NISR geodata. The [NISR catalogue](https://microdata.statistics.gov.rw/index.php/catalog/121) describes the source data and its access process.
 
 **Read the findings carefully:** survey patterns can show that reported delays differ between groups. They cannot explain why one person's payment was late, prove the cause of a delay, or identify who should receive support. Small groups also need caution; very small samples should be suppressed or combined.
 
@@ -133,7 +151,7 @@ The project keeps a root copy and an `app/` copy of the website for hosting comp
 | `data/*.csv`, `data/rwanda_districts.geojson` | Prepared analysis tables and district boundaries used by the project. |
 | `data/data_sources.md` | Data sources, definitions, and sample-size guidance. |
 | `docs/` | Project and design reference material. |
-| `scripts/` | Data preparation and development helper scripts. |
+| `scripts/` | Data preparation, local microdata audit, and development helper scripts. |
 | `api/`, `app.py` | Python static-file serving entry point; no live VUP or payment API. |
 
 ## Hackathon submission checklist

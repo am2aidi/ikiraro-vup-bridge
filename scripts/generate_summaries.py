@@ -1,6 +1,10 @@
 """
-Generate official summary datasets for Isoko Bridge
-Based on NISR 2026 Big Data Hackathon VUP Household Survey Analysis
+Write prepared prototype summary datasets for Isoko Bridge.
+
+The values below are inputs copied into this script. This script does not read
+NISR microdata or calculate official survey estimates. Use
+`audit_vup_microdata.py` for a separate local comparison of payment-delay
+responses; review and approve any final methodology before changing the app.
 """
 import os
 import csv
