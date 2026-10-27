@@ -3076,6 +3076,7 @@ class IsokoApp {
     const maxDelay = Math.max(...programmes.map(p => p.delay));
     const districtHotspots = [...NISR_DATA.districts].sort((a, b) => b.delay - a.delay).slice(0, 5);
     const groupComparisons = Object.entries(NISR_DATA.groups || {}).flatMap(([group, rows]) => rows.map(row => ({ group, ...row })));
+    const paymentChannels = NISR_DATA.groups?.["Payment Channel"] || [];
     return `
       <div class="head nisr-analysis-head">
         <div><h1>NISR payment-delay analysis</h1><p class="sub">What the 2023–24 household survey says about VUP payment waits.</p></div>
@@ -3185,9 +3186,7 @@ class IsokoApp {
             <tr><th>Disbursement Channel</th><th>Avg Delay</th><th>>7d Late (%)</th><th>Survey Records</th></tr>
           </thead>
           <tbody>
-            <tr><td><b>Mobile Money</b></td><td style="color:var(--danger); font-weight:700;">10.4 days</td><td>59%</td><td>630</td></tr>
-            <tr><td><b>Bank-type SACCO</b></td><td>9.2 days</td><td>53%</td><td>2,205</td></tr>
-            <tr><td><b>Umurenge SACCO</b></td><td style="color:var(--success); font-weight:700;">7.7 days</td><td>43%</td><td>546</td></tr>
+            ${paymentChannels.map((channel, index) => `<tr><td><b>${this.escapeHtml(channel.name)}</b></td><td ${index === 0 ? 'style="color:var(--danger); font-weight:700;"' : ''}>${Number(channel.delay).toFixed(1)} days</td><td>${Number(channel.latePct)}%</td><td>${Number(channel.records).toLocaleString()}</td></tr>`).join("")}
           </tbody>
         </table>
         <p class="small" style="margin-top:8px;">The survey shows an association between payment method and reported delay. It does not establish why the groups differ.</p>
