@@ -1465,7 +1465,7 @@ class IsokoApp {
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
       const roleCode = this.state.roleCode || "member";
       const roleShortcut = ["member", "shopper"].includes(roleCode)
-        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartQuantityCount()} items, ${this.cartSubtotal().toLocaleString()} RWF"><i class="bi bi-cart3" aria-hidden="true"></i><span class="header-cart-label">Cart · ${this.cartQuantityCount()}</span>${this.cartQuantityCount() ? `<small class="header-cart-total">${this.cartSubtotal().toLocaleString()} RWF</small>` : ""}</button>`
+        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Cart · ${this.cartQuantityCount()} items · ${this.cartSubtotal().toLocaleString()} RWF" aria-label="Open cart, ${this.cartQuantityCount()} items, ${this.cartSubtotal().toLocaleString()} RWF"><i class="bi bi-bag" aria-hidden="true"></i>${this.cartQuantityCount() ? `<b class="header-count">${this.cartQuantityCount()}</b>` : ""}</button>`
         : ["seller", "trader"].includes(roleCode)
           ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing" aria-label="Add food"><i class="bi bi-plus-circle" aria-hidden="true"></i></button>`
           : ["planner", "admin"].includes(roleCode)
