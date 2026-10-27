@@ -13,24 +13,60 @@
 
 // 1. EXTENDED RWANDAN HARVEST PRODUCTION & GALLERY
 const HARVEST_GALLERY = {
-  "Dry beans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Ibihyimbo", category: "Pulses", retailPrice: 920, defaultDistrict: "Kirehe", hub: "Gatore Food Bank & SACCO Point" },
-  "Irish potato": { img: "assets/produce/irish_potato.jpg", icon: "🥔", kiny: "Ibirayi", category: "Staples", retailPrice: 520, defaultDistrict: "Nyabihu", hub: "Mukamira Highland Depot" },
-  "Sweet potato": { img: "assets/produce/sweet_potato.jpg", icon: "🍠", kiny: "Ibijumba", category: "Staples", retailPrice: 320, defaultDistrict: "Gisagara", hub: "Gisagara Agro-Hub" },
-  "Tomato": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Inyanya", category: "Vegetables", retailPrice: 620, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
-  "Cooking banana": { img: "assets/produce/cooking_banana.jpg", icon: "🍌", kiny: "Ibitoki", category: "Staples", retailPrice: 380, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot" },
-  "Onion": { img: "assets/produce/red_onion.jpg", icon: "🧅", kiny: "Ibitunguru", category: "Vegetables", retailPrice: 1950, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
-  "Local rice": { img: "assets/produce/local_rice.jpg", icon: "🍚", kiny: "Umuceri", category: "Grains", retailPrice: 1380, defaultDistrict: "Kicukiro", hub: "Gikondo Agro-Terminal" },
-  "Corn flour (factory)": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ifu y'Ibigori", category: "Grains", retailPrice: 960, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot" },
-  "Avocado": { img: "assets/produce/avocado.jpg", icon: "🥑", kiny: "Avoka", category: "Fruits", retailPrice: 350, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
-  "Spinach": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Dodo / Imbwija", category: "Vegetables", retailPrice: 300, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO" },
-  "Cassava roots": { img: "assets/produce/sweet_potato.jpg", icon: "🪵", kiny: "Imyumbati", category: "Staples", retailPrice: 280, defaultDistrict: "Ruhango", hub: "Ruhango Central Market Point" },
-  "Passion fruit": { img: "assets/produce/avocado.jpg", icon: "🫐", kiny: "Marakuja", category: "Fruits", retailPrice: 1200, defaultDistrict: "Musanze", hub: "Musanze Central Produce Depot" },
-  "Tree tomatoes": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Ibinyomoro", category: "Fruits", retailPrice: 1100, defaultDistrict: "Burera", hub: "Burera Highland Agro-Hub" },
-  "Carrots": { img: "assets/produce/sweet_potato.jpg", icon: "🥕", kiny: "Amakaroti", category: "Vegetables", retailPrice: 450, defaultDistrict: "Gicumbi", hub: "Gicumbi High-Altitude Center" },
-  "Green cabbage": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Amashu", category: "Vegetables", retailPrice: 350, defaultDistrict: "Musanze", hub: "Musanze Central Produce Depot" },
-  "Green peppers": { img: "assets/produce/spinach.jpg", icon: "🫑", kiny: "Urusenda", category: "Vegetables", retailPrice: 850, defaultDistrict: "Bugesera", hub: "Bugesera Rice & Veg Depot" },
-  "Soybeans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Soya", category: "Pulses", retailPrice: 750, defaultDistrict: "Kayonza", hub: "Kayonza Agro-Depot" },
-  "Groundnuts": { img: "assets/produce/dry_beans.jpg", icon: "🥜", kiny: "Ubunyobwa", category: "Pulses", retailPrice: 1800, defaultDistrict: "Ngoma", hub: "Ngoma Farmers Hub" }
+  // Beans & Pulses
+  "Dry beans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Ibishyimbo bitukura", category: "Beans", retailPrice: 850, defaultDistrict: "Kirehe", hub: "Gatore Food Bank & SACCO Point", unit: "kg" },
+  "Yellow beans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Ibishyimbo by'umuhondo", category: "Beans", retailPrice: 950, defaultDistrict: "Ngoma", hub: "Ngoma Agro-Hub", unit: "kg" },
+  "Climbing beans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Ibishyimbo by'imishingo", category: "Beans", retailPrice: 900, defaultDistrict: "Musanze", hub: "Musanze Highland Depot", unit: "kg" },
+  "Soybeans": { img: "assets/produce/dry_beans.jpg", icon: "🫘", kiny: "Soya y'u Rwanda", category: "Beans", retailPrice: 750, defaultDistrict: "Kayonza", hub: "Kayonza Grain Link", unit: "kg" },
+  "Groundnuts": { img: "assets/produce/dry_beans.jpg", icon: "🥜", kiny: "Ubunyobwa", category: "Beans", retailPrice: 1750, defaultDistrict: "Ngoma", hub: "Ngoma Farmers Hub", unit: "kg" },
+
+  // Tubers & Roots
+  "Irish potato": { img: "assets/produce/irish_potato.jpg", icon: "🥔", kiny: "Ibirayi bya Kinigi", category: "Tubers", retailPrice: 480, defaultDistrict: "Musanze", hub: "Mukamira Highland Depot", unit: "kg" },
+  "Kinigi Irish potato": { img: "assets/produce/irish_potato.jpg", icon: "🥔", kiny: "Ibirayi bya Kinigi", category: "Tubers", retailPrice: 480, defaultDistrict: "Musanze", hub: "Kinigi Potato Center", unit: "kg" },
+  "Kuruseke potato": { img: "assets/produce/irish_potato.jpg", icon: "🥔", kiny: "Ibirayi bya Kuruseke", category: "Tubers", retailPrice: 440, defaultDistrict: "Nyabihu", hub: "Mukamira Highland Depot", unit: "kg" },
+  "Sweet potato": { img: "assets/produce/sweet_potato.jpg", icon: "🍠", kiny: "Ibijumba bitukura", category: "Tubers", retailPrice: 280, defaultDistrict: "Gisagara", hub: "Gisagara Agro-Hub", unit: "kg" },
+  "Orange sweet potato": { img: "assets/produce/sweet_potato.jpg", icon: "🍠", kiny: "Ibijumba by'umuhondo", category: "Tubers", retailPrice: 320, defaultDistrict: "Huye", hub: "Huye Women Agrilink", unit: "kg" },
+  "Cassava roots": { img: "assets/produce/sweet_potato.jpg", icon: "🪵", kiny: "Imyumbati mibisi", category: "Tubers", retailPrice: 260, defaultDistrict: "Ruhango", hub: "Ruhango Central Market Point", unit: "kg" },
+
+  // Vegetables
+  "Tomato": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Inyanya zihiye", category: "Vegetables", retailPrice: 550, defaultDistrict: "Kamonyi", hub: "Kamonyi Farmers Depot", unit: "kg" },
+  "Fresh tomato": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Inyanya zihiye", category: "Vegetables", retailPrice: 550, defaultDistrict: "Kamonyi", hub: "Kamonyi Farmers Depot", unit: "kg" },
+  "Onion": { img: "assets/produce/red_onion.jpg", icon: "🧅", kiny: "Ibitunguru bitukura", category: "Vegetables", retailPrice: 1650, defaultDistrict: "Kamonyi", hub: "Kamonyi Farmers Depot", unit: "kg" },
+  "Red onion": { img: "assets/produce/red_onion.jpg", icon: "🧅", kiny: "Ibitunguru bitukura", category: "Vegetables", retailPrice: 1650, defaultDistrict: "Kamonyi", hub: "Kamonyi Farmers Depot", unit: "kg" },
+  "Green cabbage": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Amashu meza", category: "Vegetables", retailPrice: 320, defaultDistrict: "Musanze", hub: "Volcanoes Green Depot", unit: "kg" },
+  "Carrots": { img: "assets/produce/sweet_potato.jpg", icon: "🥕", kiny: "Amakaroti", category: "Vegetables", retailPrice: 420, defaultDistrict: "Gicumbi", hub: "Gicumbi High-Altitude Center", unit: "kg" },
+  "Fresh carrots": { img: "assets/produce/sweet_potato.jpg", icon: "🥕", kiny: "Amakaroti", category: "Vegetables", retailPrice: 420, defaultDistrict: "Gicumbi", hub: "Gicumbi High-Altitude Center", unit: "kg" },
+  "Spinach": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Dodo / Imbwija", category: "Vegetables", retailPrice: 280, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", unit: "kg" },
+  "Spinach / Dodo": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Dodo / Imbwija", category: "Vegetables", retailPrice: 280, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub", unit: "kg" },
+  "Green peppers": { img: "assets/produce/spinach.jpg", icon: "🫑", kiny: "Poivrons vert", category: "Vegetables", retailPrice: 800, defaultDistrict: "Bugesera", hub: "Bugesera Rice & Veg Depot", unit: "kg" },
+  "Isombe (Cassava leaves)": { img: "assets/produce/spinach.jpg", icon: "🥬", kiny: "Isombe ritetse", category: "Vegetables", retailPrice: 350, defaultDistrict: "Muhanga", hub: "Muhanga Valley Hub", unit: "kg" },
+
+  // Fruits
+  "Cooking banana": { img: "assets/produce/cooking_banana.jpg", icon: "🍌", kiny: "Ibitoki by'igitoki", category: "Fruits", retailPrice: 340, defaultDistrict: "Rwamagana", hub: "Rwamagana Banana Depot", unit: "kg" },
+  "Sweet banana (Kamaramasenge)": { img: "assets/produce/cooking_banana.jpg", icon: "🍌", kiny: "Kamaramasenge", category: "Fruits", retailPrice: 550, defaultDistrict: "Gatsibo", hub: "Kabarore Fruit Terminal", unit: "kg" },
+  "Avocado": { img: "assets/produce/avocado.jpg", icon: "🥑", kiny: "Avoka ya Hass", category: "Fruits", retailPrice: 320, defaultDistrict: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", unit: "kg" },
+  "Hass avocado": { img: "assets/produce/avocado.jpg", icon: "🥑", kiny: "Avoka ya Hass", category: "Fruits", retailPrice: 320, defaultDistrict: "Karongi", hub: "Karongi Lake Depot", unit: "kg" },
+  "Passion fruit": { img: "assets/produce/avocado.jpg", icon: "🫐", kiny: "Marakuja y'umutuku", category: "Fruits", retailPrice: 1100, defaultDistrict: "Nyamagabe", hub: "Nyamagabe Highland Hub", unit: "kg" },
+  "Tree tomatoes": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Ibinyomoro", category: "Fruits", retailPrice: 980, defaultDistrict: "Burera", hub: "Burera Highland Agro-Hub", unit: "kg" },
+  "Tree tomatoes (Tamarillo)": { img: "assets/produce/tomato.jpg", icon: "🍅", kiny: "Ibinyomoro", category: "Fruits", retailPrice: 980, defaultDistrict: "Burera", hub: "Burera Highland Agro-Hub", unit: "kg" },
+  "Bugesera mangoes": { img: "assets/produce/avocado.jpg", icon: "🥭", kiny: "Imyembe y'i Bugesera", category: "Fruits", retailPrice: 750, defaultDistrict: "Bugesera", hub: "Nyamata Fresh Depot", unit: "kg" },
+  "Golden papaya": { img: "assets/produce/cooking_banana.jpg", icon: "🍈", kiny: "Ipapayi", category: "Fruits", retailPrice: 480, defaultDistrict: "Ngoma", hub: "Ngoma Sunrise Center", unit: "kg" },
+
+  // Grains & Flours
+  "Local rice": { img: "assets/produce/local_rice.jpg", icon: "🍚", kiny: "Umuceri wa Bugarama", category: "Grains", retailPrice: 1350, defaultDistrict: "Rusizi", hub: "Bugarama Rice Mill", unit: "kg" },
+  "Local rice (Bugarama)": { img: "assets/produce/local_rice.jpg", icon: "🍚", kiny: "Umuceri wa Bugarama", category: "Grains", retailPrice: 1350, defaultDistrict: "Rusizi", hub: "Bugarama Rice Mill", unit: "kg" },
+  "Local rice (Mukunguri)": { img: "assets/produce/local_rice.jpg", icon: "🍚", kiny: "Umuceri wa Mukunguri", category: "Grains", retailPrice: 1250, defaultDistrict: "Kamonyi", hub: "Mukunguri Valley Terminal", unit: "kg" },
+  "Fresh sweet corn": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ibigori bibisi", category: "Grains", retailPrice: 400, defaultDistrict: "Nyagatare", hub: "Nyagatare Agro-Depot", unit: "kg" },
+  "Dry maize grain": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ibigori byumye", category: "Grains", retailPrice: 580, defaultDistrict: "Kayonza", hub: "Kayonza Central Silos", unit: "kg" },
+  "Corn flour (factory)": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ifu y'Ibigori", category: "Grains", retailPrice: 920, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", unit: "kg" },
+  "Corn flour (Kawunga)": { img: "assets/produce/fresh_corn.jpg", icon: "🌽", kiny: "Ifu y'Ibigori (Kawunga)", category: "Grains", retailPrice: 920, defaultDistrict: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", unit: "kg" },
+  "Cassava flour": { img: "assets/produce/fresh_corn.jpg", icon: "🌾", kiny: "Ifu y'imyumbati", category: "Grains", retailPrice: 540, defaultDistrict: "Nyanza", hub: "Nyanza Central Hub", unit: "kg" },
+  "Sorghum flour": { img: "assets/produce/fresh_corn.jpg", icon: "🥣", kiny: "Ifu y'amasaka y'igikoma", category: "Grains", retailPrice: 850, defaultDistrict: "Nyamasheke", hub: "Nyamasheke Mills", unit: "kg" },
+
+  // Dairy & Honey
+  "Fresh farm milk": { img: "assets/produce/local_rice.jpg", icon: "🥛", kiny: "Amata y'inshyushyu", category: "Dairy", retailPrice: 500, defaultDistrict: "Gicumbi", hub: "Gicumbi Milk Collection Center", unit: "L" },
+  "Farm chicken eggs": { img: "assets/produce/dry_beans.jpg", icon: "🥚", kiny: "Amagi y'inkoko (Tray)", category: "Dairy", retailPrice: 4200, defaultDistrict: "Bugesera", hub: "Bugesera Poultry Hub", unit: "tray" },
+  "Nyungwe forest honey": { img: "assets/produce/cooking_banana.jpg", icon: "🍯", kiny: "Ubuki bw'i Nyungwe", category: "Dairy", retailPrice: 3800, defaultDistrict: "Nyaruguru", hub: "Kibeho Agro-Point", unit: "kg" }
 };
 
 // 2. ALL 30 RWANDAN DISTRICTS ORGANIZED BY PROVINCE
@@ -66,26 +102,6 @@ function calculateRwandaDistance(d1, d2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
   return Math.round(R * c * 10) / 10;
 }
-
-// 3. RWANDAN PAYMENT ACCOUNTS (Matching media_1792662744615.html)
-const RWANDA_PAYMENT_ACCOUNTS = [
-  { n: 'MTN MoMo', s: '078 123 4567', t: 'mobile', c: 'background:#ffcb05;color:#000', l: 'MoMo', by: 'MTN MOMO', bal: 500000 },
-  { n: 'Airtel Money', s: '073 123 4567', t: 'mobile', c: 'background:#e40000;color:#fff', l: 'airtel', by: 'AIRTEL TIGO MONEY', bal: 1500 },
-  { n: 'BK Debit', s: '•••• 4821', t: 'card', c: 'background:#0a5ca8;color:#fff', l: 'BK', by: 'BK DEBIT', bal: 1500 },
-  { n: 'BK Credit', s: '•••• 7730', t: 'card', c: 'background:#0a5ca8;color:#fff', l: 'BK', by: 'BK CREDIT', bal: 800000, credit: true },
-  { n: 'Umurenge SACCO', s: 'Local SACCO Point', t: 'card', c: 'background:#15803d;color:#fff', l: 'SACCO', by: 'UMURENGE SACCO', bal: 250000 },
-  { n: 'Mastercard Debit', s: '•••• 5521', t: 'card', c: 'background:#222;color:#fff', l: 'MC', by: 'MASTERCARD DEBIT', bal: 320000 },
-  { n: 'Visa Debit', s: '•••• 4012', t: 'card', c: 'background:#1a1f71;color:#fff', l: 'VISA', by: 'VISA DEBIT', bal: 1500 }
-];
-
-const TOPUP_CHIPS = [
-  { l: '+ RWF 1,500', v: 1500 },
-  { l: '+ $5 (7,250 RWF)', v: 7250 },
-  { l: '+ RWF 50,000', v: 50000 },
-  { l: '+ RWF 500,000', v: 500000 }
-];
-
-
 
 const DEFAULT_STATE = {
   theme: "light",
@@ -185,7 +201,33 @@ class IsokoApp {
       const raw = localStorage.getItem("vup_bridge_state_v7");
       if (raw) {
         const parsed = JSON.parse(raw);
-        return { ...this.getInitialState(), ...parsed };
+        const init = this.getInitialState();
+        if (parsed.listings && parsed.listings.length < init.listings.length) {
+          const userCreated = parsed.listings.filter(l => l.id >= 35);
+          parsed.listings = [...init.listings, ...userCreated];
+        }
+        const state = { ...init, ...parsed };
+        const seededMembers = new Map((init.users?.member || []).map(user => [user.email, user]));
+        state.users ||= {};
+        state.users.member ||= [];
+        state.users.member = state.users.member.map(user => {
+          const seeded = seededMembers.get(user.email) || {};
+          return {
+            ...seeded,
+            ...user,
+            daysWorked: Number.isFinite(Number(user.daysWorked)) ? Number(user.daysWorked) : Number(seeded.daysWorked || 0),
+            governmentAmountOwed: Number.isFinite(Number(user.governmentAmountOwed)) ? Number(user.governmentAmountOwed) : Number(seeded.governmentAmountOwed || 0)
+          };
+        });
+        state.orders = (state.orders || []).map(order => {
+          if (order.mode !== "credit" || !(order.creditStatus === "requested" || order.status === "Pending Approval")) return order;
+          return { ...order, status: "Placed", creditStatus: "approved", approvedBy: "System (automatic)", approvedDate: order.approvedDate || new Date().toLocaleDateString("en-GB"), paidBy: "VUP amount owed" };
+        });
+        if (state.currentUser?.email) {
+          const savedUser = state.users.member.find(user => user.email === state.currentUser.email);
+          if (savedUser) state.currentUser = { ...savedUser };
+        }
+        return state;
       }
     } catch (e) {
       console.warn("Could not load stored state:", e);
@@ -207,6 +249,10 @@ class IsokoApp {
       analysisTo: "",
       creditDeskTab: "all", // "all", "approve", "pay", "repay"
       activeCategory: "All",
+      searchQuery: "",
+      selectedDistrictFilter: "all",
+      selectedSellerFilter: null,
+      produceSort: "distance",
       activeSubView: "dashboard", // "dashboard", "analysis", "reports", "cases", "audit"
       nearby: {
         userDistrict: "Gasabo",
@@ -224,6 +270,8 @@ class IsokoApp {
         sector: "Gatore",
         programme: "Direct Support",
         householdSize: 5,
+      daysWorked: 0,
+      governmentAmountOwed: 14400,
         usualPaymentDay: 15,
         daysLate: 8,
         status: "credit-ready",
@@ -257,27 +305,43 @@ class IsokoApp {
         totalRepaidByVup: 8800
       },
       listings: [
-        { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 200, farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false },
-        { id: 2, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 320, quantity: 350, farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-        { id: 3, food: "Irish potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 500, farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: true },
-        { id: 4, food: "Tomato", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 620, quantity: 90, farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true },
-        { id: 5, food: "Cooking banana", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 290, retailPrice: 380, quantity: 250, farmer: "Nyabugogo Agro Cooperative", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false },
-        { id: 6, food: "Onion", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 1600, retailPrice: 1950, quantity: 80, farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false },
-        { id: 7, food: "Local rice", district: "Kicukiro", hub: "Gikondo Agro-Terminal", price: 1180, retailPrice: 1380, quantity: 180, farmer: "Kigali Rice Millers", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: false },
-        { id: 8, food: "Avocado", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 280, retailPrice: 350, quantity: 120, farmer: "Kigali Agro Coop", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true },
-        { id: 9, food: "Spinach", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 60, farmer: "Nyabarongo Valley Fresh", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false },
-        { id: 10, food: "Corn flour (factory)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 960, quantity: 150, farmer: "Bugarama Grain Mills", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false },
-        { id: 11, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 400, farmer: "Ruhango Cassava Farmers", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-        { id: 12, food: "Passion fruit", district: "Musanze", hub: "Musanze Central Produce Depot", price: 950, retailPrice: 1200, quantity: 70, farmer: "Musanze Highland Fruit Coop", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: true },
-        { id: 13, food: "Tree tomatoes", district: "Burera", hub: "Burera Highland Agro-Hub", price: 880, retailPrice: 1100, quantity: 85, farmer: "Burera Tamarillo Growers", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false },
-        { id: 14, food: "Carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 450, quantity: 140, farmer: "Gicumbi Organic Valley", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-        { id: 15, food: "Green cabbage", district: "Musanze", hub: "Musanze Central Produce Depot", price: 260, retailPrice: 350, quantity: 220, farmer: "Volcanoes Green Coop", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false },
-        { id: 16, food: "Green peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 850, quantity: 95, farmer: "Bugesera Irrigation Scheme", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false },
-        { id: 17, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 300, farmer: "Kayonza Grain Link", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false },
-        { id: 18, food: "Groundnuts", district: "Ngoma", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1800, quantity: 110, farmer: "Ngoma Women Agrilink", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true }
+        { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 850, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 2, food: "Yellow beans", district: "Ngoma", hub: "Ngoma Agro-Hub", price: 820, retailPrice: 950, quantity: 180, unit: "kg", farmer: "Ngoma Bean Cooperative", farmerEmail: "ngoma.beans@vupbridge.rw", momo: "078XXXX234", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 3, food: "Climbing beans", district: "Musanze", hub: "Musanze Highland Depot", price: 790, retailPrice: 900, quantity: 300, unit: "kg", farmer: "Burera Terrace Farmers", farmerEmail: "burera.farmers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
+        { id: 4, food: "Kinigi Irish potato", district: "Musanze", hub: "Kinigi Potato Center", price: 420, retailPrice: 480, quantity: 650, unit: "kg", farmer: "Kinigi Highland Union", farmerEmail: "kinigi.union@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/irish_potato.jpg", isFav: true, category: "Tubers" },
+        { id: 5, food: "Kuruseke potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 380, retailPrice: 440, quantity: 500, unit: "kg", farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 6, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 280, quantity: 350, unit: "kg", farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 7, food: "Orange sweet potato", district: "Huye", hub: "Huye Women Agrilink", price: 270, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.women@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 8, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 260, quantity: 420, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
+        { id: 9, food: "Fresh tomato", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 550, quantity: 120, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true, category: "Vegetables" },
+        { id: 10, food: "Red onion", district: "Kamonyi", hub: "Kamonyi Farmers Depot", price: 1500, retailPrice: 1650, quantity: 95, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false, category: "Vegetables" },
+        { id: 11, food: "Green cabbage", district: "Musanze", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 12, food: "Fresh carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 420, quantity: 170, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
+        { id: 13, food: "Spinach / Dodo", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 280, quantity: 80, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.fresh@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 14, food: "Green bell peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 800, quantity: 95, unit: "kg", farmer: "Bugesera Irrigation Scheme", farmerEmail: "bugesera.irrig@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
+        { id: 15, food: "Isombe (Cassava leaves)", district: "Muhanga", hub: "Muhanga Valley Hub", price: 290, retailPrice: 350, quantity: 150, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.valley@vupbridge.rw", momo: "078XXXX891", photo: "assets/produce/spinach.jpg", isFav: true, category: "Vegetables" },
+        { id: 16, food: "Cooking banana", district: "Rwamagana", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 340, quantity: 380, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.banana@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
+        { id: 17, food: "Sweet banana (Kamaramasenge)", district: "Gatsibo", hub: "Kabarore Fruit Terminal", price: 460, retailPrice: 550, quantity: 190, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.fruit@vupbridge.rw", momo: "078XXXX672", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
+        { id: 18, food: "Hass avocado", district: "Karongi", hub: "Karongi Lake Depot", price: 270, retailPrice: 320, quantity: 140, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.lake@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
+        { id: 19, food: "Passion fruit", district: "Nyamagabe", hub: "Nyamagabe Highland Hub", price: 920, retailPrice: 1100, quantity: 110, unit: "kg", farmer: "Nyamagabe Highland Fruit Coop", farmerEmail: "nyamagabe.fruit@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
+        { id: 20, food: "Tree tomatoes (Tamarillo)", district: "Burera", hub: "Burera Highland Agro-Hub", price: 820, retailPrice: 980, quantity: 85, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false, category: "Fruits" },
+        { id: 21, food: "Bugesera mangoes", district: "Bugesera", hub: "Nyamata Fresh Depot", price: 620, retailPrice: 750, quantity: 200, unit: "kg", farmer: "Bugesera Tropical Fruit Union", farmerEmail: "bugesera.tropical@vupbridge.rw", momo: "078XXXX441", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
+        { id: 22, food: "Golden papaya", district: "Ngoma", hub: "Ngoma Sunrise Center", price: 390, retailPrice: 480, quantity: 130, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.sunrise@vupbridge.rw", momo: "078XXXX552", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
+        { id: 23, food: "Local rice (Bugarama)", district: "Rusizi", hub: "Bugarama Rice Mill", price: 1150, retailPrice: 1350, quantity: 340, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Grains" },
+        { id: 24, food: "Local rice (Mukunguri)", district: "Kamonyi", hub: "Mukunguri Valley Terminal", price: 1080, retailPrice: 1250, quantity: 220, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "078XXXX790", photo: "assets/produce/local_rice.jpg", isFav: false, category: "Grains" },
+        { id: 25, food: "Fresh sweet corn", district: "Nyagatare", hub: "Nyagatare Agro-Depot", price: 320, retailPrice: 400, quantity: 450, unit: "kg", farmer: "Nyagatare Grain Producers", farmerEmail: "nyagatare.grain@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 26, food: "Dry maize grain", district: "Kayonza", hub: "Kayonza Central Silos", price: 490, retailPrice: 580, quantity: 600, unit: "kg", farmer: "Kayonza Maize Millers", farmerEmail: "kayonza.maize@vupbridge.rw", momo: "078XXXX013", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 27, food: "Corn flour (Kawunga)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.mills@vupbridge.rw", momo: "078XXXX014", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 28, food: "Cassava flour", district: "Nyanza", hub: "Nyanza Central Hub", price: 440, retailPrice: 540, quantity: 270, unit: "kg", farmer: "Nyanza Flour Millers", farmerEmail: "nyanza.flour@vupbridge.rw", momo: "078XXXX015", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 29, food: "Sorghum flour", district: "Nyamasheke", hub: "Nyamasheke Mills", price: 720, retailPrice: 850, quantity: 180, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.mills@vupbridge.rw", momo: "078XXXX016", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
+        { id: 30, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 320, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.grain@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
+        { id: 31, food: "Groundnuts", district: "Kirehe", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 160, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.women@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
+        { id: 32, food: "Fresh farm milk", district: "Gicumbi", hub: "Gicumbi Milk Collection Center", price: 420, retailPrice: 500, quantity: 500, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.dairy@vupbridge.rw", momo: "078XXXX991", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
+        { id: 33, food: "Farm chicken eggs", district: "Bugesera", hub: "Bugesera Poultry Hub", price: 3600, retailPrice: 4200, quantity: 90, unit: "tray", farmer: "Bugesera Poultry Cooperative", farmerEmail: "bugesera.poultry@vupbridge.rw", momo: "078XXXX992", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Dairy" },
+        { id: 34, food: "Nyungwe forest honey", district: "Nyaruguru", hub: "Kibeho Agro-Point", price: 3200, retailPrice: 3800, quantity: 75, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "078XXXX993", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" }
       ],
       nextOrderId: 107,
-      nextListingId: 19,
+      nextListingId: 35,
       nextCaseId: 3,
       selectedDistrict: "Gasabo",
       hotspotMode: "delay",
@@ -457,6 +521,8 @@ class IsokoApp {
       sector: "",
       status: roleCode === "member" ? "not_submitted" : roleCode === "seller" ? "pending" : "verified",
       householdSize: 4,
+      daysWorked: 0,
+      governmentAmountOwed: 0,
       daysLate: 0,
       usualPaymentDay: 15,
       programme: "Direct Support"
@@ -679,28 +745,11 @@ class IsokoApp {
   // 3. CREDIT DESK 3 QUEUES CONTROLLER (Approve, Pay Sellers, Repay)
   // =========================================================================
   approveCredit(orderId) {
-    const o = this.state.orders.find(x => x.id === orderId);
-    if (!o) return;
-    o.status = "Placed";
-    o.creditStatus = "approved";
-    o.approvedBy = this.state.currentUser.name || "Planner One";
-    o.approvedDate = new Date().toLocaleDateString('en-GB');
-    this.addNotification(`Your food credit order #${orderId} was approved.`, { targetEmail: o.buyerEmail, type: "credit" });
-
-    this.state.auditLog.unshift({
-      who: o.approvedBy,
-      action: "Approved credit request",
-      target: `Order #${orderId} (${o.food}, ${o.total} RWF)`,
-      date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      reason: "Within household credit limit"
-    });
-
-    this.saveState();
-    this.render();
-    this.toast(`Order #${orderId} approved! Ready for seller delivery.`, "success");
+    this.toast(`Food credit is issued automatically. No approval is needed for order #${orderId}.`, "info");
   }
 
   disburseToSeller(orderId) {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can send money from the bridge pool.", "warning"); return; }
     const o = this.state.orders.find(x => x.id === orderId);
     if (!o) return;
 
@@ -767,13 +816,24 @@ class IsokoApp {
   }
 
   settleFromVup(orderId) {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can record a VUP repayment.", "warning"); return; }
     const o = this.state.orders.find(x => x.id === orderId);
     if (!o) return;
     const due = Math.max(0, Number(o.total) - Number(o.repaidAmount || 0));
+    const member = (this.state.users?.member || []).find(user => user.email === o.buyerEmail);
+    if (!member || Number(member.governmentAmountOwed || 0) < due) {
+      this.toast("The recorded VUP amount is too low to settle this full order. Record a partial VUP payment instead.", "warning");
+      return;
+    }
     o.repaidAmount = Number(o.repaidAmount || 0) + due;
     o.repaid = true;
     o.creditStatus = "repaid";
+    o.paymentStatus = "paid";
     o.repaidDate = new Date().toLocaleDateString('en-GB');
+    member.governmentAmountOwed = Math.max(0, Number(member.governmentAmountOwed || 0) - due);
+    if (this.state.currentUser?.email === member.email) this.state.currentUser.governmentAmountOwed = member.governmentAmountOwed;
+    const creditRecord = (this.state.ledger || []).find(entry => entry.type === "credit_draw" && entry.link === `Order #${orderId}`);
+    if (creditRecord) creditRecord.status = "repaid";
 
     this.state.pool.balance += due;
     this.state.pool.totalRepaidByVup += due;
@@ -806,10 +866,12 @@ class IsokoApp {
   }
 
   recordVupPayment() {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can record a VUP payment in this prototype.", "warning"); return; }
     const email = document.getElementById("vupPaymentEmail")?.value;
     const amount = Number(document.getElementById("vupPaymentAmount")?.value);
     const family = (this.state.users?.member || []).find(user => user.email === email);
     if (!family || !Number.isFinite(amount) || amount <= 0) { this.toast("Choose a family and enter an amount above zero.", "warning"); return; }
+    if (amount > Number(family.governmentAmountOwed || 0)) { this.toast("The amount cannot be higher than the VUP amount recorded as owed.", "warning"); return; }
     const orders = (this.state.orders || []).filter(order => order.mode === "credit" && order.status === "Delivered" && order.paidBy === "pool" && order.creditStatus !== "written_off" && !order.repaid && (order.buyerEmail === email || (!order.buyerEmail && order.buyerName === family.name))).sort((a,b)=>(a.id||0)-(b.id||0));
     let left = amount, repaid = 0;
     orders.forEach(order => {
@@ -818,12 +880,16 @@ class IsokoApp {
       const part = Math.min(left, due);
       order.repaidAmount = Number(order.repaidAmount || 0) + part;
       left -= part; repaid += part;
-      if (order.repaidAmount >= Number(order.total)) { order.repaid = true; order.creditStatus = "repaid"; order.repaidDate = new Date().toLocaleDateString("en-GB"); }
-      else order.creditStatus = "partly_repaid";
+      if (order.repaidAmount >= Number(order.total)) { order.repaid = true; order.creditStatus = "repaid"; order.paymentStatus = "paid"; order.repaidDate = new Date().toLocaleDateString("en-GB"); }
+      else { order.creditStatus = "partly_repaid"; order.paymentStatus = "partly_paid"; }
+      const creditRecord = (this.state.ledger || []).find(entry => entry.type === "credit_draw" && entry.link === `Order #${order.id}`);
+      if (creditRecord) creditRecord.status = order.repaid ? "repaid" : "partly repaid";
     });
     const wallet = Math.max(0, Number(family.vupWalletBalance || 0)) + left;
+    family.governmentAmountOwed = Math.max(0, Number(family.governmentAmountOwed || 0) - amount);
     family.vupWalletBalance = wallet;
     if (this.state.currentUser?.email === email) this.state.currentUser.vupWalletBalance = wallet;
+    if (this.state.currentUser?.email === email) this.state.currentUser.governmentAmountOwed = family.governmentAmountOwed;
     this.state.pool.balance += repaid;
     this.state.pool.totalRepaidByVup += repaid;
     this.state.ledger.unshift({ id: this.state.ledger.length + 1, date: new Date().toISOString(), type: "VUP payment received", from: "Simulated VUP payment", to: family.name, amount, repaymentAmount: repaid, walletAmount: left, link: "VUP payment", status: "completed", paymentMethod: family.paymentMethod || "VUP payout" });
@@ -833,6 +899,7 @@ class IsokoApp {
   }
 
   writeOffCredit(orderId) {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can write off a credit balance.", "warning"); return; }
     const reason = prompt("Enter required reason for write-off (Section 5.5):", "Family unable to repay due to illness; absorbed by revolving pool");
     if (!reason) return;
 
@@ -1126,16 +1193,53 @@ class IsokoApp {
   }
 
   resolveCase(caseId, outcome) {
+    if (!['planner', 'admin'].includes(this.state.roleCode)) { this.toast("Only a planner or admin can resolve a case.", "warning"); return; }
     const c = this.state.cases.find(x => x.id === caseId);
     if (!c) return;
     c.status = outcome === "rejected" ? "rejected" : "resolved";
     c.outcome = outcome;
+    c.resolutionNote = c.resolutionNote || `Case marked ${c.status}.`;
+    c.resolvedBy = this.state.currentUser.name || this.state.role;
     c.resolvedDate = new Date().toLocaleDateString('en-GB');
     this.addNotification(`Problem report #${caseId} was ${c.status}.`, { targetEmail: c.createdByEmail, type: "case" });
 
     this.saveState();
     this.render();
     this.toast(`Case #${caseId} marked ${c.status} (${outcome}).`, "success");
+  }
+
+  openCaseResolution(caseId) {
+    if (!['planner', 'admin'].includes(this.state.roleCode)) { this.toast("Only a planner or admin can review a case.", "warning"); return; }
+    const caseItem = (this.state.cases || []).find(item => Number(item.id) === Number(caseId));
+    if (!caseItem) return;
+    document.getElementById("caseResolveId").value = caseItem.id;
+    document.getElementById("caseResolveSummary").textContent = `Case #${caseItem.id} · ${caseItem.type} · ${caseItem.linkedTransaction || "No order linked"}`;
+    document.getElementById("caseResolveNote").value = caseItem.resolutionNote || "";
+    document.getElementById("caseResolveAction").value = caseItem.status === "needs_admin" ? "resolved" : "resolved";
+    document.getElementById("caseResolveModal")?.classList.add("open");
+  }
+
+  saveCaseResolution(event) {
+    event.preventDefault();
+    if (!['planner', 'admin'].includes(this.state.roleCode)) { this.toast("Only a planner or admin can review a case.", "warning"); return; }
+    const id = Number(document.getElementById("caseResolveId")?.value);
+    const outcome = document.getElementById("caseResolveAction")?.value;
+    const note = document.getElementById("caseResolveNote")?.value.trim();
+    const caseItem = (this.state.cases || []).find(item => Number(item.id) === id);
+    if (!caseItem || !note) { this.toast("Add a short note about what happened.", "warning"); return; }
+    caseItem.outcome = outcome;
+    caseItem.resolutionNote = note;
+    caseItem.resolvedBy = this.state.currentUser.name || this.state.role;
+    caseItem.resolvedDate = new Date().toLocaleDateString("en-GB");
+    caseItem.handler = caseItem.resolvedBy;
+    caseItem.status = outcome === "needs_admin" && this.state.roleCode === "planner" ? "needs_admin" : outcome === "rejected" ? "rejected" : "resolved";
+    this.state.auditLog.unshift({ who: caseItem.resolvedBy, action: caseItem.status === "needs_admin" ? "Sent case to admin" : "Resolved problem case", target: `Case #${id} · ${caseItem.linkedTransaction || "General"}`, date: new Date().toISOString(), reason: note });
+    this.addNotification(`Problem case #${id} was updated: ${caseItem.status.replace(/_/g, " ")}. ${note}`, { targetEmail: caseItem.createdByEmail, type: "case" });
+    if (caseItem.status === "needs_admin") this.addNotification(`Case #${id} needs admin review.`, { targetRoles: ["admin"], type: "case" });
+    document.getElementById("caseResolveModal")?.classList.remove("open");
+    this.saveState();
+    this.render();
+    this.toast(caseItem.status === "needs_admin" ? `Case #${id} sent to an admin.` : `Case #${id} updated.`, "success");
   }
 
   // Plain-language notes use reviewed text already included with the app.
@@ -1636,9 +1740,12 @@ class IsokoApp {
           <div style="text-align:right;">
             <div class="wallet-balance-label"><i class="bi bi-wallet2" aria-hidden="true"></i> VUP food wallet</div>
             <b class="wallet-balance-amount">${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b>
-            <div style="font-size:11.5px; color:var(--mute);">Emergency Safety Net Credit</div>
+            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Government amount recorded as owed</div>
+            <b style="font-size:18px; color:var(--primary); font-weight:800;">${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b>
+            <div style="font-size:11px; color:var(--mute);">${Number(u.daysWorked || 0)} work days recorded where applicable · demo record</div>
+            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Food credit ready to use</div>
             <b style="font-size:20px; color:var(--acc); font-weight:800;">${remaining.toLocaleString()} RWF</b>
-            <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% Interest · Auto-deducted at SACCO</div>
+            <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% interest · no planner approval</div>
           </div>
         </div>
       </div>
@@ -1676,8 +1783,8 @@ class IsokoApp {
     return `
       <div class="head">
         <div>
-          <h1>My Bridge Credit & SACCO Settlement</h1>
-          <p class="sub">Transparent zero-interest social safety net credit under Rwanda VUP regulations.</p>
+          <h1>My food credit</h1>
+          <p class="sub">Your available amount comes from the unpaid VUP amount recorded for you.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
           ← Back to Food Store
@@ -1689,7 +1796,7 @@ class IsokoApp {
           <span class="ki"><svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span>
           <small>Total Credit Limit</small>
           <b>${limit.toLocaleString()} RWF</b>
-          <em>14 days safety net cap</em>
+          <em>VUP amount recorded as owed</em>
         </div>
         <div class="card kp">
           <span class="ki" style="background:var(--ok-soft); color:var(--ok);"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
@@ -1706,9 +1813,9 @@ class IsokoApp {
       </div>
 
       <div class="card" style="padding:22px;">
-        <h3 style="font-size:16px; font-weight:700; margin-bottom:10px;">How Repayment Works (No Surprise Fees)</h3>
+          <h3 style="font-size:16px; font-weight:700; margin-bottom:10px;">How your food credit is repaid</h3>
         <p style="font-size:13.5px; color:var(--mute); line-height:1.6; margin-bottom:14px;">
-          When your delayed government VUP transfer arrives at <b>Umurenge SACCO Kirehe</b> (Account: 078XXXX456), the exact amount of food credit you used (<b>${used.toLocaleString()} RWF</b>) will be deducted automatically with <b>0% interest and 0 fees</b>. The rest of your transfer is yours to withdraw.
+          When a VUP payment is recorded for you, open food credit is paid first. Any money left is added to your VUP food wallet. This prototype does not check or deduct a real government payment. Food credit has <b>0% interest and no fee</b>.
         </p>
         <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Family')">
           Download Statement (PDF / CSV)
@@ -1997,7 +2104,7 @@ class IsokoApp {
             <span class="tag r">${this.getToApproveQueue().length + this.getToPaySellersQueue().length + this.getToRepayQueue().length} items</span>
           </div>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:14px; line-height:1.45;">
-            ${this.getToApproveQueue().length} credit requests, ${this.getToPaySellersQueue().length} seller payments, and ${this.getToRepayQueue().length} repayments need review.
+            ${this.getToPaySellersQueue().length} seller payments and ${this.getToRepayQueue().length} repayments need admin attention. New member credit is automatic.
           </p>
           <button class="btn btn-sm btn-primary" style="margin-top:auto;" onclick="window.app.setNavTab('creditdesk')">
             Open Credit Desk →
@@ -2041,14 +2148,14 @@ class IsokoApp {
       <div class="head">
         <div>
           <h1>Credit Desk Liquidity & Queues</h1>
-          <p class="sub">Review family credit requests, seller payments, and repayments.</p>
+          <p class="sub">Credit is automatic. Review activity here; an admin handles money and payment records.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
           ← Back to Overview
         </button>
       </div>
 
-      <section class="card payout-receipt-card"><div class="settings-title"><span class="settings-icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span><div><h3>Record a VUP payment received</h3><p>Enter the simulated amount received. The system pays due food credit first, then adds the rest to the family's VUP wallet.</p></div></div><div class="payout-receipt-fields"><label>Family account<select class="form-control" id="vupPaymentEmail">${(this.state.users?.member || []).map(user=>`<option value="${this.escapeHtml(user.email)}">${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}</select></label><label>Amount received (RWF)<input class="form-control" id="vupPaymentAmount" type="number" min="0" step="100" placeholder="Example: 20,000"></label><button class="btn btn-primary" onclick="window.app.recordVupPayment()"><i class="bi bi-check-circle" aria-hidden="true"></i> Record payment</button></div><small>Prototype. Fake money. No real VUP payment is checked or moved.</small></section>
+      ${this.state.roleCode === "admin" ? `<section class="card payout-receipt-card"><div class="settings-title"><span class="settings-icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span><div><h3>Record a VUP payment received</h3><p>Enter the amount confirmed by the payment record. Open food credit is repaid first; any balance left goes to the member's food wallet.</p></div></div><div class="payout-receipt-fields"><label>Family account<select class="form-control" id="vupPaymentEmail">${(this.state.users?.member || []).map(user=>`<option value="${this.escapeHtml(user.email)}">${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}</select></label><label>Amount received (RWF)<input class="form-control" id="vupPaymentAmount" type="number" min="1" step="100" placeholder="Example: 20,000"></label><button class="btn btn-primary" onclick="window.app.recordVupPayment()"><i class="bi bi-check-circle" aria-hidden="true"></i> Record payment</button></div><small>Prototype only. No real VUP payment is checked or moved.</small></section>` : `<section class="card"><b>Money controls are for admins.</b><p class="sub">You can review credit activity and resolve member cases. You cannot change a member's credit, send a payment, or record a VUP transfer.</p></section>`}
       ${this.renderCreditDesk()}
     `;
   }
@@ -2115,10 +2222,10 @@ class IsokoApp {
   }
 
   // =========================================================================
-  // 12. CREDIT DESK WITH THREE QUEUES (To Approve, To Pay Sellers, To Repay)
+  // 12. Automatic food credit and admin-managed repayment
   // =========================================================================
   getToApproveQueue() {
-    return (this.state.orders || []).filter(o => o.mode === "credit" && (o.status === "Pending Approval" || o.creditStatus === "requested"));
+    return [];
   }
 
   getToPaySellersQueue() {
@@ -2130,12 +2237,12 @@ class IsokoApp {
   }
 
   renderCreditDesk() {
-    const q1 = this.getToApproveQueue();
     const q2 = this.getToPaySellersQueue();
     const q3 = this.getToRepayQueue();
 
     const lang = this.state.lang || "en";
-    const deskTitle = lang === 'rw' ? "Ibiro by'Inguzanyo (Amatsinda 3)" : lang === 'fr' ? "Bureau du Crédit (3 files d'attente)" : "The Credit Desk (3 Queues)";
+    const canManageFunds = this.state.roleCode === "admin";
+    const deskTitle = lang === 'rw' ? "Gukurikirana inguzanyo n'ubwishyu" : lang === 'fr' ? "Suivi du crédit et des paiements" : "Credit and payment tracking";
 
     return `
       <div class="credit-desk">
@@ -2145,32 +2252,19 @@ class IsokoApp {
             ✨ Explain Queues in Easy Words
           </button>
         </div>
-        <p class="small" style="color:var(--text-muted); margin-bottom:12px;">Track bridge credit through verification, seller payout, and treasury reimbursement:</p>
+        <p class="small" style="color:var(--text-muted); margin-bottom:12px;">Credit is given automatically from the member's recorded unpaid VUP amount. Admins manage money; planners can review records and help with cases.</p>
 
         <div class="queue-grid">
-          <!-- Queue 1: To Approve -->
+          <!-- Automatic credit: no planner approval -->
           <div class="queue-card">
             <div class="queue-head">
               <div>
-                <b style="font-size:14.5px;">1. To Approve</b>
-                <div style="font-size:11px; color:var(--text-muted);">Eligibility check & credit cap</div>
+                <b style="font-size:14.5px;">Automatic food credit</b>
+                <div style="font-size:11px; color:var(--text-muted);">No planner approval needed</div>
               </div>
-              <span class="queue-badge" style="background:#fef3c7; color:#92400e;">${q1.length} pending</span>
+              <span class="queue-badge" style="background:#e5f5ec; color:#176b48;">${this.state.orders.filter(o => o.mode === "credit" && o.approvedBy === "System (automatic)").length} issued</span>
             </div>
-            <div style="flex:1;">
-              ${q1.length ? q1.map(o => `
-                <div class="queue-item">
-                  <div style="display:flex; justify-content:space-between; font-weight:700;">
-                    <span>#${o.id} ${o.food} (${o.kg} kg)</span>
-                    <b style="color:var(--primary);">${o.total.toLocaleString()} RWF</b>
-                  </div>
-                  <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Family: <b>${o.buyerName}</b> · ${o.district}</div>
-                  <button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px;" onclick="window.app.approveCredit(${o.id})">
-                    ✓ Approve Credit
-                  </button>
-                </div>
-              `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ All credit applications approved</p>'}
-            </div>
+            <div class="queue-item"><b>How the amount is set</b><p class="small">Recorded VUP money owed minus the member's open food credit. The member can use the amount left at checkout.</p><p class="small">A planner cannot approve, reduce, or issue credit.</p></div>
           </div>
 
           <!-- Queue 2: To Pay Sellers -->
@@ -2190,9 +2284,7 @@ class IsokoApp {
                     <b style="color:var(--danger);">${o.total.toLocaleString()} RWF</b>
                   </div>
                   <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Seller: <b>${o.farmer}</b> · Delivered ✓</div>
-                  <button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px; background:var(--ok); border-color:var(--ok);" onclick="window.app.disburseToSeller(${o.id})">
-                    💸 Pay Seller (MoMo)
-                  </button>
+                  ${canManageFunds ? `<button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px; background:var(--ok); border-color:var(--ok);" onclick="window.app.disburseToSeller(${o.id})"><i class="bi bi-send" aria-hidden="true"></i> Record seller payment</button>` : '<small class="tag">Admin handles payments</small>'}
                 </div>
               `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ All delivered sellers paid</p>'}
             </div>
@@ -2216,12 +2308,7 @@ class IsokoApp {
                   </div>
                   <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Family: <b>${o.buyerName}</b> ${o.isOverdue ? '<span style="color:var(--danger); font-weight:700;">(Overdue)</span>' : ''}</div>
                   <div style="display:flex; gap:6px; margin-top:6px;">
-                    <button class="btn btn-sm btn-outline" style="flex:1; padding:4px;" onclick="window.app.settleFromVup(${o.id})">
-                      ⚡ Repay from VUP
-                    </button>
-                    <button class="btn btn-sm btn-ghost" style="padding:4px; font-size:11px; color:var(--mute);" onclick="window.app.writeOffCredit(${o.id})" title="Write-off (never punish family)">
-                      Write-off
-                    </button>
+                    ${canManageFunds ? `<button class="btn btn-sm btn-outline" style="flex:1; padding:4px;" onclick="window.app.settleFromVup(${o.id})">Record repayment</button><button class="btn btn-sm btn-ghost" style="padding:4px; font-size:11px; color:var(--mute);" onclick="window.app.writeOffCredit(${o.id})" title="Write off a balance after review">Write off</button>` : '<small class="tag">Admin handles repayment</small>'}
                   </div>
                 </div>
               `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ No open credit awaiting repayment</p>'}
@@ -2299,9 +2386,7 @@ class IsokoApp {
                   <td><small>${c.note}</small></td>
                   <td><span class="pill ${c.status === 'resolved' ? 'pill-fair' : 'pill-high'}">${c.status}</span></td>
                   <td>
-                    ${c.status !== 'resolved' ? `
-                      <button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.resolveCase(${c.id}, 'reversal')">Resolve</button>
-                    ` : '<span style="color:var(--success); font-weight:700;">Resolved ✓</span>'}
+                    ${!['resolved','rejected'].includes(String(c.status).toLowerCase()) ? `<button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.openCaseResolution(${c.id})">Review / solve</button>` : `<small>${this.escapeHtml(c.resolvedBy || "Reviewed")}<br>${this.escapeHtml(c.resolutionNote || c.outcome || "Case closed")}</small>`}
                   </td>
                 </tr>
               `).join("")}
@@ -2555,14 +2640,64 @@ class IsokoApp {
   // =========================================================================
   renderAdminUsersTab() {
     const users = Object.entries(this.state.users || {}).flatMap(([role, list]) => list.map(user => ({ ...user, role })));
+    const members = this.state.users?.member || [];
     return `
-      <div class="head"><div><h1>Users</h1><p class="sub">Find a demo account and check its role and status.</p></div></div>
+      <div class="head"><div><h1>Users and VUP work records</h1><p class="sub">Admins keep work days and unpaid VUP amounts up to date. The member's food credit updates automatically.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.downloadVupWorkRecords()"><i class="bi bi-download" aria-hidden="true"></i> Download work records</button></div>
+      <section class="card admin-list-card">
+        <div class="ch"><div><h3>VUP amount owed</h3><p class="sub">Use the amount confirmed by a work or payment record. Work days apply to public works programmes. These accounts are demo data.</p></div><span class="tag g">${members.length} VUP members</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Member</th><th>Programme and district</th><th>Days worked</th><th>Government owes (demo)</th><th>Open food credit</th><th>Credit left</th><th>Record</th></tr></thead><tbody>
+          ${members.map(user => `<tr><td><b>${this.escapeHtml(user.name || "—")}</b><br><small>${this.escapeHtml(user.email || "")}</small></td><td>${this.escapeHtml(user.programme || "VUP")}<br><small>${this.escapeHtml(user.district || "—")}</small></td><td>${Number(user.daysWorked || 0)}</td><td><b>${Number(user.governmentAmountOwed || 0).toLocaleString()} RWF</b></td><td>${this.getOutstandingCredit(user.email).toLocaleString()} RWF</td><td>${this.getRemainingCredit(user).toLocaleString()} RWF</td><td><button class="btn btn-sm btn-outline" onclick="window.app.openVupWorkRecord('${this.escapeHtml(user.email)}')"><i class="bi bi-pencil-square" aria-hidden="true"></i> Update</button></td></tr>`).join("")}
+        </tbody></table></div>
+        <p class="sub" style="margin-top:12px;">Food credit available = government amount owed − open food credit. Planners can help with cases, but cannot edit this record or grant credit.</p>
+      </section>
+      <div class="head" style="margin-top:26px;"><div><h2>All accounts</h2><p class="sub">Search accounts by name, email, or role.</p></div></div>
       <section class="card admin-list-card">
         <div class="admin-list-tools"><label class="admin-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="Search name, email, or role" oninput="window.app.filterAdminUserRows(this.value)"></label><span class="tag g">${users.length} demo accounts</span></div>
         <div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>District</th></tr></thead><tbody>
           ${users.map(user => { const search = `${user.name || ""} ${user.email || ""} ${user.role}`.toLowerCase(); return `<tr data-admin-user="${this.escapeHtml(search)}"><td><b>${this.escapeHtml(user.name || "—")}</b></td><td>${this.escapeHtml(user.role)}</td><td>${this.escapeHtml(user.email || "—")}</td><td><span class="tag ${user.status === 'pending' ? 'y' : 'g'}">${this.escapeHtml(user.status || 'active')}</span></td><td>${this.escapeHtml(user.district || "—")}</td></tr>`; }).join("")}
         </tbody></table></div>
       </section>`;
+  }
+
+  openVupWorkRecord(email) {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can update VUP work records.", "warning"); return; }
+    const user = (this.state.users?.member || []).find(item => item.email === email);
+    if (!user) return;
+    const modal = document.getElementById("vupWorkRecordModal");
+    if (!modal) return;
+    document.getElementById("vupWorkEmail").value = user.email;
+    document.getElementById("vupWorkMemberName").textContent = `${user.name} · ${user.programme || "VUP member"} · ${user.district || "District not set"}`;
+    document.getElementById("vupDaysWorked").value = Number(user.daysWorked || 0);
+    document.getElementById("vupAmountOwed").value = Number(user.governmentAmountOwed || 0);
+    modal.classList.add("open");
+  }
+
+  saveVupWorkRecord(event) {
+    event.preventDefault();
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can update VUP work records.", "warning"); return; }
+    const email = document.getElementById("vupWorkEmail")?.value;
+    const daysWorked = Number(document.getElementById("vupDaysWorked")?.value);
+    const amount = Number(document.getElementById("vupAmountOwed")?.value);
+    const user = (this.state.users?.member || []).find(item => item.email === email);
+    if (!user || !Number.isInteger(daysWorked) || daysWorked < 0 || !Number.isFinite(amount) || amount < 0) { this.toast("Enter zero or a positive number for work days and amount owed.", "warning"); return; }
+    user.daysWorked = daysWorked;
+    user.governmentAmountOwed = Math.round(amount);
+    user.workRecordUpdatedAt = new Date().toISOString();
+    user.workRecordUpdatedBy = this.state.currentUser.name || "Admin";
+    if (this.state.currentUser?.email === email) this.state.currentUser = { ...user };
+    this.state.auditLog.unshift({ who: user.workRecordUpdatedBy, action: "Updated VUP work record", target: `${user.name} · ${daysWorked} days · ${user.governmentAmountOwed.toLocaleString()} RWF owed`, date: new Date().toISOString(), reason: "Admin update" });
+    this.addNotification(`Your VUP work record was updated. Government amount owed: ${user.governmentAmountOwed.toLocaleString()} RWF.`, { targetEmail: email, type: "account" });
+    document.getElementById("vupWorkRecordModal")?.classList.remove("open");
+    this.saveState();
+    this.render();
+    this.toast("VUP work record saved. Available food credit has been updated.", "success");
+  }
+
+  downloadVupWorkRecords() {
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can download member work records.", "warning"); return; }
+    const rows = [["Member", "Email", "Programme", "District", "Days worked", "Government amount owed RWF", "Open food credit RWF", "Food credit available RWF"], ...(this.state.users?.member || []).map(user => [user.name, user.email, user.programme, user.district, Number(user.daysWorked || 0), Number(user.governmentAmountOwed || 0), this.getOutstandingCredit(user.email), this.getRemainingCredit(user)])];
+    const csv = rows.map(row => row.map(value => this.csvCell(value ?? "")).join(",")).join("\r\n");
+    this.downloadFile(`vup-work-records-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
   }
 
   filterAdminUserRows(query) {
@@ -2817,10 +2952,11 @@ class IsokoApp {
     const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
     const total = rows.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
     const ledgerRows = this.getUserActivityLedger();
-    return `<div class="head"><div><h1>Activity summary</h1><p class="sub">Orders and payments for these dates. Prototype only; no real money is moved.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button></div><section class="activity-controls card"><label>Show<select class="form-control" onchange="window.app.setActivityPeriod(this.value)">${[["today","Today"],["7d","Last 7 days"],["30d","Last 30 days"],["12m","Last 12 months"],["custom","Choose dates"]].map(([key,label])=>`<option value="${key}" ${this.state.activityPeriod===key?"selected":""}>${label}</option>`).join("")}</select></label>${this.state.activityPeriod === "custom" ? `<label>From<input class="form-control" id="activityFrom" type="date" value="${this.state.activityFrom || ""}"></label><label>To<input class="form-control" id="activityTo" type="date" value="${this.state.activityTo || ""}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyActivityDates()">Apply dates</button>` : ""}<span class="tag g">${period.label}</span></section><div class="nisr-kpis activity-kpis"><article class="card"><small>Orders</small><strong>${rows.length}</strong><span>In this date range</span></article><article class="card"><small>Order value</small><strong>${total.toLocaleString()} RWF</strong><span>Simulated activity</span></article><article class="card"><small>Money records</small><strong>${ledgerRows.length}</strong><span>Payments, gifts, and pool activity</span></article></div><section class="card admin-list-card"><div class="ch"><h3>Orders</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>${rows.length ? rows.map(order=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(order.date))}</td><td>#${this.escapeHtml(String(order.id))}</td><td>${this.escapeHtml(order.food)} · ${Number(order.kg)||0} kg</td><td>${order.mode === "credit" ? "Food credit" : "Cash"}</td><td>${(Number(order.total)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(order.status || "Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No orders found for these dates.</td></tr>`}</tbody></table></div></section><section class="card admin-list-card"><div class="ch"><h3>Payments and money records</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Status</th></tr></thead><tbody>${ledgerRows.length ? ledgerRows.map(entry=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(entry.date))}</td><td>${this.escapeHtml(String(entry.type||"Payment").replace(/_/g," "))}</td><td>${this.escapeHtml(entry.from||"—")}</td><td>${this.escapeHtml(entry.to||"—")}</td><td>${(Number(entry.amount)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.status||"Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No payment records found for these dates.</td></tr>`}</tbody></table></div></section>`;
+    return `<div class="head"><div><h1>Activity summary</h1><p class="sub">Orders and payments for these dates. Prototype only; no real money is moved.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button></div><section class="activity-controls card"><label>Show<select class="form-control" onchange="window.app.setActivityPeriod(this.value)">${[["today","Today"],["7d","Last 7 days"],["30d","Last 30 days"],["12m","Last 12 months"],["custom","Choose dates"]].map(([key,label])=>`<option value="${key}" ${this.state.activityPeriod===key?"selected":""}>${label}</option>`).join("")}</select></label>${this.state.activityPeriod === "custom" ? `<label>From<input class="form-control" id="activityFrom" type="date" value="${this.state.activityFrom || ""}"></label><label>To<input class="form-control" id="activityTo" type="date" value="${this.state.activityTo || ""}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyActivityDates()">Apply dates</button>` : ""}<span class="tag g">${period.label}</span></section><div class="nisr-kpis activity-kpis"><article class="card"><small>Orders</small><strong>${rows.length}</strong><span>In this date range</span></article><article class="card"><small>Food cost</small><strong>${total.toLocaleString()} RWF</strong><span>Delivery and pool gifts are listed per order</span></article><article class="card"><small>Money records</small><strong>${ledgerRows.length}</strong><span>Payments, credit, gifts, and pool activity</span></article></div><section class="card admin-list-card"><div class="ch"><div><h3>Orders</h3><p class="sub">Cash at delivery stays due until delivery is marked complete. VUP credit is repaid when a VUP payment is recorded.</p></div><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Food</th><th>Pay with</th><th>Food cost</th><th>Payment status</th><th>Order status</th></tr></thead><tbody>${rows.length ? rows.map(order=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(order.date))}</td><td>#${this.escapeHtml(String(order.id))}</td><td>${this.escapeHtml(order.food)} · ${Number(order.kg)||0} ${this.escapeHtml(order.unit || "kg")}</td><td>${this.escapeHtml(order.paymentMethod || order.paidBy || (order.mode === "credit" ? "VUP food credit" : "Cash"))}</td><td>${(Number(order.total)||0).toLocaleString()} RWF${Number(order.deliveryFee) ? ` + ${Number(order.deliveryFee).toLocaleString()} RWF delivery` : ""}${Number(order.gift) ? ` + ${Number(order.gift).toLocaleString()} RWF pool gift` : ""}</td><td>${this.escapeHtml(order.paymentStatus || (order.mode === "credit" ? "Due from VUP" : "Paid"))}</td><td>${this.escapeHtml(order.status || "Recorded")}</td></tr>`).join("") : `<tr><td colspan="7">No orders found for these dates.</td></tr>`}</tbody></table></div></section><section class="card admin-list-card"><div class="ch"><h3>Payments and money records</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Status</th></tr></thead><tbody>${ledgerRows.length ? ledgerRows.map(entry=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(entry.date))}</td><td>${this.escapeHtml(String(entry.type||"Payment").replace(/_/g," "))}</td><td>${this.escapeHtml(entry.from||"—")}</td><td>${this.escapeHtml(entry.to||"—")}</td><td>${(Number(entry.amount)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.status||"Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No payment records found for these dates.</td></tr>`}</tbody></table></div></section>`;
   }
 
-  cartCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
+  cartCount() { return (this.state.cart || []).length; }
+  cartQuantityCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
   addToCart(listingId) {
     const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
     if (!listing) return;
@@ -2842,8 +2978,11 @@ class IsokoApp {
   }
   renderCartView() {
     const lines = (this.state.cart || []).map(line => ({ ...line, listing: this.state.listings.find(item => Number(item.id) === Number(line.listingId)) })).filter(line => line.listing);
-    const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0), giftPct = Number(this.state.currentUser?.giftShare || this.state.currentUser?.donationPct || 2), gift = Math.round(subtotal*giftPct/100), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
-    return `<div class="head"><div><h1>Your cart</h1><p class="sub">Check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per kg</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> kg</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>Food</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div><div><span>Pool gift · ${giftPct}%</span><b>${gift.toLocaleString()} RWF</b></div><div class="cart-grand-total"><span>Total today</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div><p>Prototype. Fake money. No real payment is made.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Continue to payment</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
+    const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0);
+    const giftPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser?.giftShare || 2) : 0;
+    const gift = Math.round(subtotal*giftPct/100), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
+    const count = this.cartCount(), qtyCount = this.cartQuantityCount();
+    return `<div class="head"><div><h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1><p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>${count} ${count === 1 ? "product" : "products"}</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div>${giftPct ? `<div><span>Pool gift · ${giftPct}%</span><b>${gift.toLocaleString()} RWF</b></div>` : `<div><span>Pool gift</span><b>Not added</b></div>`}<div class="cart-grand-total"><span>Food total</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div>${this.state.roleCode === "member" ? `<p><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}<p class="sub">Choose cash, a demo payment method, your VUP wallet, or available VUP credit at the next step.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Choose how to pay</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
   }
   checkoutCart() {
     const items = (this.state.cart || []).map(line => ({ listing: this.state.listings.find(item=>Number(item.id)===Number(line.listingId)), qty: Number(line.qty) })).filter(line=>line.listing);
@@ -3328,10 +3467,10 @@ class IsokoApp {
     if (mode === "credit") {
       const remaining = this.getRemainingCredit();
       if (total > remaining) {
-        this.toast(`Exceeds available bridge credit limit (${remaining.toLocaleString()} RWF left).`, "danger");
+        this.toast(`This costs more than your available VUP amount (${remaining.toLocaleString()} RWF left).`, "danger");
         return;
       }
-      this.executeOrder(listing, qty, total, "credit", "pending_approval", 0, "Free SACCO Pickup");
+      this.executeOrder(listing, qty, total, "credit", "VUP amount owed", 0, "Free SACCO Pickup");
     } else this.addToCart(listingId);
   }
 
@@ -3339,7 +3478,7 @@ class IsokoApp {
     const modal = document.getElementById("payModal");
     if (!modal) return;
 
-    const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
+    const donationPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser.giftShare || 2) : 0;
     const gift = Math.round(total * (donationPct / 100));
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const deliveryFee = isPickup ? 0 : 300;
@@ -3351,7 +3490,7 @@ class IsokoApp {
     if (imgEl) imgEl.src = listing.photo || "assets/produce/dry_beans.jpg";
     if (badgeEl) badgeEl.textContent = `${listing.food} · ${listing.farmer}`;
 
-    document.getElementById("rcV2").textContent = items.length > 1 ? `${items.length} food items` : `${listing.food} (${qty} kg)`;
+    document.getElementById("rcV2").textContent = items.length > 1 ? `${items.length} food products` : `${listing.food} (${qty} ${listing.unit || "kg"})`;
     document.getElementById("rfV2").textContent = `${total.toLocaleString()} RWF`;
     document.getElementById("rdModeV2").innerHTML = isPickup 
       ? this.t('checkoutDeliveryPickup') 
@@ -3392,6 +3531,7 @@ class IsokoApp {
   }
 
   goToPaymentMethods() {
+    this.state.selectedAccountIdx = -1;
     this.renderPaymentAccountsList();
     this.goPhonePage(6);
   }
@@ -3401,61 +3541,62 @@ class IsokoApp {
     const flist = document.getElementById("flV2");
     if (!mlist || !flist) return;
 
-    if (this.state.selectedAccountIdx >= this.getAvailablePaymentAccounts().length) this.state.selectedAccountIdx = 0;
-
-    mlist.innerHTML = this.getAvailablePaymentAccounts().map((a, i) => `
-      <div class="mitem-v2 ${i === this.state.selectedAccountIdx ? 'on' : ''}" onclick="window.app.selectPaymentAccount(${i})">
-        <span class="mico-v2" style="${a.c}">${a.l}</span>
-        <div style="flex:1">
-          <b>${a.n}</b>
-          <div style="font-size:11px;color:var(--mute);">${a.s}</div>
-        </div>
-        <div style="text-align:right">
-          <span style="font-weight:700;font-size:13px">${a.credit ? 'Credit Limit' : a.bal.toLocaleString() + ' RWF'}</span>
-        </div>
-      </div>
+    const methods = this.getAvailablePaymentAccounts();
+    if (this.state.selectedAccountIdx >= methods.length) this.state.selectedAccountIdx = -1;
+    mlist.innerHTML = methods.map((a, i) => `
+      <button type="button" class="m-v2 ${i === this.state.selectedAccountIdx ? 'on' : ''} ${a.disabled ? 'disabled' : ''}" onclick="window.app.selectPaymentAccount(${i})" ${a.disabled ? 'disabled' : ''} aria-pressed="${i === this.state.selectedAccountIdx}">
+        <span class="lg-v2" style="${a.color}"><i class="bi ${a.icon}" aria-hidden="true"></i></span>
+        <span><b>${a.n}</b><small>${a.s}</small></span>
+        <span class="am-v2">${a.credit ? `${a.available.toLocaleString()} RWF<small>available credit</small>` : a.wallet ? `${a.available.toLocaleString()} RWF<small>wallet balance</small>` : `<small>${a.demo ? 'Demo payment' : 'Pay in person'}</small>`}</span>
+        <span class="r-v2" aria-hidden="true"></span>
+      </button>
     `).join("");
 
-    flist.innerHTML = `
-      <div style="font-size:12px;font-weight:700;margin:6px 0 4px;color:var(--text-muted);">${this.t('checkoutTopupChips')}</div>
-      <div class="chips-v2">
-        ${TOPUP_CHIPS.map(c => `
-          <button type="button" class="chip-v2" onclick="window.app.topupSelectedAccount(${c.v})">${c.l}</button>
-        `).join("")}
-      </div>
-      <div id="payErrorV2" style="color:var(--danger);font-size:12px;margin-top:6px;min-height:16px;"></div>
-    `;
-
+    const selected = methods[this.state.selectedAccountIdx];
     const p = this.state.pendingCheckoutOrder;
+    const isPickup = this.state.nearby?.deliveryOption === "pickup";
+    const isCredit = selected?.credit;
+    const donationPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser.giftShare || 2) : 0;
+    const deliveryFee = isCredit || isPickup ? 0 : 300;
+    const total = (Number(p?.total) || 0) + Math.round((Number(p?.total) || 0) * donationPct / 100) + deliveryFee;
+    const payButton = document.getElementById("goBtnV2");
+    const payLabel = document.getElementById("ppV2");
+    if (payLabel) payLabel.textContent = selected ? (selected.credit ? `Use ${total.toLocaleString()} RWF credit` : selected.cash ? `Place cash order · ${total.toLocaleString()} RWF` : `Pay ${total.toLocaleString()} RWF`) : "Choose a payment method";
+    if (payButton) payButton.disabled = !selected;
+    flist.innerHTML = `<p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p><div id="payErrorV2" role="status" aria-live="polite"></div>`;
+
     if (p) {
-      const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
-      const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
-      const deliveryFee = isPickup ? 0 : 300;
-      const grandTotal = p.total + Math.round(p.total * (donationPct / 100)) + deliveryFee;
-      const pp = document.getElementById("ppV2");
-      if (pp) pp.textContent = `Pay ${grandTotal.toLocaleString()} RWF`;
+      const gift = Math.round(p.total * donationPct / 100);
+      const giftEl = document.getElementById("rgV2");
+      const deliveryEl = document.getElementById("rdModeV2");
+      const totalEl = document.getElementById("rtV2");
+      if (giftEl) giftEl.textContent = gift ? `+${gift.toLocaleString()} RWF (${donationPct}%)` : "No pool gift";
+      if (deliveryEl) deliveryEl.textContent = selected?.credit ? "SACCO pickup · Free" : isPickup ? "SACCO pickup · Free" : "Moto delivery · 300 RWF";
+      if (totalEl) totalEl.textContent = `${total.toLocaleString()} RWF`;
     }
   }
 
   getAvailablePaymentAccounts() {
-    const accounts = [...RWANDA_PAYMENT_ACCOUNTS];
-    if (this.state.roleCode === "member" && Number(this.state.currentUser?.vupWalletBalance) > 0) accounts.push({ n: "VUP food wallet", s: "Available VUP payment balance", t: "wallet", c: "background:#0e635e;color:#fff", l: "VUP", by: "VUP food wallet", bal: Number(this.state.currentUser.vupWalletBalance), wallet: true });
+    const pickup = this.state.nearby?.deliveryOption === "pickup";
+    const accounts = [
+      { n: "MTN MoMo", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#ffcb05;color:#111", l: "MTN", by: "MTN MoMo (demo)", demo: true },
+      { n: "Airtel Money", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#e40000;color:#fff", l: "Airtel", by: "Airtel Money (demo)", demo: true },
+      { n: "Bank or SACCO", s: "Account payment · simulated", icon: "bi-bank", color: "background:#137653;color:#fff", l: "BANK", by: "Bank / SACCO (demo)", demo: true },
+      { n: pickup ? "Cash at SACCO pickup" : "Cash on delivery", s: pickup ? "Pay when you collect your food" : "Pay when your food arrives", icon: pickup ? "bi-shop" : "bi-cash", color: "background:#e9f5ed;color:#176b48", l: "CASH", by: pickup ? "Cash at pickup" : "Cash at delivery", cash: true }
+    ];
+    if (this.state.roleCode === "member") {
+      const available = this.getRemainingCredit();
+      accounts.unshift({ n: "VUP food credit", s: "Use the unpaid VUP amount recorded for you · 0% interest", icon: "bi-wallet2", color: "background:#0e635e;color:#fff", l: "VUP", by: "VUP amount owed", credit: true, available, disabled: available <= 0 });
+      const wallet = Number(this.state.currentUser?.vupWalletBalance || 0);
+      if (wallet > 0) accounts.unshift({ n: "My VUP food wallet", s: "Use money left from a recorded VUP payment", icon: "bi-wallet", color: "background:#e2f2ec;color:#176b48", l: "VUP", by: "VUP food wallet", wallet: true, available: wallet });
+    }
     return accounts;
   }
 
   selectPaymentAccount(i) {
+    if (this.getAvailablePaymentAccounts()[i]?.disabled) return;
     this.state.selectedAccountIdx = i;
     this.renderPaymentAccountsList();
-  }
-
-  topupSelectedAccount(amt) {
-    const acc = this.getAvailablePaymentAccounts()[this.state.selectedAccountIdx];
-    if (!acc || acc.wallet) return;
-    acc.bal += amt;
-    this.renderPaymentAccountsList();
-    const errEl = document.getElementById("payErrorV2");
-    if (errEl) errEl.textContent = "";
-    this.toast(`Added ${amt.toLocaleString()} RWF demo balance to ${acc.n}`, "success");
   }
 
   processPhonePayment() {
@@ -3463,17 +3604,24 @@ class IsokoApp {
     if (!p) return;
 
     const acc = this.getAvailablePaymentAccounts()[this.state.selectedAccountIdx];
-    if (!acc) return;
+    if (!acc || acc.disabled) { this.toast("Choose an available payment method first.", "info"); return; }
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
-    const deliveryFee = isPickup ? 0 : 300;
-    const donationPct = this.state.currentUser.giftShare || this.state.currentUser.donationPct || 2;
+    const isCredit = Boolean(acc.credit), isCash = Boolean(acc.cash);
+    const deliveryFee = isCredit || isPickup ? 0 : 300;
+    const donationPct = this.state.roleCode === "shopper" && !isCredit ? Number(this.state.currentUser.giftShare || 2) : 0;
     const gift = Math.round(p.total * (donationPct / 100));
     const grandTotal = p.total + gift + deliveryFee;
     const items = p.items || [{ listing: p.listing, qty: p.qty }];
     if (items.some(line => !line.listing || line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("An item is no longer available in that quantity. Review your cart.", "warning"); this.closePayFlow(); return; }
 
-    const availableBalance = acc.wallet ? Number(this.state.currentUser?.vupWalletBalance || 0) : acc.bal;
-    if (availableBalance < grandTotal) {
+    const availableCredit = this.getRemainingCredit();
+    if (isCredit && grandTotal > availableCredit) {
+      const errEl = document.getElementById("payErrorV2");
+      if (errEl) errEl.textContent = `You have ${availableCredit.toLocaleString()} RWF of VUP food credit left. Remove some food or choose another payment method.`;
+      return;
+    }
+    const availableBalance = Number(this.state.currentUser?.vupWalletBalance || 0);
+    if (acc.wallet && availableBalance < grandTotal) {
       const errEl = document.getElementById("payErrorV2");
       if (errEl) errEl.textContent = `Insufficient balance (${availableBalance.toLocaleString()} RWF).`;
       return;
@@ -3483,41 +3631,42 @@ class IsokoApp {
       this.state.currentUser.vupWalletBalance = Math.max(0, availableBalance - grandTotal);
       const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
       if (family) family.vupWalletBalance = this.state.currentUser.vupWalletBalance;
-    } else acc.bal -= grandTotal;
-    this.state.pool.balance += gift;
-    this.state.pool.totalGiftsIn += gift;
+    }
 
-    const deliveryType = isPickup ? "Free SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
+    const deliveryType = isCredit || isPickup ? "Free SACCO Hub Pickup" : "Express Moto Drop (15-25 min)";
+    const paidBy = isCredit ? "VUP amount owed" : isCash ? (isPickup ? "Cash at pickup" : "Cash at delivery") : acc.by;
     let assignedGift = 0;
     const createdOrders = items.map((line, index) => {
       const itemTotal = Math.round(line.qty * line.listing.price);
-      const itemGift = index === items.length - 1 ? gift - assignedGift : Math.round(gift * itemTotal / p.total);
+      const itemGift = isCredit ? 0 : index === items.length - 1 ? gift - assignedGift : Math.round(gift * itemTotal / p.total);
       assignedGift += itemGift;
-      return this.executeOrder(line.listing, line.qty, itemTotal, "cash", acc.by, itemGift, deliveryType, index === 0 ? deliveryFee : 0);
+      return this.executeOrder(line.listing, line.qty, itemTotal, isCredit ? "credit" : "cash", paidBy, itemGift, deliveryType, index === 0 ? deliveryFee : 0);
     });
+    if (gift && !isCash) { this.state.pool.balance += gift; this.state.pool.totalGiftsIn += gift; }
     const newOrder = createdOrders[0];
     this.state.cart = [];
     this.state.pendingCheckoutOrder = null;
-    this.state.selectedAccountIdx = 0;
-    this.addNotification(`Your payment of ${grandTotal.toLocaleString()} RWF was approved for ${createdOrders.length} food item${createdOrders.length === 1 ? "" : "s"}.`, { targetEmail: this.state.currentUser.email, type: "payment" });
+    this.state.selectedAccountIdx = -1;
+    this.addNotification(isCash ? `Your order is placed. Pay ${grandTotal.toLocaleString()} RWF when you receive your food.` : isCredit ? `Your order used ${grandTotal.toLocaleString()} RWF of automatic VUP food credit.` : `Your demo payment of ${grandTotal.toLocaleString()} RWF was recorded. No real money was moved.`, { targetEmail: this.state.currentUser.email, type: "payment" });
     this.saveState();
     this.renderHeaderNavActions();
 
-    document.getElementById("vtV2").textContent = acc.l || 'MOMO';
+    document.getElementById("vtV2").textContent = acc.l || 'PAY';
     this.goPhonePage(3);
 
     const t3 = document.getElementById("t3V2");
     const t3s = document.getElementById("t3sV2");
-    t3.textContent = "Demo payment approved";
-    t3s.textContent = "This is a prototype. No real money was moved.";
+    t3.textContent = isCash ? "Order placed" : isCredit ? "Food credit used" : "Demo payment recorded";
+    t3s.textContent = isCash ? "Pay when your food arrives or when you collect it." : "This is a prototype. No real money was moved.";
 
     setTimeout(() => {
-      t3.textContent = "Approved ✓";
+      t3.textContent = isCash ? "Payment due at delivery" : isCredit ? "Credit issued" : "Demo payment recorded";
       t3s.textContent = "";
     }, 450);
 
     setTimeout(() => {
       document.getElementById("pdV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+      document.getElementById("pdLabelV2").textContent = isCash ? "Pay when you get your food" : isCredit ? "Paid with VUP food credit" : "Demo payment recorded";
       document.getElementById("pdFulV2").textContent = deliveryType;
       this.goPhonePage(4);
 
@@ -3526,12 +3675,14 @@ class IsokoApp {
       document.getElementById("recCustV2").textContent = newOrder.buyerName.toUpperCase();
       document.getElementById("recSellerV2").textContent = newOrder.farmer.toUpperCase();
       document.getElementById("recHubV2").textContent = newOrder.hub.toUpperCase();
-      document.getElementById("recItemV2").textContent = items.length > 1 ? `${items.length} food items · ${items.map(line => line.listing.food).join(", ")}` : `${newOrder.food} (${newOrder.kg} kg)`;
+      document.getElementById("recItemV2").textContent = items.length > 1 ? `${items.length} food products · ${items.map(line => `${line.listing.food} (${line.qty} ${line.listing.unit || "kg"})`).join(", ")}` : `${newOrder.food} (${newOrder.kg} ${newOrder.unit || "kg"})`;
       document.getElementById("recItemCostV2").textContent = `${p.total.toLocaleString()} RWF`;
-      document.getElementById("recDelV2").textContent = isPickup ? "FREE (SACCO)" : "300 RWF (Moto)";
-      document.getElementById("recGiftV2").textContent = `+${gift.toLocaleString()} RWF`;
+      document.getElementById("recDelV2").textContent = deliveryFee ? "300 RWF (Moto)" : "FREE (SACCO)";
+      document.getElementById("recGiftV2").textContent = gift ? `+${gift.toLocaleString()} RWF` : "None";
       document.getElementById("recTotV2").textContent = `${grandTotal.toLocaleString()} RWF`;
-      document.getElementById("recPayByV2").textContent = `PAID BY ${acc.by}`;
+      document.getElementById("recPayByV2").textContent = isCash ? `PAY BY ${paidBy}` : isCredit ? "VUP FOOD CREDIT · 0%" : `DEMO PAID BY ${acc.by}`;
+      document.getElementById("recApprovalV2").textContent = isCash ? "PAYMENT DUE" : isCredit ? "AUTO ISSUED" : "DEMO ONLY";
+      document.getElementById("recStampV2").innerHTML = isCash ? "ORDER<small>PAY AT DELIVERY</small>" : isCredit ? "CREDIT<small>AUTO ISSUED</small>" : "DEMO<small>NO REAL MONEY</small>";
     }, 900);
   }
 
@@ -3579,6 +3730,7 @@ class IsokoApp {
       id: this.state.nextOrderId++,
       food: listing.food,
       kg: qty,
+      unit: listing.unit || "kg",
       total: total,
       mode: mode,
       buyerRole: this.state.role,
@@ -3586,8 +3738,11 @@ class IsokoApp {
       buyerEmail: this.state.currentUser.email || "user@vupbridge.rw",
       district: listing.district,
       hub: listing.hub || (this.state.nearby ? this.state.nearby.userLocation : "Kimironko Hub"),
-      status: mode === "credit" ? "Pending Approval" : "Placed",
-      creditStatus: mode === "credit" ? "requested" : "n/a",
+      status: "Placed",
+      creditStatus: mode === "credit" ? "approved" : "n/a",
+      approvedBy: mode === "credit" ? "System (automatic)" : undefined,
+      approvedDate: mode === "credit" ? new Date().toLocaleDateString("en-GB") : undefined,
+      paymentStatus: paidBy === "Cash at delivery" || paidBy === "Cash at pickup" ? "due" : mode === "credit" ? "due_from_vup" : "paid",
       farmer: listing.farmer,
       farmerEmail: listing.farmerEmail || "farmer@vupbridge.rw",
       paidBy: paidBy,
@@ -3614,7 +3769,7 @@ class IsokoApp {
         to: newOrder.farmer,
         amount: total,
         link: `Order #${newOrder.id}`,
-        status: "completed",
+        status: newOrder.paymentStatus === "due" ? "pending" : "completed",
         paymentMethod: paidBy,
         createdBy: newOrder.buyerName
       });
@@ -3627,20 +3782,35 @@ class IsokoApp {
           to: "Revolving Pool",
           amount: gift,
           link: `Order #${newOrder.id} (${gift} RWF Pool Gift)`,
-          status: "completed",
+          status: newOrder.paymentStatus === "due" ? "pending" : "completed",
           paymentMethod: paidBy,
           createdBy: newOrder.buyerName
         });
       }
+    } else if (mode === "credit") {
+      this.state.ledger.unshift({
+        id: this.state.ledger.length + 1,
+        date: newOrder.date,
+        type: "credit_draw",
+        from: "VUP amount owed",
+        to: newOrder.buyerName,
+        amount: total,
+        link: `Order #${newOrder.id}`,
+        status: "open",
+        paymentMethod: "VUP food credit",
+        createdBy: "Automatic credit"
+      });
     }
 
     this.saveState();
     this.render();
 
     if (mode === "credit") {
-      this.toast(`Order #${newOrder.id} placed on Bridge Credit. Submitted to Credit Desk for verification.`, "success");
+      this.toast(`Order #${newOrder.id} placed. Food credit was issued automatically from your recorded VUP amount.`, "success");
+    } else if (newOrder.paymentStatus === "due") {
+      this.toast(`Order #${newOrder.id} placed. Pay ${total + deliveryFee + gift} RWF when you receive your food.`, "success");
     } else {
-      this.toast(`Order #${newOrder.id} paid via ${paidBy}! Delivery: ${deliveryType}`, "success");
+      this.toast(`Demo payment for order #${newOrder.id} recorded. No real money was moved.`, "success");
     }
     return newOrder;
   }
@@ -3656,7 +3826,15 @@ class IsokoApp {
       this.toast(`Order #${orderId} marked Delivered. Moved to Credit Desk: To Pay Sellers queue!`, "success");
     } else {
       order.status = "Delivered";
-      this.toast(`Order #${orderId} delivered! Seller paid by buyer.`, "success");
+      if (order.paymentStatus === "due") {
+        order.paymentStatus = "paid";
+        (this.state.ledger || []).filter(entry => entry.link === `Order #${orderId}` || String(entry.link || "").startsWith(`Order #${orderId} (`)).forEach(entry => { entry.status = "completed"; });
+        if (Number(order.gift) > 0) {
+          this.state.pool.balance += Number(order.gift);
+          this.state.pool.totalGiftsIn += Number(order.gift);
+        }
+      }
+      this.toast(`Order #${orderId} marked delivered. ${order.paymentMethod === "Cash at delivery" || order.paymentMethod === "Cash at pickup" ? "Cash payment recorded." : "Demo payment was already recorded."}`, "success");
     }
 
     this.saveState();
@@ -3664,38 +3842,8 @@ class IsokoApp {
   }
 
   simulateVupRepayment() {
-    let count = 0;
-    this.state.orders.forEach(o => {
-      if (o.mode === "credit" && o.status === "Delivered" && !o.repaid) {
-        o.repaid = true;
-        o.creditStatus = "repaid";
-        this.state.pool.balance += o.total;
-        this.state.pool.totalRepaidByVup += o.total;
-        count++;
-
-        this.state.ledger.unshift({
-          id: this.state.ledger.length + 1,
-          date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          type: "repayment",
-          from: "VUP Treasury Transfer",
-          to: "Revolving Pool",
-          amount: o.total,
-          link: `Order #${o.id} Repayment`,
-          status: "completed",
-          paymentMethod: o.paymentMethod || "MTN Mobile Money",
-          createdBy: "Treasury Simulation"
-        });
-      }
-    });
-
-    this.saveState();
-    this.render();
-
-    if (count === 0) {
-      this.toast("No delivered credit orders pending reimbursement.", "info");
-    } else {
-      this.toast(`Disbursement wave arrived! ${count} delivered orders settled back into the pool.`, "success");
-    }
+    if (this.state.roleCode !== "admin") { this.toast("Only an admin can record a VUP payment.", "warning"); return; }
+    this.toast("Enter the confirmed amount in Record a VUP payment. The app will apply it to open food credit first.", "info");
   }
 
   // =========================================================================
@@ -3787,26 +3935,20 @@ class IsokoApp {
     return { label: "Median Benchmark", class: "pill-neutral", median };
   }
 
-  calculateCreditLimit() {
-    const u = this.state.currentUser;
-    const days = Number(u.daysLate) || 0;
-    if (days <= 0) return 0;
-    const size = Number(u.householdSize) || 1;
-    const dpp = this.state.adminSettings.dailyFoodCost || 261;
-    const cap = this.state.adminSettings.creditCapDays || 14;
-    const effectiveDays = Math.min(days, cap);
-    return size * dpp * effectiveDays;
+  calculateCreditLimit(u = this.state.currentUser) {
+    u ||= {};
+    return Math.max(0, Number(u.governmentAmountOwed) || 0);
   }
 
-  getOutstandingCredit() {
+  getOutstandingCredit(email = this.state.currentUser?.email) {
     return this.state.orders
-      .filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled" && o.creditStatus !== "written_off")
+      .filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled" && o.creditStatus !== "written_off" && (!email || o.buyerEmail === email))
       .reduce((sum, o) => sum + Math.max(0, Number(o.total) - Number(o.repaidAmount || 0)), 0);
   }
 
-  getRemainingCredit() {
-    const limit = this.calculateCreditLimit();
-    const out = this.getOutstandingCredit();
+  getRemainingCredit(user = this.state.currentUser) {
+    const limit = this.calculateCreditLimit(user);
+    const out = this.getOutstandingCredit(user?.email);
     return Math.max(0, limit - out);
   }
 
@@ -3854,8 +3996,6 @@ class IsokoApp {
                   <div style="display:flex; align-items:center; gap:4px;">
                     ${showDeliverBtn && o.status === 'Placed' 
                       ? `<button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.deliverOrder(${o.id})">Mark Delivered</button>`
-                      : showDeliverBtn && o.status === 'Pending Approval'
-                      ? `<button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:11px;" onclick="window.app.approveCredit(${o.id})">Approve</button>`
                       : ''}
                     <button class="btn btn-ghost btn-sm" style="font-size:11px; padding:2px 6px; color:var(--danger);" onclick="window.app.openCaseModal('Order #${o.id}')" title="Report a problem with this transaction (Section 16.3)">
                       🚩 Report
@@ -4097,12 +4237,15 @@ class IsokoApp {
   downloadTransactionsCsv() {
     const report = this.getAnalysisReportData();
     const rows = [
-      ["Report", "Prototype. Fake money.", `Activity period: ${report.period.label}`, `Generated: ${new Date().toLocaleString("en-GB")}`, "", "", "", "", "", "", "", "", ""],
-      ["Order ID", "Date", "Buyer", "Buyer role", "District", "Food", "Quantity kg", "Mode", "Amount RWF", "Status", "Paid by", "Payment method", "Repaid"],
+      ["Report", "Prototype. Fake money. No real payment is moved.", `Activity period: ${report.period.label}`, `Generated: ${new Date().toLocaleString("en-GB")}`],
+      ["Order ID", "Date", "Buyer", "Buyer role", "District", "Food", "Quantity", "Unit", "Payment type", "Food amount RWF", "Delivery fee RWF", "Pool gift RWF", "Order total RWF", "Order status", "Payment status", "Payment method", "Repaid"],
       ...report.transactions.map(order => [
         order.id, this.getOrderDateLabel(order.date), order.buyerName || "Demo buyer", order.buyerRole || "", order.district || "",
-        order.food || "", order.kg || "", order.mode || "", Number(order.total) || 0, order.status || "",
-        order.paidBy || order.paid || "", order.paymentMethod || "", order.repaid ? "Yes" : "No"
+        order.food || "", order.kg || "", order.unit || "kg", order.mode === "credit" ? "VUP food credit" : order.paymentStatus === "due" ? "Cash on arrival" : "Cash / demo",
+        Number(order.total) || 0, Number(order.deliveryFee) || 0, Number(order.gift) || 0,
+        (Number(order.total) || 0) + (Number(order.deliveryFee) || 0) + (Number(order.gift) || 0),
+        order.status || "", order.paymentStatus || (order.mode === "credit" ? "due from VUP" : "paid"),
+        order.paymentMethod || order.paidBy || "Not recorded", order.repaid ? "Yes" : "No"
       ])
     ];
     const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
@@ -4133,9 +4276,10 @@ class IsokoApp {
     const ledgerRows = this.getUserActivityLedger();
 
     const csvContent = [
-      ['Prototype. Fake money.', `Activity period: ${period.label}`, `Account: ${email}`, `Created: ${new Date().toLocaleString("en-GB")}`].map(value=>this.csvCell(value)).join(','),
-      ['Record type','ID','Date','Food or payment','Amount RWF','Type','Status','Payment method'].map(value=>this.csvCell(value)).join(','),
-      ...rows.map(order => ['Order',order.id, this.getOrderDateLabel(order.date || today), order.food || 'Fresh staple', Number(order.total)||0, order.mode, order.status, order.paymentMethod || order.paidBy || 'Not recorded'].map(value=>this.csvCell(value)).join(',')),
+      ['Prototype. Fake money. No real payment is moved.', `Activity period: ${period.label}`, `Account: ${email}`, `Created: ${new Date().toLocaleString("en-GB")}`].map(value=>this.csvCell(value)).join(','),
+      ...(this.state.roleCode === "member" ? [["VUP work record", `Days worked: ${Number(this.state.currentUser.daysWorked || 0)}`, `Government amount owed: ${Number(this.state.currentUser.governmentAmountOwed || 0)} RWF`, `Open food credit: ${this.getOutstandingCredit(email)} RWF`, `Credit available: ${this.getRemainingCredit(this.state.currentUser)} RWF`, "Available credit = amount owed - open credit"].map(value=>this.csvCell(value)).join(",")] : []),
+      ['Record type','ID','Date','Food or payment','Quantity','Unit','Amount RWF','Delivery fee RWF','Pool gift RWF','Type','Order status','Payment status','Payment method'].map(value=>this.csvCell(value)).join(','),
+      ...rows.map(order => ['Order',order.id, this.getOrderDateLabel(order.date || today), order.food || 'Fresh staple', Number(order.kg)||0, order.unit || "kg", Number(order.total)||0, Number(order.deliveryFee)||0, Number(order.gift)||0, order.mode, order.status, order.paymentStatus || (order.mode === "credit" ? "due from VUP" : "paid"), order.paymentMethod || order.paidBy || 'Not recorded'].map(value=>this.csvCell(value)).join(',')),
       ...ledgerRows.map(entry => ['Money record',entry.link || entry.id,this.getOrderDateLabel(entry.date || today),`${entry.from || ""} → ${entry.to || ""}`,Number(entry.amount)||0,entry.type,entry.status,entry.paymentMethod].map(value=>this.csvCell(value)).join(','))
     ].join('\n');
 

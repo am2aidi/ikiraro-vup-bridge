@@ -1,185 +1,124 @@
-# VUP Bridge (Isoko Bridge · Ikiraro cya VUP)
+# Isoko Bridge
 
-> **"Eat while you wait."**  
-> *A direct food market, emergency social payment bridge, and decision-support intelligence platform for Rwandan households receiving Vision 2020 Umurenge Programme (VUP) support.*
+> **Eat while you wait.**
+>
+> Isoko Bridge (Ikiraro cya VUP) is a student-built prototype that connects VUP households to local food sellers while they wait for a social support payment. It also gives planners and administrators a simple way to explore prepared NISR survey findings and review demo activity.
 
-**NISR 2026 Big Data Hackathon Submission**  
-- **Track:** Track 3: Open Innovation *(Alternate: Track 2: Financial Inclusion and Poverty Reduction)*  
-- **Lead Author:** Zaidi (Final Year, Information Systems, University of Rwanda - CST)  
-- **Team Member 2:** KAYUMBA TETA Aela Greta (Final Year, University of Rwanda - CST)  
-- **Official Repository:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
-- **Live Deployment:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app)
+**NISR 2026 Big Data Hackathon · Track 3: Open Innovation**
+**Live prototype:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/) · **Source code:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)
 
----
+## The idea
 
-## ⚠️ Mandatory Hackathon Principles & Hard Rules
+A delayed social payment can make it hard for a household to buy food on time. At the same time, local farmers need a clear way to reach buyers. Isoko Bridge explores one way to help both sides:
 
-1. **Prototype. Fake money.**  
-   *All monetary numbers, revolving pools, mobile money transactions, and user balances are simulated for demonstration. No real currency is transferred.*
-2. **Patterns, not reasons.**  
-   *The NISR microdata shows empirical patterns of disbursement delays, demographic distributions, and vulnerability across Rwanda's 30 districts. It cannot explain why any individual payment was delayed (administrative audit, bank clearance, or attendance reconciliation).*
-3. **Families are never punished.**  
-   *If a family is unable to repay bridge credit due to hardship or illness, the revolving pool absorbs the write-off without penalizing the household.*
+1. A household or shopper browses food listed by local sellers.
+2. At checkout, the buyer chooses cash, a simulated digital payment, or—when signed in as a VUP member—an available VUP food wallet or automatic food credit.
+3. The prototype records the order, payment status, and related activity so users can follow what happened.
+4. Planners can review survey patterns and help with reported problems. Admins manage the demo work records and money controls.
 
----
+This is a **prototype for learning and discussion**. It is not a VUP service and must not be used to decide who receives a government benefit.
 
-## 1. Executive Summary & Problem Statement
+## What you can explore
 
-The prepared NISR EICV7 VUP survey summary in this prototype reports delays in monthly social protection transfers. These figures are early, unweighted estimates from the supplied project materials, not a live feed:
-- **National average delay:** **9.2 days**; **52%** of records report a wait longer than 7 days.
-- **Example hotspot:** Expanded Public Works in the Southern Province shows **14.6 days** average delay and **79%** waiting more than 7 days in the provided summary.
-- **The Acute Delay Gap:** When government payments are late, low-income families face severe food insecurity or predatory informal loans. Simultaneously, local smallholder farmers lack direct urban and peri-urban market access.
+- **Food market:** Browse and search demo food listings, see seller and district information, add products to a cart, and change quantities.
+- **Checkout:** Choose cash on delivery or pickup, or choose a simulated MTN MoMo, Airtel Money, or bank/SACCO option. No digital payment is actually sent.
+- **VUP member wallet and food credit:** Use a demo wallet balance or automatic food credit based on the member's recorded demo amount owed. Available food credit is calculated as **recorded amount owed − open food credit**. There is no planner approval step.
+- **Planner workspace:** Read the bundled NISR analysis, view the district map, filter simulated activity by date, and help members report and resolve cases.
+- **Admin workspace:** Review all demo accounts, update a member's work days and unpaid VUP amount, record a simulated VUP payment, manage demo money actions, review the ledger, and download records.
+- **Reports:** Read summaries on screen, print or save a report as PDF, and download NISR analysis, work records, or selected-period transactions as CSV.
+- **Accessibility and preferences:** Use English (EN), Kinyarwanda (RW), or French (FR); switch between light and dark themes; and use the labeled icon menu.
 
-**VUP Bridge** bridges this exact gap:
-1. **Direct Rwandan Harvest Market:** Farmers list produce with photos and GPS proximity, benchmarked against official NISR median market prices.
-2. **Emergency Social Bridge Credit:** When VUP cash transfers are late, eligible families receive instant zero-interest credit (`people × daily_food_cost × days_late`) to purchase staple food.
-3. **Revolving Social Pool:** Community shoppers donate 1%–5% with each grocery purchase. The pool pays farmers immediately upon delivery; when government VUP transfers arrive, the credit is reimbursed back to the pool.
-4. **Planner & Admin dashboards:** Users can explore the bundled district summaries, the 3 Credit Desk queues, problem reports, and downloadable prototype records.
+### Demo credit rule
 
----
+An admin enters a member's work days, when applicable, and an unpaid VUP amount confirmed for the demonstration. The prototype makes the amount left after open food credit available at checkout. When an admin records a demo VUP payment, the app applies it to open food credit first and puts any remaining amount in the member's demo food wallet.
 
-## 2. Real vs. Simulated vs. Assumed Components (Section 2 Compliance)
+All example balances and work records in the app are **made-up demonstration values**. They are not payment promises, official VUP balances, or amounts calculated from NISR survey data. In a real service, only verified records from authorized government systems could be used.
 
-| Component Type | Included Elements | Data Source & Treatment |
-| :--- | :--- | :--- |
-| **Bundled NISR survey summaries** | National, programme, province, programme-by-province, district, group, and commodity-price summaries. | Included in `js/nisr_data.js`; fixed 2023–24 EICV7 VUP survey baseline. The supplied build brief labels the provided summary figures early and unweighted. Treat them as provisional until the final weighted analysis is confirmed. |
-| **Simulated (Demo)** | Accounts, listings, orders, checkout, VUP wallet, bridge credit, pool ledger, audit log, and cases. | Stored in browser `localStorage`. `Prototype. Fake money.` No real payment or VUP transfer is made. |
-| **Assumed Parameters** | Example daily food basket and shopper pool gift rate. | Demo settings, not live NISR measurements. Check the source and units before using a benchmark for real pricing or policy. |
+## Roles
 
----
+| Role | What the role can do in this prototype |
+| --- | --- |
+| **VUP member** | Browse and order food, choose an available payment option, view food credit and wallet examples, and report a problem. |
+| **Shopper** | Browse and order food, choose a payment option, and see the demo community-pool contribution. |
+| **Seller** | View demo orders and manage produce listings. |
+| **Planner** | View the NISR workspace and activity, help with cases, and send money-related problems to an admin. Planners cannot change balances, grant credit, or record payments. |
+| **Admin** | Review the full demo system, edit work records, and manage simulated payments, seller payouts, repayments, and write-offs. |
 
-## 3. Five Roles & Sample Login Accounts (Section 17 Catalog)
+The login screen offers demo accounts. You can also create a local prototype account. There is no real identity check: account details are saved in the browser running the app. Do not enter a real password or personal financial information.
 
-The platform opens with **"Who are you?"** featuring 5 clear role buttons with one-line descriptions. Any email and password can be entered (`Prototype: type any email and any password. Nothing is checked.`):
+## NISR data: what it means and what it does not
 
-| Role | Sample User | Email | Password | Context & State |
-| :--- | :--- | :--- | :--- | :--- |
-| **VUP member** | **Amina Uwase** | `amina.uwase@vupbridge.rw` | `demo1234` | Credit-ready (8 days late, 5 people, Kirehe) |
-| VUP member | Jean Bosco Habimana | `jean.bosco@vupbridge.rw` | `demo1234` | Overdue credit alert (12 days late, Gisagara) |
-| VUP member | Claudine Mukamana | `claudine.mukamana@vupbridge.rw` | `demo1234` | Verified, needs payment account (6 days late) |
-| VUP member | Emmanuel Niyonsenga | `emmanuel.niyonsenga@vupbridge.rw` | `demo1234` | **Pending verification** (test live approval flow) |
-| VUP member | Beatrice Uwimana | `beatrice.uwimana@vupbridge.rw` | `demo1234` | Pending verification (Direct Support) |
-| VUP member | Theogene Habiyaremye | `theogene.habiyaremye@vupbridge.rw` | `demo1234` | Pending verification (Classic Public Works) |
-| **Planner** | **Planner One** | `planner1@vupbridge.rw` | `demo1234` | Lead District Social Protection Planner |
-| Planner | Planner Two | `planner2@vupbridge.rw` | `demo1234` | Secondary Regional Planner |
-| **Seller** | **Mukamana Farm** | `mukamana@vupbridge.rw` | `demo1234` | Dry beans seller, Kirehe District |
-| Seller | Nyabihu Potato Coop | `nyabihu@vupbridge.rw` | `demo1234` | Kinigi Irish potato cooperative, Nyabihu |
-| Seller | Kamonyi Veg Growers | `kamonyi@vupbridge.rw` | `demo1234` | Fresh tomato & greens grower, Kamonyi |
-| Seller | Gisagara Sweet Potato | `gisagara@vupbridge.rw` | `demo1234` | Sweet potato grower group, Gisagara |
-| **Shopper** | **Grace Ingabire** | `grace.ingabire@vupbridge.rw` | `demo1234` | Kigali ethical consumer (2% pool donor) |
-| Shopper | Eric Mugisha | `eric.mugisha@vupbridge.rw` | `demo1234` | Kigali ethical consumer (3% pool donor) |
-| Shopper | Aline Uwase | `aline.uwase@vupbridge.rw` | `demo1234` | Kigali ethical consumer (5% pool donor) |
-| Shopper | Patrick Nkurunziza | `patrick.nkurunziza@vupbridge.rw` | `demo1234` | Kigali ethical consumer (1% pool donor) |
-| **Government worker** | **Admin Demo** | `admin@vupbridge.rw` | `demo1234` | System auditor (sees all users, orders, failure switch) |
+The dashboard uses **prepared, grouped summary values** in [`js/nisr_data.js`](js/nisr_data.js). They are labeled as the 2023–24 EICV7 VUP survey baseline. The project brief describes the supplied estimates as early and unweighted, so treat them as **provisional** until a final weighted analysis is checked.
 
----
+The summaries include national, programme, province, programme-by-province, district, group, and food-price comparisons. The district map displays bundled district summaries and boundaries. It is a way to explore patterns; it is not a live map of household payments.
 
-## 4. Key Architectural Modules
+The separate `Microdata.zip` supplied to the project contains raw survey modules. It is not included in this repository, and the browser app does not read the raw Stata files. This prototype does not contain every survey variable or household record, and the grouped figures do not verify a person's current payment or eligibility.
 
-### A. The Credit Desk with 3 Queues
-Track every bridge credit order through its financial lifecycle:
-1. **To Approve:** Verifies family eligibility, NISR delay days, and enforces the 14-day credit cap (first credit capped at 3 days; one open credit at a time).
-2. **To Pay Sellers:** Displays delivered credit orders. The planner clicks **"Pay Seller from Pool"** to disburse mobile money to the farmer immediately.
-3. **To Repay:** Tracks outstanding credit owed back to the pool. When the government VUP transfer wave clears, click **"Settle from VUP Transfer"** or **"Write Off"** (absorbed by pool).
+**Read the findings carefully:** survey patterns can show that reported delays differ between groups. They cannot explain why one person's payment was late, prove the cause of a delay, or identify who should receive support. Small groups also need caution; very small samples should be suppressed or combined.
 
-### B. Member Verification Lifecycle
-- Unverified members start as `pending`.
-- Planners view the **Member Approvals Queue** and click **"Approve Member"**.
-- Approved members transition to `verified`, add payment details (MoMo / SACCO), and become `credit-ready`.
+The app's activity date filter applies only to **simulated prototype orders**. It does not change the survey period or turn the NISR baseline into live data. Reports label these two kinds of information separately.
 
-### C. Language Support
-- The language selector uses translations bundled with the app in English (EN), Kinyarwanda (RW), and French (FR).
-- No Gemini translator or other translation API is connected.
+## What is real and what is a demo?
 
-### D. Single Immutable Ledger & Problem Dispute Cases
-- **Immutable Financial Ledger:** Transactions are never edited or deleted. Errors are corrected via linked reversal entries.
-- **🚩 Report a Problem:** Available on every order and ledger transaction. Creates an open Case in the Planner and Admin dispute queues.
-- **Admin Failure Switch:** Toggle `"Make the next payment fail"` to simulate a mobile money float failure and test problem resolution.
+| Part | How it works here |
+| --- | --- |
+| NISR figures | Prepared summary values bundled with the app; not a live NISR connection. |
+| Accounts and sign-in | Demo-only, stored in browser `localStorage`; no identity provider or secure account service. |
+| Orders, balances, credit, wallet, pool, and ledger | Simulated browser data. No real money moves. Clearing the browser's site data can remove the local demo state. |
+| Cash, MoMo, Airtel, bank, and SACCO options | Checkout choices for the prototype. Digital methods do not connect to a payment provider. |
+| Map | Bundled Rwanda district boundaries and summary data. External map tiles or page assets may be loaded when available; they are not NISR services. |
+| Languages | English, Kinyarwanda, and French text is bundled in the app. No Gemini or other live translation service is connected. |
+| API and storage | The Python entry point serves the app files. It does not connect this prototype to a VUP, NISR, bank, SACCO, or mobile-money API. Demo state is held in the browser. |
 
-### E. Statements & Analysis Reports
-- Downloadable **PDF / CSV Statements** for every role (statement number, period, itemized transactions, credit, repaid balance).
-- **Analysis report:** Printable report containing the provisional NISR baseline, simulated pool activity, and district summaries.
+A live payment or government-data service would need an approved provider, secure backend, access controls, privacy review, and verified data agreements. None is configured in this prototype.
 
-### F. Planner/Admin NISR Analysis Workspace
-- The overview dashboard links to a plain-language NISR analysis with national, programme, province, district, payment-method, demographic, and sample-size comparisons.
-- The EICV7 baseline is fixed to the **2023–24 survey period**. The activity filter (Today, last 7 days, last 30 days, last 12 months, or custom dates) applies only to simulated prototype orders; it never changes or re-dates NISR results.
-- Download the NISR analysis as CSV, print/save a combined NISR and selected-period activity report as PDF, or download the selected-period transactions as CSV.
-- The report labels simulated activity and provisional survey summaries. It explains that the survey shows patterns, not individual causes, and does not establish a household's current payment status.
+## AI and design-tool disclosure
 
+The team used digital tools to support the work, including **ChatGPT/Codex, Claude AI, Google Antigravity, and Figma**. These tools supported parts of the idea development, writing, coding assistance, design exploration, and revision. Their exact contribution differed by task.
 
-### NISR data source, coverage, and limits
+AI tools did not independently own the project or make decisions about government policy, household eligibility, or the meaning of NISR results. The team reviewed and edited the material and remains responsible for the prototype. The app does not call a generative-AI API at run time; there is no Gemini chat or live AI translator in the product.
 
-The dashboard reads prepared summary values from `js/nisr_data.js`; it does not download current data from NISR. The values identify an EICV7 VUP survey baseline, and the supplied build brief describes them as early, unweighted estimates. They are provisional and have not been independently recalculated from raw survey records for this prototype.
+## Team contribution
 
-The bundled summaries cover national totals and delays; VUP programme and province comparisons; programme-by-province hotspots; group comparisons for poverty level, payment channel, rural or urban area, gender, and age; district delay, poverty, price index, priority score, and sample count; and food price benchmarks. Rwanda district boundaries are bundled in `js/rwanda_geo_data.js`. The map can show the bundled district measures, but the district data does not include a district-level share of households waiting over seven days.
+This work was built by a **student team**, with design, research, coding, testing, and review developed through collaboration.
 
-The separate `Microdata.zip` supplied for the project contains raw NISR Stata (`.dta`) survey modules. The ZIP is not in this repository, and the browser does not read those files. So the dashboard does **not** include every detail or personal record from the raw survey. It shows only the prepared, grouped values listed above. Survey patterns cannot explain a particular family's delay or confirm its current payment or eligibility.
+- **Zaidi — project lead:** helped shape the project idea and product direction, designed and refined parts of the user experience, tested the prototype, wrote parts of the code, and coordinated project revisions with the team and supporting tools.
+- **KAYUMBA TETA Aela Greta — team member:** contributed as a collaborator on the project. The team shared work across planning, research, design review, implementation, and testing.
 
-### Live API and external services
+These credits describe team participation; they do not claim that one person or an AI tool produced the whole project. The team is affiliated with the University of Rwanda, College of Science and Technology (CST).
 
-- **NISR API:** None is connected. Survey figures stay fixed until the bundled summary file is changed. Date filters apply only to simulated prototype activity.
-- **Payments and login:** No real bank, SACCO, MTN MoMo, Airtel Money, or identity service is connected. Demo accounts, balances, orders, and payments are saved in browser storage and are not real transactions.
-- **Map:** District boundaries are local. Leaflet, fonts, and icons may load from external CDNs; CARTO may provide background map tiles when available. These services do not provide NISR survey data. The map has a local SVG fallback.
-- **Languages:** English, Kinyarwanda, and French text is bundled. The translation helper works offline and does not send text to Gemini or another translation API.
+## Run it on your computer
 
----
-## 5. Verification & Acceptance Testing (Tests 1–29)
+The app is a static website. From the repository folder, run:
 
-To run the automated Node.js test suite covering all 29 acceptance criteria:
-
-```bash
-node scripts/test_runtime.js
-```
-
-Expected output:
-```text
-App loaded successfully!
-Testing render():
-Rendered successfully.
---- TEST 1: Role picking & Member Login ---
-Logged in as: amina uwase | Role: Family
---- TEST 2: Timeframe switching ---
-Timeframe set to: month, year, week
---- TEST 3: Trilingual localization ---
-Language rw, fr, en passed.
---- TEST 4: Offline language helper ---
-Offline Kinyarwanda & French translations passed.
---- TEST 5: Planner Login & Credit Desk Queues ---
-Logged in as: Planner One | Role: Planner
-Credit Desk "To approve": 1 | "To pay sellers": 1 | "To repay": 2
-Alerts box, AI Helper, Credit Desk rendered successfully.
---- TEST 6: Admin Login & Demo Failure Switch ---
-makeNextPaymentFail toggle passed.
---- TEST 7: Farmer & Shopper Views ---
-Passed.
---- TEST 8: Problem Case Reporting & Reversals ---
-Initial cases verified.
-=========================================
-✅ ALL ACCEPTANCE TESTS SUCCESSFULLY PASSED!
-=========================================
-```
-
----
-
-## 6. How to Run Locally
-
-### Option 1: Python HTTP Server (Windows / Mac / Linux)
 ```bash
 python -m http.server 8085
 ```
-Open [http://localhost:8085](http://localhost:8085) in your web browser.
 
-### Option 2: Windows 1-Click Launcher
-Double-click `start_local.bat` in the project root.
+Then open [http://localhost:8085](http://localhost:8085). You can also use `start_local.bat` on Windows.
+
+The project keeps a root copy and an `app/` copy of the website for hosting compatibility. The Python local server command above serves the repository root. No build step is needed for the static prototype.
+
+## Project files
+
+| File or folder | Purpose |
+| --- | --- |
+| `index.html`, `css/`, `js/`, `assets/` | Main browser prototype and its styles, scripts, and images. |
+| `app/` | Mirrored website files used by the hosting setup. |
+| `js/nisr_data.js` | Prepared NISR summary values shown in the analysis. |
+| `js/vup_seed_data.js` | Demo accounts, orders, and example ledger activity. |
+| `js/rwanda_geo_data.js` | Bundled district map boundaries. |
+| `docs/` | Project and design reference material. |
+| `scripts/` | Data preparation and development helper scripts. |
+| `api/`, `app.py` | Python static-file serving entry point; no live VUP or payment API. |
+
+## Responsible-use rules
+
+- **Prototype money is fake.** No real payment, credit, wallet balance, pool contribution, payout, or repayment is created.
+- **Survey patterns are not individual explanations.** Do not use this dashboard to judge a household or make an eligibility decision.
+- **Example records are not official records.** Replace demo balances with verified, authorized records before any real-world service is considered.
+- **Protect people's information.** This browser prototype is not built to store real household, identity, or financial data.
 
 ---
 
-## 7. Authors & Academic Affiliation
-
-- **Zaidi**  
-  *Final Year, Information Systems*  
-  *School of ICT, College of Science and Technology (CST), University of Rwanda*
-- **KAYUMBA TETA Aela Greta**  
-  *Final Year, College of Science and Technology (CST), University of Rwanda*
-
-*Built with pride for Rwandan smallholder farmers and VUP beneficiary households · NISR 2026 Big Data Hackathon.*
+*Built by the Isoko Bridge student team for the NISR 2026 Big Data Hackathon. “Eat while you wait” is a design idea being explored, not a promise of government payment or food support.*
