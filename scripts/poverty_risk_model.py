@@ -1,16 +1,16 @@
 """
-Poverty Risk Estimation Model
-Implements a proxy means assessment based purely on household demographics
-and dwelling characteristics (excluding direct income/consumption to avoid circularity).
-Outputs a probability and a categorical risk band (Low, Moderate, High, Severe Risk).
-Rule: Intended for geographic prioritization, never to unilaterally disqualify beneficiaries.
+Experimental poverty-risk heuristic (not a validated statistical model).
+The function returns a number in probability-like form and a risk band, but its
+weights have no documented training or validation evidence. It is not connected
+to the app and must not be used to rank or decide support for real households.
 """
 import math
 
 def calculate_poverty_risk(household_size, num_children, floor_material, estimated_monthly_rent_rwf, wall_material="mud_brick"):
     """
-    Computes proxy poverty risk score calibrated to NISR VUP household survey parameters.
-    AUC benchmark: ~0.78
+    Computes an experimental heuristic score. The weights are not calibrated
+    or validated against NISR microdata; this helper is not connected to the app
+    and must not be used for eligibility or household decisions.
     """
     # Baseline log-odds
     log_odds = -1.25

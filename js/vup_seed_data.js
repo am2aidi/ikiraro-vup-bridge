@@ -175,6 +175,21 @@ const VUP_SAMPLE_USERS = {
     }
   ],
 
+  // Market traders list food sourced from local markets and suppliers.
+  trader: [
+    {
+      name: "Umutima Market Traders",
+      email: "umutima.market@vupbridge.rw",
+      password: "Market#2026",
+      role: "Farmer",
+      roleCode: "trader",
+      district: "Gasabo",
+      payoutMethod: "MTN Mobile Money",
+      payoutAccount: "078XXXX321",
+      stateDesc: "Demo market trader: bananas, avocado, and eggs"
+    }
+  ],
+
   // 3. Shoppers
   shopper: [
     {

@@ -17,6 +17,7 @@ global.document = {
       value: '',
       textContent: '',
       innerHTML: '',
+      dataset: {},
       style: {},
       classList: {
         add: () => {},
@@ -39,6 +40,7 @@ global.document = {
     return {
       tagName: tag,
       innerHTML: '',
+      dataset: {},
       style: {},
       classList: {
         add: () => {},
@@ -197,9 +199,32 @@ if (global.app) {
   global.app.handlePrototypeLogin({ preventDefault: () => {} });
   console.log('Shopper view render test passed.');
 
-  console.log('\n--- TEST 8: Problem Case Reporting & Reversals ---');
-  const initialCasesCount = global.app.state.cases ? global.app.state.cases.length : 0;
-  console.log('Initial cases count:', initialCasesCount);
+  console.log('\n--- TEST 9: System Architecture & Ecosystem Flow Visualizer ---');
+  global.app.logout();
+  global.app.setPublicTab('architecture');
+  const archHtml = global.app.renderPublicArchitectureView();
+  console.log('Architecture view HTML generated, length:', archHtml.length);
+  const nodes = global.app.getArchNodes();
+  console.log('Architecture nodes count:', Object.keys(nodes).length, '(Nodes:', Object.keys(nodes).join(', '), ')');
+  const simSteps = global.app.getArchSimSteps();
+  console.log('Architecture simulation steps count:', simSteps.length);
+  global.app.setArchFlow('bridge');
+  console.log('Active arch flow set to:', global.app.state.activeArchFlow);
+  global.app.selectArchNode('agaseke');
+  console.log('Selected arch node set to:', global.app.state.selectedArchNode);
+  global.app.advanceArchSim();
+  console.log('Advanced sim step to:', global.app.state.archSimStep);
+
+  console.log('\n--- TEST 10: VUP Payroll & Agaseke Relief Pool ---');
+  global.app.pickRole('planner');
+  elementsMap.protoEmail.value = 'planner1@vupbridge.rw';
+  elementsMap.protoPassword.value = 'demo1234';
+  global.app.handlePrototypeLogin({ preventDefault: () => {} });
+  const payrollHtml = global.app.renderPlannerPayrollTab();
+  console.log('Payroll Tab HTML generated, length:', payrollHtml.length);
+  const agasekeHtml = global.app.renderAgasekeManagementTab();
+  console.log('Agaseke Tab HTML generated, length:', agasekeHtml.length);
+  console.log('Agaseke pool balance:', global.app.state.agasekePool, 'RWF');
 
   global.app.logout();
   console.log('\n=========================================');
