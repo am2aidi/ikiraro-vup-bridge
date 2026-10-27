@@ -1455,13 +1455,7 @@ class IsokoApp {
     }
     const accountSlot = document.getElementById("railAccountSlot");
     const footerSlot = document.getElementById("railFooterSlot");
-    if (accountSlot) {
-      if (this.state.user) {
-        const user = this.state.currentUser || {};
-        const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-        accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" data-tip="Profile and settings"><span class="rail-avatar">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="rail-account-copy rail-label"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><i class="bi bi-gear rail-label" aria-hidden="true"></i></button>`;
-      } else accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setPublicTab('roles')" title="Sign in or create an account" data-tip="Sign in or create an account"><span class="rail-avatar"><i class="bi bi-person" aria-hidden="true"></i></span><span class="rail-account-copy rail-label"><b>Welcome</b><small>Sign in or join</small></span></button>`;
-    }
+    if (accountSlot) accountSlot.innerHTML = "";
     if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
@@ -1469,7 +1463,16 @@ class IsokoApp {
     if (this.state.user) {
       const user = this.state.currentUser || {};
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-      slot.innerHTML = `<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i>${this.getUnreadNotifications().length ? `<span class="notification-count">${Math.min(99,this.getUnreadNotifications().length)}</span>` : ""}</button><div class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button>`;
+      const roleCode = this.state.roleCode || "member";
+      const roleShortcut = ["member", "shopper"].includes(roleCode)
+        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartCount()} items"><i class="bi bi-basket2" aria-hidden="true"></i><span>Cart</span>${this.cartCount() ? `<b class="header-count">${this.cartCount()}</b>` : ""}</button>`
+        : ["seller", "trader"].includes(roleCode)
+          ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing"><i class="bi bi-plus-circle" aria-hidden="true"></i><span>Add food</span></button>`
+          : ["planner", "admin"].includes(roleCode)
+            ? `<button class="header-action" onclick="window.app.setNavTab('analysis')" title="Open NISR analysis"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i><span>Analysis</span></button>`
+            : "";
+      const unread = this.getUnreadNotifications().length;
+      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(roleCode))}</small></span><i class="bi bi-gear" aria-hidden="true"></i></button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
@@ -1536,7 +1539,7 @@ class IsokoApp {
       <!-- @uxui_faran Search Bar with Filter Icon -->
       <div class="vm-search-bar" style="margin-bottom:16px;">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="vmSearchInput" placeholder="Search vegetables, beans, potatoes, fruits..." oninput="window.app.filterProduceByName(this.value)">
+        <input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search vegetables, beans, potatoes, fruits..." autocomplete="off" oninput="window.app.filterProduceByName(this.value)">
         <button onclick="window.app.setProximityFilter('near')" style="background:none; border:0; color:var(--mute); cursor:pointer;" title="Sort by Distance">
           <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
         </button>
@@ -2374,7 +2377,7 @@ class IsokoApp {
       <!-- VeggieMart Top Search & Category Filter Header -->
       <div class="vm-search-bar">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="vmSearchInput" placeholder="Search fresh beans, irish potatoes, vegetables, fruits..." oninput="window.app.filterProduceByName(this.value)">
+        <input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search fresh beans, potatoes, vegetables, fruits..." autocomplete="off" oninput="window.app.filterProduceByName(this.value)">
       </div>
 
       <div class="vm-categories-row">
@@ -3168,23 +3171,13 @@ class IsokoApp {
         </button>
       </div>
 
-      <!-- Quick Rwandan Produce Preset Selector -->
-      <div class="card" style="padding:18px 20px; margin-bottom:16px; border-radius:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <b style="font-size:13.5px; font-weight:700;"><i class="bi bi-lightning-charge" style="color:var(--accent);"></i> 🇷🇼 Quick food preset</b>
-          <small style="color:var(--mute);">Tap any Rwandan staple to auto-fill photo and NISR benchmark</small>
+      <section class="card produce-picker" aria-label="Choose a food preset">
+        <div class="produce-picker-heading"><div><b><i class="bi bi-basket2" aria-hidden="true"></i> Choose a food</b><small>Pick a food to fill in its photo and NISR price guide.</small></div><label class="produce-picker-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Search foods" aria-label="Search foods" oninput="window.app.filterFarmerCropPresets(this.value)"></label></div>
+        <div class="produce-preset-grid" id="producePresetGrid">
+          ${Object.entries(HARVEST_GALLERY).map(([name, crop]) => `<button type="button" class="produce-preset ${name === selectedFood ? "selected" : ""}" data-food="${this.escapeHtml(name.toLowerCase())}" aria-pressed="${name === selectedFood}" onclick="window.app.selectFarmerCropPreset('${name}')"><img src="${crop.img}" alt=""><span>${this.escapeHtml(name)}</span><i class="bi bi-check-circle-fill" aria-hidden="true"></i></button>`).join("")}
         </div>
-        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin;">
-          ${Object.entries(HARVEST_GALLERY).slice(0, 14).map(([name, crop]) => `
-            <button type="button" class="btn btn-sm ${name === selectedFood ? 'btn-primary' : 'btn-outline'}"
-              style="display:flex; align-items:center; gap:6px; flex:0 0 auto; border-radius:12px; padding:6px 12px; font-size:12px;"
-              onclick="window.app.selectFarmerCropPreset('${name}')">
-              <img src="${crop.img}" style="width:20px; height:20px; border-radius:6px; object-fit:cover;" alt="">
-              <span>${name}</span>
-            </button>
-          `).join("")}
-        </div>
-      </div>
+        <p class="produce-picker-empty" id="producePresetEmpty" hidden>No foods match that search. Try another name.</p>
+      </section>
 
       <div class="card" style="padding:24px; border-radius:20px;">
         <h3 style="margin-bottom:14px;">Food item and photo</h3>
@@ -4640,6 +4633,11 @@ class IsokoApp {
       }
     } else {
       this.render();
+      const restoredInput = document.getElementById("vmSearchInput");
+      if (restoredInput) {
+        restoredInput.focus();
+        restoredInput.setSelectionRange(restoredInput.value.length, restoredInput.value.length);
+      }
     }
   }
 
@@ -5397,6 +5395,11 @@ class IsokoApp {
 
   onProduceSelected(foodName) {
     this.state.newListingFood = foodName;
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const selected = button.dataset.food === String(foodName).toLowerCase();
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     const unit = HARVEST_GALLERY[foodName]?.unit || "kg";
     document.querySelectorAll(".listing-unit-label").forEach(el => el.textContent = unit);
     document.querySelectorAll(".listing-unit-placeholder").forEach(el => el.textContent = unit);
@@ -5416,7 +5419,24 @@ class IsokoApp {
       if (priceEl && info.retailPrice) priceEl.value = info.retailPrice;
       this.onProduceSelected(cropName);
     }
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const selected = button.dataset.food === cropName.toLowerCase();
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     this.saveState();
+  }
+
+  filterFarmerCropPresets(query) {
+    const normalized = String(query || "").trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const matches = button.dataset.food.includes(normalized);
+      button.hidden = !matches;
+      if (matches) visible++;
+    });
+    const empty = document.getElementById("producePresetEmpty");
+    if (empty) empty.hidden = visible > 0;
   }
 
   toggleFarmerTaxExemption(isExempt) {

@@ -485,3 +485,53 @@
   .auth-card .auth-welcome { position: relative; inset: auto; order: 0; width: auto; height: auto; min-height: 0; padding: 24px; border: 0; border-bottom: 1px solid var(--glass-edge); border-radius: 0; }
   .auth-card .auth-form-panel { position: relative; inset: auto; order: 1; width: auto; height: auto; min-height: 0; max-height: none; padding: 24px; overflow: visible; }
 }
+
+/* Keep account and role shortcuts together in the familiar top-right toolbar. */
+.rail-account-slot:empty { display: none; }
+.top-controls { flex-wrap: nowrap; }
+.top-controls .user#headerUserAuthSlot { display: flex; align-items: center; gap: 7px; width: auto; max-width: min(100%, 650px); padding: 4px 6px; border: 1px solid var(--glass-edge); border-radius: 17px; background: color-mix(in srgb, var(--glass-panel) 78%, transparent); box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(24px) saturate(155%); backdrop-filter: blur(24px) saturate(155%); }
+.header-action { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 38px; padding: 0 12px; border: 1px solid transparent; border-radius: 12px; color: var(--ink); background: transparent; font: 600 12px Inter, sans-serif; white-space: nowrap; cursor: pointer; }
+.header-action:hover { border-color: var(--glass-edge); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); }
+.header-action > .bi { font-size: 16px; }
+.header-count { display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; color: #fff; background: var(--on); font-size: 10px; }
+.header-profile { display: inline-flex; align-items: center; gap: 9px; min-width: 0; max-width: 230px; min-height: 42px; padding: 3px 9px 3px 4px; border: 1px solid var(--glass-edge); border-radius: 14px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 76%, transparent); text-align: left; cursor: pointer; }
+.header-profile:hover { background: color-mix(in srgb, var(--on) 7%, var(--glass-panel)); }
+.header-profile .av { width: 34px; height: 34px; overflow: hidden; border-radius: 12px; }
+.header-profile .av img { width: 100%; height: 100%; object-fit: cover; }
+.header-profile .user-copy { display: grid; min-width: 0; gap: 2px; }
+.header-profile .user-copy b, .header-profile .user-copy small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header-profile .user-copy b { max-width: 120px; font-size: 11px; }
+.header-profile .user-copy small { color: var(--mute); font-size: 9px; }
+.header-profile > .bi { color: var(--mute); font-size: 14px; }
+@media (max-width: 760px) {
+  .top-controls { width: 100%; justify-content: space-between; }
+  .top-controls .user#headerUserAuthSlot { flex: 0 1 auto; gap: 4px; }
+  .header-profile { max-width: 48px; padding-right: 4px; }
+  .header-profile .user-copy, .header-profile > .bi, .header-action > span { display: none; }
+  .header-action { width: 38px; min-width: 38px; padding: 0; }
+  .top-controls .icon-action { width: 38px; min-width: 38px; height: 38px; min-height: 38px; }
+}
+@media (max-width: 420px) {
+  .menu-toggle { gap: 5px; padding-inline: 8px; }
+  .top-controls .user#headerUserAuthSlot { gap: 2px; padding: 3px; }
+  .header-profile, .header-action, .top-controls .icon-action { width: 34px; min-width: 34px; height: 36px; min-height: 36px; }
+}
+.produce-picker { margin: 0 0 16px; padding: 16px; border: 1px solid var(--glass-edge); border-radius: 18px; background: color-mix(in srgb, var(--glass-panel) 82%, transparent); box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%); }
+.produce-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.produce-picker-heading > div { display: grid; gap: 4px; min-width: 0; }
+.produce-picker-heading b { display: flex; align-items: center; gap: 7px; color: var(--ink); font-size: 14px; }
+.produce-picker-heading b .bi { color: var(--on); }
+.produce-picker-heading small { color: var(--mute); font-size: 11px; }
+.produce-picker-search { display: flex; align-items: center; gap: 8px; width: min(100%, 250px); min-height: 38px; padding: 0 11px; border: 1px solid var(--glass-edge); border-radius: 12px; color: var(--mute); background: color-mix(in srgb, var(--glass-panel) 82%, transparent); }
+.produce-picker-search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font: 12px Inter, sans-serif; }
+.produce-preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(142px, 1fr)); gap: 8px; max-height: 260px; overflow: auto; padding: 2px; scrollbar-width: thin; }
+.produce-preset { display: flex; align-items: center; gap: 9px; min-width: 0; min-height: 46px; padding: 6px 9px; border: 1px solid var(--glass-edge); border-radius: 13px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 78%, transparent); text-align: left; cursor: pointer; transition: border-color .16s ease, background .16s ease, transform .16s ease; }
+.produce-preset:hover { transform: translateY(-1px); border-color: color-mix(in srgb, var(--on) 38%, var(--glass-edge)); }
+.produce-preset.selected { border-color: color-mix(in srgb, var(--on) 48%, var(--glass-edge)); background: color-mix(in srgb, var(--on) 11%, var(--glass-panel)); }
+.produce-preset img { width: 30px; height: 30px; flex: none; border-radius: 9px; object-fit: cover; }
+.produce-preset span { flex: 1; min-width: 0; overflow: hidden; font-size: 11px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+.produce-preset > .bi { color: var(--on); opacity: 0; }
+.produce-preset.selected > .bi { opacity: 1; }
+.produce-preset[hidden] { display: none; }
+.produce-picker-empty { margin: 10px 2px 0; color: var(--mute); font-size: 12px; }
+@media (max-width: 600px) { .produce-picker-heading { align-items: stretch; flex-direction: column; }.produce-picker-search { width: 100%; }.produce-preset-grid { grid-template-columns: repeat(2, minmax(0,1fr)); max-height: 220px; } }
