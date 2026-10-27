@@ -448,8 +448,14 @@ class IsokoApp {
     if (toggle) {
       toggle.setAttribute("aria-expanded", String(expanded));
       toggle.title = expanded ? "Close menu" : "Open menu";
-      const label = document.getElementById("menuToggleLabel");
-      if (label) label.textContent = expanded ? "Close menu" : "Open menu";
+      toggle.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+      toggle.classList.toggle("collapsed", !expanded);
+    }
+    const edgeToggle = document.getElementById("railEdgeToggle");
+    if (edgeToggle) {
+      edgeToggle.setAttribute("aria-expanded", String(expanded));
+      edgeToggle.title = expanded ? "Collapse menu" : "Expand menu";
+      edgeToggle.setAttribute("aria-label", expanded ? "Collapse menu" : "Expand menu");
     }
   }
 
@@ -1117,23 +1123,47 @@ class IsokoApp {
     if (modal) modal.classList.remove("open");
   }
 
-  printCurrentStatement() {
-    window.print();
+  openExportFormat(action) {
+    this.pendingExportAction = action;
+    document.getElementById("exportFormatModal")?.classList.add("open");
   }
 
-  exportCurrentStatementCsv() {
+  closeExportFormat() {
+    document.getElementById("exportFormatModal")?.classList.remove("open");
+    this.pendingExportAction = null;
+  }
+
+  confirmExportFormat(format) {
+    const action = this.pendingExportAction;
+    this.closeExportFormat();
+    const exports = {
+      statement: () => this.exportCurrentStatementCsv(format),
+      analysis: () => this.downloadAnalysisCsv(format),
+      transactions: () => this.downloadTransactionsCsv(format),
+      activity: () => this.downloadUserStatement(format),
+      nisr: () => this.downloadNisrCsv(format),
+      nisrOfficial: () => format === "pdf" ? this.downloadNisrPdf() : this.downloadNisrCsv("doc"),
+      payroll: () => this.downloadVupPayrollCsv(format),
+      work: () => this.downloadVupWorkRecords(format),
+      ledger: () => this.downloadLedgerCsv(format),
+      disputes: () => this.downloadAuditCsv(format)
+    };
+    exports[action]?.();
+  }
+
+  printCurrentStatement() {
+    this.openExportFormat("statement");
+  }
+
+  exportCurrentStatementCsv(format = "pdf") {
     if (!this.currentStatementData) return;
     const d = this.currentStatementData;
-    let csv = "Tx_ID,Date,Type,Food,Quantity_KG,Amount_RWF,Payment_Method,Status,Buyer,Seller\n";
-    d.txs.forEach(o => {
-      csv += `${o.id},"${o.date}","${o.mode}","${o.food}",${o.kg},${o.total},"${o.paymentMethod || 'MoMo'}","${o.status}","${o.buyerName}","${o.farmer}"\n`;
-    });
-
-    const dl = document.createElement("a");
-    dl.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
-    dl.setAttribute("download", `VUPBridge_${d.role}_statement_${new Date().toISOString().slice(0,10)}.csv`);
-    dl.click();
-    this.toast("Statement CSV downloaded successfully!", "success");
+    const rows = [["Transaction", "Date", "Type", "Food and quantity", "Amount (RWF)", "Payment method", "Status"], ...d.txs.map(o => [
+      `#${o.id}`, this.getOrderDateLabel(o.date), o.mode === "credit" ? "VUP food credit" : "Cash order",
+      `${o.food || "Food order"} · ${Number(o.kg) || 0} kg`, Number(o.total) || 0,
+      o.paymentMethod || "Not recorded", `${o.status || "Recorded"}${o.repaid ? " · Repaid" : ""}`
+    ])];
+    this.downloadReportDocument(format, `${d.role} activity statement`, `IsokoBridge_${d.role}_statement_${this.localDateInput(new Date())}`, rows);
   }
 
   // Analysis Report Generator (Section 16.4)
@@ -1203,11 +1233,11 @@ class IsokoApp {
   }
 
   printAnalysisReport() {
-    window.print();
+    this.openExportFormat("analysis");
   }
 
-  exportAnalysisCsv() {
-    this.downloadAnalysisCsv();
+  exportAnalysisCsv(format = "pdf") {
+    this.downloadAnalysisCsv(format);
   }
 
   // Problem Cases (Section 16.3)
@@ -1455,13 +1485,7 @@ class IsokoApp {
     }
     const accountSlot = document.getElementById("railAccountSlot");
     const footerSlot = document.getElementById("railFooterSlot");
-    if (accountSlot) {
-      if (this.state.user) {
-        const user = this.state.currentUser || {};
-        const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-        accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" data-tip="Profile and settings"><span class="rail-avatar">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="rail-account-copy rail-label"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><i class="bi bi-gear rail-label" aria-hidden="true"></i></button>`;
-      } else accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setPublicTab('roles')" title="Sign in or create an account" data-tip="Sign in or create an account"><span class="rail-avatar"><i class="bi bi-person" aria-hidden="true"></i></span><span class="rail-account-copy rail-label"><b>Welcome</b><small>Sign in or join</small></span></button>`;
-    }
+    if (accountSlot) accountSlot.innerHTML = "";
     if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
@@ -1469,7 +1493,16 @@ class IsokoApp {
     if (this.state.user) {
       const user = this.state.currentUser || {};
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
-      slot.innerHTML = `<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications"><i class="bi bi-bell" aria-hidden="true"></i>${this.getUnreadNotifications().length ? `<span class="notification-count">${Math.min(99,this.getUnreadNotifications().length)}</span>` : ""}</button><div class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</div><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button>`;
+      const roleCode = this.state.roleCode || "member";
+      const roleShortcut = ["member", "shopper"].includes(roleCode)
+        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Cart · ${this.cartQuantityCount()} items · ${this.cartSubtotal().toLocaleString()} RWF" aria-label="Open cart, ${this.cartQuantityCount()} items, ${this.cartSubtotal().toLocaleString()} RWF"><i class="bi bi-bag" aria-hidden="true"></i>${this.cartQuantityCount() ? `<b class="header-count">${this.cartQuantityCount()}</b>` : ""}</button>`
+        : ["seller", "trader"].includes(roleCode)
+          ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing" aria-label="Add food"><i class="bi bi-plus-circle" aria-hidden="true"></i></button>`
+          : ["planner", "admin"].includes(roleCode)
+            ? `<button class="header-action" onclick="window.app.setNavTab('analysis')" title="Open NISR analysis" aria-label="NISR analysis"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></button>`
+            : "";
+      const unread = this.getUnreadNotifications().length;
+      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" aria-label="Profile and settings for ${this.escapeHtml(user.name || this.state.user.split("@")[0])}"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span></button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
@@ -1536,7 +1569,7 @@ class IsokoApp {
       <!-- @uxui_faran Search Bar with Filter Icon -->
       <div class="vm-search-bar" style="margin-bottom:16px;">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="vmSearchInput" placeholder="Search vegetables, beans, potatoes, fruits..." oninput="window.app.filterProduceByName(this.value)">
+        <input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search vegetables, beans, potatoes, fruits..." autocomplete="off" oninput="window.app.filterProduceByName(this.value)">
         <button onclick="window.app.setProximityFilter('near')" style="background:none; border:0; color:var(--mute); cursor:pointer;" title="Sort by Distance">
           <svg viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
         </button>
@@ -1607,41 +1640,141 @@ class IsokoApp {
   }
 
   renderPublicRolesView() {
-    const rolesList = [
-      { code: "member", key: "Family", icon: '<i class="bi bi-people" aria-hidden="true"></i>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
-      { code: "planner", key: "Planner", icon: '<i class="bi bi-bar-chart-line" aria-hidden="true"></i>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
-      { code: "seller", key: "Farmer", icon: '<i class="bi bi-shop" aria-hidden="true"></i>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
-      { code: "trader", key: "Trader", icon: '<i class="bi bi-shop-window" aria-hidden="true"></i>', title: "Market trader", line: "I sell food bought from local markets and suppliers." },
-      { code: "shopper", key: "Shopper", icon: '<i class="bi bi-cart3" aria-hidden="true"></i>', title: "Ethical Shopper", line: "I buy food for my household." },
-      { code: "admin", key: "Admin", icon: '<i class="bi bi-shield-lock" aria-hidden="true"></i>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
+    const marketRoles = [
+      { code: "member", key: "Family", icon: "bi-people", title: "VUP Member", line: "I receive VUP support and want to shop for food." },
+      { code: "planner", key: "Planner", icon: "bi-bar-chart-line", title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
+      { code: "seller", key: "Farmer", icon: "bi-shop", title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
+      { code: "trader", key: "Trader", icon: "bi-shop-window", title: "Market trader", line: "I sell food bought from local markets and suppliers." },
+      { code: "shopper", key: "Shopper", icon: "bi-cart3", title: "Ethical Shopper", line: "I buy food for my household." }
     ];
 
     return `
-      <div class="head">
-        <div>
-          <h1>Choose Your Role Portal</h1>
-          <p class="sub">Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
-        </div>
-      </div>
+      <div class="role-portal-wrap">
+        <!-- Hero Header with Agritech Produce Canopy Art -->
+        <header class="role-portal-hero">
+          <div class="role-portal-hero-copy">
+            <h1>Choose Your Role Portal</h1>
+            <p>Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
+          </div>
+          <div class="role-portal-hero-art" aria-hidden="true">
+            <svg viewBox="0 0 220 95" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+              <path d="M0 80 Q 60 45, 130 65 T 220 50 L 220 95 L 0 95 Z" fill="#bbf7d0" opacity="0.6"/>
+              <path d="M40 85 Q 110 55, 170 70 T 220 62 L 220 95 L 40 95 Z" fill="#86efac" opacity="0.7"/>
+              <!-- Market Canopy Stall -->
+              <g transform="translate(130, 16)">
+                <!-- Canopy roof -->
+                <path d="M5 28 L 78 28 L 72 8 L 10 8 Z" fill="#047857"/>
+                <path d="M12 8 L 22 28 M 32 8 L 42 28 M 52 8 L 62 28" stroke="#ecfdf5" stroke-width="2.5"/>
+                <!-- Scallop edge -->
+                <path d="M5 28 Q 11 34 17 28 Q 23 34 29 28 Q 35 34 41 28 Q 47 34 53 28 Q 59 34 65 28 Q 71 34 77 28" fill="#047857"/>
+                <!-- Posts -->
+                <rect x="12" y="28" width="4" height="42" fill="#78350f" rx="1"/>
+                <rect x="66" y="28" width="4" height="42" fill="#78350f" rx="1"/>
+                <!-- Table counter -->
+                <rect x="6" y="52" width="70" height="18" fill="#b45309" rx="2"/>
+                <!-- Produce crates -->
+                <rect x="11" y="44" width="16" height="10" fill="#92400e" rx="1"/>
+                <circle cx="16" cy="42" r="3" fill="#ea580c"/>
+                <circle cx="22" cy="43" r="3" fill="#f59e0b"/>
+                <rect x="32" y="44" width="18" height="10" fill="#92400e" rx="1"/>
+                <circle cx="37" cy="42" r="3" fill="#16a34a"/>
+                <circle cx="44" cy="42" r="3" fill="#65a30d"/>
+                <rect x="54" y="44" width="18" height="10" fill="#92400e" rx="1"/>
+                <circle cx="59" cy="42" r="3.5" fill="#dc2626"/>
+                <circle cx="66" cy="42" r="3" fill="#f97316"/>
+              </g>
+            </svg>
+          </div>
+        </header>
 
-      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px;">
-        ${rolesList.map(r => `
-          <div class="card pk" style="cursor:pointer; display:flex; flex-direction:column; padding:22px;" onclick="window.app.pickRole('${r.code}')">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <span class="ki" style="width:44px; height:44px; border-radius:50%; background:var(--accsoft); color:var(--acc); display:grid; place-items:center;">
-                ${r.icon}
-              </span>
-              <span class="tag ${r.code === 'admin' ? 'r' : 'g'}">${r.key}</span>
-            </div>
-            <b style="font-size:16px; font-weight:700; margin-bottom:6px;">${r.title}</b>
-            <p style="color:var(--mute); font-size:12.5px; margin-bottom:16px; line-height:1.45;">${r.line}</p>
-            <div style="margin-top:auto;">
-              <button class="btn btn-sm btn-primary" style="width:100%; justify-content:center;">
-                Enter ${r.title} Portal →
-              </button>
+        <!-- Section 1: Marketplace Participants -->
+        <section class="role-portal-section" aria-labelledby="secMarketTitle">
+          <div class="role-portal-sec-header">
+            <span class="role-portal-sec-icon marketplace"><i class="bi bi-shop" aria-hidden="true"></i></span>
+            <div class="role-portal-sec-title">
+              <b id="secMarketTitle">Marketplace Participants</b>
+              <small>Portals for users who buy, sell, or plan within the food marketplace.</small>
             </div>
           </div>
-        `).join("")}
+          <div class="role-portal-market-grid">
+            ${marketRoles.map(r => `
+              <article class="role-portal-card" onclick="window.app.pickRole('${r.code}')" tabindex="0" role="button" aria-label="Enter ${r.title} Portal">
+                <div class="role-portal-card-top">
+                  <span class="role-portal-card-icon"><i class="bi ${r.icon}" aria-hidden="true"></i></span>
+                  <span class="role-portal-badge">${r.key}</span>
+                </div>
+                <h3 class="role-portal-card-title">${r.title}</h3>
+                <p class="role-portal-card-desc">${r.line}</p>
+                <div class="role-portal-card-action">
+                  <button type="button" class="role-portal-card-btn">
+                    Enter ${r.title} Portal &rarr;
+                  </button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+
+        <!-- Section 2: Administration -->
+        <section class="role-portal-section" aria-labelledby="secAdminTitle">
+          <div class="role-portal-sec-header">
+            <span class="role-portal-sec-icon admin"><i class="bi bi-shield-shaded" aria-hidden="true"></i></span>
+            <div class="role-portal-sec-title">
+              <b id="secAdminTitle">Administration</b>
+              <small>Portals for system oversight, user management, and reporting.</small>
+            </div>
+          </div>
+          <div class="role-portal-admin-grid">
+            <!-- Administrator Card -->
+            <article class="role-portal-card" onclick="window.app.pickRole('admin')" tabindex="0" role="button" aria-label="Enter Administrator Portal">
+              <div class="role-portal-card-top">
+                <span class="role-portal-card-icon admin"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                <span class="role-portal-badge admin">Admin</span>
+              </div>
+              <h3 class="role-portal-card-title">Administrator</h3>
+              <p class="role-portal-card-desc">I review users, payments, reports, and system activity.</p>
+              <div class="role-portal-card-action">
+                <button type="button" class="role-portal-card-btn admin">
+                  Enter Administrator Portal &rarr;
+                </button>
+              </div>
+            </article>
+
+            <!-- Trust, Security & Access Banner -->
+            <div class="role-portal-trust-card">
+              <div class="role-portal-trust-top">
+                <div class="role-portal-trust-title">
+                  <b>Secure. Role-based. Built for trust.</b>
+                  <small>Each portal provides secure access to insights and actions relevant to your role.</small>
+                </div>
+                <i class="bi bi-shield-check role-portal-trust-badge-icon" aria-hidden="true"></i>
+              </div>
+              <div class="role-portal-trust-pillars">
+                <div class="role-portal-pillar">
+                  <i class="bi bi-person-badge" aria-hidden="true"></i>
+                  <div>
+                    <b>Role-based access</b>
+                    <p>See only what's relevant to your responsibilities.</p>
+                  </div>
+                </div>
+                <div class="role-portal-pillar">
+                  <i class="bi bi-database-check" aria-hidden="true"></i>
+                  <div>
+                    <b>Data you can trust</b>
+                    <p>Explore real NISR microdata in a secure environment.</p>
+                  </div>
+                </div>
+                <div class="role-portal-pillar">
+                  <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                  <div>
+                    <b>Actionable insights</b>
+                    <p>Make informed decisions with confidence.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -2209,6 +2342,13 @@ class IsokoApp {
     const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
       <section class="auth-scene" aria-labelledby="authTitle">
+        <svg class="auth-bg-circuit" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 220H140L180 260H300"/><path d="M0 560H220L260 520H340"/><path d="M1200 180H1040L1000 220H900"/>
+          <path d="M1200 600H980L940 560H860"/><path d="M300 0V90L340 130"/><path d="M900 800V700L860 660"/>
+          <circle cx="300" cy="260" r="5"/><circle cx="340" cy="520" r="5" style="animation-delay:.8s"/>
+          <circle cx="900" cy="220" r="5" style="animation-delay:1.4s"/><circle cx="860" cy="560" r="5" style="animation-delay:.4s"/>
+          <circle cx="340" cy="130" r="4" style="animation-delay:1s"/><circle cx="860" cy="660" r="4" style="animation-delay:1.8s"/>
+        </svg>
         <div class="auth-card" data-mode="${isSignup ? "signup" : "login"}">
           <aside class="auth-welcome">
             <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
@@ -2346,51 +2486,41 @@ class IsokoApp {
     const isLate = Number(u.daysLate) > 0;
 
     return `
-      <!-- Member Account Safety Net Status Card -->
-      <div class="card" style="padding: 20px; margin-bottom: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
-          <div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <h2 style="margin:0; font-size:20px;">${u.name}</h2>
-              <span class="tag g">VUP Direct Support</span>
-            </div>
-            <p class="sub" style="margin-top:4px;">${u.district || 'Kirehe'} District · ${u.householdSize || 5} family members · Disbursement ${isLate ? 'delayed by ' + u.daysLate + ' days' : 'on schedule'}</p>
-          </div>
-          <div style="text-align:right;">
-            <div class="wallet-balance-label"><i class="bi bi-wallet2" aria-hidden="true"></i> VUP food wallet</div>
-            <b class="wallet-balance-amount">${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b>
-            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Government amount recorded as owed</div>
-            <b style="font-size:18px; color:var(--primary); font-weight:800;">${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b>
-            <div style="font-size:11px; color:var(--mute);">${Number(u.daysWorked || 0)} work days recorded where applicable · demo record</div>
-            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Food credit ready to use</div>
-            <b style="font-size:20px; color:var(--acc); font-weight:800;">${remaining.toLocaleString()} RWF</b>
-            <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% interest · no planner approval</div>
-          </div>
-        </div>
+      <div class="market-dashboard">
+        ${this.renderMarketHero("Fresh food, at a fair price", "Shop local harvests and choose how to pay at checkout.", "assets/produce/spinach.jpg")}
+        <section class="member-overview-card card" aria-label="Your VUP account summary">
+          <div class="member-overview-profile"><span class="member-overview-avatar"><img src="assets/isoko-bridge-icon.svg" alt=""></span><div><div class="member-overview-name">${this.escapeHtml(u.name || "VUP member")} <span class="tag g">VUP member</span></div><p>${this.escapeHtml(u.district || "Kirehe")} District · ${Number(u.householdSize || 5)} family members</p><small class="${isLate ? "delay-note" : "good-note"}">${isLate ? `Payment is ${u.daysLate} days late` : "VUP payment is on schedule"}</small></div></div>
+          <div class="member-overview-metrics"><article><span><i class="bi bi-wallet2" aria-hidden="true"></i> Food wallet</span><b>${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b></article><article><span>Government amount owed</span><b>${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b></article><article><span>Work days recorded</span><b>${Number(u.daysWorked || 0)}</b><small>Where this applies</small></article><article><span>Food credit ready</span><b>${remaining.toLocaleString()} RWF</b><small>0% interest · no approval needed</small></article></div>
+        </section>
+        ${this.renderMarketplaceTools()}
+        <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Food from nearby farmers and market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
+        ${this.renderGroceryCatalog("cash", { showControls: false })}
       </div>
-
-      <section class="market-promo-banner"><span class="market-promo-icon"><i class="bi bi-basket2" aria-hidden="true"></i></span><div><b>Fresh food, at a fair price</b><p>Shop local harvests and choose a safe demo payment method at checkout.</p></div><button class="btn btn-primary" onclick="window.app.setNavTab('cart')"><i class="bi bi-cart3" aria-hidden="true"></i> Cart${this.cartCount() ? ` · ${this.cartCount()}` : ""}</button></section>
-
-      <!-- VeggieMart Top Search & Category Filter Header -->
-      <div class="vm-search-bar">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="vmSearchInput" placeholder="Search fresh beans, irish potatoes, vegetables, fruits..." oninput="window.app.filterProduceByName(this.value)">
-      </div>
-
-      <div class="vm-categories-row">
-        ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Grains", "Fruits", "Dairy"].map(cat => `
-          <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
-            ${cat === 'All' ? 'All Staples' : cat}
-          </button>
-        `).join("")}
-      </div>
-
-      <!-- Proximity Distance Bar -->
-      ${this.renderNearbyBar()}
-
-      <!-- Produce Grid with Bridge Credit Button -->
-      ${this.renderGroceryCatalog('cash')}
     `;
+  }
+
+  renderMarketHero(title, description, image = "assets/produce/irish_potato.jpg") {
+    return `<section class="market-hero" style="--market-hero-image:url('${this.escapeHtml(image)}')"><div><span class="market-hero-kicker"><i class="bi bi-basket2" aria-hidden="true"></i> Isoko Bridge Marketplace</span><h1>${this.escapeHtml(title)}</h1><p>${this.escapeHtml(description)}</p><button class="market-hero-button" type="button" onclick="window.app.focusMarketSearch()">Shop now <i class="bi bi-arrow-right" aria-hidden="true"></i></button></div></section>`;
+  }
+
+  renderMarketplaceTools() {
+    const categories = [
+      ["All", "All staples", "bi-grid"], ["Staples", "Staples", "bi-basket"], ["Beans", "Beans", "bi-circle-half"],
+      ["Tubers", "Tubers", "bi-flower1"], ["Vegetables", "Vegetables", "bi-flower2"], ["Grains", "Grains", "bi-moisture"],
+      ["Fruits", "Fruits", "bi-apple"], ["Dairy", "Dairy", "bi-cup-straw"], ["Other", "Other", "bi-three-dots"]
+    ];
+    return `<section class="market-tools-grid" aria-label="Find and filter food">
+      <article class="market-tool-card market-search-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-basket2" aria-hidden="true"></i></span><div><h2>Find fresh food</h2><p>Search or browse a food group.</p></div></div><label class="market-search-field"><i class="bi bi-search" aria-hidden="true"></i><input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search beans, potatoes, fruit…" autocomplete="off" oninput="window.app.filterProduceByName(this.value)"></label><h3>Browse by category</h3><div class="market-category-grid">${categories.map(([value, label, icon]) => `<button type="button" class="market-category ${(!this.state.activeCategory && value === "All") || this.state.activeCategory === value ? "on" : ""}" aria-pressed="${(!this.state.activeCategory && value === "All") || this.state.activeCategory === value}" onclick="window.app.state.activeCategory='${value}'; window.app.render();"><i class="bi ${icon}" aria-hidden="true"></i><span>${label}</span></button>`).join("")}</div></article>
+      <article class="market-tool-card market-location-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><div><h2>Choose your location</h2><p>See sellers near you or across Rwanda.</p></div></div>${this.renderNearbyBar()}</article>
+      <article class="market-tool-card market-refine-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-sliders" aria-hidden="true"></i></span><div><h2>Refine results</h2><p>Choose a district, seller, and price order.</p></div></div>${this.renderGroceryControls(this.state.listings.length)}</article>
+    </section>`;
+  }
+
+  focusMarketSearch() {
+    const input = document.getElementById("vmSearchInput");
+    if (!input) return;
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+    input.focus({ preventScroll: true });
   }
 
   renderFamilyCreditTab() {
@@ -3168,23 +3298,13 @@ class IsokoApp {
         </button>
       </div>
 
-      <!-- Quick Rwandan Produce Preset Selector -->
-      <div class="card" style="padding:18px 20px; margin-bottom:16px; border-radius:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <b style="font-size:13.5px; font-weight:700;"><i class="bi bi-lightning-charge" style="color:var(--accent);"></i> 🇷🇼 Quick food preset</b>
-          <small style="color:var(--mute);">Tap any Rwandan staple to auto-fill photo and NISR benchmark</small>
+      <section class="card produce-picker" aria-label="Choose a food preset">
+        <div class="produce-picker-heading"><div><b><i class="bi bi-basket2" aria-hidden="true"></i> Choose a food</b><small>Pick a food to fill in its photo and NISR price guide.</small></div><label class="produce-picker-search"><i class="bi bi-search" aria-hidden="true"></i><input type="search" placeholder="Search foods" aria-label="Search foods" oninput="window.app.filterFarmerCropPresets(this.value)"></label></div>
+        <div class="produce-preset-grid" id="producePresetGrid">
+          ${Object.entries(HARVEST_GALLERY).map(([name, crop]) => `<button type="button" class="produce-preset ${name === selectedFood ? "selected" : ""}" data-food="${this.escapeHtml(name.toLowerCase())}" aria-pressed="${name === selectedFood}" onclick="window.app.selectFarmerCropPreset('${name}')"><img src="${crop.img}" alt=""><span>${this.escapeHtml(name)}</span><i class="bi bi-check-circle-fill" aria-hidden="true"></i></button>`).join("")}
         </div>
-        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; scrollbar-width:thin;">
-          ${Object.entries(HARVEST_GALLERY).slice(0, 14).map(([name, crop]) => `
-            <button type="button" class="btn btn-sm ${name === selectedFood ? 'btn-primary' : 'btn-outline'}"
-              style="display:flex; align-items:center; gap:6px; flex:0 0 auto; border-radius:12px; padding:6px 12px; font-size:12px;"
-              onclick="window.app.selectFarmerCropPreset('${name}')">
-              <img src="${crop.img}" style="width:20px; height:20px; border-radius:6px; object-fit:cover;" alt="">
-              <span>${name}</span>
-            </button>
-          `).join("")}
-        </div>
-      </div>
+        <p class="produce-picker-empty" id="producePresetEmpty" hidden>No foods match that search. Try another name.</p>
+      </section>
 
       <div class="card" style="padding:24px; border-radius:20px;">
         <h3 style="margin-bottom:14px;">Food item and photo</h3>
@@ -3325,91 +3445,16 @@ class IsokoApp {
     const familiesHelped = Math.max(1, Math.floor(agasekePool / 5000));
 
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <div>
-          <h2>${this.t('roleShopperTitle') || 'Ethical Marketplace & Solidarity'}</h2>
-          <p class="sub" style="margin:2px 0 0;">Buy fresh farm harvest direct from rural cooperatives with transparent community micro-savings.</p>
-        </div>
-        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Shopper')">
-          🧾 Download Purchases & Agaseke Receipts (PDF/CSV)
-        </button>
-      </div>
-
-      <!-- Civil Servants & Conscious Shoppers Banner -->
-      <div class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 99, 94, 0.18)); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 20px; padding: 18px 22px; margin-bottom: 16px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:280px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <span class="tag g" style="font-weight:700;">🇷🇼 Gahunda y'Abakozi ba Leta n'Abaguzi</span>
-              <span class="tag" style="background:rgba(52,211,153,0.18); color:var(--on);">Direct Farm Gate</span>
-            </div>
-            <h3 style="font-size:17px; font-weight:800; margin:4px 0 6px; color:var(--ink);">
-              Empower Smallholders · Support Vulnerable Neighbors with Agaseke
-            </h3>
-            <p style="font-size:12.5px; color:var(--mute); margin:0 0 10px; line-height:1.45;">
-              We encourage government employees, civil servants, institutional buyers, and urban citizens to purchase fresh produce directly on Isoko Bridge. Smallholder farmers receive fair gate prices with zero middlemen commission, while each purchase micro-funds emergency food relief for families in Ubudehe Category 1.
-            </p>
-          </div>
-          <div style="flex:0 0 auto; text-align:right;">
-            <span class="tag g" style="font-size:12px; padding:6px 12px;">Zero Middlemen Markups</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Agaseke k'Ubumwe Micro-Solidarity Control & Pool Stats -->
-      <div class="card" style="border-radius:20px; padding:20px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
-          <div>
-            <h3 style="display:flex; align-items:center; gap:8px; margin:0 0 4px; font-size:15.5px;">
-              <i class="bi bi-heart-pulse" style="color:var(--accent);"></i>
-              Agaseke k'Ubumwe Micro-Solidarity Contribution
-            </h3>
-            <p class="sub" style="margin:0; font-size:12px;">
-              10 RWF default micro-saving per order — small enough for anyone, yet collectively feeds vulnerable families.
-            </p>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <span style="font-size:12px; font-weight:600; color:var(--mute); margin-right:4px;">Your contribution:</span>
-            ${[10, 20, 50, 100, 0].map(amt => `
-              <button class="btn btn-sm ${currentAgaseke === amt ? 'btn-primary' : 'btn-outline'}" 
-                style="padding:4px 10px; font-size:11.5px; border-radius:8px;"
-                onclick="window.app.setShopperAgasekeAmount(${amt})">
-                ${amt === 10 ? '10 RWF (Default)' : amt === 0 ? 'Exempt' : `${amt} RWF`}
-              </button>
-            `).join("")}
-          </div>
-        </div>
-
-        <div class="stats" style="margin-top:12px;">
-          <div class="stat">
-            <b style="color:var(--accent);">${totalAgasekeGiven.toLocaleString()} RWF</b>
-            <span>your Agaseke gifts</span>
-          </div>
-          <div class="stat">
-            <b style="color:var(--success);">${agasekePool.toLocaleString()} RWF</b>
-            <span>Agaseke relief pool today</span>
-          </div>
-          <div class="stat">
-            <b>${familiesHelped} families</b>
-            <span>emergency relief capacity</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nearby Proximity Bar -->
-      ${this.renderNearbyBar()}
-
-      <div class="card">
-        <h3>🛒 Buy Food</h3>
-        ${this.renderGroceryCatalog('cash')}
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3>🧾 My Orders & Receipts</h3>
-          <button class="btn btn-sm btn-ghost" onclick="window.app.openStatementModal('Shopper')">Download CSV / PDF</button>
-        </div>
-        ${this.renderOrdersTable(myOrders)}
+      <div class="market-dashboard shopper-dashboard">
+        ${this.renderMarketHero("Fresh food, at a fair price", "Shop local harvests, compare sellers, and support families through Agaseke.", "assets/produce/irish_potato.jpg")}
+        <section class="shopper-overview-card card" aria-label="Shopping and community summary">
+          <div class="shopper-overview-profile"><span class="shopper-overview-avatar"><i class="bi bi-person-heart" aria-hidden="true"></i></span><div><b>${this.escapeHtml(u.name || "Shopper")}</b><small>Local shopper · ${this.escapeHtml(u.district || "Rwanda")}</small></div></div>
+          <div class="shopper-overview-metrics"><article><span>Orders</span><b>${myOrders.length}</b></article><article><span>Your Agaseke donations</span><b>${totalAgasekeGiven.toLocaleString()} RWF</b></article><article><span>Delivery Hub</span><b>${this.escapeHtml(u.district || "Kigali")}</b></article><article><span>Cart</span><b>${this.cartCount()} ${this.cartCount() === 1 ? "item" : "items"}</b></article></div>
+        </section>
+        ${this.renderMarketplaceTools()}
+        <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Buy directly from farmers and local market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
+        ${this.renderGroceryCatalog("cash", { showControls: false })}
+        <section class="shopper-bottom-grid"><article class="card shopper-orders-card" style="grid-column: 1 / -1;"><div class="shopper-orders-heading"><div><h2>My orders & receipts</h2><p>Check your past purchases, delivered produce, and solidarity contributions.</p></div><button class="icon-action" onclick="window.app.openStatementModal('Shopper')" title="Download purchases and receipts" aria-label="Download purchases and receipts"><i class="bi bi-download" aria-hidden="true"></i></button></div>${this.renderOrdersTable(myOrders)}</article></section>
       </div>
     `;
   }
@@ -3678,7 +3723,7 @@ class IsokoApp {
     this.toast(`Batch Complete: Disbursed ${totalDisbursedNet.toLocaleString()} RWF net cash to ${members.length} families. Revolving pool replenished!`, "success");
   }
 
-  downloadVupPayrollCsv() {
+  downloadVupPayrollCsv(format = "pdf") {
     const members = this.state.users?.member || [];
     const rows = [
       ["Beneficiary", "Email", "Programme", "District", "Sector", "Days Worked", "Gross Allowance RWF", "Open Food Credit RWF", "Ejo Heza 5% RWF", "Gov 100% Match RWF", "Net Cash Payout RWF", "Payment Method", "Account Number", "Status"],
@@ -3705,8 +3750,7 @@ class IsokoApp {
         ];
       })
     ];
-    const csv = rows.map(r => r.map(v => this.csvCell(v ?? "")).join(",")).join("\r\n");
-    this.downloadFile(`vup-payroll-wave-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
+    this.downloadReportDocument(format, "VUP payroll summary", `IsokoBridge_VUP_payroll_${this.localDateInput(new Date())}`, rows);
   }
 
   renderAgasekeManagementTab() {
@@ -3953,11 +3997,10 @@ class IsokoApp {
     this.toast("VUP work record saved. Available food credit has been updated.", "success");
   }
 
-  downloadVupWorkRecords() {
+  downloadVupWorkRecords(format = "pdf") {
     if (this.state.roleCode !== "admin") { this.toast("Only an admin can download member work records.", "warning"); return; }
     const rows = [["Member", "Email", "Programme", "District", "Days worked", "Government amount owed RWF", "Open food credit RWF", "Food credit available RWF"], ...(this.state.users?.member || []).map(user => [user.name, user.email, user.programme, user.district, Number(user.daysWorked || 0), Number(user.governmentAmountOwed || 0), this.getOutstandingCredit(user.email), this.getRemainingCredit(user)])];
-    const csv = rows.map(row => row.map(value => this.csvCell(value ?? "")).join(",")).join("\r\n");
-    this.downloadFile(`vup-work-records-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
+    this.downloadReportDocument(format, "VUP work records", `IsokoBridge_VUP_work_records_${this.localDateInput(new Date())}`, rows);
   }
 
   filterAdminUserRows(query) {
@@ -4221,10 +4264,38 @@ class IsokoApp {
 
   cartCount() { return (this.state.cart || []).length; }
   cartQuantityCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
+  cartSubtotal() {
+    return (this.state.cart || []).reduce((sum, line) => {
+      const listing = this.state.listings.find(item => Number(item.id) === Number(line.listingId));
+      return sum + (listing ? (Number(listing.price) || 0) * (Number(line.qty) || 0) : 0);
+    }, 0);
+  }
   getAgasekeContributionAmount() {
-    if (this.state.roleCode !== "shopper") return 0;
+    if (this.state.shopperAgasekeAmount !== undefined) {
+      return Math.max(0, Math.round(Number(this.state.shopperAgasekeAmount) || 0));
+    }
     const amount = Number(this.state.currentUser?.agasekeContribution);
     return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 10;
+  }
+  setShopperAgasekeAmount(amount) {
+    const value = Math.max(0, Math.round(Number(amount) || 0));
+    this.state.shopperAgasekeAmount = value;
+    if (!this.state.currentUser) this.state.currentUser = {};
+    this.state.currentUser.agasekeContribution = value;
+    const email = String(this.state.user || "").toLowerCase();
+    for (const r in this.state.users || {}) {
+      const list = this.state.users[r] || [];
+      const account = list.find(u => String(u.email || "").toLowerCase() === email);
+      if (account) account.agasekeContribution = value;
+    }
+    this.saveState();
+    if (this.state.pendingCheckoutOrder) {
+      const p = this.state.pendingCheckoutOrder;
+      const items = p.items || [{ listing: p.listing, qty: p.qty }];
+      this.openPhonePayModal(items[0].listing, items[0].qty, p.total);
+    } else {
+      this.render();
+    }
   }
   addToCart(listingId) {
     const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
@@ -4247,10 +4318,88 @@ class IsokoApp {
   }
   renderCartView() {
     const lines = (this.state.cart || []).map(line => ({ ...line, listing: this.state.listings.find(item => Number(item.id) === Number(line.listingId)) })).filter(line => line.listing);
-    const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0);
+    const subtotal = lines.reduce((sum, line) => sum + line.qty * line.listing.price, 0);
     const gift = this.getAgasekeContributionAmount(), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
     const count = this.cartCount(), qtyCount = this.cartQuantityCount();
-    return `<div class="head"><div><h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1><p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>${count} ${count === 1 ? "product" : "products"}</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div>${gift ? `<div><span>Agaseke Relief</span><b>${gift.toLocaleString()} RWF</b></div>` : `<div><span>Agaseke Relief</span><b>Not added</b></div>`}<div class="cart-grand-total"><span>Food total</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div>${this.state.roleCode === "member" ? `<p><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}<p class="sub">Choose cash, a demo payment method, your VUP wallet, or available VUP credit at the next step.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Choose how to pay</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
+    const grandTotal = subtotal + gift + fee;
+    return `
+      <div class="head">
+        <div>
+          <h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1>
+          <p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p>
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button>
+      </div>
+      ${lines.length ? `
+        <div class="cart-layout">
+          <section class="card cart-items">
+            ${lines.map(line => `
+              <article class="cart-line">
+                <img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt="">
+                <div class="cart-line-main">
+                  <b>${this.escapeHtml(line.listing.food)}</b>
+                  <small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small>
+                  <label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label>
+                </div>
+                <strong>${(line.qty * line.listing.price).toLocaleString()} RWF</strong>
+                <button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+              </article>
+            `).join("")}
+          </section>
+          <aside class="card cart-summary">
+            <h2>Payment Separation</h2>
+            <div style="display:flex; justify-content:space-between; margin:8px 0;">
+              <span>Produce Subtotal (${count} items)</span>
+              <b>${subtotal.toLocaleString()} RWF</b>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:8px 0;">
+              <span>Delivery</span>
+              <button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Express Moto · 300 RWF" : "SACCO Pickup · Free"}</button>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin:8px 0; font-size:12px; color:var(--mute);">
+              <span>District Market Levy (2%)</span>
+              <span style="color:#0e8555; font-weight:700;">Exempt (Smallholder Co-op)</span>
+            </div>
+
+            <!-- Agaseke Relief Fund Selector -->
+            <div class="agaseke-donation-card">
+              <div class="agaseke-donation-header">
+                <b><i class="bi bi-heart-pulse"></i> Agaseke Relief Contribution</b>
+                <span>${gift ? `+${gift.toLocaleString()} RWF` : "0 RWF (Exempt)"}</span>
+              </div>
+              <p class="agaseke-donation-desc">
+                10 RWF default micro-saving per order — small enough for anyone, yet collectively feeds Ubudehe 1 & 2 vulnerable families. Choose or increase your contribution:
+              </p>
+              <div class="agaseke-donation-chips">
+                ${[10, 50, 100, 250, 500, 0].map(amt => `
+                  <button type="button" class="agaseke-chip ${gift === amt ? 'active' : ''}" onclick="window.app.setShopperAgasekeAmount(${amt})">
+                    ${amt === 10 ? '10 RWF (Default)' : amt === 0 ? 'Exempt' : `+${amt} RWF`}
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="cart-grand-total" style="display:flex; justify-content:space-between; margin-top:12px; font-size:16.5px; font-weight:800; border-top:1px dashed var(--line); padding-top:10px;">
+              <span>Total to pay</span>
+              <b style="color:var(--on);">${grandTotal.toLocaleString()} RWF</b>
+            </div>
+
+            ${this.state.roleCode === "member" ? `<p class="sub" style="margin-top:10px;"><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}
+            <p class="sub" style="font-size:11.5px; margin-top:6px;">Choose cash, Mobile Money, your VUP wallet, or available VUP credit at the next step.</p>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:12px; font-weight:750;" onclick="window.app.checkoutCart()">
+              <i class="bi bi-lock" aria-hidden="true"></i> Proceed to Pay (${grandTotal.toLocaleString()} RWF)
+            </button>
+          </aside>
+        </div>
+      ` : `
+        <section class="card empty-state">
+          <i class="bi bi-basket" aria-hidden="true"></i>
+          <b>Your cart is empty</b>
+          <span>Add fresh food from the market to start an order.</span>
+          <button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button>
+        </section>
+      `}
+    `;
   }
   checkoutCart() {
     const items = (this.state.cart || []).map(line => ({ listing: this.state.listings.find(item=>Number(item.id)===Number(line.listingId)), qty: Number(line.qty) })).filter(line=>line.listing);
@@ -4640,6 +4789,11 @@ class IsokoApp {
       }
     } else {
       this.render();
+      const restoredInput = document.getElementById("vmSearchInput");
+      if (restoredInput) {
+        restoredInput.focus();
+        restoredInput.setSelectionRange(restoredInput.value.length, restoredInput.value.length);
+      }
     }
   }
 
@@ -4680,7 +4834,17 @@ class IsokoApp {
     this.render();
   }
 
-  renderGroceryCatalog(mode) {
+  renderGroceryControls(itemCount) {
+    const selectedDist = this.state.selectedDistrictFilter || "all";
+    const sellerFilterName = this.state.selectedSellerFilter;
+    const sortKey = this.state.produceSort || "distance";
+    const sellerFilter = this.state.sellerTypeFilter || "all";
+    const proximity = (this.state.nearby && this.state.nearby.filterProximity) || "all";
+    const hasActiveFilters = selectedDist !== "all" || !!sellerFilterName || (this.state.searchQuery || "").trim() || (this.state.activeCategory && this.state.activeCategory !== "All") || proximity !== "all" || sellerFilter !== "all";
+    return `<div class="market-refine-controls"><label><span><i class="bi bi-geo-alt" aria-hidden="true"></i> District</span><select class="form-control" onchange="window.app.setDistrictFilter(this.value)"><option value="all" ${selectedDist === "all" ? "selected" : ""}>All Rwanda (30 districts)</option>${NISR_DATA.districts.map(d => `<option value="${this.escapeHtml(d.name)}" ${selectedDist.toLowerCase() === d.name.toLowerCase() ? "selected" : ""}>${this.escapeHtml(d.name)} · ${this.escapeHtml(d.province)}</option>`).join("")}</select></label><label><span><i class="bi bi-sort-down" aria-hidden="true"></i> Sort by</span><select class="form-control" onchange="window.app.setProduceSort(this.value)"><option value="distance" ${sortKey === "distance" ? "selected" : ""}>Nearest first</option><option value="price_asc" ${sortKey === "price_asc" ? "selected" : ""}>Price: low to high</option><option value="price_desc" ${sortKey === "price_desc" ? "selected" : ""}>Price: high to low</option><option value="stock" ${sortKey === "stock" ? "selected" : ""}>Most available</option></select></label><div class="market-seller-filters" role="group" aria-label="Filter by seller">${[["all", "All sellers"], ["farmer", "Farmer co-ops"], ["trader", "Market traders"]].map(([value, label]) => `<button type="button" class="market-seller-filter ${sellerFilter === value ? "on" : ""}" aria-pressed="${sellerFilter === value}" onclick="window.app.state.sellerTypeFilter='${value}'; window.app.render();">${label}</button>`).join("")}</div><div class="market-refine-footer"><span class="market-list-count">${Number(itemCount) || 0} listings</span>${hasActiveFilters ? `<button class="market-reset-button" type="button" onclick="window.app.resetMarketFilters()"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reset</button>` : ""}</div></div>`;
+  }
+
+  renderGroceryCatalog(mode, { showControls = true } = {}) {
     const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
     const filter = (this.state.nearby && this.state.nearby.filterProximity) || "all";
     const selectedDist = this.state.selectedDistrictFilter || "all";
@@ -4748,44 +4912,8 @@ class IsokoApp {
       items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
     }
 
-    const hasActiveFilters = selectedDist !== "all" || sellerFilterName || searchQuery || (this.state.activeCategory && this.state.activeCategory !== "All") || filter !== "all";
-
     return `
-      <!-- Market Toolbar: District Filter, Proximity Sort, and Active Filter Strip -->
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding:10px 14px; background:var(--soft); border-radius:16px; border:1px solid var(--line);">
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
-            <i class="bi bi-geo-alt"></i> District:
-            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setDistrictFilter(this.value)">
-              <option value="all" ${selectedDist === 'all' ? 'selected' : ''}>All Rwanda (30 Districts)</option>
-              ${NISR_DATA.districts.map(d => `<option value="${d.name}" ${selectedDist.toLowerCase() === d.name.toLowerCase() ? 'selected' : ''}>${d.name} (${d.province})</option>`).join("")}
-            </select>
-          </label>
-
-          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
-            <i class="bi bi-sort-numeric-down"></i> Sort:
-            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setProduceSort(this.value)">
-              <option value="distance" ${sortKey === 'distance' ? 'selected' : ''}>Nearest First</option>
-              <option value="price_asc" ${sortKey === 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
-              <option value="price_desc" ${sortKey === 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
-              <option value="stock" ${sortKey === 'stock' ? 'selected' : ''}>Highest Stock</option>
-            </select>
-          </label>
-        </div>
-
-        <div style="display:flex; align-items:center; gap:8px;">
-          ${hasActiveFilters ? `
-            <button class="btn btn-sm btn-ghost" style="padding:4px 8px; font-size:11.5px; color:var(--accent);" onclick="window.app.resetMarketFilters()">
-              <i class="bi bi-x-circle"></i> Reset Filters
-            </button>
-          ` : ''}
-          <span class="tag g" style="font-size:11px; padding:3px 8px;">${items.length} crops listed</span>
-        </div>
-      </div>
-
-      <div class="seller-filter-row" role="group" aria-label="Filter by seller" style="margin-bottom:12px;">
-        ${[["all", "All sellers"], ["farmer", "Farmer Co-ops"], ["trader", "Market traders"]].map(([value, label]) => `<button type="button" class="vm-cat-pill ${(sellerFilter === value) ? "on" : ""}" onclick="window.app.state.sellerTypeFilter='${value}'; window.app.render();">${label}</button>`).join("")}
-      </div>
+      ${showControls ? this.renderGroceryControls(items.length) : ""}
 
       ${items.length === 0 ? `
         <div style="text-align:center; padding: 40px 20px; background:var(--card); border:1px solid var(--line); border-radius:24px; margin-bottom: 24px;">
@@ -4928,8 +5056,20 @@ class IsokoApp {
     document.getElementById("rdModeV2").innerHTML = isPickup 
       ? this.t('checkoutDeliveryPickup') 
       : this.t('checkoutDeliveryMoto');
-    document.getElementById("rgV2").textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
-    document.getElementById("rtV2").textContent = `${grandTotal.toLocaleString()} RWF`;
+    const rgEl = document.getElementById("rgV2");
+    if (rgEl) rgEl.textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
+    const rtEl = document.getElementById("rtV2");
+    if (rtEl) rtEl.textContent = `${grandTotal.toLocaleString()} RWF`;
+
+    const chipContainer = document.getElementById("phoneAgasekeChips");
+    if (chipContainer) {
+      const chips = chipContainer.querySelectorAll(".agaseke-chip");
+      chips.forEach(chip => {
+        const match = chip.getAttribute("onclick")?.match(/\d+/);
+        const amt = match ? Number(match[0]) : 0;
+        chip.classList.toggle("active", amt === gift);
+      });
+    }
 
     this.goPhonePage(2);
     modal.classList.add("open");
@@ -4989,7 +5129,7 @@ class IsokoApp {
     const p = this.state.pendingCheckoutOrder;
     const isPickup = this.state.nearby?.deliveryOption === "pickup";
     const isCredit = selected?.credit;
-    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
+    const gift = !isCredit ? this.getAgasekeContributionAmount() : 0;
     const deliveryFee = isCredit || isPickup ? 0 : 300;
     const total = (Number(p?.total) || 0) + gift + deliveryFee;
     const payButton = document.getElementById("goBtnV2");
@@ -5070,7 +5210,7 @@ class IsokoApp {
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const isCredit = Boolean(acc.credit), isCash = Boolean(acc.cash);
     const deliveryFee = isCredit || isPickup ? 0 : 300;
-    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
+    const gift = !isCredit ? this.getAgasekeContributionAmount() : 0;
     const grandTotal = p.total + gift + deliveryFee;
     const items = p.items || [{ listing: p.listing, qty: p.qty }];
     if (items.some(line => !line.listing || line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("An item is no longer available in that quantity. Review your cart.", "warning"); this.closePayFlow(); return; }
@@ -5397,6 +5537,11 @@ class IsokoApp {
 
   onProduceSelected(foodName) {
     this.state.newListingFood = foodName;
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const selected = button.dataset.food === String(foodName).toLowerCase();
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     const unit = HARVEST_GALLERY[foodName]?.unit || "kg";
     document.querySelectorAll(".listing-unit-label").forEach(el => el.textContent = unit);
     document.querySelectorAll(".listing-unit-placeholder").forEach(el => el.textContent = unit);
@@ -5416,7 +5561,24 @@ class IsokoApp {
       if (priceEl && info.retailPrice) priceEl.value = info.retailPrice;
       this.onProduceSelected(cropName);
     }
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const selected = button.dataset.food === cropName.toLowerCase();
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
     this.saveState();
+  }
+
+  filterFarmerCropPresets(query) {
+    const normalized = String(query || "").trim().toLowerCase();
+    let visible = 0;
+    document.querySelectorAll(".produce-preset").forEach(button => {
+      const matches = button.dataset.food.includes(normalized);
+      button.hidden = !matches;
+      if (matches) visible++;
+    });
+    const empty = document.getElementById("producePresetEmpty");
+    if (empty) empty.hidden = visible > 0;
   }
 
   toggleFarmerTaxExemption(isExempt) {
@@ -5725,6 +5887,28 @@ class IsokoApp {
     }, 150);
   }
 
+  downloadReportDocument(format, title, fileBase, rows) {
+    const cleanRows = Array.isArray(rows) ? rows : [];
+    if (!cleanRows.length) { this.toast("There is no data to download yet.", "info"); return; }
+    const word = format === "doc";
+    const filename = `${fileBase}.${word ? "doc" : "pdf"}`;
+    const page = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${this.escapeHtml(title)}</title><style>
+      @page{size:A4 landscape;margin:16mm}body{font-family:Arial,sans-serif;color:#18342d;font-size:10pt;line-height:1.45;margin:24px}h1{font-size:21pt;margin:0 0 5px;color:#075847}p{color:#52665e;margin:0 0 16px}.note{padding:10px 12px;margin:12px 0;border-left:3px solid #148452;background:#eef7f1;color:#385b4c}table{width:100%;border-collapse:collapse;margin-top:14px}th{background:#e8f3ed;color:#174d3a;text-align:left;font-weight:bold}th,td{padding:7px 8px;border:1px solid #cddbd3;vertical-align:top}tr{break-inside:avoid}small{color:#63736b}.footer{margin-top:18px;padding-top:8px;border-top:1px solid #cddbd3;color:#63736b;font-size:9pt}
+    </style></head><body><h1>${this.escapeHtml(title)}</h1><p>Isoko Bridge · Created ${this.escapeHtml(new Date().toLocaleString("en-GB"))}</p><div class="note">Prototype report. Demo transactions are simulated. NISR survey patterns do not explain an individual household's payment delay.</div><table><thead><tr>${cleanRows[0].map(cell => `<th>${this.escapeHtml(cell)}</th>`).join("")}</tr></thead><tbody>${cleanRows.slice(1).map(row => `<tr>${row.map(cell => `<td>${this.escapeHtml(cell == null ? "—" : cell)}</td>`).join("")}</tr>`).join("")}</tbody></table><div class="footer">Currency: Rwandan Francs (RWF), where shown. Keep household and account details private.</div></body></html>`;
+    if (word) {
+      this.downloadFile(filename, page, "application/msword;charset=utf-8");
+      this.toast("Word document downloaded.", "success");
+      return;
+    }
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) { this.toast("Allow pop-ups to create a PDF, then choose Save as PDF.", "warning"); return; }
+    printWindow.document.open();
+    printWindow.document.write(page);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 250);
+  }
+
   downloadNisrPdf() {
     const b64 = (typeof window !== 'undefined' && window.NISR_PDF) || (typeof NISR_PDF !== 'undefined' && NISR_PDF);
     if (b64) {
@@ -5739,11 +5923,10 @@ class IsokoApp {
     }
   }
 
-  downloadNisrCsv() {
+  downloadNisrCsv(format = "pdf") {
     const rows = this.getNisrSummaryCsvRows();
     const today = new Date().toISOString().slice(0, 10);
-    this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, `\uFEFF${rows.map(r => r.map(value => this.csvCell(value)).join(',')).join('\r\n')}`, 'text/csv;charset=utf-8');
-    this.toast('NISR analytical tables (CSV) downloaded successfully', 'success');
+    this.downloadReportDocument(format, "NISR survey summary", `IsokoBridge_NISR_tables_${today}`, rows);
   }
 
   csvCell(value) {
@@ -5752,7 +5935,7 @@ class IsokoApp {
     return `"${text.replace(/"/g, '""')}"`;
   }
 
-  downloadAnalysisCsv() {
+  downloadAnalysisCsv(format = "pdf") {
     const report = this.getAnalysisReportData();
     const rows = [
       ["Dataset", "Metric", "Value", "Unit", "Sample / Scope", "Notes"],
@@ -5778,16 +5961,13 @@ class IsokoApp {
       ["Limit", "Interpretation", "Patterns, not reasons", "", "", "Survey data cannot explain why an individual payment was late"],
       ["Limit", "Weighting", "Provisional", "", "", "The build brief labels supplied estimates early and unweighted; final weighted estimates are not confirmed here"]
     ];
-    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
     const today = this.localDateInput(new Date());
-    this.downloadFile(`VUPBridge_NISR_analysis_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
-    this.toast("NISR analysis CSV downloaded.", "success");
+    this.downloadReportDocument(format, "NISR payment-delay analysis", `IsokoBridge_NISR_analysis_${today}`, rows);
   }
 
-  downloadTransactionsCsv() {
+  downloadTransactionsCsv(format = "pdf") {
     const report = this.getAnalysisReportData();
     const rows = [
-      ["Report", "Prototype. Fake money. No real payment is moved.", `Activity period: ${report.period.label}`, `Generated: ${new Date().toLocaleString("en-GB")}`],
       ["Order ID", "Date", "Buyer", "Buyer role", "District", "Food", "Quantity", "Unit", "Payment type", "Food amount RWF", "Delivery fee RWF", "Pool gift RWF", "Order total RWF", "Order status", "Payment status", "Payment method", "Repaid"],
       ...report.transactions.map(order => [
         order.id, this.getOrderDateLabel(order.date), order.buyerName || "Demo buyer", order.buyerRole || "", order.district || "",
@@ -5798,10 +5978,8 @@ class IsokoApp {
         order.paymentMethod || order.paidBy || "Not recorded", order.repaid ? "Yes" : "No"
       ])
     ];
-    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
     const today = this.localDateInput(new Date());
-    this.downloadFile(`VUPBridge_transactions_${report.period.from}_to_${report.period.to}_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
-    this.toast(`${report.transactions.length} simulated transactions downloaded.`, "success");
+    this.downloadReportDocument(format, `Transactions · ${report.period.label}`, `IsokoBridge_transactions_${report.period.from}_to_${report.period.to}_${today}`, rows);
   }
 
   downloadNisrHtml() {
@@ -5817,7 +5995,7 @@ class IsokoApp {
     this.toast('NISR facts web page downloaded successfully', 'success');
   }
 
-  downloadUserStatement() {
+  downloadUserStatement(format = "pdf") {
     const role = this.state.role || 'Family';
     const email = (this.state.currentUser && this.state.currentUser.email) || 'user@vupbridge.rw';
     const today = new Date().toISOString().slice(0, 10);
@@ -5825,32 +6003,23 @@ class IsokoApp {
     const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
     const ledgerRows = this.getUserActivityLedger();
 
-    const csvContent = [
-      ['Prototype. Fake money. No real payment is moved.', `Activity period: ${period.label}`, `Account: ${email}`, `Created: ${new Date().toLocaleString("en-GB")}`].map(value=>this.csvCell(value)).join(','),
-      ...(this.state.roleCode === "member" ? [["VUP work record", `Days worked: ${Number(this.state.currentUser.daysWorked || 0)}`, `Government amount owed: ${Number(this.state.currentUser.governmentAmountOwed || 0)} RWF`, `Open food credit: ${this.getOutstandingCredit(email)} RWF`, `Credit available: ${this.getRemainingCredit(this.state.currentUser)} RWF`, "Available credit = amount owed - open credit"].map(value=>this.csvCell(value)).join(",")] : []),
-      ['Record type','ID','Date','Food or payment','Quantity','Unit','Amount RWF','Delivery fee RWF','Pool gift RWF','Type','Order status','Payment status','Payment method'].map(value=>this.csvCell(value)).join(','),
-      ...rows.map(order => ['Order',order.id, this.getOrderDateLabel(order.date || today), order.food || 'Fresh staple', Number(order.kg)||0, order.unit || "kg", Number(order.total)||0, Number(order.deliveryFee)||0, Number(order.gift)||0, order.mode, order.status, order.paymentStatus || (order.mode === "credit" ? "due from VUP" : "paid"), order.paymentMethod || order.paidBy || 'Not recorded'].map(value=>this.csvCell(value)).join(',')),
-      ...ledgerRows.map(entry => ['Money record',entry.link || entry.id,this.getOrderDateLabel(entry.date || today),`${entry.from || ""} → ${entry.to || ""}`,Number(entry.amount)||0,entry.type,entry.status,entry.paymentMethod].map(value=>this.csvCell(value)).join(','))
-    ].join('\n');
-
-    this.downloadFile(`VUPBridge_${role}_activity_${today}.csv`, `\uFEFF${csvContent}`, 'text/csv;charset=utf-8');
-    this.toast(`${rows.length + ledgerRows.length} activity records for ${period.label} downloaded.`, 'success');
+    const reportRows = [["Record", "Reference", "Date", "Details", "Amount (RWF)", "Status", "Payment method"]];
+    if (this.state.roleCode === "member") reportRows.push(["VUP work", "—", "—", `${Number(this.state.currentUser.daysWorked || 0)} work days · ${Number(this.state.currentUser.governmentAmountOwed || 0).toLocaleString()} RWF owed · ${this.getOutstandingCredit(email).toLocaleString()} RWF open credit · ${this.getRemainingCredit(this.state.currentUser).toLocaleString()} RWF credit available`, "—", "Demo record", "—"]);
+    rows.forEach(order => reportRows.push(["Order", `#${order.id}`, this.getOrderDateLabel(order.date || today), `${order.food || "Fresh staple"} · ${Number(order.kg) || 0} ${order.unit || "kg"}`, Number(order.total) || 0, order.paymentStatus || order.status || "Recorded", order.paymentMethod || order.paidBy || "Not recorded"]));
+    ledgerRows.forEach(entry => reportRows.push(["Money record", entry.link || entry.id || "—", this.getOrderDateLabel(entry.date || today), `${entry.from || "—"} → ${entry.to || "—"} · ${entry.type || "Payment"}`, Number(entry.amount) || 0, entry.status || "Recorded", entry.paymentMethod || "Not recorded"]));
+    this.downloadReportDocument(format, `${role} activity summary · ${period.label}`, `IsokoBridge_${role}_activity_${today}`, reportRows);
   }
 
-  downloadAuditCsv() {
+  downloadAuditCsv(format = "pdf") {
     const today = new Date().toISOString().slice(0, 10);
-    const rows = (this.state.cases || []).map(c => [c.id, c.date, c.status, `"${c.type}"`, c.amount, `"${c.actionTaken || ''}"`].join(','));
-    const content = ['Prototype. Fake money.', 'case_id,date,status,type,amount_rwf,action_taken', ...rows].join('\n');
-    this.downloadFile(`VUPBridge_audit_disputes_${today}.csv`, content, 'text/csv');
-    this.toast('Audit & disputes log downloaded', 'success');
+    const rows = [["Case ID", "Date", "Status", "Issue", "Amount (RWF)", "Action taken"], ...(this.state.cases || []).map(c => [c.id, c.date, c.status, c.type, Number(c.amount) || 0, c.actionTaken || "Not recorded"])];
+    this.downloadReportDocument(format, "Disputes and audit records", `IsokoBridge_disputes_${today}`, rows);
   }
 
-  downloadLedgerCsv() {
+  downloadLedgerCsv(format = "pdf") {
     const today = new Date().toISOString().slice(0, 10);
-    const rows = (this.state.orders || []).map(o => [o.id, o.date || today, `"${o.food}"`, o.total, o.mode, o.status, `"${o.payMethod || ''}"`].join(','));
-    const content = ['Prototype. Fake money.', 'id,date,item,total_rwf,mode,status,payment_method', ...rows].join('\n');
-    this.downloadFile(`VUPBridge_transactions_${today}.csv`, content, 'text/csv');
-    this.toast('Transactions ledger (CSV) downloaded', 'success');
+    const rows = [["Date", "Type", "From", "To", "Amount (RWF)", "Order", "Status", "Payment method"], ...(this.state.ledger || []).map(entry => [this.getOrderDateLabel(entry.date || today), String(entry.type || "Record").replace(/_/g, " "), entry.from || "—", entry.to || "—", Number(entry.amount) || 0, entry.link || "—", entry.status || "Recorded", entry.paymentMethod || "Not recorded"])];
+    this.downloadReportDocument(format, "Bridge money records", `IsokoBridge_ledger_${today}`, rows);
   }
 
   filterNisrClass(cls) {
