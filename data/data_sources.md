@@ -39,3 +39,12 @@ In strict accordance with Rwanda's Personal Data Protection and Privacy Law (**L
   - **Fair (Market Aligned):** Between $85\%$ and $115\%$ of NISR median price.
   - **High (Above Market):** $> 115\%$ of NISR median price.
 - **Analytical Governance Principle:** *The data illustrates patterns, correlations, and disbursement bottlenecks; it cannot infer individual administrative causality.*
+
+## Current prototype processing status
+
+The repository contains prepared grouped values, not the source household records. The current `scripts/generate_summaries.py` writes values defined in the script; it does not open or calculate results from NISR Stata (`.dta`) files. The 3,399 count is the number attached to the supplied summary baseline, not a verified count reproduced by this repository. The current delay and price figures are described by the project brief as early and unweighted. Confirm the source variables, survey weights, filters, missing-value rules, and totals with NISR documentation and the team’s authorized microdata before presenting them as final estimates.
+
+The prepared district priority score is a prototype ranking. It combines normalized delay (45%), poverty (40%), and food-price index (15%). These weights are design choices for exploration, not NISR policy and not a validated model. They should not be used to make decisions about an individual household.
+
+- [NISR catalogue entry for the EICV7 VUP survey](https://microdata.statistics.gov.rw/index.php/catalog/121)
+- [geoBoundaries Rwanda data](https://www.geoboundaries.org/countryDownloads.html)

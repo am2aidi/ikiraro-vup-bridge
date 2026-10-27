@@ -46,13 +46,35 @@ All example balances and work records in the app are **made-up demonstration val
 
 The login screen offers demo accounts. You can also create a local prototype account. There is no real identity check: account details are saved in the browser running the app. Do not enter a real password or personal financial information.
 
+### Quick demo sign-in
+
+Use these public test accounts on the live prototype. They are demo-only credentials with no access to real accounts or funds.
+
+| Role | Demo email | Demo password |
+| --- | --- | --- |
+| VUP member | `amina@vupbridge.rw` | `Amina#2026` |
+| Shopper | `grace@vupbridge.rw` | `Grace#2026` |
+| Seller | `mukamana.farm@vupbridge.rw` | `Farm#2026` |
+| Planner | `planner1@vupbridge.rw` | `Plan#2026` |
+| Admin | `admin@vupbridge.rw` | `Admin#2026` |
+
 ## NISR data: what it means and what it does not
 
-The dashboard uses **prepared, grouped summary values** in [`js/nisr_data.js`](js/nisr_data.js). They are labeled as the 2023–24 EICV7 VUP survey baseline. The project brief describes the supplied estimates as early and unweighted, so treat them as **provisional** until a final weighted analysis is checked.
+The dashboard uses **prepared, grouped summary values** in [`js/nisr_data.js`](js/nisr_data.js) and the matching tables in [`data/`](data/). They are labeled as the 2023–24 EICV7 VUP survey baseline. The project brief describes the supplied estimates as early and unweighted, so treat them as **provisional** until a final weighted analysis is checked. The survey is listed in the [NISR Microdata Portal](https://microdata.statistics.gov.rw/index.php/catalog/121).
 
 The summaries include national, programme, province, programme-by-province, district, group, and food-price comparisons. The district map displays bundled district summaries and boundaries. It is a way to explore patterns; it is not a live map of household payments.
 
+### Analysis in this prototype
+
+The current analysis tells this story from the prepared summary: **reported VUP payment waits are not the same across every programme, province, district, or payment channel.** It shows a 9.2-day average wait across 3,399 beneficiary records, a 7.5-day median, and 52% of records reporting a wait longer than 7 days. Expanded Public Works averages 11.0 days in the programme table; Southern and Eastern provinces each average 10.7 days. The longest programme-by-province result in the bundle is Expanded Public Works in Southern Province: 14.6 days, 79% over 7 days, and 140 records. These are descriptive comparisons, not proof that a location or payment channel caused the delay.
+
+The dashboard presents the findings with summary cards, a programme comparison, expandable province/district/group tables, and a 30-district map. The map can show the bundled delay, poverty, or priority measure. Food listings can be compared with a bundled NISR price benchmark. A min–max rule-based district priority index is calculated as **45% normalized delay + 40% normalized poverty rate + 15% normalized food-price index**. The weights and bands are prototype choices, not an NISR policy rule or a tested prediction. The date controls apply to simulated orders only. Analysis and transaction data can be printed/saved as PDF or downloaded as CSV.
+
+The summary CSVs are included so people can inspect the values. However, [`scripts/generate_summaries.py`](scripts/generate_summaries.py) currently writes values stored as lists in the script; it does **not** read the raw `.dta` microdata or recalculate the survey statistics. The raw-file extraction, variable definitions, weighting, missing-value handling, and final checks therefore cannot be reproduced from that script alone. The project labels the current summary as early and unweighted. A separate experimental proxy model in [`scripts/poverty_risk_model.py`](scripts/poverty_risk_model.py) is not connected to the app and has not been validated for real decisions. The dashboard does not run a predictive or AI model.
+
 The separate `Microdata.zip` supplied to the project contains raw survey modules. It is not included in this repository, and the browser app does not read the raw Stata files. This prototype does not contain every survey variable or household record, and the grouped figures do not verify a person's current payment or eligibility.
+
+The repository does include the prepared CSV summaries and a data-source note at [`data/data_sources.md`](data/data_sources.md). Rwanda district boundaries are in [`data/rwanda_districts.geojson`](data/rwanda_districts.geojson); the source note attributes them to geoBoundaries / NISR geodata. The raw survey files remain available only through the [NISR catalogue](https://microdata.statistics.gov.rw/index.php/catalog/121), subject to its access process.
 
 **Read the findings carefully:** survey patterns can show that reported delays differ between groups. They cannot explain why one person's payment was late, prove the cause of a delay, or identify who should receive support. Small groups also need caution; very small samples should be suppressed or combined.
 
@@ -108,9 +130,17 @@ The project keeps a root copy and an `app/` copy of the website for hosting comp
 | `js/nisr_data.js` | Prepared NISR summary values shown in the analysis. |
 | `js/vup_seed_data.js` | Demo accounts, orders, and example ledger activity. |
 | `js/rwanda_geo_data.js` | Bundled district map boundaries. |
+| `data/*.csv`, `data/rwanda_districts.geojson` | Prepared analysis tables and district boundaries used by the project. |
+| `data/data_sources.md` | Data sources, definitions, and sample-size guidance. |
 | `docs/` | Project and design reference material. |
 | `scripts/` | Data preparation and development helper scripts. |
 | `api/`, `app.py` | Python static-file serving entry point; no live VUP or payment API. |
+
+## Hackathon submission checklist
+
+The webinar asks for a public repository, a public deployed app, clear documentation, working code, a data file and its source link, and a screen recording of **no more than 3 minutes**. The README, source code, prepared CSV/GeoJSON data, source notes, and live prototype link are present in this project. The repository currently has **no demo video file**. A time-coded recording guide is in [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md); the team still needs to record and add the actual video. The webinar lists **30 October 2026** as its deadline; check the event page for any later update.
+
+The webinar also says entrants agree to transfer intellectual-property rights in submitted work to NISR. The student team must read and confirm the current competition terms before submitting; this README does not make that legal decision for the team.
 
 ## Responsible-use rules
 
