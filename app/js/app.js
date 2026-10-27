@@ -1123,23 +1123,47 @@ class IsokoApp {
     if (modal) modal.classList.remove("open");
   }
 
-  printCurrentStatement() {
-    window.print();
+  openExportFormat(action) {
+    this.pendingExportAction = action;
+    document.getElementById("exportFormatModal")?.classList.add("open");
   }
 
-  exportCurrentStatementCsv() {
+  closeExportFormat() {
+    document.getElementById("exportFormatModal")?.classList.remove("open");
+    this.pendingExportAction = null;
+  }
+
+  confirmExportFormat(format) {
+    const action = this.pendingExportAction;
+    this.closeExportFormat();
+    const exports = {
+      statement: () => this.exportCurrentStatementCsv(format),
+      analysis: () => this.downloadAnalysisCsv(format),
+      transactions: () => this.downloadTransactionsCsv(format),
+      activity: () => this.downloadUserStatement(format),
+      nisr: () => this.downloadNisrCsv(format),
+      nisrOfficial: () => format === "pdf" ? this.downloadNisrPdf() : this.downloadNisrCsv("doc"),
+      payroll: () => this.downloadVupPayrollCsv(format),
+      work: () => this.downloadVupWorkRecords(format),
+      ledger: () => this.downloadLedgerCsv(format),
+      disputes: () => this.downloadAuditCsv(format)
+    };
+    exports[action]?.();
+  }
+
+  printCurrentStatement() {
+    this.openExportFormat("statement");
+  }
+
+  exportCurrentStatementCsv(format = "pdf") {
     if (!this.currentStatementData) return;
     const d = this.currentStatementData;
-    let csv = "Tx_ID,Date,Type,Food,Quantity_KG,Amount_RWF,Payment_Method,Status,Buyer,Seller\n";
-    d.txs.forEach(o => {
-      csv += `${o.id},"${o.date}","${o.mode}","${o.food}",${o.kg},${o.total},"${o.paymentMethod || 'MoMo'}","${o.status}","${o.buyerName}","${o.farmer}"\n`;
-    });
-
-    const dl = document.createElement("a");
-    dl.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csv));
-    dl.setAttribute("download", `VUPBridge_${d.role}_statement_${new Date().toISOString().slice(0,10)}.csv`);
-    dl.click();
-    this.toast("Statement CSV downloaded successfully!", "success");
+    const rows = [["Transaction", "Date", "Type", "Food and quantity", "Amount (RWF)", "Payment method", "Status"], ...d.txs.map(o => [
+      `#${o.id}`, this.getOrderDateLabel(o.date), o.mode === "credit" ? "VUP food credit" : "Cash order",
+      `${o.food || "Food order"} · ${Number(o.kg) || 0} kg`, Number(o.total) || 0,
+      o.paymentMethod || "Not recorded", `${o.status || "Recorded"}${o.repaid ? " · Repaid" : ""}`
+    ])];
+    this.downloadReportDocument(format, `${d.role} activity statement`, `IsokoBridge_${d.role}_statement_${this.localDateInput(new Date())}`, rows);
   }
 
   // Analysis Report Generator (Section 16.4)
@@ -1209,11 +1233,11 @@ class IsokoApp {
   }
 
   printAnalysisReport() {
-    window.print();
+    this.openExportFormat("analysis");
   }
 
-  exportAnalysisCsv() {
-    this.downloadAnalysisCsv();
+  exportAnalysisCsv(format = "pdf") {
+    this.downloadAnalysisCsv(format);
   }
 
   // Problem Cases (Section 16.3)
@@ -3699,7 +3723,7 @@ class IsokoApp {
     this.toast(`Batch Complete: Disbursed ${totalDisbursedNet.toLocaleString()} RWF net cash to ${members.length} families. Revolving pool replenished!`, "success");
   }
 
-  downloadVupPayrollCsv() {
+  downloadVupPayrollCsv(format = "pdf") {
     const members = this.state.users?.member || [];
     const rows = [
       ["Beneficiary", "Email", "Programme", "District", "Sector", "Days Worked", "Gross Allowance RWF", "Open Food Credit RWF", "Ejo Heza 5% RWF", "Gov 100% Match RWF", "Net Cash Payout RWF", "Payment Method", "Account Number", "Status"],
@@ -3726,8 +3750,7 @@ class IsokoApp {
         ];
       })
     ];
-    const csv = rows.map(r => r.map(v => this.csvCell(v ?? "")).join(",")).join("\r\n");
-    this.downloadFile(`vup-payroll-wave-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
+    this.downloadReportDocument(format, "VUP payroll summary", `IsokoBridge_VUP_payroll_${this.localDateInput(new Date())}`, rows);
   }
 
   renderAgasekeManagementTab() {
@@ -3974,11 +3997,10 @@ class IsokoApp {
     this.toast("VUP work record saved. Available food credit has been updated.", "success");
   }
 
-  downloadVupWorkRecords() {
+  downloadVupWorkRecords(format = "pdf") {
     if (this.state.roleCode !== "admin") { this.toast("Only an admin can download member work records.", "warning"); return; }
     const rows = [["Member", "Email", "Programme", "District", "Days worked", "Government amount owed RWF", "Open food credit RWF", "Food credit available RWF"], ...(this.state.users?.member || []).map(user => [user.name, user.email, user.programme, user.district, Number(user.daysWorked || 0), Number(user.governmentAmountOwed || 0), this.getOutstandingCredit(user.email), this.getRemainingCredit(user)])];
-    const csv = rows.map(row => row.map(value => this.csvCell(value ?? "")).join(",")).join("\r\n");
-    this.downloadFile(`vup-work-records-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
+    this.downloadReportDocument(format, "VUP work records", `IsokoBridge_VUP_work_records_${this.localDateInput(new Date())}`, rows);
   }
 
   filterAdminUserRows(query) {
@@ -5865,6 +5887,28 @@ class IsokoApp {
     }, 150);
   }
 
+  downloadReportDocument(format, title, fileBase, rows) {
+    const cleanRows = Array.isArray(rows) ? rows : [];
+    if (!cleanRows.length) { this.toast("There is no data to download yet.", "info"); return; }
+    const word = format === "doc";
+    const filename = `${fileBase}.${word ? "doc" : "pdf"}`;
+    const page = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${this.escapeHtml(title)}</title><style>
+      @page{size:A4 landscape;margin:16mm}body{font-family:Arial,sans-serif;color:#18342d;font-size:10pt;line-height:1.45;margin:24px}h1{font-size:21pt;margin:0 0 5px;color:#075847}p{color:#52665e;margin:0 0 16px}.note{padding:10px 12px;margin:12px 0;border-left:3px solid #148452;background:#eef7f1;color:#385b4c}table{width:100%;border-collapse:collapse;margin-top:14px}th{background:#e8f3ed;color:#174d3a;text-align:left;font-weight:bold}th,td{padding:7px 8px;border:1px solid #cddbd3;vertical-align:top}tr{break-inside:avoid}small{color:#63736b}.footer{margin-top:18px;padding-top:8px;border-top:1px solid #cddbd3;color:#63736b;font-size:9pt}
+    </style></head><body><h1>${this.escapeHtml(title)}</h1><p>Isoko Bridge · Created ${this.escapeHtml(new Date().toLocaleString("en-GB"))}</p><div class="note">Prototype report. Demo transactions are simulated. NISR survey patterns do not explain an individual household's payment delay.</div><table><thead><tr>${cleanRows[0].map(cell => `<th>${this.escapeHtml(cell)}</th>`).join("")}</tr></thead><tbody>${cleanRows.slice(1).map(row => `<tr>${row.map(cell => `<td>${this.escapeHtml(cell == null ? "—" : cell)}</td>`).join("")}</tr>`).join("")}</tbody></table><div class="footer">Currency: Rwandan Francs (RWF), where shown. Keep household and account details private.</div></body></html>`;
+    if (word) {
+      this.downloadFile(filename, page, "application/msword;charset=utf-8");
+      this.toast("Word document downloaded.", "success");
+      return;
+    }
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) { this.toast("Allow pop-ups to create a PDF, then choose Save as PDF.", "warning"); return; }
+    printWindow.document.open();
+    printWindow.document.write(page);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => printWindow.print(), 250);
+  }
+
   downloadNisrPdf() {
     const b64 = (typeof window !== 'undefined' && window.NISR_PDF) || (typeof NISR_PDF !== 'undefined' && NISR_PDF);
     if (b64) {
@@ -5879,11 +5923,10 @@ class IsokoApp {
     }
   }
 
-  downloadNisrCsv() {
+  downloadNisrCsv(format = "pdf") {
     const rows = this.getNisrSummaryCsvRows();
     const today = new Date().toISOString().slice(0, 10);
-    this.downloadFile(`VUPBridge_NISR_tables_${today}.csv`, `\uFEFF${rows.map(r => r.map(value => this.csvCell(value)).join(',')).join('\r\n')}`, 'text/csv;charset=utf-8');
-    this.toast('NISR analytical tables (CSV) downloaded successfully', 'success');
+    this.downloadReportDocument(format, "NISR survey summary", `IsokoBridge_NISR_tables_${today}`, rows);
   }
 
   csvCell(value) {
@@ -5892,7 +5935,7 @@ class IsokoApp {
     return `"${text.replace(/"/g, '""')}"`;
   }
 
-  downloadAnalysisCsv() {
+  downloadAnalysisCsv(format = "pdf") {
     const report = this.getAnalysisReportData();
     const rows = [
       ["Dataset", "Metric", "Value", "Unit", "Sample / Scope", "Notes"],
@@ -5918,16 +5961,13 @@ class IsokoApp {
       ["Limit", "Interpretation", "Patterns, not reasons", "", "", "Survey data cannot explain why an individual payment was late"],
       ["Limit", "Weighting", "Provisional", "", "", "The build brief labels supplied estimates early and unweighted; final weighted estimates are not confirmed here"]
     ];
-    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
     const today = this.localDateInput(new Date());
-    this.downloadFile(`VUPBridge_NISR_analysis_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
-    this.toast("NISR analysis CSV downloaded.", "success");
+    this.downloadReportDocument(format, "NISR payment-delay analysis", `IsokoBridge_NISR_analysis_${today}`, rows);
   }
 
-  downloadTransactionsCsv() {
+  downloadTransactionsCsv(format = "pdf") {
     const report = this.getAnalysisReportData();
     const rows = [
-      ["Report", "Prototype. Fake money. No real payment is moved.", `Activity period: ${report.period.label}`, `Generated: ${new Date().toLocaleString("en-GB")}`],
       ["Order ID", "Date", "Buyer", "Buyer role", "District", "Food", "Quantity", "Unit", "Payment type", "Food amount RWF", "Delivery fee RWF", "Pool gift RWF", "Order total RWF", "Order status", "Payment status", "Payment method", "Repaid"],
       ...report.transactions.map(order => [
         order.id, this.getOrderDateLabel(order.date), order.buyerName || "Demo buyer", order.buyerRole || "", order.district || "",
@@ -5938,10 +5978,8 @@ class IsokoApp {
         order.paymentMethod || order.paidBy || "Not recorded", order.repaid ? "Yes" : "No"
       ])
     ];
-    const csv = rows.map(row => row.map(value => this.csvCell(value)).join(",")).join("\r\n");
     const today = this.localDateInput(new Date());
-    this.downloadFile(`VUPBridge_transactions_${report.period.from}_to_${report.period.to}_${today}.csv`, `\uFEFF${csv}`, "text/csv;charset=utf-8");
-    this.toast(`${report.transactions.length} simulated transactions downloaded.`, "success");
+    this.downloadReportDocument(format, `Transactions · ${report.period.label}`, `IsokoBridge_transactions_${report.period.from}_to_${report.period.to}_${today}`, rows);
   }
 
   downloadNisrHtml() {
@@ -5957,7 +5995,7 @@ class IsokoApp {
     this.toast('NISR facts web page downloaded successfully', 'success');
   }
 
-  downloadUserStatement() {
+  downloadUserStatement(format = "pdf") {
     const role = this.state.role || 'Family';
     const email = (this.state.currentUser && this.state.currentUser.email) || 'user@vupbridge.rw';
     const today = new Date().toISOString().slice(0, 10);
@@ -5965,32 +6003,23 @@ class IsokoApp {
     const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
     const ledgerRows = this.getUserActivityLedger();
 
-    const csvContent = [
-      ['Prototype. Fake money. No real payment is moved.', `Activity period: ${period.label}`, `Account: ${email}`, `Created: ${new Date().toLocaleString("en-GB")}`].map(value=>this.csvCell(value)).join(','),
-      ...(this.state.roleCode === "member" ? [["VUP work record", `Days worked: ${Number(this.state.currentUser.daysWorked || 0)}`, `Government amount owed: ${Number(this.state.currentUser.governmentAmountOwed || 0)} RWF`, `Open food credit: ${this.getOutstandingCredit(email)} RWF`, `Credit available: ${this.getRemainingCredit(this.state.currentUser)} RWF`, "Available credit = amount owed - open credit"].map(value=>this.csvCell(value)).join(",")] : []),
-      ['Record type','ID','Date','Food or payment','Quantity','Unit','Amount RWF','Delivery fee RWF','Pool gift RWF','Type','Order status','Payment status','Payment method'].map(value=>this.csvCell(value)).join(','),
-      ...rows.map(order => ['Order',order.id, this.getOrderDateLabel(order.date || today), order.food || 'Fresh staple', Number(order.kg)||0, order.unit || "kg", Number(order.total)||0, Number(order.deliveryFee)||0, Number(order.gift)||0, order.mode, order.status, order.paymentStatus || (order.mode === "credit" ? "due from VUP" : "paid"), order.paymentMethod || order.paidBy || 'Not recorded'].map(value=>this.csvCell(value)).join(',')),
-      ...ledgerRows.map(entry => ['Money record',entry.link || entry.id,this.getOrderDateLabel(entry.date || today),`${entry.from || ""} → ${entry.to || ""}`,Number(entry.amount)||0,entry.type,entry.status,entry.paymentMethod].map(value=>this.csvCell(value)).join(','))
-    ].join('\n');
-
-    this.downloadFile(`VUPBridge_${role}_activity_${today}.csv`, `\uFEFF${csvContent}`, 'text/csv;charset=utf-8');
-    this.toast(`${rows.length + ledgerRows.length} activity records for ${period.label} downloaded.`, 'success');
+    const reportRows = [["Record", "Reference", "Date", "Details", "Amount (RWF)", "Status", "Payment method"]];
+    if (this.state.roleCode === "member") reportRows.push(["VUP work", "—", "—", `${Number(this.state.currentUser.daysWorked || 0)} work days · ${Number(this.state.currentUser.governmentAmountOwed || 0).toLocaleString()} RWF owed · ${this.getOutstandingCredit(email).toLocaleString()} RWF open credit · ${this.getRemainingCredit(this.state.currentUser).toLocaleString()} RWF credit available`, "—", "Demo record", "—"]);
+    rows.forEach(order => reportRows.push(["Order", `#${order.id}`, this.getOrderDateLabel(order.date || today), `${order.food || "Fresh staple"} · ${Number(order.kg) || 0} ${order.unit || "kg"}`, Number(order.total) || 0, order.paymentStatus || order.status || "Recorded", order.paymentMethod || order.paidBy || "Not recorded"]));
+    ledgerRows.forEach(entry => reportRows.push(["Money record", entry.link || entry.id || "—", this.getOrderDateLabel(entry.date || today), `${entry.from || "—"} → ${entry.to || "—"} · ${entry.type || "Payment"}`, Number(entry.amount) || 0, entry.status || "Recorded", entry.paymentMethod || "Not recorded"]));
+    this.downloadReportDocument(format, `${role} activity summary · ${period.label}`, `IsokoBridge_${role}_activity_${today}`, reportRows);
   }
 
-  downloadAuditCsv() {
+  downloadAuditCsv(format = "pdf") {
     const today = new Date().toISOString().slice(0, 10);
-    const rows = (this.state.cases || []).map(c => [c.id, c.date, c.status, `"${c.type}"`, c.amount, `"${c.actionTaken || ''}"`].join(','));
-    const content = ['Prototype. Fake money.', 'case_id,date,status,type,amount_rwf,action_taken', ...rows].join('\n');
-    this.downloadFile(`VUPBridge_audit_disputes_${today}.csv`, content, 'text/csv');
-    this.toast('Audit & disputes log downloaded', 'success');
+    const rows = [["Case ID", "Date", "Status", "Issue", "Amount (RWF)", "Action taken"], ...(this.state.cases || []).map(c => [c.id, c.date, c.status, c.type, Number(c.amount) || 0, c.actionTaken || "Not recorded"])];
+    this.downloadReportDocument(format, "Disputes and audit records", `IsokoBridge_disputes_${today}`, rows);
   }
 
-  downloadLedgerCsv() {
+  downloadLedgerCsv(format = "pdf") {
     const today = new Date().toISOString().slice(0, 10);
-    const rows = (this.state.orders || []).map(o => [o.id, o.date || today, `"${o.food}"`, o.total, o.mode, o.status, `"${o.payMethod || ''}"`].join(','));
-    const content = ['Prototype. Fake money.', 'id,date,item,total_rwf,mode,status,payment_method', ...rows].join('\n');
-    this.downloadFile(`VUPBridge_transactions_${today}.csv`, content, 'text/csv');
-    this.toast('Transactions ledger (CSV) downloaded', 'success');
+    const rows = [["Date", "Type", "From", "To", "Amount (RWF)", "Order", "Status", "Payment method"], ...(this.state.ledger || []).map(entry => [this.getOrderDateLabel(entry.date || today), String(entry.type || "Record").replace(/_/g, " "), entry.from || "—", entry.to || "—", Number(entry.amount) || 0, entry.link || "—", entry.status || "Recorded", entry.paymentMethod || "Not recorded"])];
+    this.downloadReportDocument(format, "Bridge money records", `IsokoBridge_ledger_${today}`, rows);
   }
 
   filterNisrClass(cls) {

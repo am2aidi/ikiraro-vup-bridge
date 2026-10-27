@@ -653,7 +653,12 @@
 .header-action.header-cart > .bi { font-size: 17px; }
 .header-action.header-cart .header-count { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 4px; border: 2px solid var(--glass-panel); border-radius: 999px; color: #fff; background: #d94b43; font-size: 9px; line-height: 14px; }
 .top-controls .user#headerUserAuthSlot { margin-left: auto; }
+.shell > header.top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+.top-controls { width: auto; min-width: 0; justify-self: end; }
+.top-controls .user#headerUserAuthSlot { justify-content: flex-end; }
 @media (max-width: 760px) {
+  .shell > header.top { grid-template-columns: minmax(0, 1fr); }
+  .top-controls { width: 100%; justify-content: flex-end; }
   .top-controls .user#headerUserAuthSlot { margin-left: auto; justify-content: flex-end; }
   .header-action.header-cart { width: 40px; min-width: 40px; height: 40px; min-height: 40px; }
   .header-action.header-cart .bi { font-size: 17px; }
