@@ -559,3 +559,497 @@
   .top-controls .menu-toggle .bi { font-size: 16px; }
   .top-controls .user#headerUserAuthSlot { gap: 3px; }
 }
+
+/* Marketplace dashboard inspired by the supplied VUP storefront reference. */
+.market-dashboard { display: grid; gap: 16px; min-width: 0; }
+.market-hero { position: relative; display: flex; align-items: center; min-height: 192px; overflow: hidden; padding: clamp(22px, 3vw, 38px); border: 1px solid var(--glass-edge); border-radius: 22px; background-image: linear-gradient(90deg, color-mix(in srgb, var(--glass-panel) 98%, #f0f8ed) 0%, color-mix(in srgb, var(--glass-panel) 94%, #eaf4e5) 38%, color-mix(in srgb, var(--glass-panel) 55%, transparent) 65%, transparent 100%), var(--market-hero-image); background-position: center, right center; background-size: cover, 68% auto; background-repeat: no-repeat; box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(18px) saturate(145%); backdrop-filter: blur(18px) saturate(145%); }
+.market-hero > div { position: relative; z-index: 1; width: min(100%, 540px); }
+.market-hero-kicker { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 10px; color: var(--on); font-size: 11px; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
+.market-hero h1 { max-width: 18ch; margin: 0 0 7px; color: var(--ink); font-size: clamp(24px, 3vw, 34px); font-weight: 800; letter-spacing: -.045em; line-height: 1.08; }
+.market-hero p { max-width: 54ch; margin: 0; color: var(--mute); font-size: 13px; line-height: 1.5; }
+.market-hero-button { display: inline-flex; align-items: center; gap: 9px; min-height: 40px; margin-top: 15px; padding: 0 16px; border: 0; border-radius: 12px; color: #fff; background: #075847; font: 700 12px Inter, sans-serif; cursor: pointer; box-shadow: 0 8px 20px -14px #063b31; }
+.market-hero-button:hover { background: #06483c; }
+.member-overview-card, .shopper-overview-card { display: grid; grid-template-columns: minmax(210px, .78fr) minmax(0, 2fr); align-items: center; gap: 16px; min-width: 0; padding: 18px 20px; border: 1px solid var(--glass-edge); border-radius: 19px; background: color-mix(in srgb, var(--glass-panel) 84%, transparent); box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%); }
+.member-overview-profile, .shopper-overview-profile { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.member-overview-avatar, .shopper-overview-avatar { display: grid; place-items: center; flex: 0 0 62px; width: 62px; height: 62px; overflow: hidden; border-radius: 50%; color: var(--on); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); }
+.member-overview-avatar img { width: 44px; height: 44px; object-fit: contain; }
+.shopper-overview-avatar { font-size: 25px; }
+.member-overview-name { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; color: var(--ink); font-size: 16px; font-weight: 780; }
+.shopper-overview-profile b { display: block; color: var(--ink); font-size: 15px; }
+.member-overview-profile p, .shopper-overview-profile small { display: block; margin: 4px 0 0; color: var(--mute); font-size: 11px; }
+.member-overview-profile small { display: block; margin-top: 5px; font-size: 10px; }
+.good-note { color: #268048 !important; }.delay-note { color: #b55b36 !important; }
+.member-overview-metrics, .shopper-overview-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.member-overview-metrics article, .shopper-overview-metrics article { display: grid; align-content: center; gap: 6px; min-width: 0; min-height: 58px; padding: 3px 12px; border-left: 1px solid var(--line); text-align: center; }
+.member-overview-metrics article > span, .shopper-overview-metrics article > span { color: var(--mute); font-size: 10px; line-height: 1.35; }
+.member-overview-metrics article > b, .shopper-overview-metrics article > b { color: var(--on); font-size: clamp(14px, 1.45vw, 19px); font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.member-overview-metrics article > small { color: var(--mute); font-size: 9px; line-height: 1.3; }
+.market-tools-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1.08fr); gap: 14px; align-items: stretch; }
+.market-tool-card { min-width: 0; padding: 17px; border: 1px solid var(--glass-edge); border-radius: 19px; background: color-mix(in srgb, var(--glass-panel) 84%, transparent); box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%); }
+.market-tool-heading { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; }
+.market-tool-icon { display: grid; place-items: center; flex: 0 0 32px; width: 32px; height: 32px; border: 1px solid var(--glass-edge); border-radius: 11px; color: var(--on); background: color-mix(in srgb, var(--on) 7%, var(--glass-panel)); }
+.market-tool-heading h2 { margin: 0; color: var(--ink); font-size: 14px; font-weight: 760; }
+.market-tool-heading p { margin: 3px 0 0; color: var(--mute); font-size: 10px; line-height: 1.4; }
+.market-search-field { display: flex; align-items: center; gap: 9px; min-height: 42px; margin-bottom: 14px; padding: 0 12px; border: 1px solid var(--glass-edge); border-radius: 12px; color: var(--mute); background: color-mix(in srgb, var(--glass-panel) 92%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+.market-search-field input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--ink); background: transparent; font: 12px Inter, sans-serif; }
+.market-search-card > h3 { margin: 0 0 8px; color: var(--ink); font-size: 10px; font-weight: 700; }
+.market-category-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+.market-category { display: flex; align-items: center; justify-content: flex-start; gap: 7px; min-width: 0; min-height: 38px; padding: 5px 8px; border: 1px solid var(--glass-edge); border-radius: 11px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 76%, transparent); font: 600 10px Inter, sans-serif; text-align: left; cursor: pointer; }
+.market-category .bi { display: grid; place-items: center; flex: 0 0 23px; width: 23px; height: 23px; border-radius: 50%; color: var(--on); background: color-mix(in srgb, var(--on) 9%, var(--glass-panel)); font-size: 12px; }
+.market-category.on { border-color: color-mix(in srgb, var(--on) 32%, var(--glass-edge)); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); }
+.market-location-card .nearby-bar { display: grid; gap: 14px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.market-location-card .nearby-loc-badge { align-items: flex-start; gap: 9px; }
+.market-location-card .nearby-loc-badge .pin-icon { flex: 0 0 30px; width: 30px; height: 30px; color: var(--on); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); font-size: 15px; }
+.market-location-card .loc-title { color: var(--mute); font-size: 9px; font-weight: 700; letter-spacing: .03em; }
+.market-location-card .nearby-loc-badge select { width: 100% !important; max-width: 100%; min-height: 38px; margin-top: 5px; padding: 0 10px !important; border: 1px solid var(--glass-edge); border-radius: 11px !important; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 90%, transparent) !important; font-size: 11px !important; }
+.market-location-card .nearby-loc-badge .btn { width: 100%; min-height: 36px; margin-top: 7px; border-radius: 10px; }
+.market-location-card .nearby-chips-wrap { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px; }
+.market-location-card .nearby-chip { min-width: 0; min-height: 34px; padding: 5px 7px; border: 1px solid var(--glass-edge); border-radius: 10px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 78%, transparent); font-size: 9px; line-height: 1.25; text-align: center; }
+.market-location-card .nearby-chip.active { border-color: color-mix(in srgb, var(--on) 35%, var(--glass-edge)); color: var(--on); background: color-mix(in srgb, var(--on) 9%, var(--glass-panel)); }
+.market-refine-controls { display: grid; gap: 11px; }
+.market-refine-controls > label { display: grid; gap: 5px; min-width: 0; }
+.market-refine-controls > label > span { display: flex; align-items: center; gap: 6px; color: var(--mute); font-size: 10px; font-weight: 650; }
+.market-refine-controls select { width: 100%; min-height: 38px; padding: 0 10px; border: 1px solid var(--glass-edge); border-radius: 11px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 88%, transparent); font-size: 11px; }
+.market-seller-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.market-seller-filter { min-height: 31px; padding: 4px 9px; border: 1px solid var(--glass-edge); border-radius: 999px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 78%, transparent); font: 600 9px Inter, sans-serif; cursor: pointer; }
+.market-seller-filter.on { border-color: transparent; color: #fff; background: #188c61; }
+.market-refine-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.market-list-count { display: inline-flex; align-items: center; width: fit-content; min-height: 28px; padding: 4px 10px; border-radius: 999px; color: var(--on); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); font-size: 10px; font-weight: 700; }
+.market-reset-button { display: inline-flex; align-items: center; gap: 5px; padding: 4px 6px; border: 0; color: var(--on); background: transparent; font: 650 10px Inter, sans-serif; cursor: pointer; }
+.market-products-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-top: 2px; }
+.market-products-heading h2 { margin: 0; color: var(--ink); font-size: 19px; font-weight: 780; }
+.market-products-heading p { margin: 3px 0 0; color: var(--mute); font-size: 11px; }
+.market-dashboard .vm-grocery-grid { margin-top: 0; }
+.shopper-bottom-grid { display: grid; grid-template-columns: minmax(230px,.7fr) minmax(0,1.5fr); gap: 14px; align-items: start; }
+.agaseke-control-card { display: grid; align-content: start; gap: 12px; }
+.agaseke-control-card .market-tool-heading { margin: 0; }
+.agaseke-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.agaseke-option { min-height: 32px; padding: 5px 10px; border: 1px solid var(--glass-edge); border-radius: 999px; color: var(--ink); background: var(--glass-panel); font: 650 10px Inter, sans-serif; cursor: pointer; }
+.agaseke-option.on { border-color: transparent; color: #fff; background: #168b61; }
+.agaseke-control-card > small { color: var(--mute); font-size: 10px; line-height: 1.45; }
+.shopper-orders-card { min-width: 0; }
+.shopper-orders-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.shopper-orders-heading h2 { margin: 0; font-size: 14px; }.shopper-orders-heading p { margin: 3px 0 0; color: var(--mute); font-size: 10px; }
+:root[data-theme="dark"] .market-hero { background-image: linear-gradient(90deg, rgba(16,32,27,.96) 0%, rgba(16,32,27,.9) 40%, rgba(16,32,27,.45) 67%, rgba(16,32,27,.08) 100%), var(--market-hero-image); }
+@media (max-width: 1100px) { .market-tools-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }.market-search-card { grid-column: 1 / -1; }.market-category-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media (max-width: 760px) { .market-tools-grid { grid-template-columns: 1fr; }.market-search-card { grid-column: auto; }.member-overview-card, .shopper-overview-card { grid-template-columns: 1fr; }.member-overview-metrics, .shopper-overview-metrics { grid-template-columns: repeat(2, minmax(0,1fr)); row-gap: 10px; }.member-overview-metrics article:nth-child(odd), .shopper-overview-metrics article:nth-child(odd) { border-left: 0; }.market-hero { min-height: 176px; background-size: cover, auto 100%; background-position: center, right center; }.shopper-bottom-grid { grid-template-columns: 1fr; } }
+@media (max-width: 440px) { .market-hero { min-height: 165px; padding: 18px; background-image: linear-gradient(90deg, color-mix(in srgb, var(--glass-panel) 97%, #eef8ed), color-mix(in srgb, var(--glass-panel) 82%, transparent)), var(--market-hero-image); }.market-hero h1 { font-size: 24px; }.market-hero p { max-width: 30ch; font-size: 11px; }.market-tool-card { padding: 14px; }.market-category-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }.member-overview-card, .shopper-overview-card { padding: 14px; }.member-overview-metrics article, .shopper-overview-metrics article { padding-inline: 6px; }.member-overview-metrics article > b, .shopper-overview-metrics article > b { font-size: 14px; } }
+
+/* Shopper cart summary follows the marketplace reference while staying compact on mobile. */
+.header-action.header-cart {
+  width: auto;
+  min-width: 142px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 15px;
+  color: #fff;
+  background: linear-gradient(145deg, #0d5947, #073f35);
+  box-shadow: 0 8px 20px -12px rgba(5,58,45,.75), inset 0 1px 0 rgba(255,255,255,.12);
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 7px;
+  row-gap: 0;
+}
+.header-action.header-cart:hover { color: #fff; border-color: rgba(255,255,255,.28); background: linear-gradient(145deg, #11735a, #084a3d); }
+.header-action.header-cart > .bi { font-size: 17px; }
+.header-cart-label { font-size: 12px; font-weight: 700; }
+.header-cart-total { flex-basis: 100%; margin-top: -4px; padding-left: 23px; color: rgba(255,255,255,.78); font-size: 10px; font-weight: 600; text-align: center; }
+@media (max-width: 760px) {
+  .header-action.header-cart { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; }
+  .header-action.header-cart .header-cart-label, .header-action.header-cart .header-cart-total { display: none; }
+  .header-action.header-cart .bi { font-size: 17px; }
+}
+
+/* ==========================================================================
+   ROLE PORTAL DIRECTORY (media_1793097642966.png layout)
+   ========================================================================== */
+.role-portal-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-bottom: 28px;
+}
+.role-portal-hero {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 24px;
+  padding: 30px 34px;
+  background: linear-gradient(135deg, rgba(238, 251, 244, 0.94), rgba(214, 245, 230, 0.78));
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  overflow: hidden;
+  box-shadow: 0 8px 30px -12px rgba(10, 60, 42, 0.12);
+}
+:root[data-theme="dark"] .role-portal-hero {
+  background: linear-gradient(135deg, rgba(16, 42, 33, 0.92), rgba(11, 30, 24, 0.86));
+  border-color: rgba(232, 255, 241, 0.15);
+}
+.role-portal-hero-copy {
+  max-width: 640px;
+  z-index: 1;
+}
+.role-portal-hero-copy h1 {
+  font-size: clamp(24px, 3.2vw, 34px);
+  font-weight: 800;
+  color: #0b5e43;
+  margin: 0 0 8px;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+}
+:root[data-theme="dark"] .role-portal-hero-copy h1 {
+  color: #55e6a5;
+}
+.role-portal-hero-copy p {
+  font-size: 14px;
+  color: #4a6356;
+  margin: 0;
+  line-height: 1.5;
+}
+:root[data-theme="dark"] .role-portal-hero-copy p {
+  color: #a3c2b2;
+}
+.role-portal-hero-art {
+  flex: none;
+  width: 220px;
+  height: 95px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.role-portal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+.role-portal-sec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.role-portal-sec-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 16px;
+  flex: none;
+}
+.role-portal-sec-icon.marketplace { background: #065f46; }
+.role-portal-sec-icon.admin { background: #2e1065; }
+.role-portal-sec-title b {
+  display: block;
+  font-size: 16px;
+  font-weight: 750;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.role-portal-sec-title small {
+  color: var(--mute);
+  font-size: 12px;
+}
+.role-portal-market-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 1180px) {
+  .role-portal-market-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .role-portal-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .role-portal-market-grid { grid-template-columns: 1fr; }
+}
+.role-portal-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 18px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--glass-panel) 92%, white);
+  border: 1px solid var(--glass-edge);
+  box-shadow: 0 4px 16px -8px rgba(10, 50, 35, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+:root[data-theme="dark"] .role-portal-card {
+  background: rgba(22, 38, 30, 0.85);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.role-portal-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -10px rgba(10, 60, 42, 0.2);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.role-portal-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.role-portal-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #0e8555;
+}
+:root[data-theme="dark"] .role-portal-card-icon {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+.role-portal-card-icon.admin {
+  background: rgba(147, 51, 234, 0.12);
+  color: #7e22ce;
+}
+:root[data-theme="dark"] .role-portal-card-icon.admin {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+}
+.role-portal-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  letter-spacing: 0.02em;
+}
+:root[data-theme="dark"] .role-portal-badge {
+  background: rgba(21, 128, 61, 0.35);
+  color: #86efac;
+}
+.role-portal-badge.admin {
+  background: #ede9fe;
+  color: #6b21a8;
+}
+:root[data-theme="dark"] .role-portal-badge.admin {
+  background: rgba(126, 34, 206, 0.3);
+  color: #d8b4fe;
+}
+.role-portal-card-title {
+  font-size: 15px;
+  font-weight: 750;
+  color: var(--ink);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.role-portal-card-desc {
+  font-size: 12px;
+  color: var(--mute);
+  margin: 0 0 16px;
+  line-height: 1.45;
+  min-height: 35px;
+}
+.role-portal-card-action {
+  margin-top: auto;
+  width: 100%;
+}
+.role-portal-card-btn {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #fff;
+  background: #064e3b;
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.25);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.role-portal-card-btn:hover { background: #04382a; }
+.role-portal-card-btn.admin {
+  background: #2e1065;
+  box-shadow: 0 4px 12px rgba(46, 16, 101, 0.3);
+}
+.role-portal-card-btn.admin:hover { background: #220b4d; }
+
+.role-portal-admin-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(0, 2.4fr);
+  gap: 14px;
+}
+@media (max-width: 860px) {
+  .role-portal-admin-grid { grid-template-columns: 1fr; }
+}
+.role-portal-trust-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(240, 253, 244, 0.88), rgba(236, 253, 245, 0.72));
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  box-shadow: 0 4px 16px -8px rgba(10, 50, 35, 0.1);
+}
+:root[data-theme="dark"] .role-portal-trust-card {
+  background: linear-gradient(135deg, rgba(14, 38, 30, 0.9), rgba(10, 28, 22, 0.82));
+  border-color: rgba(16, 185, 129, 0.15);
+}
+.role-portal-trust-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.role-portal-trust-title b {
+  display: block;
+  font-size: 16px;
+  font-weight: 750;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.role-portal-trust-title small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--mute);
+}
+.role-portal-trust-badge-icon {
+  font-size: 26px;
+  color: #059669;
+  flex: none;
+}
+.role-portal-trust-pillars {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(16, 185, 129, 0.14);
+}
+@media (max-width: 640px) {
+  .role-portal-trust-pillars { grid-template-columns: 1fr; }
+}
+.role-portal-pillar {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.role-portal-pillar i {
+  font-size: 17px;
+  color: #059669;
+  flex: none;
+  margin-top: 1px;
+}
+.role-portal-pillar b {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.role-portal-pillar p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--mute);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   AGASEKE SOLIDARITY DONATION SELECTOR & CHECKOUT BREAKDOWN
+   ========================================================================== */
+.agaseke-donation-card {
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: rgba(16, 185, 129, 0.07);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  margin: 10px 0;
+}
+.agaseke-donation-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.agaseke-donation-header b {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.agaseke-donation-header b i { color: #e11d48; }
+.agaseke-donation-header span {
+  font-size: 11.5px;
+  color: #0e8555;
+  font-weight: 700;
+}
+.agaseke-donation-desc {
+  font-size: 11px;
+  color: var(--mute);
+  margin: 0 0 8px;
+  line-height: 1.45;
+}
+.agaseke-donation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.agaseke-chip {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: color-mix(in srgb, var(--glass-panel) 90%, white);
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.agaseke-chip:hover {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+}
+.agaseke-chip.active {
+  background: #065f46;
+  color: #fff;
+  border-color: #065f46;
+  box-shadow: 0 2px 6px rgba(6, 95, 70, 0.25);
+}
+
+/* ==========================================================================
+   GLOWING CIRCUIT SVG BACKGROUND (login-form-v5.html)
+   ========================================================================== */
+.auth-bg-circuit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.65;
+}
+.auth-bg-circuit path {
+  fill: none;
+  stroke: rgba(16, 185, 129, 0.45);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.6));
+}
+.auth-bg-circuit circle {
+  fill: #10b981;
+  filter: drop-shadow(0 0 6px #10b981);
+  animation: authPulse 2.4s ease-in-out infinite;
+}
+@keyframes authPulse { 50% { opacity: 0.3; } }

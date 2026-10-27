@@ -1465,7 +1465,7 @@ class IsokoApp {
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
       const roleCode = this.state.roleCode || "member";
       const roleShortcut = ["member", "shopper"].includes(roleCode)
-        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartCount()} items"><i class="bi bi-cart3" aria-hidden="true"></i>${this.cartCount() ? `<b class="header-count">${this.cartCount()}</b>` : ""}</button>`
+        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartQuantityCount()} items, ${this.cartSubtotal().toLocaleString()} RWF"><i class="bi bi-cart3" aria-hidden="true"></i><span class="header-cart-label">Cart · ${this.cartQuantityCount()}</span>${this.cartQuantityCount() ? `<small class="header-cart-total">${this.cartSubtotal().toLocaleString()} RWF</small>` : ""}</button>`
         : ["seller", "trader"].includes(roleCode)
           ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing" aria-label="Add food"><i class="bi bi-plus-circle" aria-hidden="true"></i></button>`
           : ["planner", "admin"].includes(roleCode)
@@ -1610,41 +1610,141 @@ class IsokoApp {
   }
 
   renderPublicRolesView() {
-    const rolesList = [
-      { code: "member", key: "Family", icon: '<i class="bi bi-people" aria-hidden="true"></i>', title: "VUP Member", line: "I receive VUP support and want to shop for food." },
-      { code: "planner", key: "Planner", icon: '<i class="bi bi-bar-chart-line" aria-hidden="true"></i>', title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
-      { code: "seller", key: "Farmer", icon: '<i class="bi bi-shop" aria-hidden="true"></i>', title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
-      { code: "trader", key: "Trader", icon: '<i class="bi bi-shop-window" aria-hidden="true"></i>', title: "Market trader", line: "I sell food bought from local markets and suppliers." },
-      { code: "shopper", key: "Shopper", icon: '<i class="bi bi-cart3" aria-hidden="true"></i>', title: "Ethical Shopper", line: "I buy food for my household." },
-      { code: "admin", key: "Admin", icon: '<i class="bi bi-shield-lock" aria-hidden="true"></i>', title: "Administrator", line: "I review users, payments, reports, and system activity." }
+    const marketRoles = [
+      { code: "member", key: "Family", icon: "bi-people", title: "VUP Member", line: "I receive VUP support and want to shop for food." },
+      { code: "planner", key: "Planner", icon: "bi-bar-chart-line", title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
+      { code: "seller", key: "Farmer", icon: "bi-shop", title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
+      { code: "trader", key: "Trader", icon: "bi-shop-window", title: "Market trader", line: "I sell food bought from local markets and suppliers." },
+      { code: "shopper", key: "Shopper", icon: "bi-cart3", title: "Ethical Shopper", line: "I buy food for my household." }
     ];
 
     return `
-      <div class="head">
-        <div>
-          <h1>Choose Your Role Portal</h1>
-          <p class="sub">Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
-        </div>
-      </div>
+      <div class="role-portal-wrap">
+        <!-- Hero Header with Agritech Produce Canopy Art -->
+        <header class="role-portal-hero">
+          <div class="role-portal-hero-copy">
+            <h1>Choose Your Role Portal</h1>
+            <p>Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
+          </div>
+          <div class="role-portal-hero-art" aria-hidden="true">
+            <svg viewBox="0 0 220 95" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
+              <path d="M0 80 Q 60 45, 130 65 T 220 50 L 220 95 L 0 95 Z" fill="#bbf7d0" opacity="0.6"/>
+              <path d="M40 85 Q 110 55, 170 70 T 220 62 L 220 95 L 40 95 Z" fill="#86efac" opacity="0.7"/>
+              <!-- Market Canopy Stall -->
+              <g transform="translate(130, 16)">
+                <!-- Canopy roof -->
+                <path d="M5 28 L 78 28 L 72 8 L 10 8 Z" fill="#047857"/>
+                <path d="M12 8 L 22 28 M 32 8 L 42 28 M 52 8 L 62 28" stroke="#ecfdf5" stroke-width="2.5"/>
+                <!-- Scallop edge -->
+                <path d="M5 28 Q 11 34 17 28 Q 23 34 29 28 Q 35 34 41 28 Q 47 34 53 28 Q 59 34 65 28 Q 71 34 77 28" fill="#047857"/>
+                <!-- Posts -->
+                <rect x="12" y="28" width="4" height="42" fill="#78350f" rx="1"/>
+                <rect x="66" y="28" width="4" height="42" fill="#78350f" rx="1"/>
+                <!-- Table counter -->
+                <rect x="6" y="52" width="70" height="18" fill="#b45309" rx="2"/>
+                <!-- Produce crates -->
+                <rect x="11" y="44" width="16" height="10" fill="#92400e" rx="1"/>
+                <circle cx="16" cy="42" r="3" fill="#ea580c"/>
+                <circle cx="22" cy="43" r="3" fill="#f59e0b"/>
+                <rect x="32" y="44" width="18" height="10" fill="#92400e" rx="1"/>
+                <circle cx="37" cy="42" r="3" fill="#16a34a"/>
+                <circle cx="44" cy="42" r="3" fill="#65a30d"/>
+                <rect x="54" y="44" width="18" height="10" fill="#92400e" rx="1"/>
+                <circle cx="59" cy="42" r="3.5" fill="#dc2626"/>
+                <circle cx="66" cy="42" r="3" fill="#f97316"/>
+              </g>
+            </svg>
+          </div>
+        </header>
 
-      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-bottom: 24px;">
-        ${rolesList.map(r => `
-          <div class="card pk" style="cursor:pointer; display:flex; flex-direction:column; padding:22px;" onclick="window.app.pickRole('${r.code}')">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-              <span class="ki" style="width:44px; height:44px; border-radius:50%; background:var(--accsoft); color:var(--acc); display:grid; place-items:center;">
-                ${r.icon}
-              </span>
-              <span class="tag ${r.code === 'admin' ? 'r' : 'g'}">${r.key}</span>
-            </div>
-            <b style="font-size:16px; font-weight:700; margin-bottom:6px;">${r.title}</b>
-            <p style="color:var(--mute); font-size:12.5px; margin-bottom:16px; line-height:1.45;">${r.line}</p>
-            <div style="margin-top:auto;">
-              <button class="btn btn-sm btn-primary" style="width:100%; justify-content:center;">
-                Enter ${r.title} Portal →
-              </button>
+        <!-- Section 1: Marketplace Participants -->
+        <section class="role-portal-section" aria-labelledby="secMarketTitle">
+          <div class="role-portal-sec-header">
+            <span class="role-portal-sec-icon marketplace"><i class="bi bi-shop" aria-hidden="true"></i></span>
+            <div class="role-portal-sec-title">
+              <b id="secMarketTitle">Marketplace Participants</b>
+              <small>Portals for users who buy, sell, or plan within the food marketplace.</small>
             </div>
           </div>
-        `).join("")}
+          <div class="role-portal-market-grid">
+            ${marketRoles.map(r => `
+              <article class="role-portal-card" onclick="window.app.pickRole('${r.code}')" tabindex="0" role="button" aria-label="Enter ${r.title} Portal">
+                <div class="role-portal-card-top">
+                  <span class="role-portal-card-icon"><i class="bi ${r.icon}" aria-hidden="true"></i></span>
+                  <span class="role-portal-badge">${r.key}</span>
+                </div>
+                <h3 class="role-portal-card-title">${r.title}</h3>
+                <p class="role-portal-card-desc">${r.line}</p>
+                <div class="role-portal-card-action">
+                  <button type="button" class="role-portal-card-btn">
+                    Enter ${r.title} Portal &rarr;
+                  </button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </section>
+
+        <!-- Section 2: Administration -->
+        <section class="role-portal-section" aria-labelledby="secAdminTitle">
+          <div class="role-portal-sec-header">
+            <span class="role-portal-sec-icon admin"><i class="bi bi-shield-shaded" aria-hidden="true"></i></span>
+            <div class="role-portal-sec-title">
+              <b id="secAdminTitle">Administration</b>
+              <small>Portals for system oversight, user management, and reporting.</small>
+            </div>
+          </div>
+          <div class="role-portal-admin-grid">
+            <!-- Administrator Card -->
+            <article class="role-portal-card" onclick="window.app.pickRole('admin')" tabindex="0" role="button" aria-label="Enter Administrator Portal">
+              <div class="role-portal-card-top">
+                <span class="role-portal-card-icon admin"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
+                <span class="role-portal-badge admin">Admin</span>
+              </div>
+              <h3 class="role-portal-card-title">Administrator</h3>
+              <p class="role-portal-card-desc">I review users, payments, reports, and system activity.</p>
+              <div class="role-portal-card-action">
+                <button type="button" class="role-portal-card-btn admin">
+                  Enter Administrator Portal &rarr;
+                </button>
+              </div>
+            </article>
+
+            <!-- Trust, Security & Access Banner -->
+            <div class="role-portal-trust-card">
+              <div class="role-portal-trust-top">
+                <div class="role-portal-trust-title">
+                  <b>Secure. Role-based. Built for trust.</b>
+                  <small>Each portal provides secure access to insights and actions relevant to your role.</small>
+                </div>
+                <i class="bi bi-shield-check role-portal-trust-badge-icon" aria-hidden="true"></i>
+              </div>
+              <div class="role-portal-trust-pillars">
+                <div class="role-portal-pillar">
+                  <i class="bi bi-person-badge" aria-hidden="true"></i>
+                  <div>
+                    <b>Role-based access</b>
+                    <p>See only what's relevant to your responsibilities.</p>
+                  </div>
+                </div>
+                <div class="role-portal-pillar">
+                  <i class="bi bi-database-check" aria-hidden="true"></i>
+                  <div>
+                    <b>Data you can trust</b>
+                    <p>Explore real NISR microdata in a secure environment.</p>
+                  </div>
+                </div>
+                <div class="role-portal-pillar">
+                  <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                  <div>
+                    <b>Actionable insights</b>
+                    <p>Make informed decisions with confidence.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     `;
   }
@@ -2212,6 +2312,13 @@ class IsokoApp {
     const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
       <section class="auth-scene" aria-labelledby="authTitle">
+        <svg class="auth-bg-circuit" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <path d="M0 220H140L180 260H300"/><path d="M0 560H220L260 520H340"/><path d="M1200 180H1040L1000 220H900"/>
+          <path d="M1200 600H980L940 560H860"/><path d="M300 0V90L340 130"/><path d="M900 800V700L860 660"/>
+          <circle cx="300" cy="260" r="5"/><circle cx="340" cy="520" r="5" style="animation-delay:.8s"/>
+          <circle cx="900" cy="220" r="5" style="animation-delay:1.4s"/><circle cx="860" cy="560" r="5" style="animation-delay:.4s"/>
+          <circle cx="340" cy="130" r="4" style="animation-delay:1s"/><circle cx="860" cy="660" r="4" style="animation-delay:1.8s"/>
+        </svg>
         <div class="auth-card" data-mode="${isSignup ? "signup" : "login"}">
           <aside class="auth-welcome">
             <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
@@ -2349,51 +2456,41 @@ class IsokoApp {
     const isLate = Number(u.daysLate) > 0;
 
     return `
-      <!-- Member Account Safety Net Status Card -->
-      <div class="card" style="padding: 20px; margin-bottom: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
-          <div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <h2 style="margin:0; font-size:20px;">${u.name}</h2>
-              <span class="tag g">VUP Direct Support</span>
-            </div>
-            <p class="sub" style="margin-top:4px;">${u.district || 'Kirehe'} District · ${u.householdSize || 5} family members · Disbursement ${isLate ? 'delayed by ' + u.daysLate + ' days' : 'on schedule'}</p>
-          </div>
-          <div style="text-align:right;">
-            <div class="wallet-balance-label"><i class="bi bi-wallet2" aria-hidden="true"></i> VUP food wallet</div>
-            <b class="wallet-balance-amount">${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b>
-            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Government amount recorded as owed</div>
-            <b style="font-size:18px; color:var(--primary); font-weight:800;">${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b>
-            <div style="font-size:11px; color:var(--mute);">${Number(u.daysWorked || 0)} work days recorded where applicable · demo record</div>
-            <div style="font-size:11.5px; color:var(--mute); margin-top:8px;">Food credit ready to use</div>
-            <b style="font-size:20px; color:var(--acc); font-weight:800;">${remaining.toLocaleString()} RWF</b>
-            <div style="font-size:10.5px; color:var(--ok); font-weight:600;">0% interest · no planner approval</div>
-          </div>
-        </div>
+      <div class="market-dashboard">
+        ${this.renderMarketHero("Fresh food, at a fair price", "Shop local harvests and choose how to pay at checkout.", "assets/produce/spinach.jpg")}
+        <section class="member-overview-card card" aria-label="Your VUP account summary">
+          <div class="member-overview-profile"><span class="member-overview-avatar"><img src="assets/isoko-bridge-icon.svg" alt=""></span><div><div class="member-overview-name">${this.escapeHtml(u.name || "VUP member")} <span class="tag g">VUP member</span></div><p>${this.escapeHtml(u.district || "Kirehe")} District · ${Number(u.householdSize || 5)} family members</p><small class="${isLate ? "delay-note" : "good-note"}">${isLate ? `Payment is ${u.daysLate} days late` : "VUP payment is on schedule"}</small></div></div>
+          <div class="member-overview-metrics"><article><span><i class="bi bi-wallet2" aria-hidden="true"></i> Food wallet</span><b>${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b></article><article><span>Government amount owed</span><b>${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b></article><article><span>Work days recorded</span><b>${Number(u.daysWorked || 0)}</b><small>Where this applies</small></article><article><span>Food credit ready</span><b>${remaining.toLocaleString()} RWF</b><small>0% interest · no approval needed</small></article></div>
+        </section>
+        ${this.renderMarketplaceTools()}
+        <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Food from nearby farmers and market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
+        ${this.renderGroceryCatalog("cash", { showControls: false })}
       </div>
-
-      <section class="market-promo-banner"><span class="market-promo-icon"><i class="bi bi-basket2" aria-hidden="true"></i></span><div><b>Fresh food, at a fair price</b><p>Shop local harvests and choose a safe demo payment method at checkout.</p></div><button class="btn btn-primary" onclick="window.app.setNavTab('cart')"><i class="bi bi-cart3" aria-hidden="true"></i> Cart${this.cartCount() ? ` · ${this.cartCount()}` : ""}</button></section>
-
-      <!-- VeggieMart Top Search & Category Filter Header -->
-      <div class="vm-search-bar">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search fresh beans, potatoes, vegetables, fruits..." autocomplete="off" oninput="window.app.filterProduceByName(this.value)">
-      </div>
-
-      <div class="vm-categories-row">
-        ${["All", "Staples", "Beans", "Tubers", "Vegetables", "Grains", "Fruits", "Dairy"].map(cat => `
-          <button class="vm-cat-pill ${(!this.state.activeCategory && cat === 'All') || this.state.activeCategory === cat ? 'on' : ''}" onclick="window.app.state.activeCategory='${cat}'; window.app.render();">
-            ${cat === 'All' ? 'All Staples' : cat}
-          </button>
-        `).join("")}
-      </div>
-
-      <!-- Proximity Distance Bar -->
-      ${this.renderNearbyBar()}
-
-      <!-- Produce Grid with Bridge Credit Button -->
-      ${this.renderGroceryCatalog('cash')}
     `;
+  }
+
+  renderMarketHero(title, description, image = "assets/produce/irish_potato.jpg") {
+    return `<section class="market-hero" style="--market-hero-image:url('${this.escapeHtml(image)}')"><div><span class="market-hero-kicker"><i class="bi bi-basket2" aria-hidden="true"></i> Isoko Bridge Marketplace</span><h1>${this.escapeHtml(title)}</h1><p>${this.escapeHtml(description)}</p><button class="market-hero-button" type="button" onclick="window.app.focusMarketSearch()">Shop now <i class="bi bi-arrow-right" aria-hidden="true"></i></button></div></section>`;
+  }
+
+  renderMarketplaceTools() {
+    const categories = [
+      ["All", "All staples", "bi-grid"], ["Staples", "Staples", "bi-basket"], ["Beans", "Beans", "bi-circle-half"],
+      ["Tubers", "Tubers", "bi-flower1"], ["Vegetables", "Vegetables", "bi-flower2"], ["Grains", "Grains", "bi-moisture"],
+      ["Fruits", "Fruits", "bi-apple"], ["Dairy", "Dairy", "bi-cup-straw"], ["Other", "Other", "bi-three-dots"]
+    ];
+    return `<section class="market-tools-grid" aria-label="Find and filter food">
+      <article class="market-tool-card market-search-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-basket2" aria-hidden="true"></i></span><div><h2>Find fresh food</h2><p>Search or browse a food group.</p></div></div><label class="market-search-field"><i class="bi bi-search" aria-hidden="true"></i><input type="search" id="vmSearchInput" value="${this.escapeHtml(this.state.searchQuery || "")}" placeholder="Search beans, potatoes, fruit…" autocomplete="off" oninput="window.app.filterProduceByName(this.value)"></label><h3>Browse by category</h3><div class="market-category-grid">${categories.map(([value, label, icon]) => `<button type="button" class="market-category ${(!this.state.activeCategory && value === "All") || this.state.activeCategory === value ? "on" : ""}" aria-pressed="${(!this.state.activeCategory && value === "All") || this.state.activeCategory === value}" onclick="window.app.state.activeCategory='${value}'; window.app.render();"><i class="bi ${icon}" aria-hidden="true"></i><span>${label}</span></button>`).join("")}</div></article>
+      <article class="market-tool-card market-location-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-geo-alt" aria-hidden="true"></i></span><div><h2>Choose your location</h2><p>See sellers near you or across Rwanda.</p></div></div>${this.renderNearbyBar()}</article>
+      <article class="market-tool-card market-refine-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-sliders" aria-hidden="true"></i></span><div><h2>Refine results</h2><p>Choose a district, seller, and price order.</p></div></div>${this.renderGroceryControls(this.state.listings.length)}</article>
+    </section>`;
+  }
+
+  focusMarketSearch() {
+    const input = document.getElementById("vmSearchInput");
+    if (!input) return;
+    input.scrollIntoView({ behavior: "smooth", block: "center" });
+    input.focus({ preventScroll: true });
   }
 
   renderFamilyCreditTab() {
@@ -3318,91 +3415,16 @@ class IsokoApp {
     const familiesHelped = Math.max(1, Math.floor(agasekePool / 5000));
 
     return `
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
-        <div>
-          <h2>${this.t('roleShopperTitle') || 'Ethical Marketplace & Solidarity'}</h2>
-          <p class="sub" style="margin:2px 0 0;">Buy fresh farm harvest direct from rural cooperatives with transparent community micro-savings.</p>
-        </div>
-        <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Shopper')">
-          🧾 Download Purchases & Agaseke Receipts (PDF/CSV)
-        </button>
-      </div>
-
-      <!-- Civil Servants & Conscious Shoppers Banner -->
-      <div class="card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(14, 99, 94, 0.18)); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 20px; padding: 18px 22px; margin-bottom: 16px;">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap;">
-          <div style="flex:1; min-width:280px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-              <span class="tag g" style="font-weight:700;">🇷🇼 Gahunda y'Abakozi ba Leta n'Abaguzi</span>
-              <span class="tag" style="background:rgba(52,211,153,0.18); color:var(--on);">Direct Farm Gate</span>
-            </div>
-            <h3 style="font-size:17px; font-weight:800; margin:4px 0 6px; color:var(--ink);">
-              Empower Smallholders · Support Vulnerable Neighbors with Agaseke
-            </h3>
-            <p style="font-size:12.5px; color:var(--mute); margin:0 0 10px; line-height:1.45;">
-              We encourage government employees, civil servants, institutional buyers, and urban citizens to purchase fresh produce directly on Isoko Bridge. Smallholder farmers receive fair gate prices with zero middlemen commission, while each purchase micro-funds emergency food relief for families in Ubudehe Category 1.
-            </p>
-          </div>
-          <div style="flex:0 0 auto; text-align:right;">
-            <span class="tag g" style="font-size:12px; padding:6px 12px;">Zero Middlemen Markups</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Agaseke k'Ubumwe Micro-Solidarity Control & Pool Stats -->
-      <div class="card" style="border-radius:20px; padding:20px; margin-bottom:16px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
-          <div>
-            <h3 style="display:flex; align-items:center; gap:8px; margin:0 0 4px; font-size:15.5px;">
-              <i class="bi bi-heart-pulse" style="color:var(--accent);"></i>
-              Agaseke k'Ubumwe Micro-Solidarity Contribution
-            </h3>
-            <p class="sub" style="margin:0; font-size:12px;">
-              10 RWF default micro-saving per order — small enough for anyone, yet collectively feeds vulnerable families.
-            </p>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <span style="font-size:12px; font-weight:600; color:var(--mute); margin-right:4px;">Your contribution:</span>
-            ${[10, 20, 50, 100, 0].map(amt => `
-              <button class="btn btn-sm ${currentAgaseke === amt ? 'btn-primary' : 'btn-outline'}" 
-                style="padding:4px 10px; font-size:11.5px; border-radius:8px;"
-                onclick="window.app.setShopperAgasekeAmount(${amt})">
-                ${amt === 10 ? '10 RWF (Default)' : amt === 0 ? 'Exempt' : `${amt} RWF`}
-              </button>
-            `).join("")}
-          </div>
-        </div>
-
-        <div class="stats" style="margin-top:12px;">
-          <div class="stat">
-            <b style="color:var(--accent);">${totalAgasekeGiven.toLocaleString()} RWF</b>
-            <span>your Agaseke gifts</span>
-          </div>
-          <div class="stat">
-            <b style="color:var(--success);">${agasekePool.toLocaleString()} RWF</b>
-            <span>Agaseke relief pool today</span>
-          </div>
-          <div class="stat">
-            <b>${familiesHelped} families</b>
-            <span>emergency relief capacity</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Nearby Proximity Bar -->
-      ${this.renderNearbyBar()}
-
-      <div class="card">
-        <h3>🛒 Buy Food</h3>
-        ${this.renderGroceryCatalog('cash')}
-      </div>
-
-      <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h3>🧾 My Orders & Receipts</h3>
-          <button class="btn btn-sm btn-ghost" onclick="window.app.openStatementModal('Shopper')">Download CSV / PDF</button>
-        </div>
-        ${this.renderOrdersTable(myOrders)}
+      <div class="market-dashboard shopper-dashboard">
+        ${this.renderMarketHero("Fresh food, at a fair price", "Shop local harvests, compare sellers, and support families through Agaseke.", "assets/produce/irish_potato.jpg")}
+        <section class="shopper-overview-card card" aria-label="Shopping and community summary">
+          <div class="shopper-overview-profile"><span class="shopper-overview-avatar"><i class="bi bi-person-heart" aria-hidden="true"></i></span><div><b>${this.escapeHtml(u.name || "Shopper")}</b><small>Local shopper · ${this.escapeHtml(u.district || "Rwanda")}</small></div></div>
+          <div class="shopper-overview-metrics"><article><span>Orders</span><b>${myOrders.length}</b></article><article><span>Your Agaseke gifts</span><b>${totalAgasekeGiven.toLocaleString()} RWF</b></article><article><span>Community pool</span><b>${agasekePool.toLocaleString()} RWF</b></article><article><span>Families supported</span><b>${familiesHelped}</b></article></div>
+        </section>
+        ${this.renderMarketplaceTools()}
+        <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Buy directly from farmers and local market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
+        ${this.renderGroceryCatalog("cash", { showControls: false })}
+        <section class="shopper-bottom-grid"><article class="card agaseke-control-card"><div class="market-tool-heading"><span class="market-tool-icon"><i class="bi bi-heart-pulse" aria-hidden="true"></i></span><div><h2>Agaseke contribution</h2><p>Choose how much to add to each order.</p></div></div><div class="agaseke-options" role="group" aria-label="Choose Agaseke contribution">${[10, 20, 50, 100, 0].map(amt => `<button type="button" class="agaseke-option ${currentAgaseke === amt ? "on" : ""}" aria-pressed="${currentAgaseke === amt}" onclick="window.app.setShopperAgasekeAmount(${amt})">${amt === 0 ? "None" : `${amt} RWF`}</button>`).join("")}</div><small>Every contribution supports food relief for families who need help.</small></article><article class="card shopper-orders-card"><div class="shopper-orders-heading"><div><h2>My orders</h2><p>Check your past purchases and receipts.</p></div><button class="icon-action" onclick="window.app.openStatementModal('Shopper')" title="Download purchases and receipts" aria-label="Download purchases and receipts"><i class="bi bi-download" aria-hidden="true"></i></button></div>${this.renderOrdersTable(myOrders)}</article></section>
       </div>
     `;
   }
@@ -4214,10 +4236,29 @@ class IsokoApp {
 
   cartCount() { return (this.state.cart || []).length; }
   cartQuantityCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
+  cartSubtotal() {
+    return (this.state.cart || []).reduce((sum, line) => {
+      const listing = this.state.listings.find(item => Number(item.id) === Number(line.listingId));
+      return sum + (listing ? (Number(listing.price) || 0) * (Number(line.qty) || 0) : 0);
+    }, 0);
+  }
   getAgasekeContributionAmount() {
     if (this.state.roleCode !== "shopper") return 0;
     const amount = Number(this.state.currentUser?.agasekeContribution);
     return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 10;
+  }
+  setShopperAgasekeAmount(amount) {
+    if (this.state.roleCode !== "shopper") return;
+    const allowed = [0, 10, 20, 50, 100];
+    const value = Number(amount);
+    if (!allowed.includes(value)) return;
+    if (!this.state.currentUser) this.state.currentUser = {};
+    this.state.currentUser.agasekeContribution = value;
+    const email = String(this.state.user || "").toLowerCase();
+    const account = (this.state.users || []).find(user => String(user.email || "").toLowerCase() === email);
+    if (account) account.agasekeContribution = value;
+    this.saveState();
+    this.render();
   }
   addToCart(listingId) {
     const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
@@ -4678,7 +4719,17 @@ class IsokoApp {
     this.render();
   }
 
-  renderGroceryCatalog(mode) {
+  renderGroceryControls(itemCount) {
+    const selectedDist = this.state.selectedDistrictFilter || "all";
+    const sellerFilterName = this.state.selectedSellerFilter;
+    const sortKey = this.state.produceSort || "distance";
+    const sellerFilter = this.state.sellerTypeFilter || "all";
+    const proximity = (this.state.nearby && this.state.nearby.filterProximity) || "all";
+    const hasActiveFilters = selectedDist !== "all" || !!sellerFilterName || (this.state.searchQuery || "").trim() || (this.state.activeCategory && this.state.activeCategory !== "All") || proximity !== "all" || sellerFilter !== "all";
+    return `<div class="market-refine-controls"><label><span><i class="bi bi-geo-alt" aria-hidden="true"></i> District</span><select class="form-control" onchange="window.app.setDistrictFilter(this.value)"><option value="all" ${selectedDist === "all" ? "selected" : ""}>All Rwanda (30 districts)</option>${NISR_DATA.districts.map(d => `<option value="${this.escapeHtml(d.name)}" ${selectedDist.toLowerCase() === d.name.toLowerCase() ? "selected" : ""}>${this.escapeHtml(d.name)} · ${this.escapeHtml(d.province)}</option>`).join("")}</select></label><label><span><i class="bi bi-sort-down" aria-hidden="true"></i> Sort by</span><select class="form-control" onchange="window.app.setProduceSort(this.value)"><option value="distance" ${sortKey === "distance" ? "selected" : ""}>Nearest first</option><option value="price_asc" ${sortKey === "price_asc" ? "selected" : ""}>Price: low to high</option><option value="price_desc" ${sortKey === "price_desc" ? "selected" : ""}>Price: high to low</option><option value="stock" ${sortKey === "stock" ? "selected" : ""}>Most available</option></select></label><div class="market-seller-filters" role="group" aria-label="Filter by seller">${[["all", "All sellers"], ["farmer", "Farmer co-ops"], ["trader", "Market traders"]].map(([value, label]) => `<button type="button" class="market-seller-filter ${sellerFilter === value ? "on" : ""}" aria-pressed="${sellerFilter === value}" onclick="window.app.state.sellerTypeFilter='${value}'; window.app.render();">${label}</button>`).join("")}</div><div class="market-refine-footer"><span class="market-list-count">${Number(itemCount) || 0} listings</span>${hasActiveFilters ? `<button class="market-reset-button" type="button" onclick="window.app.resetMarketFilters()"><i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Reset</button>` : ""}</div></div>`;
+  }
+
+  renderGroceryCatalog(mode, { showControls = true } = {}) {
     const curDist = (this.state.nearby && this.state.nearby.userDistrict) || "Gasabo";
     const filter = (this.state.nearby && this.state.nearby.filterProximity) || "all";
     const selectedDist = this.state.selectedDistrictFilter || "all";
@@ -4746,44 +4797,8 @@ class IsokoApp {
       items.sort((a, b) => a.dynamicDistanceKm - b.dynamicDistanceKm);
     }
 
-    const hasActiveFilters = selectedDist !== "all" || sellerFilterName || searchQuery || (this.state.activeCategory && this.state.activeCategory !== "All") || filter !== "all";
-
     return `
-      <!-- Market Toolbar: District Filter, Proximity Sort, and Active Filter Strip -->
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding:10px 14px; background:var(--soft); border-radius:16px; border:1px solid var(--line);">
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
-            <i class="bi bi-geo-alt"></i> District:
-            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setDistrictFilter(this.value)">
-              <option value="all" ${selectedDist === 'all' ? 'selected' : ''}>All Rwanda (30 Districts)</option>
-              ${NISR_DATA.districts.map(d => `<option value="${d.name}" ${selectedDist.toLowerCase() === d.name.toLowerCase() ? 'selected' : ''}>${d.name} (${d.province})</option>`).join("")}
-            </select>
-          </label>
-
-          <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--ink);">
-            <i class="bi bi-sort-numeric-down"></i> Sort:
-            <select class="form-control" style="padding:4px 8px; font-size:12px; min-height:32px; border-radius:8px;" onchange="window.app.setProduceSort(this.value)">
-              <option value="distance" ${sortKey === 'distance' ? 'selected' : ''}>Nearest First</option>
-              <option value="price_asc" ${sortKey === 'price_asc' ? 'selected' : ''}>Price: Low to High</option>
-              <option value="price_desc" ${sortKey === 'price_desc' ? 'selected' : ''}>Price: High to Low</option>
-              <option value="stock" ${sortKey === 'stock' ? 'selected' : ''}>Highest Stock</option>
-            </select>
-          </label>
-        </div>
-
-        <div style="display:flex; align-items:center; gap:8px;">
-          ${hasActiveFilters ? `
-            <button class="btn btn-sm btn-ghost" style="padding:4px 8px; font-size:11.5px; color:var(--accent);" onclick="window.app.resetMarketFilters()">
-              <i class="bi bi-x-circle"></i> Reset Filters
-            </button>
-          ` : ''}
-          <span class="tag g" style="font-size:11px; padding:3px 8px;">${items.length} crops listed</span>
-        </div>
-      </div>
-
-      <div class="seller-filter-row" role="group" aria-label="Filter by seller" style="margin-bottom:12px;">
-        ${[["all", "All sellers"], ["farmer", "Farmer Co-ops"], ["trader", "Market traders"]].map(([value, label]) => `<button type="button" class="vm-cat-pill ${(sellerFilter === value) ? "on" : ""}" onclick="window.app.state.sellerTypeFilter='${value}'; window.app.render();">${label}</button>`).join("")}
-      </div>
+      ${showControls ? this.renderGroceryControls(items.length) : ""}
 
       ${items.length === 0 ? `
         <div style="text-align:center; padding: 40px 20px; background:var(--card); border:1px solid var(--line); border-radius:24px; margin-bottom: 24px;">
