@@ -44,6 +44,12 @@
     <!-- Vertix Body: Left Rail + Main Dynamic View -->
     <div class="body">
       <aside class="rail wide" id="appRail" aria-label="Main menu">
+        <button class="rail-edge-toggle" id="railEdgeToggle" type="button" onclick="window.app.toggleSidebar()" aria-label="Toggle sidebar" title="Toggle sidebar">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 2L4 6l4 4"/>
+          </svg>
+        </button>
+        <div class="rail-window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
         <a class="rail-brand" href="#" onclick="window.app.goHome(); return false;" aria-label="Isoko Bridge home">
           <img src="assets/isoko-bridge-icon.svg" alt="">
           <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>

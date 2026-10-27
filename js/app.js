@@ -439,6 +439,7 @@ class IsokoApp {
   syncSidebar() {
     const sidebar = document.getElementById("appRail");
     const toggle = document.getElementById("railRw");
+    const edgeToggle = document.getElementById("railEdgeToggle");
     if (!sidebar) return;
     const stored = localStorage.getItem("isoko_sidebar_expanded");
     const expanded = stored === null ? true : stored === "true";
@@ -451,6 +452,14 @@ class IsokoApp {
       const label = document.getElementById("menuToggleLabel");
       if (label) label.textContent = expanded ? "Close menu" : "Open menu";
     }
+    if (edgeToggle) {
+      edgeToggle.setAttribute("aria-expanded", String(expanded));
+      edgeToggle.title = expanded ? "Collapse sidebar" : "Expand sidebar";
+      edgeToggle.classList.toggle("collapsed", !expanded);
+    }
+    if (typeof this.initRailHighlight === "function") {
+      setTimeout(() => this.initRailHighlight(), 460);
+    }
   }
 
   toggleSidebar() {
@@ -460,6 +469,32 @@ class IsokoApp {
     sidebar.classList.toggle("wide", expanded);
     localStorage.setItem("isoko_sidebar_expanded", String(expanded));
     this.syncSidebar();
+  }
+
+  initRailHighlight() {
+    const nav = document.getElementById("topNavPill");
+    const hl = document.getElementById("railHl");
+    if (!nav || !hl) return;
+    const links = nav.querySelectorAll(".sidebar-link");
+    const move = (el) => {
+      if (!el || typeof el.offsetTop !== "number") return;
+      hl.style.transform = `translateY(${el.offsetTop}px)`;
+      hl.style.height = `${el.offsetHeight || 38}px`;
+      hl.style.opacity = "1";
+    };
+    const settle = () => {
+      const active = nav.querySelector(".sidebar-link.on");
+      if (active) {
+        move(active);
+      } else {
+        hl.style.opacity = "0";
+      }
+    };
+    links.forEach(link => {
+      link.onmouseenter = () => move(link);
+    });
+    nav.onmouseleave = settle;
+    settle();
   }
 
   updateThemeControl() {
@@ -1450,7 +1485,7 @@ class IsokoApp {
       else if (role === "Family") items = [item("dashboard", "Food basket"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
       else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("architecture", "Architecture & Flow"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
       else items = [item("dashboard", "Shop & Agaseke"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
-      nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
+      nav.innerHTML = '<span class="rail-hl" id="railHl" aria-hidden="true"></span>' + items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
       items = [
@@ -1459,7 +1494,7 @@ class IsokoApp {
         { id: "roles", label: copy.roles, icon: "bi-person-vcard" },
         { id: "schedule", label: copy.schedule, icon: "bi-calendar3" }
       ];
-      nav.innerHTML = items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
+      nav.innerHTML = '<span class="rail-hl" id="railHl" aria-hidden="true"></span>' + items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
     }
     const accountSlot = document.getElementById("railAccountSlot");
     const footerSlot = document.getElementById("railFooterSlot");
@@ -1473,6 +1508,7 @@ class IsokoApp {
     if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
+    this.initRailHighlight();
     if (!slot) return;
     if (this.state.user) {
       const user = this.state.currentUser || {};
