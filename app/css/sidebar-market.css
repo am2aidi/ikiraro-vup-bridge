@@ -664,6 +664,20 @@
   .header-action.header-cart .bi { font-size: 17px; }
 }
 
+.export-format-card { position: relative; width: min(420px, 92vw); padding: 26px; border: 1px solid var(--glass-edge); border-radius: 22px; background: color-mix(in srgb, var(--glass-panel) 88%, transparent); box-shadow: var(--glass-shadow); -webkit-backdrop-filter: blur(26px) saturate(155%); backdrop-filter: blur(26px) saturate(155%); }
+.export-format-close { position: absolute; top: 14px; right: 14px; }
+.export-format-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; color: var(--on); background: color-mix(in srgb, var(--on) 10%, var(--glass-panel)); font-size: 21px; }
+.export-format-card h2 { margin: 16px 0 5px; color: var(--ink); font-size: 20px; letter-spacing: -.03em; }
+.export-format-card > p { margin: 0; color: var(--mute); font-size: 12px; }
+.export-format-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 20px; }
+.export-format-actions button { display: flex; align-items: center; gap: 11px; min-width: 0; min-height: 68px; padding: 11px; border: 1px solid var(--glass-edge); border-radius: 14px; color: var(--ink); background: color-mix(in srgb, var(--glass-panel) 83%, transparent); text-align: left; cursor: pointer; }
+.export-format-actions button:hover { border-color: color-mix(in srgb, var(--on) 45%, var(--glass-edge)); background: color-mix(in srgb, var(--on) 8%, var(--glass-panel)); }
+.export-format-actions button > i { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; color: var(--on); background: color-mix(in srgb, var(--on) 10%, var(--glass-panel)); font-size: 18px; }
+.export-format-actions button span { display: grid; gap: 3px; min-width: 0; }
+.export-format-actions button b { font-size: 12px; }
+.export-format-actions button small { color: var(--mute); font-size: 10px; }
+@media (max-width: 360px) { .export-format-card { padding: 20px 16px; }.export-format-actions { grid-template-columns: 1fr; } }
+
 /* ==========================================================================
    ROLE PORTAL DIRECTORY (media_1793097642966.png layout)
    ========================================================================== */

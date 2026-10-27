@@ -1502,7 +1502,7 @@ class IsokoApp {
             ? `<button class="header-action" onclick="window.app.setNavTab('analysis')" title="Open NISR analysis" aria-label="NISR analysis"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></button>`
             : "";
       const unread = this.getUnreadNotifications().length;
-      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" aria-label="Profile and settings for ${this.escapeHtml(user.name || this.state.user.split("@")[0])}"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span></button>`;
+      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.openExportFormat('activity')" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" aria-label="Profile and settings for ${this.escapeHtml(user.name || this.state.user.split("@")[0])}"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span></button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
@@ -2436,7 +2436,7 @@ class IsokoApp {
         </section>
         <section class="card settings-card">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i></span><div><h3>Your records</h3><p>Download a copy of your activity.</p></div></div>
-          <button class="btn btn-primary settings-download" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button>
+          <button class="btn btn-primary settings-download" onclick="window.app.openExportFormat('activity')"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button>
         </section>
         <section class="card settings-card settings-privacy">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span><div><h3>Privacy and records</h3><p>Simple rules for information in this prototype.</p></div></div>
@@ -2596,7 +2596,7 @@ class IsokoApp {
           When a VUP payment is recorded for you, open food credit is paid first. Any money left is added to your VUP food wallet. This prototype does not check or deduct a real government payment. Food credit has <b>0% interest and no fee</b>.
         </p>
         <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Family')">
-          Download Statement (PDF / CSV)
+          View statement and choose file type
         </button>
       </div>
     `;
@@ -2982,7 +2982,7 @@ class IsokoApp {
       <div class="head">
         <div>
           <h1>Reports & Data Exports</h1>
-          <p class="sub">Export summaries and raw analytical datasets in PDF, CSV, and JSON formats.</p>
+          <p class="sub">Download clear reports as PDF or Word documents.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')">
           ← Back to Overview
@@ -2993,7 +2993,7 @@ class IsokoApp {
         <div class="card" style="padding:22px;">
           <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Official NISR Analytical Report</h4>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Complete 12-section PDF document compiled with household survey evidence.</p>
-          <button class="btn btn-sm btn-primary" onclick="window.app.downloadNisrPdf()">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openExportFormat('nisrOfficial')">
             Download NISR Report (PDF)
           </button>
         </div>
@@ -3002,15 +3002,15 @@ class IsokoApp {
           <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">Credit Desk Ledger Statement</h4>
           <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Detailed statement of approved credit, seller floats, and SACCO repayments.</p>
           <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Planner')">
-            Export Ledger (CSV / PDF)
+            View and download ledger
           </button>
         </div>
 
         <div class="card" style="padding:22px;">
           <h4 style="font-size:15px; font-weight:700; margin-bottom:6px;">30-District Delay Microdata</h4>
-          <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">Raw JSON and summary figures for provincial delay distributions.</p>
-          <button class="btn btn-sm btn-outline" onclick="window.app.downloadFile('rwanda-vup-delays.json', JSON.stringify(NISR_DATA.delaysByProvince, null, 2), 'application/json')">
-            Export Microdata (JSON)
+          <p style="font-size:12.5px; color:var(--mute); margin-bottom:16px;">District results and summary figures for payment delays.</p>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openExportFormat('nisr')">
+            Download NISR tables
           </button>
         </div>
       </div>
@@ -3414,7 +3414,7 @@ class IsokoApp {
           <p class="sub">Track completed dispatches, Mobile Money float payouts, and tax receipts.</p>
         </div>
         <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Farmer')">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download Statement (PDF/CSV)
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> View statement and choose file type
         </button>
       </div>
 
@@ -3478,8 +3478,8 @@ class IsokoApp {
           <button class="btn btn-sm btn-primary" onclick="window.app.autoDisburseAllVupPayments()">
             <i class="bi bi-lightning-charge"></i> ⚡ Auto-Disburse All VUP Payroll
           </button>
-          <button class="btn btn-sm btn-outline" onclick="window.app.downloadVupPayrollCsv()">
-            <i class="bi bi-download"></i> Export Payroll (CSV / Bank Wave)
+          <button class="btn btn-sm btn-outline" onclick="window.app.openExportFormat('payroll')">
+            <i class="bi bi-download"></i> Download payroll report
           </button>
         </div>
       </div>
@@ -3946,7 +3946,7 @@ class IsokoApp {
     const users = Object.entries(this.state.users || {}).flatMap(([role, list]) => list.map(user => ({ ...user, role })));
     const members = this.state.users?.member || [];
     return `
-      <div class="head"><div><h1>Users and VUP work records</h1><p class="sub">Admins keep work days and unpaid VUP amounts up to date. The member's food credit updates automatically.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.downloadVupWorkRecords()"><i class="bi bi-download" aria-hidden="true"></i> Download work records</button></div>
+      <div class="head"><div><h1>Users and VUP work records</h1><p class="sub">Admins keep work days and unpaid VUP amounts up to date. The member's food credit updates automatically.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.openExportFormat('work')"><i class="bi bi-download" aria-hidden="true"></i> Download work records</button></div>
       <section class="card admin-list-card">
         <div class="ch"><div><h3>VUP amount owed</h3><p class="sub">Use the amount confirmed by a work or payment record. Work days apply to public works programmes. These accounts are demo data.</p></div><span class="tag g">${members.length} VUP members</span></div>
         <div class="table-wrap"><table><thead><tr><th>Member</th><th>Programme and district</th><th>Days worked</th><th>Government owes (demo)</th><th>Open food credit</th><th>Credit left</th><th>Record</th></tr></thead><tbody>
@@ -4011,7 +4011,7 @@ class IsokoApp {
   renderAdminLedgerTab() {
     const entries = this.state.ledger || [];
     return `
-      <div class="head"><div><h1>Money record</h1><p class="sub">See money added to or paid from the bridge pool.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadLedgerCsv()"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download CSV</button></div>
+      <div class="head"><div><h1>Money record</h1><p class="sub">See money added to or paid from the bridge pool.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.openExportFormat('ledger')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download CSV</button></div>
       <section class="card admin-list-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Order</th><th>Status</th></tr></thead><tbody>
         ${entries.length ? entries.map(entry => `<tr><td>${this.escapeHtml(entry.date || "—")}</td><td>${this.escapeHtml(String(entry.type || "Record").replace(/_/g, " "))}</td><td>${this.escapeHtml(entry.from || "—")}</td><td>${this.escapeHtml(entry.to || "—")}</td><td>${(Number(entry.amount) || 0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.link || "—")}</td><td>${this.escapeHtml(entry.status || "Recorded")}</td></tr>`).join("") : '<tr><td colspan="7">No money records yet.</td></tr>'}
       </tbody></table></div></section>`;
@@ -4259,7 +4259,7 @@ class IsokoApp {
     const rows = this.getUserActivityOrders().filter(order => { const date = this.parseOrderDate(order.date); return date && date >= period.start && date <= period.end; });
     const total = rows.reduce((sum, order) => sum + (Number(order.total) || 0), 0);
     const ledgerRows = this.getUserActivityLedger();
-    return `<div class="head"><div><h1>Activity summary</h1><p class="sub">Orders and payments for these dates. Prototype only; no real money is moved.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button></div><section class="activity-controls card"><label>Show<select class="form-control" onchange="window.app.setActivityPeriod(this.value)">${[["today","Today"],["7d","Last 7 days"],["30d","Last 30 days"],["12m","Last 12 months"],["custom","Choose dates"]].map(([key,label])=>`<option value="${key}" ${this.state.activityPeriod===key?"selected":""}>${label}</option>`).join("")}</select></label>${this.state.activityPeriod === "custom" ? `<label>From<input class="form-control" id="activityFrom" type="date" value="${this.state.activityFrom || ""}"></label><label>To<input class="form-control" id="activityTo" type="date" value="${this.state.activityTo || ""}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyActivityDates()">Apply dates</button>` : ""}<span class="tag g">${period.label}</span></section><div class="nisr-kpis activity-kpis"><article class="card"><small>Orders</small><strong>${rows.length}</strong><span>In this date range</span></article><article class="card"><small>Food cost</small><strong>${total.toLocaleString()} RWF</strong><span>Delivery and pool gifts are listed per order</span></article><article class="card"><small>Money records</small><strong>${ledgerRows.length}</strong><span>Payments, credit, gifts, and pool activity</span></article></div><section class="card admin-list-card"><div class="ch"><div><h3>Orders</h3><p class="sub">Cash at delivery stays due until delivery is marked complete. VUP credit is repaid when a VUP payment is recorded.</p></div><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Food</th><th>Pay with</th><th>Food cost</th><th>Payment status</th><th>Order status</th></tr></thead><tbody>${rows.length ? rows.map(order=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(order.date))}</td><td>#${this.escapeHtml(String(order.id))}</td><td>${this.escapeHtml(order.food)} · ${Number(order.kg)||0} ${this.escapeHtml(order.unit || "kg")}</td><td>${this.escapeHtml(order.paymentMethod || order.paidBy || (order.mode === "credit" ? "VUP food credit" : "Cash"))}</td><td>${(Number(order.total)||0).toLocaleString()} RWF${Number(order.deliveryFee) ? ` + ${Number(order.deliveryFee).toLocaleString()} RWF delivery` : ""}${Number(order.gift) ? ` + ${Number(order.gift).toLocaleString()} RWF pool gift` : ""}</td><td>${this.escapeHtml(order.paymentStatus || (order.mode === "credit" ? "Due from VUP" : "Paid"))}</td><td>${this.escapeHtml(order.status || "Recorded")}</td></tr>`).join("") : `<tr><td colspan="7">No orders found for these dates.</td></tr>`}</tbody></table></div></section><section class="card admin-list-card"><div class="ch"><h3>Payments and money records</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Status</th></tr></thead><tbody>${ledgerRows.length ? ledgerRows.map(entry=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(entry.date))}</td><td>${this.escapeHtml(String(entry.type||"Payment").replace(/_/g," "))}</td><td>${this.escapeHtml(entry.from||"—")}</td><td>${this.escapeHtml(entry.to||"—")}</td><td>${(Number(entry.amount)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.status||"Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No payment records found for these dates.</td></tr>`}</tbody></table></div></section>`;
+    return `<div class="head"><div><h1>Activity summary</h1><p class="sub">Orders and payments for these dates. Prototype only; no real money is moved.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.openExportFormat('activity')"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button></div><section class="activity-controls card"><label>Show<select class="form-control" onchange="window.app.setActivityPeriod(this.value)">${[["today","Today"],["7d","Last 7 days"],["30d","Last 30 days"],["12m","Last 12 months"],["custom","Choose dates"]].map(([key,label])=>`<option value="${key}" ${this.state.activityPeriod===key?"selected":""}>${label}</option>`).join("")}</select></label>${this.state.activityPeriod === "custom" ? `<label>From<input class="form-control" id="activityFrom" type="date" value="${this.state.activityFrom || ""}"></label><label>To<input class="form-control" id="activityTo" type="date" value="${this.state.activityTo || ""}"></label><button class="btn btn-sm btn-outline" onclick="window.app.applyActivityDates()">Apply dates</button>` : ""}<span class="tag g">${period.label}</span></section><div class="nisr-kpis activity-kpis"><article class="card"><small>Orders</small><strong>${rows.length}</strong><span>In this date range</span></article><article class="card"><small>Food cost</small><strong>${total.toLocaleString()} RWF</strong><span>Delivery and pool gifts are listed per order</span></article><article class="card"><small>Money records</small><strong>${ledgerRows.length}</strong><span>Payments, credit, gifts, and pool activity</span></article></div><section class="card admin-list-card"><div class="ch"><div><h3>Orders</h3><p class="sub">Cash at delivery stays due until delivery is marked complete. VUP credit is repaid when a VUP payment is recorded.</p></div><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Food</th><th>Pay with</th><th>Food cost</th><th>Payment status</th><th>Order status</th></tr></thead><tbody>${rows.length ? rows.map(order=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(order.date))}</td><td>#${this.escapeHtml(String(order.id))}</td><td>${this.escapeHtml(order.food)} · ${Number(order.kg)||0} ${this.escapeHtml(order.unit || "kg")}</td><td>${this.escapeHtml(order.paymentMethod || order.paidBy || (order.mode === "credit" ? "VUP food credit" : "Cash"))}</td><td>${(Number(order.total)||0).toLocaleString()} RWF${Number(order.deliveryFee) ? ` + ${Number(order.deliveryFee).toLocaleString()} RWF delivery` : ""}${Number(order.gift) ? ` + ${Number(order.gift).toLocaleString()} RWF pool gift` : ""}</td><td>${this.escapeHtml(order.paymentStatus || (order.mode === "credit" ? "Due from VUP" : "Paid"))}</td><td>${this.escapeHtml(order.status || "Recorded")}</td></tr>`).join("") : `<tr><td colspan="7">No orders found for these dates.</td></tr>`}</tbody></table></div></section><section class="card admin-list-card"><div class="ch"><h3>Payments and money records</h3><span>${period.label}</span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Status</th></tr></thead><tbody>${ledgerRows.length ? ledgerRows.map(entry=>`<tr><td>${this.escapeHtml(this.getOrderDateLabel(entry.date))}</td><td>${this.escapeHtml(String(entry.type||"Payment").replace(/_/g," "))}</td><td>${this.escapeHtml(entry.from||"—")}</td><td>${this.escapeHtml(entry.to||"—")}</td><td>${(Number(entry.amount)||0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.status||"Recorded")}</td></tr>`).join("") : `<tr><td colspan="6">No payment records found for these dates.</td></tr>`}</tbody></table></div></section>`;
   }
 
   cartCount() { return (this.state.cart || []).length; }
@@ -4522,7 +4522,7 @@ class IsokoApp {
         <div><h1>NISR payment-delay analysis</h1><p class="sub">What the 2023–24 household survey says about VUP payment waits.</p></div>
         <div class="nisr-export-actions">
           <button class="btn btn-sm btn-primary" onclick="window.app.openAnalysisReportModal()">Print / Save report as PDF</button>
-          <button class="btn btn-sm btn-outline" onclick="window.app.downloadAnalysisCsv()">Download analysis CSV</button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openExportFormat('analysis')">Download analysis report</button>
         </div>
       </div>
 
@@ -4586,7 +4586,7 @@ class IsokoApp {
           <article class="card"><small>Credit orders</small><strong>${credit.length}</strong><span>${credit.reduce((s,o)=>s+(Number(o.total)||0),0).toLocaleString()} RWF simulated credit</span></article>
         </div>
         <div class="nisr-export-actions" style="margin:12px 0;">
-          <button class="btn btn-sm btn-primary" onclick="window.app.downloadTransactionsCsv()">Download transactions CSV</button>
+          <button class="btn btn-sm btn-primary" onclick="window.app.openExportFormat('transactions')">Download transactions report</button>
           <button class="btn btn-sm btn-outline" onclick="window.app.openAnalysisReportModal()">Create dated report</button>
         </div>
         <div class="table-wrap"><table><thead><tr><th>Date</th><th>Order</th><th>Buyer</th><th>District</th><th>Item</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>
@@ -5919,7 +5919,8 @@ class IsokoApp {
       this.downloadFile(`VUPBridge_NISR_Report_${today}.pdf`, new Blob([u], { type: 'application/pdf' }));
       this.toast('NISR Analytical Report (PDF) downloaded successfully', 'success');
     } else {
-      window.print();
+      const today = this.localDateInput(new Date());
+      this.downloadReportDocument("pdf", "NISR survey summary", `IsokoBridge_NISR_summary_${today}`, this.getNisrSummaryCsvRows());
     }
   }
 
@@ -5982,17 +5983,8 @@ class IsokoApp {
     this.downloadReportDocument(format, `Transactions · ${report.period.label}`, `IsokoBridge_transactions_${report.period.from}_to_${report.period.to}_${today}`, rows);
   }
 
-  downloadNisrHtml() {
-    const docEl = document.getElementById('nisrdoc');
-    if (!docEl) {
-      this.toast('Open the NISR Facts tab to export web document', 'warning');
-      return;
-    }
-    const today = new Date().toISOString().slice(0, 10);
-    const styles = document.querySelector('style') ? document.querySelector('style').textContent : '';
-    const content = '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>NISR Facts: VUP Bridge</title><style>' + styles + '</style></head><body style="max-width:960px;margin:20px auto;padding:16px;">' + docEl.outerHTML.replace(/data-a="[^"]*"/g, '') + '</body></html>';
-    this.downloadFile(`VUPBridge_NISR_facts_${today}.html`, content, 'text/html');
-    this.toast('NISR facts web page downloaded successfully', 'success');
+  downloadNisrHtml(format = "pdf") {
+    this.downloadNisrCsv(format);
   }
 
   downloadUserStatement(format = "pdf") {
@@ -6218,14 +6210,14 @@ class IsokoApp {
           <h1>NISR facts: late VUP payments, poverty and food prices</h1>
           <p>A plain-words report from the NISR Integrated Household Living Conditions Survey (EICV7). It shows patterns, not reasons. Prepared ${todayStr} in VUP Bridge. Built on NISR household microdata.</p>
           <div class="tb">
-            <button class="btn" onclick="window.app.downloadNisrPdf()">
+            <button class="btn" onclick="window.app.openExportFormat('nisrOfficial')">
               📥 Download PDF
             </button>
-            <button class="btn" onclick="window.app.downloadNisrHtml()">
-              🌐 Download web page
+            <button class="btn" onclick="window.app.openExportFormat('nisr')">
+              🌐 Download NISR report
             </button>
-            <button class="btn" onclick="window.app.downloadNisrCsv()">
-              📊 Download tables (CSV)
+            <button class="btn" onclick="window.app.openExportFormat('nisr')">
+              📊 Download tables
             </button>
           </div>
         </div>
