@@ -4400,6 +4400,7 @@ class IsokoApp {
   initMap() {
     const container = document.getElementById("mapContainer");
     if (!container) return;
+    delete container.dataset.mapFallback;
 
     if (window.L && window.RWANDA_DISTRICTS_GEOJSON) {
       try {
@@ -4408,8 +4409,21 @@ class IsokoApp {
           this.map = null;
         }
 
-        this.map = L.map('mapContainer', { zoomControl: true, attributionControl: false }).setView([-1.9403, 29.8739], 8);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 14 }).addTo(this.map);
+        this.map = L.map('mapContainer', { zoomControl: true, attributionControl: true }).setView([-1.9403, 29.8739], 8);
+        const baseMapTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        }).addTo(this.map);
+        let tileErrors = 0;
+        baseMapTiles.on('tileerror', () => {
+          tileErrors += 1;
+          if (tileErrors >= 3 && !container.dataset.mapFallback) {
+            container.dataset.mapFallback = 'true';
+            if (this.map) this.map.remove();
+            this.map = null;
+            this.renderOfflineSvgMap(container);
+          }
+        });
 
         const getColor = (name) => {
           const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
