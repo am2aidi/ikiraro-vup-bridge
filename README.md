@@ -81,6 +81,7 @@ The platform opens with **"Who are you?"** featuring 5 clear role buttons with o
 - Available food credit is **unpaid VUP amount minus open food credit**. A member can use the available amount at checkout without planner approval. The prototype adds no interest or fee.
 - After a credit order is delivered, an admin records the seller payment. When an admin records a VUP payment, the app repays open credit first and puts any remaining amount in the member's VUP food wallet.
 - A planner can read the payment record and help with a case. Planners cannot edit the amount owed, issue credit, send money, write off debt, or record a VUP payment. Admins manage those actions.
+- Sample member balances, work days, orders, and payments are **demo values**, not official VUP records or NISR findings. In real use, an admin must enter amounts confirmed by official records.
 
 ### B. Checkout payment choices
 Members and shoppers can choose a payment method at checkout: cash on delivery or pickup, MTN MoMo demo, Airtel Money demo, or bank/SACCO demo. Members can also use an available VUP food wallet or automatic VUP food credit. Digital choices are simulations in this prototype. A live provider connection needs merchant access, a secure backend, and payment-provider approval; none is configured here.
