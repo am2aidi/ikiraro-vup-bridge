@@ -2666,6 +2666,16 @@ class IsokoApp {
     `;
   }
 
+  renderWorkspaceBanner({ eyebrow, title, description, metricValue, metricLabel, metricNote, icon, actionLabel, targetTab, flow = [] }) {
+    const safeIcon = /^[a-z0-9-]+$/.test(icon || "") ? icon : "bar-chart-line";
+    const safeTab = /^[a-z0-9_-]+$/.test(targetTab || "") ? targetTab : "dashboard";
+    const flowMarkup = flow.slice(0, 3).map((step, index) => `${index ? '<i class="bi bi-arrow-right" aria-hidden="true"></i>' : ''}<span>${this.escapeHtml(step)}</span>`).join("");
+    return `<section class="workspace-banner card" aria-label="${this.escapeHtml(eyebrow)}">
+      <div class="workspace-banner-copy"><span class="workspace-banner-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i> ${this.escapeHtml(eyebrow)}</span><h2>${this.escapeHtml(title)}</h2><p>${this.escapeHtml(description)}</p><button class="workspace-banner-action" onclick="window.app.setNavTab('${safeTab}')">${this.escapeHtml(actionLabel)} <i class="bi bi-arrow-right" aria-hidden="true"></i></button><div class="workspace-banner-flow" aria-label="Simple process">${flowMarkup}</div></div>
+      <div class="workspace-banner-visual" aria-hidden="true"><div class="workspace-banner-icon"><i class="bi bi-${safeIcon}"></i></div><div class="workspace-banner-stat"><strong>${this.escapeHtml(metricValue)}</strong><span>${this.escapeHtml(metricLabel)}</span><small>${this.escapeHtml(metricNote)}</small></div><span class="workspace-banner-orbit"></span></div>
+    </section>`;
+  }
+
   renderPlannerView() {
     const sub = this.state.activeSubView || "dashboard";
 
@@ -2732,6 +2742,8 @@ class IsokoApp {
           </button>
         </div>
       </div>
+
+      ${this.renderWorkspaceBanner({ eyebrow: "Planner workspace", title: `Welcome, ${this.state.currentUser.name || "Planner"}`, description: "Review VUP activity, follow up on cases, and use survey results as context.", metricValue: `${NISR_DATA.overall.averageDelayDays.toFixed(1)} days`, metricLabel: "average wait in the survey", metricNote: "Survey data · not live payments", icon: "clipboard-data", actionLabel: "Open NISR analysis", targetTab: "analysis", flow: ["Review activity", "Compare areas", "Follow up"] })}
 
       <!-- Hard Rule 2 Banner -->
       <div class="card" style="background:var(--accsoft); border:1px solid rgba(14,99,94,0.3); padding:12px 18px; border-radius:18px; display:flex; align-items:center; gap:12px; margin-bottom:18px;">
@@ -3133,6 +3145,7 @@ class IsokoApp {
     const u = this.state.currentUser;
     const myOrders = this.state.orders.filter(o => o.farmer === u.name || o.farmer === "Mukamana Farm" || o.farmerEmail === u.email);
     const mySales = myOrders.filter(o => o.status === "Delivered").reduce((sum, o) => sum + o.total, 0);
+    const openOrders = myOrders.filter(o => o.status !== "Delivered" && o.status !== "Cancelled").length;
 
     return `
       <div class="head">
@@ -3144,6 +3157,8 @@ class IsokoApp {
           <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> Add Harvest Produce
         </button>
       </div>
+
+      ${this.renderWorkspaceBanner({ eyebrow: this.state.roleCode === "trader" ? "Market seller workspace" : "Farmer workspace", title: "Reach more local buyers", description: "Manage your food listings and follow orders from one clear screen.", metricValue: String(openOrders), metricLabel: "orders to follow up", metricNote: "Demo orders · no live payouts", icon: "basket2", actionLabel: "Add a food listing", targetTab: "add_produce", flow: ["Add a listing", "Get an order", "Confirm delivery"] })}
 
       <div class="kpis" style="margin-bottom:20px;">
         <div class="card kp">
@@ -4040,6 +4055,8 @@ class IsokoApp {
         </div>
       </div>
 
+      ${this.renderWorkspaceBanner({ eyebrow: "Admin workspace", title: "System overview", description: "Review users, orders, reports, and open cases across the prototype.", metricValue: String(activeCases), metricLabel: "open cases", metricNote: "Review before taking action", icon: "shield-check", actionLabel: "Review open cases", targetTab: "cases", flow: ["Check records", "Review cases", "Export reports"] })}
+
       <!-- Admin Demo Switch: 'Make the next payment fail' -->
       <div class="card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
         <div>
@@ -4406,6 +4423,7 @@ class IsokoApp {
 
       <div class="card nisr-truth-note"><b>How to read this page:</b> The table below uses results published by NISR for the most recent VUP payment. The summary cards and map later on use early project-prepared estimates and still need review. Their average-day figures are a different measure, so do not compare them as if they were the same statistic. The date filter changes demo orders only. Survey results show patterns, not the reason one person's payment was late. <a href="https://microdata.statistics.gov.rw/index.php/catalog/121" target="_blank" rel="noopener">View the NISR survey source</a>.</div>
 
+      ${this.renderWorkspaceBanner({ eyebrow: "NISR survey · 2023–24", title: "See the pattern. Then explore the details.", description: "Compare VUP payment waits by programme and place. Survey results do not explain any one person's delay.", metricValue: `${overall.pctOver7DaysLate}%`, metricLabel: "waited more than 7 days", metricNote: `${overall.totalBeneficiaries.toLocaleString()} survey records`, icon: "bar-chart-line", actionLabel: "View NISR source", targetTab: "nisr_facts", flow: ["Read survey", "Compare groups", "Review carefully"] })}
       ${this.renderPublishedTimelinessTable()}
 
       <div class="nisr-kpis">
