@@ -211,6 +211,9 @@ class IsokoApp {
         state.agasekePool = typeof state.agasekePool === "number" ? state.agasekePool : 145210;
         state.agasekeDisbursed = typeof state.agasekeDisbursed === "number" ? state.agasekeDisbursed : 35000;
         state.agasekeAssistedCount = typeof state.agasekeAssistedCount === "number" ? state.agasekeAssistedCount : 7;
+        state.selectedArchNode ||= "bridge";
+        state.activeArchFlow ||= "all";
+        state.archSimStep = typeof state.archSimStep === "number" ? state.archSimStep : 0;
         const seededMembers = new Map((init.users?.member || []).map(user => [user.email, user]));
         state.users ||= {};
         if (!state.users.trader?.length && window.VUP_SAMPLE_USERS?.trader?.length) state.users.trader = JSON.parse(JSON.stringify(window.VUP_SAMPLE_USERS.trader));
@@ -278,6 +281,9 @@ class IsokoApp {
       selectedDistrictFilter: "all",
       selectedSellerFilter: null,
       produceSort: "distance",
+      selectedArchNode: "bridge",
+      activeArchFlow: "all",
+      archSimStep: 0,
       activeSubView: "dashboard", // "dashboard", "analysis", "reports", "cases", "audit"
       nearby: {
         userDistrict: "Gasabo",
@@ -530,6 +536,14 @@ class IsokoApp {
       return;
     }
     this.state.authMode = mode;
+    const authCard = document.querySelector(".auth-card");
+    if (authCard && !window.matchMedia("(max-width: 760px)").matches) {
+      authCard.dataset.mode = mode;
+      window.setTimeout(() => {
+        if (this.state.authMode === mode && authCard.isConnected) this.render();
+      }, 680);
+      return;
+    }
     this.render();
   }
 
@@ -642,6 +656,22 @@ class IsokoApp {
     this.saveState();
     this.render();
     this.toast("Logged out. Returned to role selection.", "info");
+  }
+
+  deleteOwnAccount() {
+    const email = String(this.state.currentUser?.email || this.state.user || "").trim().toLowerCase();
+    const roleCode = this.state.roleCode || "member";
+    if (!email || !this.state.user) { this.toast("Sign in before deleting an account.", "warning"); return; }
+    if (roleCode === "admin" && (this.state.users?.admin || []).filter(account => String(account.email || "").toLowerCase() !== email).length === 0) {
+      this.toast("This is the only admin account. Add another admin before deleting it.", "warning"); return;
+    }
+    if (!window.confirm("Delete this demo account? Your sign-in and profile will be removed from this browser. Existing transaction and audit records stay unchanged under the project rules. This cannot be undone.")) return;
+    this.state.users[roleCode] = (this.state.users?.[roleCode] || []).filter(account => String(account.email || "").toLowerCase() !== email);
+    this.state.notifications = (this.state.notifications || []).filter(note => String(note.targetEmail || "").toLowerCase() !== email);
+    this.state.user = null; this.state.currentUser = null; this.state.roleCode = null; this.state.role = null;
+    this.state.pickRole = ""; this.state.activeSubView = "dashboard";
+    this.saveState(); this.render();
+    this.toast("Demo account deleted. Existing transaction records were kept.", "info");
   }
 
   getRoleTitleByCode(code) {
@@ -1403,27 +1433,29 @@ class IsokoApp {
       add_produce: "bi-basket2",
       listings: "bi-card-list",
       pool: "bi-bank",
+      architecture: "bi-diagram-3",
       settings: "bi-gear"
     };
     const navText = {
-      en: { dashboard: "Overview", payroll: "VUP Payroll", agaseke: "Agaseke Relief", creditdesk: "Credit desk", nisr_facts: "NISR facts", analysis: "NISR analysis", cases: "Disputes", reports: "Reports", users: "Users", ledger: "Ledger", credit: "Bridge credit & Ejo Heza", orders: "Orders", add_produce: "Add produce", listings: "My listings", pool: "Pool impact", settings: "Settings", market: "Fresh market", roles: "Roles and sign in", schedule: "VUP schedule" },
-      rw: { dashboard: "Incamake", payroll: "Imihembo ya VUP", agaseke: "Agaseke k'Ubumwe", creditdesk: "Inguzanyo", nisr_facts: "Amakuru ya NISR", analysis: "Isesengura rya NISR", cases: "Ibibazo", reports: "Raporo", users: "Abakoresha", ledger: "Ibyakozwe", credit: "Inguzanyo & Ejo Heza", orders: "Ibyatumijwe", add_produce: "Ongeraho umusaruro", listings: "Ibyo ncuruza", pool: "Ikigega rusange", settings: "Igenamiterere", market: "Isoko ry'ibiribwa", roles: "Uruhare no kwinjira", schedule: "Gahunda ya VUP" },
-      fr: { dashboard: "Vue d'ensemble", payroll: "Paie VUP", agaseke: "Fonds Agaseke", creditdesk: "Crédit", nisr_facts: "Données NISR", analysis: "Analyse NISR", cases: "Litiges", reports: "Rapports", users: "Utilisateurs", ledger: "Registre", credit: "Crédit & Ejo Heza", orders: "Commandes", add_produce: "Ajouter des produits", listings: "Mes annonces", pool: "Fonds commun", settings: "Paramètres", market: "Marché", roles: "Rôles et connexion", schedule: "Calendrier VUP" }
+      en: { dashboard: "Overview", architecture: "Architecture & Flow", payroll: "VUP Payroll", agaseke: "Agaseke Relief", creditdesk: "Credit desk", nisr_facts: "NISR facts", analysis: "NISR analysis", cases: "Disputes", reports: "Reports", users: "Users", ledger: "Ledger", credit: "Bridge credit & Ejo Heza", orders: "Orders", add_produce: "Add produce", listings: "My listings", pool: "Pool impact", settings: "Settings", market: "Fresh market", roles: "Roles and sign in", schedule: "VUP schedule" },
+      rw: { dashboard: "Incamake", architecture: "Imiterere n'Uburyo Bikora", payroll: "Imihembo ya VUP", agaseke: "Agaseke k'Ubumwe", creditdesk: "Inguzanyo", nisr_facts: "Amakuru ya NISR", analysis: "Isesengura rya NISR", cases: "Ibibazo", reports: "Raporo", users: "Abakoresha", ledger: "Ibyakozwe", credit: "Inguzanyo & Ejo Heza", orders: "Ibyatumijwe", add_produce: "Ongeraho umusaruro", listings: "Ibyo ncuruza", pool: "Ikigega rusange", settings: "Igenamiterere", market: "Isoko ry'ibiribwa", roles: "Uruhare no kwinjira", schedule: "Gahunda ya VUP" },
+      fr: { dashboard: "Vue d'ensemble", architecture: "Architecture & Flux", payroll: "Paie VUP", agaseke: "Fonds Agaseke", creditdesk: "Crédit", nisr_facts: "Données NISR", analysis: "Analyse NISR", cases: "Litiges", reports: "Rapports", users: "Utilisateurs", ledger: "Registre", credit: "Crédit & Ejo Heza", orders: "Commandes", add_produce: "Ajouter des produits", listings: "Mes annonces", pool: "Fonds commun", settings: "Paramètres", market: "Marché", roles: "Rôles et connexion", schedule: "Calendrier VUP" }
     };
     const copy = navText[lang] || navText.en;
     const item = (id, fallback) => ({ id, label: copy[id] || fallback, icon: icon[id] || icon.dashboard });
     let items = [];
     if (this.state.user) {
-      if (role === "Planner") items = [item("dashboard", "Overview"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
-      else if (role === "Admin") items = [item("dashboard", "Overview"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
-      else if (role === "Family") items = [item("dashboard", "Food basket"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
-      else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
-      else items = [item("dashboard", "Shop & Agaseke"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
+      if (role === "Planner") items = [item("dashboard", "Overview"), item("architecture", "Architecture & Flow"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
+      else if (role === "Admin") items = [item("dashboard", "Overview"), item("architecture", "Architecture & Flow"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
+      else if (role === "Family") items = [item("dashboard", "Food basket"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
+      else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("architecture", "Architecture & Flow"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
+      else items = [item("dashboard", "Shop & Agaseke"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
       nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
       items = [
         { id: "market", label: copy.market, icon: "bi-basket" },
+        { id: "architecture", label: copy.architecture, icon: "bi-diagram-3" },
         { id: "roles", label: copy.roles, icon: "bi-person-vcard" },
         { id: "schedule", label: copy.schedule, icon: "bi-calendar3" }
       ];
@@ -1438,7 +1470,7 @@ class IsokoApp {
         accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" data-tip="Profile and settings"><span class="rail-avatar">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="rail-account-copy rail-label"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(this.state.roleCode || "member"))}</small></span><i class="bi bi-gear rail-label" aria-hidden="true"></i></button>`;
       } else accountSlot.innerHTML = `<button class="rail-account" type="button" onclick="window.app.setPublicTab('roles')" title="Sign in or create an account" data-tip="Sign in or create an account"><span class="rail-avatar"><i class="bi bi-person" aria-hidden="true"></i></span><span class="rail-account-copy rail-label"><b>Welcome</b><small>Sign in or join</small></span></button>`;
     }
-    if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
+    if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
     if (!slot) return;
@@ -1473,6 +1505,9 @@ class IsokoApp {
     }
     if (tab === "schedule") {
       return this.renderPublicScheduleView();
+    }
+    if (tab === "architecture") {
+      return this.renderPublicArchitectureView();
     }
     return this.renderPublicMarketView();
   }
@@ -1642,6 +1677,529 @@ class IsokoApp {
     `;
   }
 
+  // =========================================================================
+  // SYSTEM ARCHITECTURE & ECOSYSTEM FLOW VISUALIZER
+  // =========================================================================
+  getArchNodes() {
+    const listingsCount = (this.state.listings || []).length;
+    const agasekeTotal = (this.state.agasekePool || 145210).toLocaleString();
+    const bridgeFloat = (this.state.pool?.balance || 25000).toLocaleString();
+    const membersCount = (this.state.users?.member || []).length;
+
+    return {
+      farmer: {
+        id: "farmer",
+        tier: 1,
+        title: "Smallholder Farmers & Co-ops",
+        titleRw: "Abahinzi Bato & Koperative",
+        titleFr: "Petits Exploitants & Coopératives",
+        icon: "bi-tree-fill",
+        badge: `${listingsCount} Produce Listings`,
+        badgeColor: "g",
+        flows: ["market", "bridge"],
+        mandate: "NST2 Pillar 1: Agriculture Transformation & Market Access",
+        desc: "Certified smallholder agricultural cooperatives listing fresh harvests directly across all 30 districts of Rwanda.",
+        inbound: "Harvest yields, seasonal inventory, certified cooperative verification.",
+        processing: "Transparent 2% statutory district market levy calculation; Smallholder Cooperative Tax Exemption toggle under Ministerial Order.",
+        outbound: "Farm-fresh staple crops to buyers & VUP workers; instant direct payments to farmer MoMo/SACCO accounts.",
+        liveMetric: `${listingsCount} Active Crop Listings in 30 Districts`,
+        actionLabel: "Explore Market Listings",
+        actionFn: "window.app.setPublicTab('market')"
+      },
+      shopper: {
+        id: "shopper",
+        tier: 1,
+        title: "Civil Servants & Public Shoppers",
+        titleRw: "Abakozi ba Leta n'Abaguzi",
+        titleFr: "Fonctionnaires & Acheteurs Publics",
+        icon: "bi-cart-check-fill",
+        badge: "Gahunda y'Abakozi ba Leta",
+        badgeColor: "g",
+        flows: ["market", "relief"],
+        mandate: "NST2 Inclusive Trade & Middleman Elimination",
+        desc: "Civil servants (abakozi ba Leta) and public conscious shoppers buying directly from farmers at fair prices.",
+        inbound: "Digital payments via MTN MoMo, Airtel Money, or SACCO; delivery requests.",
+        processing: "Direct order matching; automated default 10 RWF Agaseke micro-solidarity contribution.",
+        outbound: "Fresh harvest delivery; 10 RWF micro-solidarity routed to Agaseke Social Relief Pool.",
+        liveMetric: "10 RWF default solidarity per order",
+        actionLabel: "Shop Fresh Produce",
+        actionFn: "window.app.setPublicTab('market')"
+      },
+      member: {
+        id: "member",
+        tier: 1,
+        title: "VUP Public Works Beneficiaries",
+        titleRw: "Abagenerwabikorwa ba VUP",
+        titleFr: "Bénéficiaires des Travaux Publics VUP",
+        icon: "bi-shield-check",
+        badge: "Ubudehe 1 & 2 Social Protection",
+        badgeColor: "g",
+        flows: ["bridge", "payroll"],
+        mandate: "VUP Vision 2020 Umurenge Programme (MINALOC / LODA)",
+        desc: "Vulnerable households performing public infrastructure works (1,500 RWF/day wage) facing salary delay periods.",
+        inbound: "Verified public works days from sector muster rolls, urgent staple food orders.",
+        processing: "Collateral-free zero-interest food bridge credit up to earned wages (9.2-day average wait).",
+        outbound: "Zero-interest food advances; automatic credit recovery upon payroll settlement; 5% Ejo Heza savings.",
+        liveMetric: `${membersCount} Registered VUP Households in Sector`,
+        actionLabel: "View Member Portal",
+        actionFn: "window.app.pickRole('member')"
+      },
+      matcher: {
+        id: "matcher",
+        tier: 2,
+        title: "Decentralized Produce & Trade Matcher",
+        titleRw: "Sisitemu yo Guhuza Isoko",
+        titleFr: "Moteur de Jumelage Agricole",
+        icon: "bi-diagram-2-fill",
+        badge: "Geo-Proximity & Multi-Channel",
+        badgeColor: "b",
+        flows: ["market", "bridge"],
+        mandate: "NISR Track 3: Open Innovation & Market Transparency",
+        desc: "Core routing engine matching local agricultural supply with consumer and institutional demand across Rwanda.",
+        inbound: "Real-time stock feeds, district coordinates, buyer delivery locations, consumer orders.",
+        processing: "Haversine distance ranking (all 30 districts), price comparison against NISR benchmarks, tax calculation.",
+        outbound: "Automated digital dispatch to express moto couriers, seller notifications, order receipts.",
+        liveMetric: "Real-Time Haversine Distance across 30 Districts",
+        actionLabel: "View Market Catalog",
+        actionFn: "window.app.setPublicTab('market')"
+      },
+      bridge: {
+        id: "bridge",
+        tier: 2,
+        title: "Revolving VUP Food Bridge Float",
+        titleRw: "Ikigega cy'Inguzanyo y'Ibiribwa",
+        titleFr: "Fonds Revolvant de Crédit Alimentaire",
+        icon: "bi-arrow-repeat",
+        badge: "0% Interest Liquidity Facility",
+        badgeColor: "b",
+        flows: ["bridge", "payroll"],
+        mandate: "Financial Inclusion (Track 2) & Social Safety Net Resilience",
+        desc: "Autonomous revolving credit facility guaranteeing immediate farmer payment while beneficiaries await government salaries.",
+        inbound: "Automated repayments from SACCO payroll, donor revolving liquidity injections, Agaseke surplus transfers.",
+        processing: "Collateral-free credit ceiling = verified earned wage; zero interest, zero fees, zero predatory debt trap.",
+        outbound: "Instant guaranteed settlements to food sellers; 100% repayment back into the revolving float.",
+        liveMetric: `${bridgeFloat} RWF Active Revolving Float`,
+        actionLabel: "Inspect Credit Desk",
+        actionFn: "window.app.setNavTab('creditdesk')"
+      },
+      agaseke: {
+        id: "agaseke",
+        tier: 2,
+        title: "Agaseke k'Ubumwe Solidarity Pool",
+        titleRw: "Agaseke k'Ubumwe Social Relief",
+        titleFr: "Cagnotte de Solidarité Agaseke",
+        icon: "bi-heart-pulse-fill",
+        badge: "Community Micro-Relief Pool",
+        badgeColor: "r",
+        flows: ["market", "relief"],
+        mandate: "NST2 Inclusive Growth & Traditional Rwandan Social Cohesion",
+        desc: "Community micro-solidarity fund collecting 10 RWF per order to support vulnerable families and reinforce liquidity.",
+        inbound: "10 RWF micro-levies from shoppers, voluntary citizen round-ups, community solidarity donations.",
+        processing: "Transparent ledger tracking; Sector Planner discretionary emergency relief allocation.",
+        outbound: "5,000 / 10,000 RWF food vouchers to Ubudehe 1 families; liquidity injections into Revolving Bridge Float.",
+        liveMetric: `${agasekeTotal} RWF Accumulated Relief Pool`,
+        actionLabel: "Manage Agaseke Relief",
+        actionFn: "window.app.setNavTab('agaseke')"
+      },
+      planner: {
+        id: "planner",
+        tier: 3,
+        title: "Sector Social Planners & Local Gov",
+        titleRw: "Abashinzwe Imibereho Myiza ku Murenge",
+        titleFr: "Planificateurs Sociaux du Secteur",
+        icon: "bi-building-check",
+        badge: "Umurenge Social Affairs & LODA",
+        badgeColor: "g",
+        flows: ["relief", "payroll"],
+        mandate: "Local Government Decentralized Social Protection & Monitoring",
+        desc: "Sector officials monitoring household wait times, arbitrating disputes, and disbursing emergency social relief.",
+        inbound: "NISR EICV7 survey delay indicators, beneficiary dispute reports, community hardship cases.",
+        processing: "Vulnerability targeting; approval of Agaseke emergency vouchers; payroll reconciliation.",
+        outbound: "Direct emergency relief vouchers to Ubudehe 1 households; authorization of batch SACCO payroll releases.",
+        liveMetric: "Sector Administrative Oversight & Social Protection",
+        actionLabel: "Open Planner Workspace",
+        actionFn: "window.app.pickRole('planner')"
+      },
+      sacco: {
+        id: "sacco",
+        tier: 3,
+        title: "Umurenge SACCOs & Mobile Money Rails",
+        titleRw: "Umurenge SACCO & Mobile Money",
+        titleFr: "SACCOs Sectorielles & Mobile Money",
+        icon: "bi-cash-coin",
+        badge: "Automated Batch Settlement Rails",
+        badgeColor: "b",
+        flows: ["market", "bridge", "payroll"],
+        mandate: "Universal Financial Inclusion & Rwanda Cashless Vision",
+        desc: "Digital banking and telecommunication rails (MTN MoMo, Airtel Money, SACCO) executing automated wage disbursements.",
+        inbound: "MINECOFIN / LODA public works payroll allocations, shopper mobile wallet settlements.",
+        processing: "Automated food bridge credit debt deduction; automated 5% Ejo Heza long-term savings deduction.",
+        outbound: "Net cash wage delivery to worker accounts; immediate merchant settlements; transfers to RSSB.",
+        liveMetric: "Zero-leakage automated batch payroll waves",
+        actionLabel: "Review Payroll Register",
+        actionFn: "window.app.setNavTab('payroll')"
+      },
+      ejoheza: {
+        id: "ejoheza",
+        tier: 3,
+        title: "RSSB Ejo Heza Long-Term Savings",
+        titleRw: "Ubwizigame bwa Ejo Heza (RSSB)",
+        titleFr: "Épargne Long Terme Ejo Heza (RSSB)",
+        icon: "bi-piggy-bank-fill",
+        badge: "Law N° 29/2017 & 100% Gov Match",
+        badgeColor: "g",
+        flows: ["payroll"],
+        mandate: "Universal Pension Coverage (Law N° 29/2017 & RSSB)",
+        desc: "Rwanda's flagship national micro-pension scheme securing financial resilience for informal and vulnerable workers.",
+        inbound: "Automated 5% statutory deductions from VUP public works payroll disbursements.",
+        processing: "Statutory 100% Government matching grant for Ubudehe Categories 1 and 2; compound interest growth.",
+        outbound: "Old-age retirement pensions, life insurance cover, accidental disability benefits, education credit.",
+        liveMetric: "5% wage deduction + 100% Government co-contribution match",
+        actionLabel: "View Ejo Heza Passbook",
+        actionFn: "window.app.setNavTab('credit')"
+      },
+      nisr: {
+        id: "nisr",
+        tier: 3,
+        title: "NISR Big Data Intelligence Engine",
+        titleRw: "Ikigo cy'Ibarurishamibare (NISR)",
+        titleFr: "Moteur Big Data NISR",
+        icon: "bi-bar-chart-fill",
+        badge: "EICV7 3,399 Household Baseline",
+        badgeColor: "b",
+        flows: ["relief", "bridge"],
+        mandate: "National Institute of Statistics of Rwanda (NISR 2026 Hackathon)",
+        desc: "Empirical household microdata analytics driving evidence-based targeting, delay tracking, and priority allocation.",
+        inbound: "EICV7 VUP survey microdata modules (Direct Support, Classic PW, Expanded PW, NSDS).",
+        processing: "District Priority Index = 45% normalized delay + 40% poverty rate + 15% food-price index.",
+        outbound: "Interactive 30-district geospatial map, wait-time benchmarks, policy decision-support summaries.",
+        liveMetric: "3,399 Microdata Records · 9.2-day national wait baseline",
+        actionLabel: "Explore NISR Analytics",
+        actionFn: "window.app.setNavTab('analysis')"
+      }
+    };
+  }
+
+  getArchSimSteps() {
+    return [
+      {
+        step: 1,
+        title: "1. 🚜 Smallholder Farmer Lists Harvest in Kirehe",
+        titleRw: "1. 🚜 Umuhinzi Ashyizeho Umusaruro i Kirehe",
+        titleFr: "1. 🚜 L'agriculteur publie sa récolte à Kirehe",
+        activeNodes: ["farmer", "matcher"],
+        actor: "Cooperative KODUKIK (Kirehe District)",
+        action: "Lists 50 kg Dry Beans at 700 RWF/kg.",
+        details: "The system dynamically computes the 2% statutory district market levy (14 RWF/kg). The cooperative can toggle the Smallholder Tax-Exempt Status under Ministerial Order to keep producer revenue 100% tax-free.",
+        metric: "50 kg @ 700 RWF/kg · 2% District Tax: 14 RWF/kg"
+      },
+      {
+        step: 2,
+        title: "2. 🛒 Civil Servant Buys Direct via MoMo (+10 RWF Agaseke)",
+        titleRw: "2. 🛒 Umukozi wa Leta Aguze Akoresheje MoMo (+10 RWF Agaseke)",
+        titleFr: "2. 🛒 Le fonctionnaire achète via MoMo (+10 RWF Agaseke)",
+        activeNodes: ["shopper", "matcher", "agaseke", "sacco"],
+        actor: "Grace Mutoni (Civil Servant in Kigali)",
+        action: "Purchases 10 kg Beans via MTN Mobile Money.",
+        details: "Grace pays 7,000 RWF for the beans + 800 RWF express moto delivery. An automatic 10 RWF Agaseke micro-solidarity contribution is added to her order, instantly credited to the central Agaseke Social Relief Pool.",
+        metric: "7,800 RWF Order Total + 10 RWF Agaseke Micro-Solidarity"
+      },
+      {
+        step: 3,
+        title: "3. 🛡️ VUP Beneficiary Receives 0% Food Advance on Wage Delay",
+        titleRw: "3. 🛡️ Umugenerwabikorwa wa VUP Ahawe Inguzanyo y'Ibiribwa ku Buntu",
+        titleFr: "3. 🛡️ Le bénéficiaire VUP reçoit une avance alimentaire à 0%",
+        activeNodes: ["member", "bridge", "matcher", "farmer"],
+        actor: "Amina Uwase (Gasabo District)",
+        action: "Faces an 8-day VUP payroll delay; orders 5 kg beans at 0% interest.",
+        details: "Amina has 14,400 RWF in verified unpaid public works wages. The system issues a 3,900 RWF food bridge credit advance. The Revolving Bridge Float settles the farmer immediately, so Amina's family eats while waiting.",
+        metric: "3,900 RWF Food Advance Issued · 0% Interest · Farmer Paid Instantly"
+      },
+      {
+        step: 4,
+        title: "4. 💰 Automated SACCO Payroll Settlement & Ejo Heza Wealth Co-Match",
+        titleRw: "4. 💰 Imihembo ya SACCO Ishyizweho & Ejo Heza Ibonye Inkunga ya Leta",
+        titleFr: "4. 💰 Règlement de paie SACCO & Co-contribution Ejo Heza",
+        activeNodes: ["planner", "sacco", "bridge", "ejoheza", "member"],
+        actor: "Sector Social Protection Planner & Umurenge SACCO",
+        action: "Batch payroll release of 14,400 RWF arrives in Amina's account.",
+        details: "The system automatically recovers 3,900 RWF back to the Revolving Bridge Float (0 fees). 720 RWF (5%) is deposited into Amina's RSSB Ejo Heza account, triggering the Rwandan Government's 100% matching co-contribution (+720 RWF). Amina receives 9,780 RWF net cash!",
+        metric: "14,400 RWF Gross -> 3,900 RWF Credit Repaid -> 720 RWF Ejo Heza (+720 RWF Gov Match) -> 9,780 RWF Net Cash"
+      }
+    ];
+  }
+
+  setArchFlow(flowId) {
+    this.state.activeArchFlow = flowId;
+    this.render();
+  }
+
+  selectArchNode(nodeKey) {
+    this.state.selectedArchNode = nodeKey;
+    this.render();
+    const panel = document.getElementById("archInspector");
+    if (panel && typeof panel.scrollIntoView === "function") {
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  setArchSimStep(stepIdx) {
+    this.state.archSimStep = Math.max(0, Math.min(3, stepIdx));
+    this.render();
+  }
+
+  advanceArchSim() {
+    const cur = this.state.archSimStep || 0;
+    this.state.archSimStep = (cur + 1) % 4;
+    this.render();
+  }
+
+  renderPublicArchitectureView() {
+    const lang = this.state.lang || "en";
+    const flow = this.state.activeArchFlow || "all";
+    const selectedKey = this.state.selectedArchNode || "bridge";
+    const simIdx = this.state.archSimStep || 0;
+
+    const allNodes = this.getArchNodes();
+    const selectedNode = allNodes[selectedKey] || allNodes.bridge;
+    const simSteps = this.getArchSimSteps();
+    const curStep = simSteps[simIdx] || simSteps[0];
+
+    const flows = [
+      { id: "all", label: lang === "rw" ? "Imikoranire Yose" : lang === "fr" ? "Tous les Flux" : "✨ All Ecosystem Connections" },
+      { id: "market", label: lang === "rw" ? "1. Isoko & Agaseke" : lang === "fr" ? "1. Marché & Agaseke" : "🌾 1. Farm-to-Shopper & Agaseke" },
+      { id: "bridge", label: lang === "rw" ? "2. Inguzanyo ya VUP" : lang === "fr" ? "2. Avance Alimentaire VUP" : "🛡️ 2. VUP Wage Delay & 0% Advance" },
+      { id: "payroll", label: lang === "rw" ? "3. Imihembo & Ejo Heza" : lang === "fr" ? "3. Paie & Ejo Heza" : "💰 3. SACCO Payroll & Ejo Heza" },
+      { id: "relief", label: lang === "rw" ? "4. Ubufasha bw'Agaseke" : lang === "fr" ? "4. Aide Sociale Agaseke" : "🏺 4. Agaseke Social Relief Aid" }
+    ];
+
+    const flowDescriptions = {
+      all: "Complete end-to-end architecture unifying 30-district farm linkages, zero-interest social protection food advances, community micro-solidarity (Agaseke), and RSSB Ejo Heza wealth co-contributions.",
+      market: "Direct farm-to-plate connection: Civil servants and public shoppers buy directly from smallholder co-ops via MoMo, disintermediating brokers while funding the 10 RWF Agaseke solidarity pool.",
+      bridge: "Zero-interest food credit: When VUP wage disbursements are delayed (9.2 days avg), workers receive food advances backed by verified public works muster rolls, repaid automatically upon treasury arrival.",
+      payroll: "Universal financial inclusion: Automated batch SACCO payroll releases wage funds, auto-recovers food advances to the revolving float, and deposits 5% into RSSB Ejo Heza with 100% Government matching.",
+      relief: "Community social safety net: Accumulated 10 RWF micro-donations in the Agaseke pool are allocated by Sector Planners as 5,000 / 10,000 RWF emergency food aid vouchers for Ubudehe 1 households."
+    };
+
+    const isNodeInFlow = node => {
+      if (flow === "all") return true;
+      return (node.flows || []).includes(flow);
+    };
+
+    const isNodeInSim = nodeKey => {
+      return (curStep.activeNodes || []).includes(nodeKey);
+    };
+
+    const renderCard = nodeKey => {
+      const node = allNodes[nodeKey];
+      if (!node) return "";
+      const inFlow = isNodeInFlow(node);
+      const isSelected = selectedKey === nodeKey;
+      const inSim = isNodeInSim(nodeKey);
+
+      let classes = "arch-node";
+      if (isSelected) classes += " active";
+      if (!inFlow && !inSim) classes += " dimmed";
+
+      return `
+        <div class="${classes}" onclick="window.app.selectArchNode('${nodeKey}')" role="button" tabindex="0" title="Click to inspect ${node.title}">
+          <div class="arch-node-top">
+            <div class="arch-node-icon"><i class="bi ${node.icon}"></i></div>
+            <span class="tag ${node.badgeColor || 'g'} arch-node-badge">${node.badge}</span>
+          </div>
+          <div>
+            <h4 class="arch-node-title">${lang === "rw" ? (node.titleRw || node.title) : lang === "fr" ? (node.titleFr || node.title) : node.title}</h4>
+            <p class="arch-node-desc">${node.desc}</p>
+          </div>
+          <div style="font-size:11px; font-weight:700; color:var(--on); display:flex; align-items:center; justify-content:space-between; margin-top:auto; padding-top:6px; border-top:1px dashed var(--line);">
+            <span>${node.liveMetric}</span>
+            <i class="bi bi-chevron-right" style="font-size:12px;"></i>
+          </div>
+        </div>
+      `;
+    };
+
+    return `
+      <!-- Vertix Brand Header -->
+      <div class="ib-market-brand">
+        <img src="assets/isoko-bridge-logo.svg" alt="Isoko Bridge">
+      </div>
+
+      <div class="arch-container">
+        <!-- Hero Header -->
+        <div class="arch-hero">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px;">
+            <div style="max-width:760px;">
+              <span class="tag g" style="margin-bottom:8px;">NISR Big Data Hackathon 2026 · Track 2 & Track 3</span>
+              <h1 style="font-size:clamp(22px, 3vw, 30px); font-weight:800; line-height:1.2; margin:6px 0 10px; color:var(--ink);">
+                ${lang === "rw" ? "Imiterere y'Ikoranabuhanga & Uburyo Isoko Bridge Ikora" : lang === "fr" ? "Architecture du Système & Flux de l'Écosystème Isoko Bridge" : "System Architecture & Ecosystem Flow"}
+              </h1>
+              <p style="font-size:13.5px; color:var(--mute); line-height:1.6; margin:0;">
+                ${flowDescriptions[flow] || flowDescriptions.all}
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')">
+                <i class="bi bi-person-badge"></i> ${lang === "rw" ? "Injira muri Sisitemu" : lang === "fr" ? "Tester un Rôle" : "Explore Roles"} →
+              </button>
+            </div>
+          </div>
+
+          <!-- Flow Selector Pills -->
+          <div class="arch-flow-pills">
+            ${flows.map(f => `
+              <button type="button" class="arch-pill ${flow === f.id ? "on" : ""}" onclick="window.app.setArchFlow('${f.id}')">
+                ${f.label}
+              </button>
+            `).join("")}
+          </div>
+        </div>
+
+        <!-- 3-TIER ARCHITECTURAL ECOSYSTEM MAP -->
+        <div class="arch-tier-block">
+          <!-- TIER 1: Grassroots Community -->
+          <div class="arch-tier-header">
+            <span class="arch-tier-title"><i class="bi bi-people-fill"></i> Tier 1: Grassroots Community Actors</span>
+            <small style="color:var(--mute); font-size:11px;">Direct Proximity · 30 Districts</small>
+          </div>
+          <div class="arch-cards-grid">
+            ${renderCard("farmer")}
+            ${renderCard("shopper")}
+            ${renderCard("member")}
+          </div>
+
+          <!-- CONDUIT 1 -->
+          <div class="arch-conduit-banner">
+            <span class="arch-pulse-dot"></span>
+            <span>⮛ Decentralized Market Linkage · MoMo Checkout · Zero-Interest Food Advances ⮛</span>
+            <span class="arch-pulse-dot"></span>
+          </div>
+
+          <!-- TIER 2: Core Platform Engine -->
+          <div class="arch-tier-header" style="margin-top:14px;">
+            <span class="arch-tier-title"><i class="bi bi-cpu-fill"></i> Tier 2: Core Isoko Bridge Platform Engine</span>
+            <small style="color:var(--mute); font-size:11px;">Autonomous Matching · Revolving Liquidity · Micro-Solidarity</small>
+          </div>
+          <div class="arch-cards-grid">
+            ${renderCard("matcher")}
+            ${renderCard("bridge")}
+            ${renderCard("agaseke")}
+          </div>
+
+          <!-- CONDUIT 2 -->
+          <div class="arch-conduit-banner">
+            <span class="arch-pulse-dot" style="background:#0284c7;"></span>
+            <span style="color:#0284c7;">⮛ Automated SACCO Payroll Wave · 100% Ejo Heza Wealth Match · NISR Analytics ⮛</span>
+            <span class="arch-pulse-dot" style="background:#0284c7;"></span>
+          </div>
+
+          <!-- TIER 3: National Infrastructure & Policy Rails -->
+          <div class="arch-tier-header" style="margin-top:14px;">
+            <span class="arch-tier-title"><i class="bi bi-bank2"></i> Tier 3: National Infrastructure & Institutional Rails</span>
+            <small style="color:var(--mute); font-size:11px;">MINECOFIN · LODA · RSSB · NISR</small>
+          </div>
+          <div class="arch-cards-grid">
+            ${renderCard("planner")}
+            ${renderCard("sacco")}
+            ${renderCard("ejoheza")}
+            ${renderCard("nisr")}
+          </div>
+        </div>
+
+        <!-- INTERACTIVE COMPONENT INSPECTOR -->
+        <div class="arch-inspector-panel" id="archInspector">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--line); padding-bottom:14px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="arch-node-icon" style="width:44px; height:44px; font-size:22px;">
+                <i class="bi ${selectedNode.icon}"></i>
+              </div>
+              <div>
+                <h3 style="margin:0; font-size:18px; font-weight:800; color:var(--ink);">
+                  ${lang === "rw" ? (selectedNode.titleRw || selectedNode.title) : lang === "fr" ? (selectedNode.titleFr || selectedNode.title) : selectedNode.title}
+                </h3>
+                <small style="color:var(--mute); font-size:12px;">${selectedNode.mandate}</small>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="tag ${selectedNode.badgeColor || 'g'}">${selectedNode.liveMetric}</span>
+              <button class="btn btn-sm btn-primary" onclick="${selectedNode.actionFn}">
+                ${selectedNode.actionLabel} →
+              </button>
+            </div>
+          </div>
+
+          <div class="arch-flow-grid">
+            <div class="arch-flow-card">
+              <h5><i class="bi bi-box-arrow-in-right" style="color:var(--on);"></i> Inbound Pipeline</h5>
+              <p>${selectedNode.inbound}</p>
+            </div>
+            <div class="arch-flow-card">
+              <h5><i class="bi bi-gear" style="color:var(--acc);"></i> Algorithmic & Statutory Rules</h5>
+              <p>${selectedNode.processing}</p>
+            </div>
+            <div class="arch-flow-card">
+              <h5><i class="bi bi-box-arrow-right" style="color:#0284c7;"></i> Outbound Pipeline</h5>
+              <p>${selectedNode.outbound}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- INTERACTIVE 4-STAGE LIFECYCLE SIMULATION SANDBOX -->
+        <div class="arch-sim-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <span class="tag b" style="margin-bottom:4px;">Interactive Sandbox</span>
+              <h3 style="margin:0; font-size:17px; font-weight:800;">End-to-End Transaction Lifecycle Simulator</h3>
+              <p style="margin:2px 0 0; font-size:12px; color:var(--mute);">
+                Experience how an agricultural listing in Kirehe triggers civil servant purchases, food credit advances, and automated Ejo Heza pension savings.
+              </p>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-sm btn-outline" onclick="window.app.setArchSimStep(${(simIdx + 3) % 4})" ${simIdx === 0 ? "disabled" : ""}>
+                ◀ Previous
+              </button>
+              <button class="btn btn-sm btn-primary" onclick="window.app.advanceArchSim()">
+                ${simIdx === 3 ? "Restart Simulation ↺" : "Next Stage ▶"}
+              </button>
+            </div>
+          </div>
+
+          <!-- Stepper Node Indicator -->
+          <div class="arch-sim-stepper">
+            ${simSteps.map((s, idx) => `
+              <div class="arch-step-node ${idx < simIdx ? "completed" : idx === simIdx ? "current" : ""}" 
+                   onclick="window.app.setArchSimStep(${idx})" 
+                   style="cursor:pointer;" 
+                   title="Step ${s.step}: ${s.title}">
+                ${idx < simIdx ? "✓" : s.step}
+              </div>
+            `).join("")}
+          </div>
+
+          <!-- Active Simulation Stage Card -->
+          <div class="card" style="background:var(--soft); border:1px solid var(--line); border-radius:16px; padding:18px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+              <h4 style="margin:0; font-size:15px; font-weight:800; color:var(--ink);">
+                ${lang === "rw" ? (curStep.titleRw || curStep.title) : lang === "fr" ? (curStep.titleFr || curStep.title) : curStep.title}
+              </h4>
+              <span class="tag g" style="font-weight:700;">${curStep.actor}</span>
+            </div>
+            <p style="font-size:13px; color:var(--ink); font-weight:600; margin:0 0 6px;">
+              ${curStep.action}
+            </p>
+            <p style="font-size:12.5px; color:var(--mute); line-height:1.55; margin:0 0 12px;">
+              ${curStep.details}
+            </p>
+            <div style="background:var(--card); border:1px dashed var(--line); border-radius:10px; padding:10px 14px; font-size:12px; font-weight:700; color:var(--on); display:flex; align-items:center; gap:8px;">
+              <i class="bi bi-check2-circle" style="font-size:16px;"></i>
+              <span>${curStep.metric}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   renderLoginView() {
     const roleCode = this.state.pickRole || "member";
     const userList = (this.state.users && this.state.users[roleCode]) || [];
@@ -1711,6 +2269,7 @@ class IsokoApp {
   }
 
   renderRoleScreen() {
+    if (this.state.activeSubView === "architecture") return this.renderPublicArchitectureView();
     if (this.state.role === "Family" || this.state.roleCode === "member") return this.renderFamilyView();
     if (this.state.role === "Planner" || this.state.roleCode === "planner") return this.renderPlannerView();
     if (this.state.role === "Farmer" || this.state.roleCode === "seller") return this.renderFarmerView();
@@ -1746,6 +2305,15 @@ class IsokoApp {
         <section class="card settings-card">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i></span><div><h3>Your records</h3><p>Download a copy of your activity.</p></div></div>
           <button class="btn btn-primary settings-download" onclick="window.app.downloadUserStatement()"><i class="bi bi-download" aria-hidden="true"></i> Download my activity</button>
+        </section>
+        <section class="card settings-card settings-privacy">
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span><div><h3>Privacy and records</h3><p>Simple rules for information in this prototype.</p></div></div>
+          <ul><li>NISR household details are not shown. The app uses summary data only.</li><li>Your activity download includes only your account's records.</li><li>Transactions cannot be changed or deleted. Corrections need a new linked reversal record.</li><li>This demo saves data in this browser. Do not enter national ID numbers or private household data.</li></ul>
+        </section>
+        <section class="card settings-card settings-delete-account">
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-person-x" aria-hidden="true"></i></span><div><h3>Delete this demo account</h3><p>Remove your sign-in and profile from this browser.</p></div></div>
+          <p class="settings-policy-note">Old transaction and audit records stay unchanged for record keeping. This action cannot be undone.</p>
+          <button class="btn settings-delete-button" onclick="window.app.deleteOwnAccount()"><i class="bi bi-trash3" aria-hidden="true"></i> Delete my account</button>
         </section>
       </div>
     `;
@@ -1868,6 +2436,35 @@ class IsokoApp {
           <small>Open Food Credit</small>
           <b style="color:var(--bad);">${used.toLocaleString()} RWF</b>
           <em>to settle upon VUP payment</em>
+        </div>
+      </div>
+
+      <!-- RSSB Ejo Heza Passbook Card -->
+      <div class="card" style="background:linear-gradient(135deg, rgba(34,197,94,0.12), rgba(14,99,94,0.18)); border:1px solid rgba(34,197,94,0.28); border-radius:20px; padding:20px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+          <div>
+            <span class="tag g" style="font-weight:700;"><i class="bi bi-shield-check"></i> Ejo Heza Long-Term Savings Passbook</span>
+            <h3 style="margin:6px 0 4px; font-size:17px;">Your Social Pension & Government Match</h3>
+            <p class="sub" style="margin:0; font-size:12.5px; max-width:550px;">
+              5% of your VUP public works wage is automatically saved for your future, and the Government of Rwanda provides an equal 100% matching grant for Ubudehe Categories 1 & 2 under Law N° 29/2017.
+            </p>
+          </div>
+          <span class="tag g" style="padding:6px 12px; font-size:11.5px;">100% Match Active</span>
+        </div>
+
+        <div class="stats" style="margin-top:14px;">
+          <div class="stat">
+            <b style="color:var(--accent);">${((u.ejoHezaBalance ? Math.round(u.ejoHezaBalance / 2) : 2400)).toLocaleString()} RWF</b>
+            <span>Your 5% Savings</span>
+          </div>
+          <div class="stat">
+            <b style="color:var(--success);">${((u.ejoHezaBalance ? Math.round(u.ejoHezaBalance / 2) : 2400)).toLocaleString()} RWF</b>
+            <span>Government 100% Match</span>
+          </div>
+          <div class="stat">
+            <b>${(u.ejoHezaBalance || 4800).toLocaleString()} RWF</b>
+            <span>Total Ejo Heza Balance</span>
+          </div>
         </div>
       </div>
 
@@ -2808,6 +3405,487 @@ class IsokoApp {
         ${this.renderOrdersTable(myOrders)}
       </div>
     `;
+  }
+
+  renderPlannerPayrollTab() {
+    const members = this.state.users?.member || [];
+    const totalOwed = members.reduce((sum, u) => sum + (Number(u.governmentAmountOwed) || 0), 0);
+    const totalOpenCredit = members.reduce((sum, u) => sum + this.getOutstandingCredit(u.email), 0);
+    const totalEjoHezaSavings = Math.round(totalOwed * 0.05);
+    const totalGovMatch = totalEjoHezaSavings;
+    const totalNetPayable = Math.max(0, totalOwed - totalOpenCredit - totalEjoHezaSavings);
+    const lateCount = members.filter(u => Number(u.daysLate) > 0).length;
+
+    return `
+      <div class="head">
+        <div>
+          <h1>VUP Beneficiaries Social Protection Payroll & Ejo Heza</h1>
+          <p class="sub">Statutory monthly public works payroll disbursement, automated food credit recovery, and RSSB Ejo Heza co-savings.</p>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.autoDisburseAllVupPayments()">
+            <i class="bi bi-lightning-charge"></i> ⚡ Auto-Disburse All VUP Payroll
+          </button>
+          <button class="btn btn-sm btn-outline" onclick="window.app.downloadVupPayrollCsv()">
+            <i class="bi bi-download"></i> Export Payroll (CSV / Bank Wave)
+          </button>
+        </div>
+      </div>
+
+      <!-- Ejo Heza Long-Term Savings & Fiscal Resilience Card -->
+      <div class="card" style="background: linear-gradient(135deg, rgba(14, 99, 94, 0.12), rgba(34, 197, 94, 0.16)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 20px; padding: 22px; margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px;">
+          <div style="flex:1; min-width:280px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+              <span class="tag g" style="font-weight:700;"><i class="bi bi-shield-check"></i> RSSB Ejo Heza Long-Term Savings Scheme</span>
+              <span class="tag" style="background:rgba(52,211,153,0.18); color:var(--on);">Law N° 29/2017</span>
+            </div>
+            <h3 style="font-size:17px; font-weight:800; margin:4px 0 6px; color:var(--ink);">
+              Ubudehe 1 & 2 Co-Savings & Fiscal Relief Shield
+            </h3>
+            <p style="font-size:12.5px; color:var(--mute); margin:0 0 10px; line-height:1.5;">
+              Under Rwandan law, vulnerable households in public works save 5% of their gross social allowance into Ejo Heza, which the Government of Rwanda matches with a 100% co-contribution. This converts temporary social relief into permanent household resilience and reduces future emergency relief budgets.
+            </p>
+          </div>
+          <div style="flex:0 0 auto; text-align:right;">
+            <span class="tag g" style="font-size:12px; padding:6px 12px;">100% Government Co-Contribution</span>
+          </div>
+        </div>
+
+        <div class="stats" style="margin-top:14px;">
+          <div class="stat">
+            <b style="color:var(--accent);">${totalEjoHezaSavings.toLocaleString()} RWF</b>
+            <span>Member 5% Savings</span>
+          </div>
+          <div class="stat">
+            <b style="color:var(--success);">${totalGovMatch.toLocaleString()} RWF</b>
+            <span>Govt 100% Matching Grant</span>
+          </div>
+          <div class="stat">
+            <b>${(totalEjoHezaSavings + totalGovMatch).toLocaleString()} RWF</b>
+            <span>Total Ejo Heza Reserve</span>
+          </div>
+          <div class="stat">
+            <b style="color:var(--ok);">14,800,000 RWF</b>
+            <span>Projected 10-Yr Fiscal Budget Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beneficiaries Payroll Table Card -->
+      <section class="card admin-list-card" style="border-radius:20px; padding:20px;">
+        <div class="ch" style="margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0 0 4px;">Beneficiary Allowance & Settlement Register</h3>
+            <p class="sub" style="margin:0;">Net Cash = Gross Allowance − Open Food Credit (Auto-Settled) − Ejo Heza 5% Savings.</p>
+          </div>
+          <span class="tag g">${members.length} Registered Beneficiaries (${lateCount} Delayed)</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Beneficiary</th>
+                <th>Sector & District</th>
+                <th>Days Worked</th>
+                <th>Gross Allowance</th>
+                <th>Food Credit Settled</th>
+                <th>Ejo Heza (5%)</th>
+                <th>Net Cash Disbursed</th>
+                <th>Payment Channel</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${members.map(user => {
+                const gross = Number(user.governmentAmountOwed) || 0;
+                const openCredit = this.getOutstandingCredit(user.email);
+                const ejoHeza = Math.round(gross * 0.05);
+                const netPay = Math.max(0, gross - openCredit - ejoHeza);
+                const isDisbursed = user.payrollStatus === "Disbursed" || gross === 0;
+
+                return `
+                  <tr>
+                    <td>
+                      <b>${this.escapeHtml(user.name || "—")}</b><br>
+                      <small style="color:var(--mute);">${this.escapeHtml(user.email || "")}</small>
+                    </td>
+                    <td>
+                      ${this.escapeHtml(user.sector || "Sector Hub")}<br>
+                      <small style="color:var(--mute);">${this.escapeHtml(user.district || "—")}</small>
+                    </td>
+                    <td><b>${Number(user.daysWorked || 0)}</b> days</td>
+                    <td><b style="color:var(--ink);">${gross.toLocaleString()} RWF</b></td>
+                    <td><span style="color:${openCredit ? 'var(--bad)' : 'var(--mute)'}; font-weight:600;">−${openCredit.toLocaleString()} RWF</span></td>
+                    <td><span style="color:var(--accent); font-weight:600;">−${ejoHeza.toLocaleString()} RWF</span></td>
+                    <td><b style="color:var(--success); font-size:14px;">${netPay.toLocaleString()} RWF</b></td>
+                    <td>
+                      <small style="font-weight:600;">${this.escapeHtml(user.paymentMethod || "Umurenge SACCO")}</small><br>
+                      <small style="color:var(--mute);">${this.escapeHtml(user.accountNumber || "SACCO-01")}</small>
+                    </td>
+                    <td>
+                      <span class="tag ${isDisbursed ? 'g' : user.daysLate > 0 ? 'r' : 'y'}">
+                        ${isDisbursed ? 'Disbursed' : `${user.daysLate || 0}d Late`}
+                      </span>
+                    </td>
+                    <td>
+                      ${isDisbursed ? `
+                        <button class="btn btn-sm btn-ghost" disabled style="opacity:0.6;">
+                          <i class="bi bi-check2-all"></i> Paid
+                        </button>
+                      ` : `
+                        <button class="btn btn-sm btn-primary" onclick="window.app.disburseMemberPayment('${this.escapeHtml(user.email)}')">
+                          <i class="bi bi-send-check"></i> Disburse
+                        </button>
+                      `}
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  disburseMemberPayment(email) {
+    const user = (this.state.users?.member || []).find(u => u.email === email);
+    if (!user) {
+      this.toast("Member not found.", "warning");
+      return;
+    }
+    const gross = Number(user.governmentAmountOwed) || 0;
+    if (gross <= 0) {
+      this.toast(`${user.name} has already been disbursed.`, "info");
+      return;
+    }
+    const openCredit = this.getOutstandingCredit(user.email);
+    const ejoHeza = Math.round(gross * 0.05);
+    const govMatch = ejoHeza;
+    const netPay = Math.max(0, gross - openCredit - ejoHeza);
+
+    this.state.orders.forEach(o => {
+      if (o.buyerEmail === user.email && o.mode === "credit" && !o.repaid) {
+        o.repaid = true;
+        o.repaidDate = new Date().toLocaleDateString("en-GB");
+        o.creditStatus = "settled";
+      }
+    });
+
+    if (openCredit > 0) {
+      this.state.pool.balance += openCredit;
+      this.state.pool.totalRepaidByVup = (this.state.pool.totalRepaidByVup || 0) + openCredit;
+    }
+
+    user.ejoHezaBalance = (user.ejoHezaBalance || 0) + ejoHeza + govMatch;
+    user.governmentAmountOwed = 0;
+    user.daysLate = 0;
+    user.payrollStatus = "Disbursed";
+    user.lastDisbursedDate = new Date().toLocaleDateString("en-GB");
+
+    this.state.ledger = this.state.ledger || [];
+    this.state.ledger.unshift({
+      date: new Date().toLocaleDateString("en-GB"),
+      type: "vup_payroll_disbursement",
+      from: "Government Social Protection Treasury (LODA / MINECOFIN)",
+      to: `${user.name} (${user.paymentMethod || 'SACCO'})`,
+      amount: netPay,
+      link: `Gross: ${gross} RWF · Credit Settled: ${openCredit} RWF · Ejo Heza: ${ejoHeza} RWF (+${govMatch} Gov Match)`,
+      status: "Settled via SACCO Wave"
+    });
+
+    this.addNotification({
+      type: "payroll",
+      title: "VUP Allowance Disbursed",
+      body: `Net cash of ${netPay.toLocaleString()} RWF sent to ${user.paymentMethod}. ${openCredit.toLocaleString()} RWF settled your bridge credit, and ${(ejoHeza + govMatch).toLocaleString()} RWF credited to Ejo Heza.`
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Disbursed ${netPay.toLocaleString()} RWF net cash to ${user.name}. Credit settled & Ejo Heza credited!`, "success");
+  }
+
+  autoDisburseAllVupPayments() {
+    const members = (this.state.users?.member || []).filter(u => Number(u.governmentAmountOwed) > 0);
+    if (members.length === 0) {
+      this.toast("All registered VUP beneficiaries have already been disbursed.", "info");
+      return;
+    }
+    let totalDisbursedNet = 0;
+    let totalSettledCredit = 0;
+    let totalEjoHeza = 0;
+
+    members.forEach(user => {
+      const gross = Number(user.governmentAmountOwed) || 0;
+      const openCredit = this.getOutstandingCredit(user.email);
+      const ejoHeza = Math.round(gross * 0.05);
+      const govMatch = ejoHeza;
+      const netPay = Math.max(0, gross - openCredit - ejoHeza);
+
+      this.state.orders.forEach(o => {
+        if (o.buyerEmail === user.email && o.mode === "credit" && !o.repaid) {
+          o.repaid = true;
+          o.repaidDate = new Date().toLocaleDateString("en-GB");
+          o.creditStatus = "settled";
+        }
+      });
+
+      if (openCredit > 0) {
+        this.state.pool.balance += openCredit;
+        this.state.pool.totalRepaidByVup = (this.state.pool.totalRepaidByVup || 0) + openCredit;
+      }
+
+      user.ejoHezaBalance = (user.ejoHezaBalance || 0) + ejoHeza + govMatch;
+      user.governmentAmountOwed = 0;
+      user.daysLate = 0;
+      user.payrollStatus = "Disbursed";
+      user.lastDisbursedDate = new Date().toLocaleDateString("en-GB");
+
+      totalDisbursedNet += netPay;
+      totalSettledCredit += openCredit;
+      totalEjoHeza += (ejoHeza + govMatch);
+    });
+
+    this.state.ledger = this.state.ledger || [];
+    this.state.ledger.unshift({
+      date: new Date().toLocaleDateString("en-GB"),
+      type: "vup_batch_payroll_wave",
+      from: "Government Social Protection Treasury (LODA / SACCO Automated Wave)",
+      to: `${members.length} VUP Beneficiaries`,
+      amount: totalDisbursedNet,
+      link: `Settled ${totalSettledCredit.toLocaleString()} RWF Credit · Transferred ${totalEjoHeza.toLocaleString()} RWF to Ejo Heza`,
+      status: "Automated SACCO & MoMo Batch Complete"
+    });
+
+    this.addNotification({
+      type: "payroll_batch",
+      title: "Batch VUP Payroll Disbursed",
+      body: `Automated SACCO wave completed for ${members.length} households. Settled ${totalSettledCredit.toLocaleString()} RWF bridge credit into revolving pool.`
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Batch Complete: Disbursed ${totalDisbursedNet.toLocaleString()} RWF net cash to ${members.length} families. Revolving pool replenished!`, "success");
+  }
+
+  downloadVupPayrollCsv() {
+    const members = this.state.users?.member || [];
+    const rows = [
+      ["Beneficiary", "Email", "Programme", "District", "Sector", "Days Worked", "Gross Allowance RWF", "Open Food Credit RWF", "Ejo Heza 5% RWF", "Gov 100% Match RWF", "Net Cash Payout RWF", "Payment Method", "Account Number", "Status"],
+      ...members.map(user => {
+        const gross = Number(user.governmentAmountOwed) || 0;
+        const openCredit = this.getOutstandingCredit(user.email);
+        const ejoHeza = Math.round(gross * 0.05);
+        const netPay = Math.max(0, gross - openCredit - ejoHeza);
+        return [
+          user.name || "—",
+          user.email || "—",
+          user.programme || "VUP",
+          user.district || "—",
+          user.sector || "—",
+          Number(user.daysWorked || 0),
+          gross,
+          openCredit,
+          ejoHeza,
+          ejoHeza,
+          netPay,
+          user.paymentMethod || "Umurenge SACCO",
+          user.accountNumber || "—",
+          user.payrollStatus || "Pending"
+        ];
+      })
+    ];
+    const csv = rows.map(r => r.map(v => this.csvCell(v ?? "")).join(",")).join("\r\n");
+    this.downloadFile(`vup-payroll-wave-${this.localDateInput(new Date())}.csv`, csv, "text/csv;charset=utf-8");
+  }
+
+  renderAgasekeManagementTab() {
+    const pool = this.state.agasekePool || 145210;
+    const disbursed = this.state.agasekeDisbursed || 35000;
+    const assisted = this.state.agasekeAssistedCount || 7;
+    const members = this.state.users?.member || [];
+
+    return `
+      <div class="head">
+        <div>
+          <h1>🇷🇼 Agaseke k'Ubumwe Social Relief Fund (Ikigega cy'Agaseke)</h1>
+          <p class="sub">Citizen & civil servant micro-solidarity pool (10 RWF default contribution per order), providing emergency relief baskets for Ubudehe 1 households.</p>
+        </div>
+        <button class="btn btn-sm btn-primary" onclick="window.app.transferAgasekeToBridgePool(50000)">
+          <i class="bi bi-arrow-repeat"></i> Transfer 50,000 RWF to Revolving Bridge Pool
+        </button>
+      </div>
+
+      <!-- Agaseke Metrics -->
+      <div class="stats" style="margin-bottom:20px;">
+        <div class="stat">
+          <b style="color:var(--success); font-size:24px;">${pool.toLocaleString()} RWF</b>
+          <span>Current Agaseke Reserve</span>
+        </div>
+        <div class="stat">
+          <b style="color:var(--accent); font-size:24px;">${disbursed.toLocaleString()} RWF</b>
+          <span>Emergency Food Vouchers Disbursed</span>
+        </div>
+        <div class="stat">
+          <b style="font-size:24px;">${assisted} households</b>
+          <span>Vulnerable Families Assisted</span>
+        </div>
+        <div class="stat">
+          <b style="color:var(--primary); font-size:24px;">10 RWF / order</b>
+          <span>Citizen Micro-Solidarity Inflow</span>
+        </div>
+      </div>
+
+      <!-- Vulnerable Families Relief Allocation Table -->
+      <section class="card admin-list-card" style="border-radius:20px; padding:20px;">
+        <div class="ch" style="margin-bottom:14px;">
+          <div>
+            <h3 style="margin:0 0 4px;">Sector Social Affairs Relief Desk</h3>
+            <p class="sub" style="margin:0;">Select a vulnerable family to grant an emergency food basket voucher directly from the Agaseke fund.</p>
+          </div>
+          <span class="tag g">Ubudehe Category 1 Priorities</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Vulnerable Household</th>
+                <th>Sector & District</th>
+                <th>Vulnerability & Delay</th>
+                <th>Urgent Food Debt</th>
+                <th>Agaseke Aid Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${members.map(user => {
+                const openCredit = this.getOutstandingCredit(user.email);
+                const isUrgent = Number(user.daysLate) >= 7;
+
+                return `
+                  <tr>
+                    <td>
+                      <b>${this.escapeHtml(user.name || "—")}</b><br>
+                      <small style="color:var(--mute);">${user.householdSize || 5} members · Ubudehe Category 1</small>
+                    </td>
+                    <td>
+                      ${this.escapeHtml(user.sector || "Sector Hub")}<br>
+                      <small style="color:var(--mute);">${this.escapeHtml(user.district || "—")}</small>
+                    </td>
+                    <td>
+                      <span class="tag ${isUrgent ? 'r' : 'y'}">${user.daysLate ? `${user.daysLate}d Delay` : 'Severe Hardship'}</span><br>
+                      <small style="color:var(--mute);">${this.escapeHtml(user.programme || "VUP Public Works")}</small>
+                    </td>
+                    <td>
+                      <b style="color:${openCredit ? 'var(--bad)' : 'var(--ok)'};">${openCredit.toLocaleString()} RWF</b><br>
+                      <small style="color:var(--mute);">${openCredit ? 'Food credit balance' : 'Clean balance'}</small>
+                    </td>
+                    <td>
+                      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 5000)">
+                          Grant 5,000 RWF Food Basket
+                        </button>
+                        <button class="btn btn-sm btn-outline" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 10000)">
+                          Grant 10,000 RWF Full Month Aid
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    `;
+  }
+
+  grantAgasekeAid(email, amount) {
+    amount = Number(amount) || 5000;
+    const pool = this.state.agasekePool || 145210;
+    if (pool < amount) {
+      this.toast(`Insufficient Agaseke pool balance (${pool.toLocaleString()} RWF available).`, "warning");
+      return;
+    }
+    const user = (this.state.users?.member || []).find(u => u.email === email);
+    if (!user) {
+      this.toast("Beneficiary family not found.", "warning");
+      return;
+    }
+
+    this.state.agasekePool = pool - amount;
+    this.state.agasekeDisbursed = (this.state.agasekeDisbursed || 35000) + amount;
+    this.state.agasekeAssistedCount = (this.state.agasekeAssistedCount || 7) + 1;
+
+    let remainingAid = amount;
+    this.state.orders.forEach(o => {
+      if (o.buyerEmail === user.email && o.mode === "credit" && !o.repaid && remainingAid > 0) {
+        const orderOwed = Math.max(0, Number(o.total) - Number(o.repaidAmount || 0));
+        const payDown = Math.min(orderOwed, remainingAid);
+        o.repaidAmount = (Number(o.repaidAmount) || 0) + payDown;
+        remainingAid -= payDown;
+        if (o.repaidAmount >= o.total) {
+          o.repaid = true;
+          o.creditStatus = "settled";
+          o.repaidDate = new Date().toLocaleDateString("en-GB");
+        }
+      }
+    });
+
+    if (remainingAid > 0) {
+      user.vupWalletBalance = (user.vupWalletBalance || 0) + remainingAid;
+    }
+
+    this.state.ledger = this.state.ledger || [];
+    this.state.ledger.unshift({
+      date: new Date().toLocaleDateString("en-GB"),
+      type: "agaseke_emergency_relief",
+      from: "Agaseke k'Ubumwe Social Relief Pool",
+      to: `${user.name} (${user.district})`,
+      amount: amount,
+      link: `Emergency food relief approved by Sector Social Affairs Planner`,
+      status: "Disbursed to Household"
+    });
+
+    this.addNotification({
+      type: "agaseke_grant",
+      title: "Agaseke Food Relief Granted",
+      body: `You received ${amount.toLocaleString()} RWF emergency food relief from Agaseke k'Ubumwe. Your food security is protected.`
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Granted ${amount.toLocaleString()} RWF food assistance from Agaseke Fund to ${user.name}!`, "success");
+  }
+
+  transferAgasekeToBridgePool(amount) {
+    amount = Number(amount) || 50000;
+    const pool = this.state.agasekePool || 145210;
+    if (pool < amount) {
+      this.toast(`Insufficient Agaseke pool balance (${pool.toLocaleString()} RWF available).`, "warning");
+      return;
+    }
+    this.state.agasekePool = pool - amount;
+    this.state.pool.balance = (this.state.pool.balance || 0) + amount;
+    this.state.pool.totalGiftsIn = (this.state.pool.totalGiftsIn || 0) + amount;
+
+    this.state.ledger = this.state.ledger || [];
+    this.state.ledger.unshift({
+      date: new Date().toLocaleDateString("en-GB"),
+      type: "agaseke_to_bridge_transfer",
+      from: "Agaseke k'Ubumwe Social Relief Pool",
+      to: "Revolving VUP Bridge Credit Float",
+      amount: amount,
+      link: `Revolving liquidity injection to guarantee 0% food credit for delayed workers`,
+      status: "Liquidity Bolstered"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`Transferred ${amount.toLocaleString()} RWF from Agaseke into Revolving Bridge Pool!`, "success");
   }
 
   // =========================================================================
@@ -4255,6 +5333,7 @@ class IsokoApp {
   }
 
   onProduceSelected(foodName) {
+    this.state.newListingFood = foodName;
     const unit = HARVEST_GALLERY[foodName]?.unit || "kg";
     document.querySelectorAll(".listing-unit-label").forEach(el => el.textContent = unit);
     document.querySelectorAll(".listing-unit-placeholder").forEach(el => el.textContent = unit);
@@ -4264,15 +5343,51 @@ class IsokoApp {
     this.updatePriceGuidePreview();
   }
 
+  selectFarmerCropPreset(cropName) {
+    this.state.newListingFood = cropName;
+    const foodEl = document.getElementById("new_food");
+    if (foodEl) foodEl.value = cropName;
+    const info = HARVEST_GALLERY[cropName];
+    if (info) {
+      const priceEl = document.getElementById("new_price");
+      if (priceEl && info.retailPrice) priceEl.value = info.retailPrice;
+      this.onProduceSelected(cropName);
+    }
+    this.saveState();
+  }
+
+  toggleFarmerTaxExemption(isExempt) {
+    this.state.farmerTaxExempt = !!isExempt;
+    this.saveState();
+    this.updatePriceGuidePreview();
+  }
+
   updatePriceGuidePreview() {
     const el = document.getElementById("priceGuidePreview");
     const foodEl = document.getElementById("new_food");
     const priceEl = document.getElementById("new_price");
-    if (!el || !foodEl || !priceEl) return;
+    if (!foodEl || !priceEl) return;
     const food = foodEl.value;
     const price = parseFloat(priceEl.value) || 0;
     const guide = this.getPriceGuide(food, price);
-    el.innerHTML = `Reference price: <b>${guide.median.toLocaleString()} RWF/${HARVEST_GALLERY[food]?.unit || "kg"}</b> · <span class="pill ${guide.class}">${guide.label}</span>`;
+    const unit = HARVEST_GALLERY[food]?.unit || "kg";
+    if (el) {
+      el.innerHTML = `Reference price: <b>${guide.median.toLocaleString()} RWF/${unit}</b> · <span class="tag ${guide.class}">${guide.label}</span>`;
+    }
+
+    const isExempt = !!this.state.farmerTaxExempt;
+    const tax = isExempt ? 0 : Math.round(price * 0.02);
+    const net = Math.max(0, price - tax);
+
+    const grossEl = document.getElementById("calcGrossPrice");
+    const taxEl = document.getElementById("calcTaxLevy");
+    const netEl = document.getElementById("calcNetPayout");
+    if (grossEl) grossEl.textContent = `${price.toLocaleString()} RWF`;
+    if (taxEl) {
+      taxEl.textContent = isExempt ? "0 RWF (Exempt)" : `${tax.toLocaleString()} RWF`;
+      taxEl.style.color = isExempt ? "var(--mute)" : "var(--accent)";
+    }
+    if (netEl) netEl.textContent = `${net.toLocaleString()} RWF`;
   }
 
   getPriceGuide(food, price) {
