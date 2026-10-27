@@ -1659,7 +1659,7 @@ class IsokoApp {
     const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
       <section class="auth-scene" aria-labelledby="authTitle">
-        <div class="auth-card">
+        <div class="auth-card" data-mode="${isSignup ? "signup" : "login"}">
           <aside class="auth-welcome">
             <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
             <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>

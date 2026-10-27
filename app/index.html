@@ -44,9 +44,13 @@
     <!-- Vertix Body: Left Rail + Main Dynamic View -->
     <div class="body">
       <aside class="rail wide" id="appRail" aria-label="Main menu">
+        <a class="rail-brand" href="#" onclick="window.app.goHome(); return false;" aria-label="Isoko Bridge home">
+          <img src="assets/isoko-bridge-icon.svg" alt="">
+          <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>
+        </a>
         <div id="railAccountSlot" class="rail-account-slot"></div>
+        <div class="rail-section-label rail-label">MENU</div>
         <nav class="nav sidebar-nav" id="topNavPill" aria-label="Pages"></nav>
-        <div id="railFooterSlot" class="rail-footer-slot"></div>
         <div class="sidebar-tools">
           <label class="language-control" for="languageSelect"><i class="bi bi-translate" aria-hidden="true"></i><span class="rail-label">Language</span>
             <select id="languageSelect" onchange="window.app.setLanguage(this.value)" aria-label="Choose language">
@@ -57,6 +61,7 @@
             <i class="bi bi-moon-stars" aria-hidden="true"></i><span class="rail-label" id="themeToggleLabel">Dark mode</span>
           </button>
         </div>
+        <div id="railFooterSlot" class="rail-footer-slot"></div>
       </aside>
 
       <main class="main" id="appView">
