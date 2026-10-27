@@ -48,6 +48,12 @@
 .rail:not(.wide) .rail-account-copy, .rail:not(.wide) .rail-account > .bi { display: none; }
 .seller-filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
 .seller-type-badge { display: inline-flex; margin-left: 5px; padding: 2px 7px; border-radius: 999px; color: var(--acc); background: var(--accsoft); font-size: 9px; font-weight: 700; vertical-align: middle; }
+.nisr-map-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin-top: 9px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: color-mix(in srgb, var(--card) 76%, transparent); font-size: 11px; }
+.nisr-map-legend > span { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.nisr-map-legend-key { display: inline-flex; align-items: center; gap: 5px; color: var(--mute); white-space: nowrap; }
+.nisr-map-legend-key i { display: inline-block; width: 11px; height: 11px; border-radius: 4px; background: var(--legend-color); }
+#mapContainer.leaflet-container { background: linear-gradient(145deg, #edf7f0, #dcece2); }
+:root[data-theme="dark"] #mapContainer.leaflet-container { background: linear-gradient(145deg, #172c24, #102019); }
 @media (max-width: 980px) {
   .shell > .body { display: block; }
   .rail, .rail.wide { position: relative; flex-direction: column; align-items: stretch; width: min(100%, 288px); height: min(560px, calc(100dvh - 124px)); max-height: calc(100dvh - 124px); min-height: 390px; margin: 0 0 14px; }

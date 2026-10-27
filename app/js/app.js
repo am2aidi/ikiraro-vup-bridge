@@ -3361,7 +3361,7 @@ class IsokoApp {
         <div class="card-header">
           <div>
             <div class="card-title">Interactive Rwanda 30-District GIS Map</div>
-            <div class="card-subtitle">GeoJSON choropleth visualising payment delays and priority index across all 30 districts:</div>
+            <div class="card-subtitle">NISR survey summaries · Rwanda district boundaries from geoBoundaries. Colors compare group patterns, not live household payments.</div>
           </div>
           <div style="display:flex; gap:6px;">
             <button class="btn btn-sm ${this.mapMetric === 'priority' ? 'btn-primary' : 'btn-outline'}" onclick="window.app.setMapMetric('priority')">Priority Score</button>
@@ -3373,6 +3373,7 @@ class IsokoApp {
         <div class="grid grid-cols-3" style="margin-bottom:0;">
           <div style="grid-column: span 2;">
             <div id="mapContainer" style="height:380px; border-radius:12px; border:1px solid var(--card-border);"></div>
+            <div class="nisr-map-legend" id="mapMetricLegend" aria-live="polite">${this.renderMapMetricLegend()}</div>
           </div>
           <div>
             <div class="card" style="height:100%; padding:14px; background:var(--bg); margin:0;">
@@ -4388,8 +4389,21 @@ class IsokoApp {
   }
 
   setMapMetric(metric) {
+    if (!['priority', 'delay', 'poverty'].includes(metric)) return;
     this.mapMetric = metric;
+    const legend = document.getElementById("mapMetricLegend");
+    if (legend) legend.innerHTML = this.renderMapMetricLegend();
     this.initMap();
+  }
+
+  renderMapMetricLegend() {
+    const legends = {
+      priority: { title: "Prototype support priority score", stops: [["#22c55e", "Lower"], ["#d97706", "Medium"], ["#b91c1c", "Higher"]] },
+      delay: { title: "Average reported wait", stops: [["#22c55e", "Under 9 days"], ["#d97706", "9–10.9 days"], ["#b91c1c", "11+ days"]] },
+      poverty: { title: "Households below poverty line", stops: [["#c084fc", "Under 35%"], ["#a855f7", "35–44.9%"], ["#7e22ce", "45% or more"]] }
+    };
+    const legend = legends[this.mapMetric] || legends.priority;
+    return `<strong>${legend.title}</strong><span>${legend.stops.map(([color, label]) => `<span class="nisr-map-legend-key"><i style="--legend-color:${color}"></i>${label}</span>`).join("")}</span>`;
   }
 
   initPlannerVisuals() {
@@ -4410,21 +4424,7 @@ class IsokoApp {
           this.map = null;
         }
 
-        this.map = L.map('mapContainer', { zoomControl: true, attributionControl: true }).setView([-1.9403, 29.8739], 8);
-        const baseMapTiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-        }).addTo(this.map);
-        let tileErrors = 0;
-        baseMapTiles.on('tileerror', () => {
-          tileErrors += 1;
-          if (tileErrors >= 3 && !container.dataset.mapFallback) {
-            container.dataset.mapFallback = 'true';
-            if (this.map) this.map.remove();
-            this.map = null;
-            this.renderOfflineSvgMap(container);
-          }
-        });
+        this.map = L.map('mapContainer', { zoomControl: true, attributionControl: false, scrollWheelZoom: false, keyboard: true });
 
         const getColor = (name) => {
           const d = NISR_DATA.districts.find(x => x.name.toLowerCase() === name.toLowerCase());
@@ -4448,7 +4448,10 @@ class IsokoApp {
           }),
           onEachFeature: (feature, layer) => {
             const name = feature.properties.shapeName || feature.properties.ADM2_EN || "District";
-            layer.bindTooltip(`<b>${name}</b>`, { sticky: true });
+            const district = NISR_DATA.districts.find(item => item.name.toLowerCase() === name.toLowerCase());
+            const metricLabel = this.mapMetric === "priority" ? "Prototype support priority" : this.mapMetric === "delay" ? "Average wait" : "Poverty rate";
+            const metricValue = district ? this.mapMetric === "priority" ? `${district.priority.toFixed(1)} / 100` : this.mapMetric === "delay" ? `${district.delay.toFixed(1)} days` : `${district.poverty.toFixed(1)}%` : "No NISR summary";
+            layer.bindTooltip(`<b>${this.escapeHtml(name)}</b><br>${metricLabel}: ${metricValue}${district ? `<br>${district.records.toLocaleString()} survey records` : ""}`, { sticky: true });
             layer.on({
               click: () => this.selectDistrict(name),
               mouseover: (e) => e.target.setStyle({ weight: 3, color: '#1b6b4a', fillOpacity: 0.9 }),
@@ -4456,6 +4459,8 @@ class IsokoApp {
             });
           }
         }).addTo(this.map);
+        const bounds = this.mapLayer.getBounds();
+        if (bounds.isValid()) this.map.fitBounds(bounds, { padding: [12, 12] });
         return;
       } catch (err) {
         console.warn("Leaflet map init error, falling back to SVG:", err);
