@@ -28,6 +28,34 @@ const TRANSLATIONS = {
     heroSignInBtn: "🔑 1-Click Sign In (Demo Accounts)",
     heroSignUpBtn: "📝 New Member Sign Up",
     heroBrowseBtn: "🛒 Browse Fresh Harvest Nearby ↓",
+    // Top Hero Promotional Banner
+    bannerStartingAt: "STARTING AT",
+    banner1Pre: "🌿 100% FRESH & ORGANIC · DIRECT COOPERATIVES",
+    banner1Title: "FRESH VEGETABLES",
+    banner1Desc: "Love your health and love your local vegetables. Crisp spinach, vine tomatoes, carrots and cabbages harvested daily by smallholder cooperatives across 30 districts in Rwanda.",
+    banner1Cta: "Order Fresh Harvest",
+    banner1Sec: "View Vegetables",
+
+    banner2Pre: "🌾 VUP BRIDGE CREDIT · 0% INTEREST",
+    banner2Title: "EAT TODAY, CLEAR ON PAYDAY",
+    banner2Desc: "Facing a VUP disbursement delay? Pre-approved zero-interest credit allows your family to purchase nutritious staple foods today from registered cooperatives, automatically cleared via SACCO.",
+    banner2Cta: "Claim Food Credit",
+    banner2Sec: "Check Eligibility",
+
+    banner3Pre: "❤️ 100 RWF SOLIDARITY LEVY",
+    banner3Title: "ONE BASKET FEEDS A COMMUNITY",
+    banner3Desc: "Every market checkout contributes 100 RWF into the Ubudehe Agaseke pool, creating a citizen-funded relief reserve for vulnerable Ubudehe Category 1 families.",
+    banner3Cta: "Donate to Agaseke",
+    banner3Sec: "View Live Ledger",
+
+    banner4Pre: "⭐ DIRECT FROM 30 DISTRICTS",
+    banner4Title: "SUPER GROCERY & STAPLES",
+    banner4Desc: "Cut out predatory brokers. Smallholder farmers earn up to 30% more, while urban households enjoy freshly harvested produce at unmatched farm-gate prices.",
+    banner4Cta: "Browse Grocery Deals",
+    banner4Sec: "All 58 Staples",
+    galleryTitle: "Local Farm Harvest Gallery",
+    gallerySub: "58 verified authentic crop photos uploaded directly from smallholder farms across all 30 Rwandan districts.",
+
 
     // Categories
     catAll: "All",
@@ -327,6 +355,34 @@ const TRANSLATIONS = {
     heroSignInBtn: "🔑 Injira mu Kanya Kanya (Konti z'Urugero)",
     heroSignUpBtn: "📝 Iyandikishe nk'Umunyamuryango",
     heroBrowseBtn: "🛒 Reba Umusaruro uri Hafi Yawe ↓",
+    // Top Hero Promotional Banner
+    bannerStartingAt: "TANGIRIRA KURI",
+    banner1Pre: "🌿 100% UMUSARURO MWIZA KAMERE · KOPERATIVE",
+    banner1Title: "IMBOGA N'IBIRIBWA BISHYA",
+    banner1Desc: "Kunda ubuzima bwawe ukunde n'imboga zihingwa mu Rwanda. Dodo, inyanya zibisi, amakaroti n'amashu byasaruwe uyu munsi n'abahinzi bo mu turere 30.",
+    banner1Cta: "Haha Umusaruro Ubu",
+    banner1Sec: "Reba Imboga",
+
+    banner2Pre: "🌾 INGUZANYO YA VUP · 0% INYUNGU",
+    banner2Title: "FATA IFUNGURO UYU MUNSI, WISHYURE KU IHEMBO",
+    banner2Desc: "Amafaranga ya VUP yaba yatinze? Fata inguzanyo y'ibiribwa nta nyungu ubashe kugaburira umuryango wawe, izishyurwe neza binyuze muri SACCO.",
+    banner2Cta: "Saba Inguzanyo y'Ibiribwa",
+    banner2Sec: "Reba Niba Wemerewe",
+
+    banner3Pre: "❤️ 100 RWF Y'UBUMWE KURI BURI GIKORWA",
+    banner3Title: "AGASEKE K'UBUMWE KAGABURIRA BOSE",
+    banner3Desc: "Buri bucuruzi bubaye ku Isoko Bridge butanga 100 RWF mu Gaseke k'Ubudehe, bifasha kugoboka imiryango yo mu cyiciro cya 1 k'Ubudehe.",
+    banner3Cta: "Tanga Inkunga mu Gaseke",
+    banner3Sec: "Reba Ibitabo by'Ikigega",
+
+    banner4Pre: "⭐ BYEGEYE ABATURAGE MU TURERE 30",
+    banner4Title: "ISOKO RY'IBIRIBWA KAMERE",
+    banner4Desc: "Twirukanye abamamyi bahenda abaturage. Umuturage ahabwa igiciro gikwiye, umuguzi nawe akahahira ku giciro cyiza cyane.",
+    banner4Cta: "Reba Ibiribwa Biri ku Isoko",
+    banner4Sec: "Ibiribwa Byose 58",
+    galleryTitle: "Ikusanyirizo ry'Amafoto y'Umusaruro (Amafoto 58)",
+    gallerySub: "Amafoto 58 y'abahinzi bo mu makoperative atandukanye yo mu turere 30 tw'u Rwanda.",
+
 
     // Categories
     catAll: "Byose",
@@ -626,6 +682,34 @@ const TRANSLATIONS = {
     heroSignInBtn: "🔑 Connexion en 1-Clic (Comptes Démo)",
     heroSignUpBtn: "📝 Inscription Nouveau Membre",
     heroBrowseBtn: "🛒 Découvrir les Récoltes à Proximité ↓",
+    // Top Hero Promotional Banner
+    bannerStartingAt: "À PARTIR DE",
+    banner1Pre: "🌿 100% FRAIS ET NATUREL · COOPÉRATIVES LOCALES",
+    banner1Title: "LÉGUMES FRAIS DU RWANDA",
+    banner1Desc: "Prenez soin de votre santé avec nos légumes du terroir. Épinards, tomates, carottes et choux récoltés quotidiennement par les petits producteurs des 30 districts.",
+    banner1Cta: "Commander Maintenant",
+    banner1Sec: "Voir les Légumes",
+
+    banner2Pre: "🌾 CRÉDIT ALIMENTAIRE VUP · 0% INTÉRÊT",
+    banner2Title: "MANGEZ AUJOURD'HUI, RÉGLEZ À LA PAIE",
+    banner2Desc: "Retard de paiement de vos allocations VUP ? Notre crédit alimentaire à 0% d'intérêt garantit la subsistance de votre foyer, avec compensation automatique via SACCO.",
+    banner2Cta: "Demander le Crédit",
+    banner2Sec: "Vérifier l'Éligibilité",
+
+    banner3Pre: "❤️ TAXE SOLIDAIRE DE 100 RWF",
+    banner3Title: "UN PANIER SOLIDAIRE POUR TOUS",
+    banner3Desc: "Chaque commande sur Isoko Bridge verse 100 RWF dans le fonds Ubudehe Agaseke afin de financer des bons alimentaires d'urgence pour les foyers Ubudehe 1.",
+    banner3Cta: "Faire un Don au Fonds",
+    banner3Sec: "Consulter le Registre",
+
+    banner4Pre: "⭐ EN DIRECT DES 30 DISTRICTS",
+    banner4Title: "SUPER ÉPICERIE PAYSANNE",
+    banner4Desc: "Éliminez les intermédiaires abusifs. Les coopératives agricoles touchent une rémunération juste, et les familles urbaines économisent jusqu'à 25%.",
+    banner4Cta: "Explorer les Récoltes",
+    banner4Sec: "Les 58 Produits",
+    galleryTitle: "Galerie des Récoltes Locales (58 Photos)",
+    gallerySub: "58 photographies authentiques prises directement dans les coopératives agricoles des 30 districts rwandais.",
+
 
     // Categories
     catAll: "Tous",
