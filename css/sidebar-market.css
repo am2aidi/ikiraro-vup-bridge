@@ -1069,3 +1069,50 @@
   animation: authPulse 2.4s ease-in-out infinite;
 }
 @keyframes authPulse { 50% { opacity: 0.3; } }
+
+/* ==========================================================================
+   UBUDEHE AGASEKE TOP DONATION BUTTON & MODAL
+   ========================================================================== */
+.agaseke-donate-header-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(225, 29, 72, 0.28);
+  color: #e11d48;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+.agaseke-donate-header-btn:hover {
+  background: rgba(225, 29, 72, 0.16);
+  border-color: #e11d48;
+  transform: translateY(-1px);
+}
+.agaseke-donate-header-btn .agaseke-badge-pill {
+  background: #e11d48;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+@media (max-width: 640px) {
+  .agaseke-donate-header-btn .agaseke-top-btn-label {
+    display: none;
+  }
+}
+.donate-channel-opt {
+  transition: all 0.15s ease;
+}
+.donate-channel-opt:hover {
+  border-color: var(--primary) !important;
+  background: rgba(14, 99, 94, 0.05);
+}
+
