@@ -34,6 +34,11 @@
         <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>
       </a>
       <div class="top-controls">
+        <button class="agaseke-donate-header-btn" type="button" onclick="window.app.openDonateModal()" title="Donate to Ubudehe Agaseke" aria-label="Donate to Ubudehe Agaseke">
+          <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i>
+          <span class="agaseke-top-btn-label" data-i18n="donateTopBtn">Ubudehe Agaseke</span>
+          <span class="agaseke-badge-pill" data-i18n="donateBadge">Donate</span>
+        </button>
         <button class="menu-toggle" id="railRw" type="button" onclick="window.app.toggleSidebar()" aria-controls="appRail" aria-expanded="true" aria-label="Close menu" title="Close menu">
           <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
         </button>
@@ -49,12 +54,21 @@
           <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>
         </a>
         <div id="railAccountSlot" class="rail-account-slot"></div>
-        <div class="rail-section-label rail-label">MENU</div>
+        <div class="rail-section-label rail-label" id="railMenuLabel" data-i18n="menuLabel">MENU</div>
         <nav class="nav sidebar-nav" id="topNavPill" aria-label="Pages"></nav>
         <div class="sidebar-tools">
-          <label class="language-control" for="languageSelect"><i class="bi bi-translate" aria-hidden="true"></i><span class="rail-label">Language</span>
+          <label class="language-control" for="languageSelect"><i class="bi bi-translate" aria-hidden="true"></i><span class="rail-label" data-i18n="languageLabel">Language</span>
             <select id="languageSelect" onchange="window.app.setLanguage(this.value)" aria-label="Choose language">
               <option value="en">EN</option><option value="rw">RW</option><option value="fr">FR</option>
+            </select>
+          </label>
+          <label class="language-control" for="currencySelect"><i class="bi bi-cash-coin" aria-hidden="true"></i><span class="rail-label" data-i18n="currencyLabel">Currency</span>
+            <select id="currencySelect" onchange="window.app.setCurrency(this.value)" aria-label="Choose currency">
+              <option value="RWF" selected>RWF</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="KES">KES (KSh)</option>
+              <option value="UGX">UGX (USh)</option>
             </select>
           </label>
           <button class="rail-action" type="button" onclick="window.app.toggleTheme()" id="themeToggle" title="Change appearance" data-tip="Change appearance">
@@ -101,16 +115,16 @@
               </span>
             </div>
             <div class="row-v2" style="border-bottom:none; padding-bottom:2px;">
-              <span>Agaseke Relief Fund</span>
-              <span id="rgV2" style="font-weight:700; color:#0e8555;">+10 RWF (Default)</span>
+              <span id="p2AgasekeLabel" data-i18n="checkoutAgaseke">Ubudehe Agaseke Fund</span>
+              <span id="rgV2" style="font-weight:700; color:#0e8555;">+100 RWF (Default)</span>
             </div>
             <div class="agaseke-donation-chips" id="phoneAgasekeChips" style="padding: 4px 0 8px;">
-              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(10)">10 RWF (Default)</button>
-              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(50)">50 RWF</button>
-              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(100)">100 RWF</button>
+              <button type="button" class="agaseke-chip active" onclick="window.app.setShopperAgasekeAmount(100)">100 RWF (Default)</button>
               <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(250)">250 RWF</button>
               <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(500)">500 RWF</button>
-              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(0)">Exempt</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(1000)">1,000 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(2500)">2,500 RWF</button>
+              <button type="button" class="agaseke-chip" onclick="window.app.setShopperAgasekeAmount(0)">Exempt (0 RWF)</button>
             </div>
             <div class="row-v2" style="border-top:1px dashed rgba(16,185,129,0.25); padding-top:8px;"><span>Total today</span><span id="rtV2">4,210 RWF</span></div>
           </div>
@@ -298,10 +312,65 @@
     <section class="card export-format-card">
       <button class="icon-action export-format-close" type="button" onclick="window.app.closeExportFormat()" aria-label="Close file type choices" title="Close"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       <span class="export-format-icon"><i class="bi bi-file-earmark-arrow-down" aria-hidden="true"></i></span>
-      <h2 id="exportFormatTitle">Choose a file type</h2>
-      <p>Download a clean copy you can read or share.</p>
-      <div class="export-format-actions"><button type="button" onclick="window.app.confirmExportFormat('pdf')"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i><span><b>PDF</b><small>Ready to print or share</small></span></button><button type="button" onclick="window.app.confirmExportFormat('doc')"><i class="bi bi-file-earmark-word" aria-hidden="true"></i><span><b>Word</b><small>Open and edit the report</small></span></button></div>
+      <h2 id="exportFormatTitle" data-i18n="exportFormatTitle">Choose a file type</h2>
+      <p data-i18n="exportFormatSub">Download a clean copy you can read or share.</p>
+      <div class="export-format-actions"><button type="button" onclick="window.app.confirmExportFormat('pdf')"><i class="bi bi-file-earmark-pdf" aria-hidden="true"></i><span><b data-i18n="exportPdfBtn">PDF</b><small>Ready to print or share</small></span></button><button type="button" onclick="window.app.confirmExportFormat('doc')"><i class="bi bi-file-earmark-word" aria-hidden="true"></i><span><b data-i18n="exportWordBtn">Word</b><small>Open and edit the report</small></span></button></div>
     </section>
+  </div>
+
+  <!-- Ubudehe Agaseke Quick Donation Modal -->
+  <div id="donateModal" class="auth-overlay-backdrop" style="display:none;" onclick="if(event.target===this)window.app.closeDonateModal()">
+    <div class="auth-card" style="max-width:440px; padding:28px 24px; position:relative;">
+      <button class="auth-close-btn" type="button" onclick="window.app.closeDonateModal()" aria-label="Close">✕</button>
+      <div style="text-align:center; margin-bottom:18px;">
+        <span style="display:inline-flex; align-items:center; justify-content:center; width:52px; height:52px; border-radius:50%; background:rgba(225,29,72,0.12); color:#e11d48; font-size:24px; margin-bottom:10px;">
+          <i class="bi bi-heart-pulse-fill"></i>
+        </span>
+        <h2 id="donateModalTitle" data-i18n="donateModalTitle" style="font-size:20px; font-weight:800; margin:0 0 6px; color:var(--text-main);">Ubudehe Agaseke Solidarity Relief</h2>
+        <p id="donateModalSub" data-i18n="donateModalSub" style="font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.45;">Support vulnerable Ubudehe 1 households facing payment delays. 100% of contributions fund emergency food baskets.</p>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label id="donateAmountLabel" data-i18n="donateAmountLabel" style="display:block; font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:8px;">Select Donation Amount</label>
+        <div class="agaseke-donation-chips" id="directDonateChips" style="justify-content:center; gap:8px;">
+          <button type="button" class="agaseke-chip" onclick="window.app.selectDonateAmount(500)">500 RWF</button>
+          <button type="button" class="agaseke-chip active" onclick="window.app.selectDonateAmount(1000)">1,000 RWF</button>
+          <button type="button" class="agaseke-chip" onclick="window.app.selectDonateAmount(2500)">2,500 RWF</button>
+          <button type="button" class="agaseke-chip" onclick="window.app.selectDonateAmount(5000)">5,000 RWF</button>
+          <button type="button" class="agaseke-chip" onclick="window.app.selectDonateAmount(10000)">10,000 RWF</button>
+        </div>
+        <div style="margin-top:10px;">
+          <input type="number" id="customDonateInput" min="100" step="100" value="1000" class="auth-input" style="text-align:center; font-weight:700; font-size:16px;" placeholder="Or custom amount (RWF)">
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label id="donateMethodLabel" data-i18n="donateMethodLabel" style="display:block; font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:8px;">Payment Channel</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="donateMethodGrid">
+          <label class="donate-channel-opt active" style="display:flex; align-items:center; gap:8px; padding:10px; border:1.5px solid var(--primary); border-radius:12px; cursor:pointer; background:rgba(14,99,94,0.06);">
+            <input type="radio" name="donateChannel" value="MTN Mobile Money" checked style="accent-color:var(--primary);">
+            <span style="font-size:12.5px; font-weight:700;">🟡 MTN MoMo</span>
+          </label>
+          <label class="donate-channel-opt" style="display:flex; align-items:center; gap:8px; padding:10px; border:1.5px solid var(--border); border-radius:12px; cursor:pointer;">
+            <input type="radio" name="donateChannel" value="Airtel Money" style="accent-color:var(--primary);">
+            <span style="font-size:12.5px; font-weight:700;">🔴 Airtel Money</span>
+          </label>
+          <label class="donate-channel-opt" style="display:flex; align-items:center; gap:8px; padding:10px; border:1.5px solid var(--border); border-radius:12px; cursor:pointer;">
+            <input type="radio" name="donateChannel" value="Bank of Kigali" style="accent-color:var(--primary);">
+            <span style="font-size:12.5px; font-weight:700;">🏦 Bank of Kigali</span>
+          </label>
+          <label class="donate-channel-opt" style="display:flex; align-items:center; gap:8px; padding:10px; border:1.5px solid var(--border); border-radius:12px; cursor:pointer;">
+            <input type="radio" name="donateChannel" value="Umurenge SACCO" style="accent-color:var(--primary);">
+            <span style="font-size:12.5px; font-weight:700;">🏛️ SACCO</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="donateSubmitBtn" style="width:100%; padding:12px; font-weight:800; font-size:15px; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:8px;" onclick="window.app.processAgasekeDonation()">
+        <i class="bi bi-heart-fill"></i> <span data-i18n="donateSubmitBtn">Donate Now</span>
+      </button>
+      <p data-i18n="donateDemoNote" style="text-align:center; font-size:11px; color:var(--text-muted); margin:10px 0 0;">Demo prototype simulation. No real mobile money is deducted.</p>
+    </div>
   </div>
 
   <!-- 4. PRINTABLE STATEMENT MODAL (Section 16.1 & 16.2) -->

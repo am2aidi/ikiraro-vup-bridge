@@ -139,24 +139,64 @@ const DEFAULT_STATE = {
   },
   // 18 Diverse Rwandan Harvest Productions
   listings: [
-    { id: 1, food: "Dry beans", district: "Kirehe", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 200, farmer: "Mukamana Farm", momo: "0788123456", photo: "assets/produce/dry_beans.jpg", isFav: false },
-    { id: 2, food: "Sweet potato", district: "Gisagara", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 320, quantity: 350, farmer: "Gisagara Agrilink", momo: "0788234567", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-    { id: 3, food: "Irish potato", district: "Nyabihu", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 500, farmer: "Nyabihu Potato Coop", momo: "0788654321", photo: "assets/produce/irish_potato.jpg", isFav: true },
-    { id: 4, food: "Tomato", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 480, retailPrice: 620, quantity: 90, farmer: "Kimironko Fresh Growers", momo: "0788345678", photo: "assets/produce/tomato.jpg", isFav: true },
-    { id: 5, food: "Cooking banana", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 290, retailPrice: 380, quantity: 250, farmer: "Nyabugogo Agro Cooperative", momo: "0788456789", photo: "assets/produce/cooking_banana.jpg", isFav: false },
-    { id: 6, food: "Onion", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 1600, retailPrice: 1950, quantity: 80, farmer: "Kimironko Green Sellers", momo: "0788567890", photo: "assets/produce/red_onion.jpg", isFav: false },
-    { id: 7, food: "Local rice", district: "Kicukiro", hub: "Gikondo Agro-Terminal", price: 1180, retailPrice: 1380, quantity: 180, farmer: "Kigali Rice Millers", momo: "0788789012", photo: "assets/produce/local_rice.jpg", isFav: false },
-    { id: 8, food: "Avocado", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 280, retailPrice: 350, quantity: 120, farmer: "Kigali Agro Coop", momo: "0788890123", photo: "assets/produce/avocado.jpg", isFav: true },
-    { id: 9, food: "Spinach", district: "Gasabo", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 60, farmer: "Nyabarongo Valley Fresh", momo: "0788901234", photo: "assets/produce/spinach.jpg", isFav: false },
-    { id: 10, food: "Corn flour (factory)", district: "Nyarugenge", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 960, quantity: 150, farmer: "Bugarama Grain Mills", momo: "0788012345", photo: "assets/produce/fresh_corn.jpg", isFav: false },
-    { id: 11, food: "Cassava roots", district: "Ruhango", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 400, farmer: "Ruhango Cassava Farmers", momo: "0788112233", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-    { id: 12, food: "Passion fruit", district: "Musanze", hub: "Musanze Central Produce Depot", price: 950, retailPrice: 1200, quantity: 70, farmer: "Musanze Highland Fruit Coop", momo: "0788223344", photo: "assets/produce/avocado.jpg", isFav: true },
-    { id: 13, food: "Tree tomatoes", district: "Burera", hub: "Burera Highland Agro-Hub", price: 880, retailPrice: 1100, quantity: 85, farmer: "Burera Tamarillo Growers", momo: "0788334455", photo: "assets/produce/tomato.jpg", isFav: false },
-    { id: 14, food: "Carrots", district: "Gicumbi", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 450, quantity: 140, farmer: "Gicumbi Organic Valley", momo: "0788445566", photo: "assets/produce/sweet_potato.jpg", isFav: false },
-    { id: 15, food: "Green cabbage", district: "Musanze", hub: "Musanze Central Produce Depot", price: 260, retailPrice: 350, quantity: 220, farmer: "Volcanoes Green Coop", momo: "0788556677", photo: "assets/produce/spinach.jpg", isFav: false },
-    { id: 16, food: "Green peppers", district: "Bugesera", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 850, quantity: 95, farmer: "Bugesera Irrigation Scheme", momo: "0788667788", photo: "assets/produce/spinach.jpg", isFav: false },
-    { id: 17, food: "Soybeans", district: "Kayonza", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 300, farmer: "Kayonza Grain Link", momo: "0788778899", photo: "assets/produce/dry_beans.jpg", isFav: false },
-    { id: 18, food: "Groundnuts", district: "Ngoma", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1800, quantity: 110, farmer: "Ngoma Women Agrilink", momo: "0788889900", photo: "assets/produce/dry_beans.jpg", isFav: true }
+        { id: 1, food: "Fresh harvest dry beans", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "0788123456", photo: "assets/produce/user_photo_01_ai_content_midjourney.jpg", isFav: false, category: "Beans" },
+        { id: 2, food: "Fresh green beans (Ejotes)", district: "Musanze", sector: "Kinigi", hub: "Musanze Highland Depot", price: 650, retailPrice: 780, quantity: 180, unit: "kg", farmer: "Kinigi Green Growers", farmerEmail: "kinigi.green@vupbridge.rw", momo: "0788234567", photo: "assets/produce/user_photo_02_ejotes.jpg", isFav: true, category: "Vegetables" },
+        { id: 3, food: "Elephant cassava roots", district: "Ruhango", sector: "Kinazi", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 450, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "0788345678", photo: "assets/produce/user_photo_03_elephant_cassava_giant_cassava.jpg", isFav: false, category: "Tubers" },
+        { id: 4, food: "Golden Irish potatoes", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 600, unit: "kg", farmer: "Nyabihu Potato Coop", farmerEmail: "nyabihu.potato@vupbridge.rw", momo: "0788456789", photo: "assets/produce/user_photo_04_golden_potatoes_dug_fresh_from.jpg", isFav: true, category: "Tubers" },
+        { id: 5, food: "Garden fresh carrots", district: "Gicumbi", sector: "Kaniga", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 440, quantity: 220, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "0788567890", photo: "assets/produce/user_photo_05_harvest_home_vibrant_sack_of_g.jpg", isFav: false, category: "Vegetables" },
+        { id: 6, food: "Smallholder dairy goats & milk", district: "Nyagatare", sector: "Karangazi", hub: "Karangazi Livestock Hub", price: 850, retailPrice: 1050, quantity: 80, unit: "L", farmer: "Nyagatare Pastoralist Coop", farmerEmail: "nyagatare.goats@vupbridge.rw", momo: "0788678901", photo: "assets/produce/user_photo_06_how_many_goats_should_be_kept_.jpg", isFav: true, category: "Dairy" },
+        { id: 7, food: "Fresh turmeric & ginger (Kurkuma)", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1250, retailPrice: 1500, quantity: 120, unit: "kg", farmer: "Rulindo Spice Cooperative", farmerEmail: "rulindo.spice@vupbridge.rw", momo: "0788789012", photo: "assets/produce/user_photo_07_kurkuma_zerde_al.jpg", isFav: false, category: "Vegetables" },
+        { id: 8, food: "Fresh green lemons & limes", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Citrus Hub", price: 520, retailPrice: 650, quantity: 150, unit: "kg", farmer: "Kamonyi Citrus Farmers", farmerEmail: "kamonyi.citrus@vupbridge.rw", momo: "0788890123", photo: "assets/produce/user_photo_08_limones_vel_zquez.jpg", isFav: false, category: "Fruits" },
+        { id: 9, food: "Fresh shredded cabbage & salad", district: "Musanze", sector: "Muhoza", hub: "Volcanoes Green Depot", price: 280, retailPrice: 350, quantity: 260, unit: "kg", farmer: "Volcanoes Salad Growers", farmerEmail: "volcanoes.salad@vupbridge.rw", momo: "0788901234", photo: "assets/produce/user_photo_09_mexican_cabbage_salad_taco_sla.jpg", isFav: true, category: "Vegetables" },
+        { id: 10, food: "Nefertiti green zucchini", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 450, retailPrice: 550, quantity: 90, unit: "kg", farmer: "Gasabo Fresh Gardeners", farmerEmail: "gasabo.garden@vupbridge.rw", momo: "0788012345", photo: "assets/produce/user_photo_10_nefertiti_zucchini_perfect_for.jpg", isFav: false, category: "Vegetables" },
+        { id: 11, food: "Crisp spring green onions", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 1400, retailPrice: 1650, quantity: 110, unit: "kg", farmer: "Kamonyi Allium Collective", farmerEmail: "kamonyi.allium@vupbridge.rw", momo: "0788112233", photo: "assets/produce/user_photo_11_onions_1.jpg", isFav: false, category: "Vegetables" },
+        { id: 12, food: "Red pearl onions", district: "Bugesera", sector: "Nyamata", hub: "Bugesera Veg Depot", price: 1600, retailPrice: 1850, quantity: 95, unit: "kg", farmer: "Bugesera Red Onion Coop", farmerEmail: "bugesera.onions@vupbridge.rw", momo: "0788223344", photo: "assets/produce/user_photo_12_onions.jpg", isFav: true, category: "Vegetables" },
+        { id: 13, food: "Sweet golden papayas", district: "Ngoma", sector: "Rukira", hub: "Ngoma Sunrise Center", price: 420, retailPrice: 520, quantity: 140, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.papaya@vupbridge.rw", momo: "0788334455", photo: "assets/produce/user_photo_13_papaya_carica_papaya.jpg", isFav: true, category: "Fruits" },
+        { id: 14, food: "Shelled raw groundnuts (Peanuts)", district: "Kirehe", sector: "Mahama", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 170, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.peanuts@vupbridge.rw", momo: "0788445566", photo: "assets/produce/user_photo_14_peanuts_art_created_by_ai.jpg", isFav: true, category: "Beans" },
+        { id: 15, food: "Colorful bell peppers & pili pili", district: "Gasabo", sector: "Rutunga", hub: "Kimironko Farmers Hub & SACCO", price: 690, retailPrice: 850, quantity: 85, unit: "kg", farmer: "Rutunga Spice & Pepper Coop", farmerEmail: "rutunga.peppers@vupbridge.rw", momo: "0788556677", photo: "assets/produce/user_photo_15_peppers_at_the_farmers_market.jpg", isFav: true, category: "Vegetables" },
+        { id: 16, food: "Sweet plum tomatoes", district: "Rulindo", sector: "Kinihira", hub: "Rulindo Fresh Market Hub", price: 520, retailPrice: 650, quantity: 115, unit: "kg", farmer: "Rulindo Highland Tomatoes", farmerEmail: "rulindo.tomatoes@vupbridge.rw", momo: "0788667788", photo: "assets/produce/user_photo_16_plum_tomatoes.jpg", isFav: false, category: "Vegetables" },
+        { id: 17, food: "Golden field pumpkin", district: "Nyagatare", sector: "Matimba", hub: "Nyagatare Agro-Depot", price: 310, retailPrice: 400, quantity: 280, unit: "kg", farmer: "Nyagatare Squash Union", farmerEmail: "nyagatare.pumpkin@vupbridge.rw", momo: "0788778899", photo: "assets/produce/user_photo_17_pumkin.jpg", isFav: false, category: "Vegetables" },
+        { id: 18, food: "Fresh garden herb bouquet", district: "Huye", sector: "Tumba", hub: "Huye Agrilink Depot", price: 250, retailPrice: 320, quantity: 70, unit: "bunch", farmer: "Huye Botanical Farmers", farmerEmail: "huye.herbs@vupbridge.rw", momo: "0788889900", photo: "assets/produce/user_photo_18_s_ph_n_quan_kai_k_m_u_l_ph_p_b.jpg", isFav: false, category: "Vegetables" },
+        { id: 19, food: "Tropical pitaya & garden fruits", district: "Rwamagana", sector: "Karenge", hub: "Karenge Fruit Center", price: 980, retailPrice: 1200, quantity: 65, unit: "kg", farmer: "Karenge Exotic Fruit Coop", farmerEmail: "karenge.fruit@vupbridge.rw", momo: "0788990011", photo: "assets/produce/user_photo_19_s_ph_n_quan_kai_k_m_u_l_ph_p_b.jpg", isFav: true, category: "Fruits" },
+        { id: 20, food: "Ankole dairy fresh milk & ghee", district: "Nyagatare", sector: "Rwimiyaga", hub: "Inyange Collection Center", price: 450, retailPrice: 550, quantity: 450, unit: "L", farmer: "Inyambo Pastoralist Union", farmerEmail: "inyambo.dairy@vupbridge.rw", momo: "0788001122", photo: "assets/produce/user_photo_20_the_ankole_is_a_breed_or_group.jpg", isFav: true, category: "Dairy" },
+        { id: 21, food: "Roma greenhouse tomatoes", district: "Kamonyi", sector: "Musambira", hub: "Kamonyi Farmers Depot", price: 490, retailPrice: 600, quantity: 130, unit: "kg", farmer: "Kamonyi Roma Growers", farmerEmail: "kamonyi.roma@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_21_tomate_roma_mexicano_de_invern.jpg", isFav: true, category: "Vegetables" },
+        { id: 22, food: "Red vine tomatoes", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 480, retailPrice: 580, quantity: 105, unit: "kg", farmer: "Kimironko Fresh Growers", farmerEmail: "kimironko.growers@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_22_tomatoes.jpg", isFav: false, category: "Vegetables" },
+        { id: 23, food: "Village staple harvest basket", district: "Gisagara", sector: "Save", hub: "Gisagara Agro-Hub", price: 1200, retailPrice: 1450, quantity: 90, unit: "basket", farmer: "Save Community Cooperative", farmerEmail: "save.coop@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_23_travel_photography_and_lifesty.jpg", isFav: true, category: "Staples" },
+        { id: 24, food: "Purple sweet potato (Ubi)", district: "Huye", sector: "Ngoma", hub: "Huye Women Agrilink", price: 290, retailPrice: 360, quantity: 320, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.ubi@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_24_ubi.jpg", isFav: true, category: "Tubers" },
+        { id: 25, food: "Creamy Hass avocados", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 280, retailPrice: 350, quantity: 210, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.avocado@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_25_xenia_onmyway1133_on_x.jpg", isFav: true, category: "Fruits" },
+        { id: 26, food: "Crisp green cabbages", district: "Musanze", sector: "Remera", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 340, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_26_cabbages.jpg", isFav: false, category: "Vegetables" },
+        { id: 27, food: "Highland yellow maize", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 480, retailPrice: 580, quantity: 420, unit: "kg", farmer: "Burera Maize Union", farmerEmail: "burera.maize@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_27_download_10.jpg", isFav: false, category: "Grains" },
+        { id: 28, food: "Red kidney beans (Ibifashe)", district: "Kayonza", sector: "Mukarange", hub: "Kayonza Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.beans@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_28_download_11.jpg", isFav: false, category: "Beans" },
+        { id: 29, food: "Cooking bananas (Igitoki)", district: "Rwamagana", sector: "Kigabiro", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 350, quantity: 450, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.igitoki@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_29_download_12.jpg", isFav: false, category: "Fruits" },
+        { id: 30, food: "White sorghum grain", district: "Nyamasheke", sector: "Kagano", hub: "Nyamasheke Mills", price: 680, retailPrice: 800, quantity: 260, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.sorghum@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_30_download_13.jpg", isFav: false, category: "Grains" },
+        { id: 31, food: "Sweet dessert bananas", district: "Gatsibo", sector: "Kabarore", hub: "Kabarore Fruit Terminal", price: 440, retailPrice: 540, quantity: 230, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.bananas@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_31_download_14.jpg", isFav: true, category: "Fruits" },
+        { id: 32, food: "Mountain spring watermelons", district: "Bugesera", sector: "Mayange", hub: "Nyamata Fresh Depot", price: 520, retailPrice: 650, quantity: 180, unit: "kg", farmer: "Bugesera Melon Scheme", farmerEmail: "bugesera.melons@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_32_download_15.jpg", isFav: false, category: "Fruits" },
+        { id: 33, food: "Fresh garlic bulbs", district: "Musanze", sector: "Kinigi", hub: "Kinigi Garlic Hub", price: 1800, retailPrice: 2200, quantity: 90, unit: "kg", farmer: "Kinigi Garlic Producers", farmerEmail: "kinigi.garlic@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_33_download_16.jpg", isFav: true, category: "Vegetables" },
+        { id: 34, food: "Fresh green peppers", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Farmers Depot", price: 620, retailPrice: 750, quantity: 140, unit: "kg", farmer: "Kamonyi Pepper Group", farmerEmail: "kamonyi.peppers@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_34_download_17.jpg", isFav: false, category: "Vegetables" },
+        { id: 35, food: "Highland beetroot", district: "Gicumbi", sector: "Miyove", hub: "Gicumbi High-Altitude Center", price: 420, retailPrice: 520, quantity: 160, unit: "kg", farmer: "Miyove Organic Growers", farmerEmail: "miyove.beetroot@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_35_download_18.jpg", isFav: false, category: "Vegetables" },
+        { id: 36, food: "Sweet baby carrots", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 390, retailPrice: 480, quantity: 190, unit: "kg", farmer: "Nyabihu Vegetable Cooperative", farmerEmail: "nyabihu.carrots@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_36_download_19.jpg", isFav: true, category: "Vegetables" },
+        { id: 37, food: "Fresh spinach leaves (Dodo)", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 110, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.dodo@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_37_download_20.jpg", isFav: true, category: "Vegetables" },
+        { id: 38, food: "Local Bugarama rice", district: "Rusizi", sector: "Bugarama", hub: "Bugarama Rice Mill", price: 1180, retailPrice: 1380, quantity: 380, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_38_download_21.jpg", isFav: true, category: "Grains" },
+        { id: 39, food: "Mukunguri valley rice", district: "Kamonyi", sector: "Musambira", hub: "Mukunguri Valley Terminal", price: 1100, retailPrice: 1280, quantity: 270, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_39_download_22.jpg", isFav: false, category: "Grains" },
+        { id: 40, food: "Fresh cowpeas (Kunde)", district: "Kayonza", sector: "Rwinkwavu", hub: "Kayonza Agro-Depot", price: 640, retailPrice: 780, quantity: 210, unit: "kg", farmer: "Kayonza Pulse Producers", farmerEmail: "kayonza.cowpeas@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_40_download_23.jpg", isFav: false, category: "Beans" },
+        { id: 41, food: "Red garden radishes", district: "Musanze", sector: "Muhoza", hub: "Musanze Central Produce Depot", price: 340, retailPrice: 420, quantity: 95, unit: "kg", farmer: "Musanze Radish Growers", farmerEmail: "musanze.radish@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_41_download_24.jpg", isFav: false, category: "Vegetables" },
+        { id: 42, food: "Nyungwe natural honey", district: "Nyaruguru", sector: "Kibeho", hub: "Kibeho Agro-Point", price: 3400, retailPrice: 4000, quantity: 85, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_42_download_25.jpg", isFav: true, category: "Dairy" },
+        { id: 43, food: "High-altitude green peas", district: "Gicumbi", sector: "Miyove", hub: "Miyove Highland Hub", price: 1150, retailPrice: 1400, quantity: 160, unit: "kg", farmer: "Miyove Pea Farmers", farmerEmail: "miyove.peas@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_43_download_26.jpg", isFav: true, category: "Beans" },
+        { id: 44, food: "Organic sweet cucumbers", district: "Bugesera", sector: "Gashora", hub: "Bugesera Fresh Depot", price: 350, retailPrice: 440, quantity: 180, unit: "kg", farmer: "Gashora Marshland Coop", farmerEmail: "gashora.cucumbers@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_44_download_27.jpg", isFav: false, category: "Vegetables" },
+        { id: 45, food: "Red cayenne chili (Pili Pili)", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1600, retailPrice: 2000, quantity: 60, unit: "kg", farmer: "Rulindo Chili Union", farmerEmail: "rulindo.chili@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_45_download_28.jpg", isFav: true, category: "Vegetables" },
+        { id: 46, food: "Dry soybean grain", district: "Ngoma", sector: "Kibungo", hub: "Ngoma Farmers Hub", price: 630, retailPrice: 760, quantity: 350, unit: "kg", farmer: "Ngoma Soybean Agrilink", farmerEmail: "ngoma.soy@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_46_download_29.jpg", isFav: false, category: "Beans" },
+        { id: 47, food: "Green field avocados", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 270, retailPrice: 340, quantity: 240, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.harvest@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_47_download_30.jpg", isFav: false, category: "Fruits" },
+        { id: 48, food: "Fresh tree tomatoes (Tamarillo)", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 850, retailPrice: 1020, quantity: 110, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_48_download_31.jpg", isFav: true, category: "Fruits" },
+        { id: 49, food: "Cassava leaves (Isombe)", district: "Muhanga", sector: "Nyamabuye", hub: "Muhanga Valley Hub", price: 290, retailPrice: 360, quantity: 220, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.isombe@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_49_download_32.jpg", isFav: true, category: "Vegetables" },
+        { id: 50, food: "Fresh ginger rhizomes", district: "Rulindo", sector: "Kinihira", hub: "Rulindo Spice Depot", price: 1300, retailPrice: 1600, quantity: 100, unit: "kg", farmer: "Rulindo Ginger Farmers", farmerEmail: "rulindo.ginger@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_50_download_33.jpg", isFav: false, category: "Vegetables" },
+        { id: 51, food: "Traditional finger millet", district: "Gisagara", sector: "Ndora", hub: "Gisagara Agro-Hub", price: 740, retailPrice: 880, quantity: 190, unit: "kg", farmer: "Ndora Millet Cooperative", farmerEmail: "ndora.millet@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_51_download_34.jpg", isFav: false, category: "Grains" },
+        { id: 52, food: "Fermented milk (Ikivuguto)", district: "Gicumbi", sector: "Byumba", hub: "Gicumbi Milk Collection Center", price: 680, retailPrice: 820, quantity: 320, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.ikivuguto@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_52_download_8.jpg", isFav: true, category: "Dairy" },
+        { id: 53, food: "Kigali organic honey", district: "Gasabo", sector: "Rutunga", hub: "Rutunga Agro-Terminal", price: 3600, retailPrice: 4200, quantity: 75, unit: "kg", farmer: "Gasabo Beekeepers Association", farmerEmail: "gasabo.honey@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_53_download_9.jpg", isFav: true, category: "Dairy" },
+        { id: 54, food: "Highland farm harvest basket", district: "Musanze", sector: "Kinigi", hub: "Musanze Central Produce Depot", price: 1500, retailPrice: 1850, quantity: 90, unit: "basket", farmer: "Volcanoes Highland Union", farmerEmail: "volcanoes.union@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_54_photography_by_knn_linku.jpg", isFav: true, category: "Staples" },
+        { id: 55, food: "Scarlet ripe field tomatoes", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 470, retailPrice: 570, quantity: 140, unit: "kg", farmer: "Kamonyi Tomato Collective", farmerEmail: "kamonyi.tomatoes@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_55_tomato.jpg", isFav: false, category: "Vegetables" },
+        { id: 56, food: "Sweet large watermelon", district: "Bugesera", sector: "Gashora", hub: "Nyamata Fresh Depot", price: 580, retailPrice: 720, quantity: 130, unit: "kg", farmer: "Gashora Watermelon Growers", farmerEmail: "gashora.watermelons@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_56_essential_watermelon_storage_t.jpg", isFav: true, category: "Fruits" },
+        { id: 57, food: "Fortified corn flour (Kawunga)", district: "Nyarugenge", sector: "Kigali", hub: "Nyabugogo Direct Agro-Depot", price: 800, retailPrice: 940, quantity: 350, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.grain@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_57_produce_item_57.jpg", isFav: false, category: "Grains" },
+        { id: 58, food: "Cooperative community harvest basket", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 1350, retailPrice: 1650, quantity: 110, unit: "basket", farmer: "Kirehe Farmers Federation", farmerEmail: "kirehe.federation@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_58_random.jpg", isFav: true, category: "Staples" }
   ],
   // Orders covering all Credit Desk states
   orders: [
@@ -208,7 +248,10 @@ class IsokoApp {
           parsed.listings = [...init.listings, ...userCreated];
         }
         const state = { ...init, ...parsed };
-        state.agasekePool = typeof state.agasekePool === "number" ? state.agasekePool : 145210;
+        state.currency = state.currency || "RWF";
+        state.shopperAgasekeAmount = state.shopperAgasekeAmount !== undefined ? state.shopperAgasekeAmount : 100;
+        state.agasekePool = typeof state.agasekePool === "number" ? state.agasekePool : 155210;
+        state.agasekeTransactions = Array.isArray(state.agasekeTransactions) && state.agasekeTransactions.length ? state.agasekeTransactions : init.agasekeTransactions;
         state.agasekeDisbursed = typeof state.agasekeDisbursed === "number" ? state.agasekeDisbursed : 35000;
         state.agasekeAssistedCount = typeof state.agasekeAssistedCount === "number" ? state.agasekeAssistedCount : 7;
         state.selectedArchNode ||= "bridge";
@@ -336,57 +379,83 @@ class IsokoApp {
         totalRepaidByVup: 8800
       },
       listings: [
-        { id: 1, food: "Dry beans", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 850, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "078XXXX123", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 2, food: "Yellow beans", district: "Ngoma", sector: "Kibungo", hub: "Ngoma Agro-Hub", price: 820, retailPrice: 950, quantity: 180, unit: "kg", farmer: "Ngoma Bean Cooperative", farmerEmail: "ngoma.beans@vupbridge.rw", momo: "078XXXX234", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 3, food: "Climbing beans", district: "Musanze", sector: "Kinigi", hub: "Musanze Highland Depot", price: 790, retailPrice: 900, quantity: 300, unit: "kg", farmer: "Burera Terrace Farmers", farmerEmail: "burera.farmers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
-        { id: 4, food: "Kinigi Irish potato", district: "Musanze", sector: "Muhoza", hub: "Kinigi Potato Center", price: 420, retailPrice: 480, quantity: 650, unit: "kg", farmer: "Kinigi Highland Union", farmerEmail: "kinigi.union@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/irish_potato.jpg", isFav: true, category: "Tubers" },
-        { id: 5, food: "Kuruseke potato", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 380, retailPrice: 440, quantity: 500, unit: "kg", farmer: "Nyabihu Potato Cooperative", farmerEmail: "potato.coop@vupbridge.rw", momo: "078XXXX654", photo: "assets/produce/irish_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 6, food: "Sweet potato", district: "Gisagara", sector: "Save", hub: "Gisagara Agro-Hub", price: 240, retailPrice: 280, quantity: 350, unit: "kg", farmer: "Gisagara Sweet Potato Group", farmerEmail: "sweetpotato.gisagara@vupbridge.rw", momo: "073XXXX567", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 7, food: "Orange sweet potato", district: "Huye", sector: "Ngoma", hub: "Huye Women Agrilink", price: 270, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.women@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 8, food: "Cassava roots", district: "Ruhango", sector: "Kinazi", hub: "Ruhango Central Market Point", price: 220, retailPrice: 260, quantity: 420, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Tubers" },
-        { id: 9, food: "Fresh tomato", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 480, retailPrice: 550, quantity: 120, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX345", photo: "assets/produce/tomato.jpg", isFav: true, category: "Vegetables" },
-        { id: 10, food: "Red onion", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Farmers Depot", price: 1500, retailPrice: 1650, quantity: 95, unit: "kg", farmer: "Kamonyi Vegetable Growers", farmerEmail: "kamonyi.growers@vupbridge.rw", momo: "078XXXX567", photo: "assets/produce/red_onion.jpg", isFav: false, category: "Vegetables" },
-        { id: 11, food: "Green cabbage", district: "Musanze", sector: "Remera", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 280, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "078XXXX556", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 12, food: "Fresh carrots", district: "Gicumbi", sector: "Kaniga", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 420, quantity: 170, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "078XXXX445", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
-        { id: 13, food: "Spinach / Dodo", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 280, quantity: 80, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.fresh@vupbridge.rw", momo: "078XXXX901", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 14, food: "Green bell peppers", district: "Bugesera", sector: "Nyamata", hub: "Bugesera Rice & Veg Depot", price: 680, retailPrice: 800, quantity: 95, unit: "kg", farmer: "Bugesera Irrigation Scheme", farmerEmail: "bugesera.irrig@vupbridge.rw", momo: "078XXXX667", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 15, food: "Isombe (Cassava leaves)", district: "Muhanga", sector: "Nyamabuye", hub: "Muhanga Valley Hub", price: 290, retailPrice: 350, quantity: 150, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.valley@vupbridge.rw", momo: "078XXXX891", photo: "assets/produce/spinach.jpg", isFav: true, category: "Vegetables" },
-        { id: 16, food: "Cooking banana", district: "Rwamagana", sector: "Kigabiro", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 340, quantity: 380, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.banana@vupbridge.rw", momo: "078XXXX456", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
-        { id: 17, food: "Sweet banana (Kamaramasenge)", district: "Gatsibo", sector: "Kabarore", hub: "Kabarore Fruit Terminal", price: 460, retailPrice: 550, quantity: 190, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.fruit@vupbridge.rw", momo: "078XXXX672", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
-        { id: 18, food: "Hass avocado", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 270, retailPrice: 320, quantity: 140, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.lake@vupbridge.rw", momo: "078XXXX890", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
-        { id: 19, food: "Passion fruit", district: "Nyamagabe", sector: "Gasaka", hub: "Nyamagabe Highland Hub", price: 920, retailPrice: 1100, quantity: 110, unit: "kg", farmer: "Nyamagabe Highland Fruit Coop", farmerEmail: "nyamagabe.fruit@vupbridge.rw", momo: "078XXXX223", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
-        { id: 20, food: "Tree tomatoes (Tamarillo)", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 820, retailPrice: 980, quantity: 85, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "078XXXX334", photo: "assets/produce/tomato.jpg", isFav: false, category: "Fruits" },
-        { id: 21, food: "Bugesera mangoes", district: "Bugesera", sector: "Mayange", hub: "Nyamata Fresh Depot", price: 620, retailPrice: 750, quantity: 200, unit: "kg", farmer: "Bugesera Tropical Fruit Union", farmerEmail: "bugesera.tropical@vupbridge.rw", momo: "078XXXX441", photo: "assets/produce/avocado.jpg", isFav: false, category: "Fruits" },
-        { id: 22, food: "Golden papaya", district: "Ngoma", sector: "Rukira", hub: "Ngoma Sunrise Center", price: 390, retailPrice: 480, quantity: 130, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.sunrise@vupbridge.rw", momo: "078XXXX552", photo: "assets/produce/cooking_banana.jpg", isFav: false, category: "Fruits" },
-        { id: 23, food: "Local rice (Bugarama)", district: "Rusizi", sector: "Bugarama", hub: "Bugarama Rice Mill", price: 1150, retailPrice: 1350, quantity: 340, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "078XXXX789", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Grains" },
-        { id: 24, food: "Local rice (Mukunguri)", district: "Kamonyi", sector: "Musambira", hub: "Mukunguri Valley Terminal", price: 1080, retailPrice: 1250, quantity: 220, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "078XXXX790", photo: "assets/produce/local_rice.jpg", isFav: false, category: "Grains" },
-        { id: 25, food: "Fresh sweet corn", district: "Nyagatare", sector: "Matimba", hub: "Nyagatare Agro-Depot", price: 320, retailPrice: 400, quantity: 450, unit: "kg", farmer: "Nyagatare Grain Producers", farmerEmail: "nyagatare.grain@vupbridge.rw", momo: "078XXXX012", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 26, food: "Dry maize grain", district: "Kayonza", sector: "Mukarange", hub: "Kayonza Central Silos", price: 490, retailPrice: 580, quantity: 600, unit: "kg", farmer: "Kayonza Maize Millers", farmerEmail: "kayonza.maize@vupbridge.rw", momo: "078XXXX013", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 27, food: "Corn flour (Kawunga)", district: "Nyarugenge", sector: "Kigali", hub: "Nyabugogo Direct Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.mills@vupbridge.rw", momo: "078XXXX014", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 28, food: "Cassava flour", district: "Nyanza", sector: "Busasamana", hub: "Nyanza Central Hub", price: 440, retailPrice: 540, quantity: 270, unit: "kg", farmer: "Nyanza Flour Millers", farmerEmail: "nyanza.flour@vupbridge.rw", momo: "078XXXX015", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 29, food: "Sorghum flour", district: "Nyamasheke", sector: "Kagano", hub: "Nyamasheke Mills", price: 720, retailPrice: 850, quantity: 180, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.mills@vupbridge.rw", momo: "078XXXX016", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 30, food: "Soybeans", district: "Kayonza", sector: "Rwinkwavu", hub: "Kayonza Agro-Depot", price: 620, retailPrice: 750, quantity: 320, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.grain@vupbridge.rw", momo: "078XXXX778", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 31, food: "Groundnuts", district: "Kirehe", sector: "Mahama", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 160, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.women@vupbridge.rw", momo: "078XXXX889", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
-        { id: 32, food: "Fresh farm milk", district: "Gicumbi", sector: "Byumba", hub: "Gicumbi Milk Collection Center", price: 420, retailPrice: 500, quantity: 500, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.dairy@vupbridge.rw", momo: "078XXXX991", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
-        { id: 33, food: "Farm chicken eggs", district: "Bugesera", sector: "Gashora", hub: "Bugesera Poultry Hub", price: 3600, retailPrice: 4200, quantity: 90, unit: "tray", farmer: "Bugesera Poultry Cooperative", farmerEmail: "bugesera.poultry@vupbridge.rw", momo: "078XXXX992", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Dairy" },
-        { id: 34, food: "Nyungwe forest honey", district: "Nyaruguru", sector: "Kibeho", hub: "Kibeho Agro-Point", price: 3200, retailPrice: 3800, quantity: 75, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "078XXXX993", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" },
-        { id: 35, food: "Fresh ginger", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1200, retailPrice: 1450, quantity: 130, unit: "kg", farmer: "Rulindo Spice Cooperative", farmerEmail: "rulindo.spice@vupbridge.rw", momo: "078XXXX101", photo: "assets/produce/sweet_potato.jpg", isFav: false, category: "Vegetables" },
-        { id: 36, food: "High-altitude green peas", district: "Gicumbi", sector: "Miyove", hub: "Miyove Highland Hub", price: 1100, retailPrice: 1350, quantity: 150, unit: "kg", farmer: "Miyove Pea Farmers", farmerEmail: "miyove.peas@vupbridge.rw", momo: "078XXXX102", photo: "assets/produce/dry_beans.jpg", isFav: true, category: "Beans" },
-        { id: 37, food: "Fermented milk (Ikivuguto)", district: "Nyagatare", sector: "Karangazi", hub: "Nyagatare Milk Center", price: 650, retailPrice: 800, quantity: 300, unit: "L", farmer: "Karangazi Dairy Union", farmerEmail: "karangazi.dairy@vupbridge.rw", momo: "078XXXX103", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
-        { id: 38, food: "Lake Kivu fresh fish (Isambaza)", district: "Rubavu", sector: "Gisenyi", hub: "Gisenyi Lake Depot", price: 2800, retailPrice: 3400, quantity: 95, unit: "kg", farmer: "Lake Kivu Fishermen Union", farmerEmail: "kivu.fish@vupbridge.rw", momo: "078XXXX104", photo: "assets/produce/local_rice.jpg", isFav: true, category: "Dairy" },
-        { id: 39, food: "Traditional sorghum grain", district: "Burera", sector: "Nemba", hub: "Cyanika Agro Hub", price: 540, retailPrice: 650, quantity: 240, unit: "kg", farmer: "Burera Grain Cooperative", farmerEmail: "burera.grain@vupbridge.rw", momo: "078XXXX105", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" },
-        { id: 40, food: "Red kidney beans", district: "Gisagara", sector: "Ndora", hub: "Save Agrilink Point", price: 810, retailPrice: 940, quantity: 260, unit: "kg", farmer: "Ndora Farmers Cooperative", farmerEmail: "ndora.farmers@vupbridge.rw", momo: "078XXXX106", photo: "assets/produce/dry_beans.jpg", isFav: false, category: "Beans" },
-        { id: 41, food: "Fresh pineapple", district: "Rwamagana", sector: "Karenge", hub: "Karenge Fruit Center", price: 380, retailPrice: 480, quantity: 320, unit: "kg", farmer: "Rwamagana Tropical Growers", farmerEmail: "rwamagana.tropical@vupbridge.rw", momo: "078XXXX107", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Fruits" },
-        { id: 42, food: "Specialty Arabica coffee cherries", district: "Rutsiro", sector: "Murunda", hub: "Murunda Washing Station", price: 1600, retailPrice: 2100, quantity: 180, unit: "kg", farmer: "Rutsiro Specialty Coffee Coop", farmerEmail: "rutsiro.coffee@vupbridge.rw", momo: "078XXXX108", photo: "assets/produce/avocado.jpg", isFav: true, category: "Fruits" },
-        { id: 43, food: "French green beans", district: "Rubavu", sector: "Rugerero", hub: "Rugerero Export Hub", price: 750, retailPrice: 900, quantity: 140, unit: "kg", farmer: "Rubavu Vegetable Growers", farmerEmail: "rubavu.veg@vupbridge.rw", momo: "078XXXX109", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 44, food: "High-altitude mountain tea", district: "Nyamagabe", sector: "Kitabi", hub: "Kitabi Tea Center", price: 1200, retailPrice: 1500, quantity: 110, unit: "kg", farmer: "Kitabi Smallholder Tea Farmers", farmerEmail: "kitabi.tea@vupbridge.rw", momo: "078XXXX110", photo: "assets/produce/spinach.jpg", isFav: false, category: "Vegetables" },
-        { id: 45, food: "Organic white honey", district: "Gasabo", sector: "Rutunga", hub: "Rutunga Agro-Terminal", price: 3400, retailPrice: 4000, quantity: 80, unit: "kg", farmer: "Gasabo Beekeepers Association", farmerEmail: "gasabo.honey@vupbridge.rw", momo: "078XXXX111", photo: "assets/produce/cooking_banana.jpg", isFav: true, category: "Dairy" },
-        { id: 46, food: "Yellow maize grain", district: "Nyarugenge", sector: "Mageragere", hub: "Mageragere Farmers Point", price: 470, retailPrice: 560, quantity: 480, unit: "kg", farmer: "Mageragere Cooperative", farmerEmail: "mageragere.coop@vupbridge.rw", momo: "078XXXX112", photo: "assets/produce/fresh_corn.jpg", isFav: false, category: "Grains" }
+        { id: 1, food: "Fresh harvest dry beans", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 780, retailPrice: 920, quantity: 240, unit: "kg", farmer: "Mukamana Farm", farmerEmail: "mukamana.farm@vupbridge.rw", momo: "0788123456", photo: "assets/produce/user_photo_01_ai_content_midjourney.jpg", isFav: false, category: "Beans" },
+        { id: 2, food: "Fresh green beans (Ejotes)", district: "Musanze", sector: "Kinigi", hub: "Musanze Highland Depot", price: 650, retailPrice: 780, quantity: 180, unit: "kg", farmer: "Kinigi Green Growers", farmerEmail: "kinigi.green@vupbridge.rw", momo: "0788234567", photo: "assets/produce/user_photo_02_ejotes.jpg", isFav: true, category: "Vegetables" },
+        { id: 3, food: "Elephant cassava roots", district: "Ruhango", sector: "Kinazi", hub: "Ruhango Central Market Point", price: 220, retailPrice: 280, quantity: 450, unit: "kg", farmer: "Ruhango Cassava Farmers", farmerEmail: "ruhango.cassava@vupbridge.rw", momo: "0788345678", photo: "assets/produce/user_photo_03_elephant_cassava_giant_cassava.jpg", isFav: false, category: "Tubers" },
+        { id: 4, food: "Golden Irish potatoes", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 440, retailPrice: 520, quantity: 600, unit: "kg", farmer: "Nyabihu Potato Coop", farmerEmail: "nyabihu.potato@vupbridge.rw", momo: "0788456789", photo: "assets/produce/user_photo_04_golden_potatoes_dug_fresh_from.jpg", isFav: true, category: "Tubers" },
+        { id: 5, food: "Garden fresh carrots", district: "Gicumbi", sector: "Kaniga", hub: "Gicumbi High-Altitude Center", price: 360, retailPrice: 440, quantity: 220, unit: "kg", farmer: "Gicumbi Organic Valley", farmerEmail: "gicumbi.organic@vupbridge.rw", momo: "0788567890", photo: "assets/produce/user_photo_05_harvest_home_vibrant_sack_of_g.jpg", isFav: false, category: "Vegetables" },
+        { id: 6, food: "Smallholder dairy goats & milk", district: "Nyagatare", sector: "Karangazi", hub: "Karangazi Livestock Hub", price: 850, retailPrice: 1050, quantity: 80, unit: "L", farmer: "Nyagatare Pastoralist Coop", farmerEmail: "nyagatare.goats@vupbridge.rw", momo: "0788678901", photo: "assets/produce/user_photo_06_how_many_goats_should_be_kept_.jpg", isFav: true, category: "Dairy" },
+        { id: 7, food: "Fresh turmeric & ginger (Kurkuma)", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1250, retailPrice: 1500, quantity: 120, unit: "kg", farmer: "Rulindo Spice Cooperative", farmerEmail: "rulindo.spice@vupbridge.rw", momo: "0788789012", photo: "assets/produce/user_photo_07_kurkuma_zerde_al.jpg", isFav: false, category: "Vegetables" },
+        { id: 8, food: "Fresh green lemons & limes", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Citrus Hub", price: 520, retailPrice: 650, quantity: 150, unit: "kg", farmer: "Kamonyi Citrus Farmers", farmerEmail: "kamonyi.citrus@vupbridge.rw", momo: "0788890123", photo: "assets/produce/user_photo_08_limones_vel_zquez.jpg", isFav: false, category: "Fruits" },
+        { id: 9, food: "Fresh shredded cabbage & salad", district: "Musanze", sector: "Muhoza", hub: "Volcanoes Green Depot", price: 280, retailPrice: 350, quantity: 260, unit: "kg", farmer: "Volcanoes Salad Growers", farmerEmail: "volcanoes.salad@vupbridge.rw", momo: "0788901234", photo: "assets/produce/user_photo_09_mexican_cabbage_salad_taco_sla.jpg", isFav: true, category: "Vegetables" },
+        { id: 10, food: "Nefertiti green zucchini", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 450, retailPrice: 550, quantity: 90, unit: "kg", farmer: "Gasabo Fresh Gardeners", farmerEmail: "gasabo.garden@vupbridge.rw", momo: "0788012345", photo: "assets/produce/user_photo_10_nefertiti_zucchini_perfect_for.jpg", isFav: false, category: "Vegetables" },
+        { id: 11, food: "Crisp spring green onions", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 1400, retailPrice: 1650, quantity: 110, unit: "kg", farmer: "Kamonyi Allium Collective", farmerEmail: "kamonyi.allium@vupbridge.rw", momo: "0788112233", photo: "assets/produce/user_photo_11_onions_1.jpg", isFav: false, category: "Vegetables" },
+        { id: 12, food: "Red pearl onions", district: "Bugesera", sector: "Nyamata", hub: "Bugesera Veg Depot", price: 1600, retailPrice: 1850, quantity: 95, unit: "kg", farmer: "Bugesera Red Onion Coop", farmerEmail: "bugesera.onions@vupbridge.rw", momo: "0788223344", photo: "assets/produce/user_photo_12_onions.jpg", isFav: true, category: "Vegetables" },
+        { id: 13, food: "Sweet golden papayas", district: "Ngoma", sector: "Rukira", hub: "Ngoma Sunrise Center", price: 420, retailPrice: 520, quantity: 140, unit: "kg", farmer: "Ngoma Sunrise Growers", farmerEmail: "ngoma.papaya@vupbridge.rw", momo: "0788334455", photo: "assets/produce/user_photo_13_papaya_carica_papaya.jpg", isFav: true, category: "Fruits" },
+        { id: 14, food: "Shelled raw groundnuts (Peanuts)", district: "Kirehe", sector: "Mahama", hub: "Ngoma Farmers Hub", price: 1450, retailPrice: 1750, quantity: 170, unit: "kg", farmer: "Kirehe Women Agrilink", farmerEmail: "kirehe.peanuts@vupbridge.rw", momo: "0788445566", photo: "assets/produce/user_photo_14_peanuts_art_created_by_ai.jpg", isFav: true, category: "Beans" },
+        { id: 15, food: "Colorful bell peppers & pili pili", district: "Gasabo", sector: "Rutunga", hub: "Kimironko Farmers Hub & SACCO", price: 690, retailPrice: 850, quantity: 85, unit: "kg", farmer: "Rutunga Spice & Pepper Coop", farmerEmail: "rutunga.peppers@vupbridge.rw", momo: "0788556677", photo: "assets/produce/user_photo_15_peppers_at_the_farmers_market.jpg", isFav: true, category: "Vegetables" },
+        { id: 16, food: "Sweet plum tomatoes", district: "Rulindo", sector: "Kinihira", hub: "Rulindo Fresh Market Hub", price: 520, retailPrice: 650, quantity: 115, unit: "kg", farmer: "Rulindo Highland Tomatoes", farmerEmail: "rulindo.tomatoes@vupbridge.rw", momo: "0788667788", photo: "assets/produce/user_photo_16_plum_tomatoes.jpg", isFav: false, category: "Vegetables" },
+        { id: 17, food: "Golden field pumpkin", district: "Nyagatare", sector: "Matimba", hub: "Nyagatare Agro-Depot", price: 310, retailPrice: 400, quantity: 280, unit: "kg", farmer: "Nyagatare Squash Union", farmerEmail: "nyagatare.pumpkin@vupbridge.rw", momo: "0788778899", photo: "assets/produce/user_photo_17_pumkin.jpg", isFav: false, category: "Vegetables" },
+        { id: 18, food: "Fresh garden herb bouquet", district: "Huye", sector: "Tumba", hub: "Huye Agrilink Depot", price: 250, retailPrice: 320, quantity: 70, unit: "bunch", farmer: "Huye Botanical Farmers", farmerEmail: "huye.herbs@vupbridge.rw", momo: "0788889900", photo: "assets/produce/user_photo_18_s_ph_n_quan_kai_k_m_u_l_ph_p_b.jpg", isFav: false, category: "Vegetables" },
+        { id: 19, food: "Tropical pitaya & garden fruits", district: "Rwamagana", sector: "Karenge", hub: "Karenge Fruit Center", price: 980, retailPrice: 1200, quantity: 65, unit: "kg", farmer: "Karenge Exotic Fruit Coop", farmerEmail: "karenge.fruit@vupbridge.rw", momo: "0788990011", photo: "assets/produce/user_photo_19_s_ph_n_quan_kai_k_m_u_l_ph_p_b.jpg", isFav: true, category: "Fruits" },
+        { id: 20, food: "Ankole dairy fresh milk & ghee", district: "Nyagatare", sector: "Rwimiyaga", hub: "Inyange Collection Center", price: 450, retailPrice: 550, quantity: 450, unit: "L", farmer: "Inyambo Pastoralist Union", farmerEmail: "inyambo.dairy@vupbridge.rw", momo: "0788001122", photo: "assets/produce/user_photo_20_the_ankole_is_a_breed_or_group.jpg", isFav: true, category: "Dairy" },
+        { id: 21, food: "Roma greenhouse tomatoes", district: "Kamonyi", sector: "Musambira", hub: "Kamonyi Farmers Depot", price: 490, retailPrice: 600, quantity: 130, unit: "kg", farmer: "Kamonyi Roma Growers", farmerEmail: "kamonyi.roma@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_21_tomate_roma_mexicano_de_invern.jpg", isFav: true, category: "Vegetables" },
+        { id: 22, food: "Red vine tomatoes", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 480, retailPrice: 580, quantity: 105, unit: "kg", farmer: "Kimironko Fresh Growers", farmerEmail: "kimironko.growers@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_22_tomatoes.jpg", isFav: false, category: "Vegetables" },
+        { id: 23, food: "Village staple harvest basket", district: "Gisagara", sector: "Save", hub: "Gisagara Agro-Hub", price: 1200, retailPrice: 1450, quantity: 90, unit: "basket", farmer: "Save Community Cooperative", farmerEmail: "save.coop@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_23_travel_photography_and_lifesty.jpg", isFav: true, category: "Staples" },
+        { id: 24, food: "Purple sweet potato (Ubi)", district: "Huye", sector: "Ngoma", hub: "Huye Women Agrilink", price: 290, retailPrice: 360, quantity: 320, unit: "kg", farmer: "Huye Women Agro-Link", farmerEmail: "huye.ubi@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_24_ubi.jpg", isFav: true, category: "Tubers" },
+        { id: 25, food: "Creamy Hass avocados", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 280, retailPrice: 350, quantity: 210, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.avocado@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_25_xenia_onmyway1133_on_x.jpg", isFav: true, category: "Fruits" },
+        { id: 26, food: "Crisp green cabbages", district: "Musanze", sector: "Remera", hub: "Volcanoes Green Depot", price: 260, retailPrice: 320, quantity: 340, unit: "kg", farmer: "Volcanoes Green Coop", farmerEmail: "volcanoes.green@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_26_cabbages.jpg", isFav: false, category: "Vegetables" },
+        { id: 27, food: "Highland yellow maize", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 480, retailPrice: 580, quantity: 420, unit: "kg", farmer: "Burera Maize Union", farmerEmail: "burera.maize@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_27_download_10.jpg", isFav: false, category: "Grains" },
+        { id: 28, food: "Red kidney beans (Ibifashe)", district: "Kayonza", sector: "Mukarange", hub: "Kayonza Agro-Depot", price: 790, retailPrice: 920, quantity: 310, unit: "kg", farmer: "Kayonza Grain Link", farmerEmail: "kayonza.beans@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_28_download_11.jpg", isFav: false, category: "Beans" },
+        { id: 29, food: "Cooking bananas (Igitoki)", district: "Rwamagana", sector: "Kigabiro", hub: "Rwamagana Banana Depot", price: 290, retailPrice: 350, quantity: 450, unit: "kg", farmer: "Rwamagana Banana Coop", farmerEmail: "rwamagana.igitoki@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_29_download_12.jpg", isFav: false, category: "Fruits" },
+        { id: 30, food: "White sorghum grain", district: "Nyamasheke", sector: "Kagano", hub: "Nyamasheke Mills", price: 680, retailPrice: 800, quantity: 260, unit: "kg", farmer: "Nyamasheke Sorghum Mills", farmerEmail: "nyamasheke.sorghum@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_30_download_13.jpg", isFav: false, category: "Grains" },
+        { id: 31, food: "Sweet dessert bananas", district: "Gatsibo", sector: "Kabarore", hub: "Kabarore Fruit Terminal", price: 440, retailPrice: 540, quantity: 230, unit: "kg", farmer: "Gatsibo Fruit Growers", farmerEmail: "gatsibo.bananas@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_31_download_14.jpg", isFav: true, category: "Fruits" },
+        { id: 32, food: "Mountain spring watermelons", district: "Bugesera", sector: "Mayange", hub: "Nyamata Fresh Depot", price: 520, retailPrice: 650, quantity: 180, unit: "kg", farmer: "Bugesera Melon Scheme", farmerEmail: "bugesera.melons@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_32_download_15.jpg", isFav: false, category: "Fruits" },
+        { id: 33, food: "Fresh garlic bulbs", district: "Musanze", sector: "Kinigi", hub: "Kinigi Garlic Hub", price: 1800, retailPrice: 2200, quantity: 90, unit: "kg", farmer: "Kinigi Garlic Producers", farmerEmail: "kinigi.garlic@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_33_download_16.jpg", isFav: true, category: "Vegetables" },
+        { id: 34, food: "Fresh green peppers", district: "Kamonyi", sector: "Runda", hub: "Kamonyi Farmers Depot", price: 620, retailPrice: 750, quantity: 140, unit: "kg", farmer: "Kamonyi Pepper Group", farmerEmail: "kamonyi.peppers@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_34_download_17.jpg", isFav: false, category: "Vegetables" },
+        { id: 35, food: "Highland beetroot", district: "Gicumbi", sector: "Miyove", hub: "Gicumbi High-Altitude Center", price: 420, retailPrice: 520, quantity: 160, unit: "kg", farmer: "Miyove Organic Growers", farmerEmail: "miyove.beetroot@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_35_download_18.jpg", isFav: false, category: "Vegetables" },
+        { id: 36, food: "Sweet baby carrots", district: "Nyabihu", sector: "Mukamira", hub: "Mukamira Highland Depot", price: 390, retailPrice: 480, quantity: 190, unit: "kg", farmer: "Nyabihu Vegetable Cooperative", farmerEmail: "nyabihu.carrots@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_36_download_19.jpg", isFav: true, category: "Vegetables" },
+        { id: 37, food: "Fresh spinach leaves (Dodo)", district: "Gasabo", sector: "Kimironko", hub: "Kimironko Farmers Hub & SACCO", price: 250, retailPrice: 300, quantity: 110, unit: "kg", farmer: "Nyabarongo Valley Fresh", farmerEmail: "nyabarongo.dodo@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_37_download_20.jpg", isFav: true, category: "Vegetables" },
+        { id: 38, food: "Local Bugarama rice", district: "Rusizi", sector: "Bugarama", hub: "Bugarama Rice Mill", price: 1180, retailPrice: 1380, quantity: 380, unit: "kg", farmer: "Rusizi Rice Union", farmerEmail: "rusizi.rice@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_38_download_21.jpg", isFav: true, category: "Grains" },
+        { id: 39, food: "Mukunguri valley rice", district: "Kamonyi", sector: "Musambira", hub: "Mukunguri Valley Terminal", price: 1100, retailPrice: 1280, quantity: 270, unit: "kg", farmer: "Kamonyi Rice Millers", farmerEmail: "kamonyi.rice@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_39_download_22.jpg", isFav: false, category: "Grains" },
+        { id: 40, food: "Fresh cowpeas (Kunde)", district: "Kayonza", sector: "Rwinkwavu", hub: "Kayonza Agro-Depot", price: 640, retailPrice: 780, quantity: 210, unit: "kg", farmer: "Kayonza Pulse Producers", farmerEmail: "kayonza.cowpeas@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_40_download_23.jpg", isFav: false, category: "Beans" },
+        { id: 41, food: "Red garden radishes", district: "Musanze", sector: "Muhoza", hub: "Musanze Central Produce Depot", price: 340, retailPrice: 420, quantity: 95, unit: "kg", farmer: "Musanze Radish Growers", farmerEmail: "musanze.radish@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_41_download_24.jpg", isFav: false, category: "Vegetables" },
+        { id: 42, food: "Nyungwe natural honey", district: "Nyaruguru", sector: "Kibeho", hub: "Kibeho Agro-Point", price: 3400, retailPrice: 4000, quantity: 85, unit: "kg", farmer: "Nyungwe Beekeepers Union", farmerEmail: "nyungwe.honey@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_42_download_25.jpg", isFav: true, category: "Dairy" },
+        { id: 43, food: "High-altitude green peas", district: "Gicumbi", sector: "Miyove", hub: "Miyove Highland Hub", price: 1150, retailPrice: 1400, quantity: 160, unit: "kg", farmer: "Miyove Pea Farmers", farmerEmail: "miyove.peas@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_43_download_26.jpg", isFav: true, category: "Beans" },
+        { id: 44, food: "Organic sweet cucumbers", district: "Bugesera", sector: "Gashora", hub: "Bugesera Fresh Depot", price: 350, retailPrice: 440, quantity: 180, unit: "kg", farmer: "Gashora Marshland Coop", farmerEmail: "gashora.cucumbers@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_44_download_27.jpg", isFav: false, category: "Vegetables" },
+        { id: 45, food: "Red cayenne chili (Pili Pili)", district: "Rulindo", sector: "Bushoki", hub: "Rulindo Spice Depot", price: 1600, retailPrice: 2000, quantity: 60, unit: "kg", farmer: "Rulindo Chili Union", farmerEmail: "rulindo.chili@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_45_download_28.jpg", isFav: true, category: "Vegetables" },
+        { id: 46, food: "Dry soybean grain", district: "Ngoma", sector: "Kibungo", hub: "Ngoma Farmers Hub", price: 630, retailPrice: 760, quantity: 350, unit: "kg", farmer: "Ngoma Soybean Agrilink", farmerEmail: "ngoma.soy@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_46_download_29.jpg", isFav: false, category: "Beans" },
+        { id: 47, food: "Green field avocados", district: "Karongi", sector: "Rubengera", hub: "Karongi Lake Depot", price: 270, retailPrice: 340, quantity: 240, unit: "kg", farmer: "Karongi Lake Harvest", farmerEmail: "karongi.harvest@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_47_download_30.jpg", isFav: false, category: "Fruits" },
+        { id: 48, food: "Fresh tree tomatoes (Tamarillo)", district: "Burera", sector: "Cyanika", hub: "Burera Highland Agro-Hub", price: 850, retailPrice: 1020, quantity: 110, unit: "kg", farmer: "Burera Tamarillo Growers", farmerEmail: "burera.tamarillo@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_48_download_31.jpg", isFav: true, category: "Fruits" },
+        { id: 49, food: "Cassava leaves (Isombe)", district: "Muhanga", sector: "Nyamabuye", hub: "Muhanga Valley Hub", price: 290, retailPrice: 360, quantity: 220, unit: "kg", farmer: "Muhanga Valley Cooperative", farmerEmail: "muhanga.isombe@vupbridge.rw", momo: "0788991133", photo: "assets/produce/user_photo_49_download_32.jpg", isFav: true, category: "Vegetables" },
+        { id: 50, food: "Fresh ginger rhizomes", district: "Rulindo", sector: "Kinihira", hub: "Rulindo Spice Depot", price: 1300, retailPrice: 1600, quantity: 100, unit: "kg", farmer: "Rulindo Ginger Farmers", farmerEmail: "rulindo.ginger@vupbridge.rw", momo: "0788002244", photo: "assets/produce/user_photo_50_download_33.jpg", isFav: false, category: "Vegetables" },
+        { id: 51, food: "Traditional finger millet", district: "Gisagara", sector: "Ndora", hub: "Gisagara Agro-Hub", price: 740, retailPrice: 880, quantity: 190, unit: "kg", farmer: "Ndora Millet Cooperative", farmerEmail: "ndora.millet@vupbridge.rw", momo: "0788113355", photo: "assets/produce/user_photo_51_download_34.jpg", isFav: false, category: "Grains" },
+        { id: 52, food: "Fermented milk (Ikivuguto)", district: "Gicumbi", sector: "Byumba", hub: "Gicumbi Milk Collection Center", price: 680, retailPrice: 820, quantity: 320, unit: "L", farmer: "Gicumbi Dairy Cooperative", farmerEmail: "gicumbi.ikivuguto@vupbridge.rw", momo: "0788224466", photo: "assets/produce/user_photo_52_download_8.jpg", isFav: true, category: "Dairy" },
+        { id: 53, food: "Kigali organic honey", district: "Gasabo", sector: "Rutunga", hub: "Rutunga Agro-Terminal", price: 3600, retailPrice: 4200, quantity: 75, unit: "kg", farmer: "Gasabo Beekeepers Association", farmerEmail: "gasabo.honey@vupbridge.rw", momo: "0788335577", photo: "assets/produce/user_photo_53_download_9.jpg", isFav: true, category: "Dairy" },
+        { id: 54, food: "Highland farm harvest basket", district: "Musanze", sector: "Kinigi", hub: "Musanze Central Produce Depot", price: 1500, retailPrice: 1850, quantity: 90, unit: "basket", farmer: "Volcanoes Highland Union", farmerEmail: "volcanoes.union@vupbridge.rw", momo: "0788446688", photo: "assets/produce/user_photo_54_photography_by_knn_linku.jpg", isFav: true, category: "Staples" },
+        { id: 55, food: "Scarlet ripe field tomatoes", district: "Kamonyi", sector: "Gacurabwenge", hub: "Kamonyi Farmers Depot", price: 470, retailPrice: 570, quantity: 140, unit: "kg", farmer: "Kamonyi Tomato Collective", farmerEmail: "kamonyi.tomatoes@vupbridge.rw", momo: "0788557799", photo: "assets/produce/user_photo_55_tomato.jpg", isFav: false, category: "Vegetables" },
+        { id: 56, food: "Sweet large watermelon", district: "Bugesera", sector: "Gashora", hub: "Nyamata Fresh Depot", price: 580, retailPrice: 720, quantity: 130, unit: "kg", farmer: "Gashora Watermelon Growers", farmerEmail: "gashora.watermelons@vupbridge.rw", momo: "0788668800", photo: "assets/produce/user_photo_56_essential_watermelon_storage_t.jpg", isFav: true, category: "Fruits" },
+        { id: 57, food: "Fortified corn flour (Kawunga)", district: "Nyarugenge", sector: "Kigali", hub: "Nyabugogo Direct Agro-Depot", price: 800, retailPrice: 940, quantity: 350, unit: "kg", farmer: "Bugarama Grain Mills", farmerEmail: "bugarama.grain@vupbridge.rw", momo: "0788779911", photo: "assets/produce/user_photo_57_produce_item_57.jpg", isFav: false, category: "Grains" },
+        { id: 58, food: "Cooperative community harvest basket", district: "Kirehe", sector: "Gatore", hub: "Gatore Food Bank & SACCO Point", price: 1350, retailPrice: 1650, quantity: 110, unit: "basket", farmer: "Kirehe Farmers Federation", farmerEmail: "kirehe.federation@vupbridge.rw", momo: "0788880022", photo: "assets/produce/user_photo_58_random.jpg", isFav: true, category: "Staples" }
       ],
       nextOrderId: 107,
       nextListingId: 47,
       nextCaseId: 3,
-      agasekePool: 145210,
+      currency: "RWF",
+      shopperAgasekeAmount: 100,
+      agasekePool: 155210,
+      activeBannerSlide: 0,
+      bannerPaused: false,
+      agasekeTransactions: [
+        { id: "TX-AG-101", type: "inflow", channel: "MTN Mobile Money", source: "Direct Donation", contributor: "Grace Ingabire (Shopper)", amount: 5000, date: "2026-10-27 10:15", status: "Confirmed" },
+        { id: "TX-AG-102", type: "inflow", channel: "MTN Mobile Money", source: "100 RWF Transaction Fee", contributor: "Dry beans checkout", amount: 100, date: "2026-10-27 11:20", status: "Confirmed" },
+        { id: "TX-AG-103", type: "inflow", channel: "Bank of Kigali", source: "Direct Donation", contributor: "Kigali Civil Servant", amount: 10000, date: "2026-10-27 11:45", status: "Confirmed" },
+        { id: "TX-AG-104", type: "inflow", channel: "Airtel Money", source: "100 RWF Transaction Fee", contributor: "Irish potato order", amount: 100, date: "2026-10-27 12:05", status: "Confirmed" },
+        { id: "TX-AG-105", type: "outflow", channel: "Umurenge SACCO", source: "Emergency Relief Voucher", beneficiary: "Claudine Mukamana (Karongi)", amount: -5000, date: "2026-10-26 15:30", status: "Disbursed" },
+        { id: "TX-AG-106", type: "inflow", channel: "MTN Mobile Money", source: "Direct Donation", contributor: "Emmanuel N. (Trader)", amount: 2500, date: "2026-10-26 16:10", status: "Confirmed" },
+        { id: "TX-AG-107", type: "inflow", channel: "Airtel Money", source: "Direct Donation", contributor: "Musanze Resident", amount: 1500, date: "2026-10-26 17:00", status: "Confirmed" },
+        { id: "TX-AG-108", type: "inflow", channel: "Bank of Kigali", source: "Direct Donation", contributor: "LODA / Sector Staff", amount: 5000, date: "2026-10-26 18:20", status: "Confirmed" }
+      ],
       agasekeDisbursed: 35000,
       agasekeAssistedCount: 7,
       farmerTaxExempt: false,
@@ -421,6 +490,8 @@ class IsokoApp {
   init() {
     this.applyTheme();
     this.updateLanguageSelector();
+    this.updateCurrencyControls();
+    this.applyDomTranslations();
     this.syncSidebar();
     this.render();
   }
@@ -491,7 +562,7 @@ class IsokoApp {
   // =========================================================================
   // TRILINGUAL LOCALIZATION (EN, RW, FR)
   // =========================================================================
-  t(key) {
+  t(key, fallback) {
     const lang = this.state.lang || "en";
     if (window.TRANSLATIONS && window.TRANSLATIONS[lang] && window.TRANSLATIONS[lang][key]) {
       return window.TRANSLATIONS[lang][key];
@@ -499,16 +570,205 @@ class IsokoApp {
     if (window.TRANSLATIONS && window.TRANSLATIONS.en && window.TRANSLATIONS.en[key]) {
       return window.TRANSLATIONS.en[key];
     }
-    return key;
+    return fallback !== undefined ? fallback : key;
   }
 
   setLanguage(lang) {
     this.state.lang = lang;
     this.saveState();
     this.updateLanguageSelector();
+    this.applyDomTranslations();
     this.render();
     const names = { en: "English", rw: "Ikinyarwanda", fr: "Français" };
     this.toast(`Language switched to ${names[lang] || lang}`, "success");
+  }
+
+  // =========================================================================
+  // MULTI-CURRENCY SUPPORT (RWF DEFAULT, USD, EUR, KES, UGX)
+  // =========================================================================
+  getCurrency() {
+    return this.state.currency || "RWF";
+  }
+
+  getCurrencyRates() {
+    return {
+      RWF: { symbol: "RWF", rate: 1, prefix: false, decimals: 0 },
+      USD: { symbol: "$", rate: 1 / 1350, prefix: true, decimals: 2 },
+      EUR: { symbol: "€", rate: 1 / 1470, prefix: true, decimals: 2 },
+      KES: { symbol: "KSh ", rate: 1 / 10.4, prefix: true, decimals: 0 },
+      UGX: { symbol: "USh ", rate: 1 / 0.36, prefix: true, decimals: 0 }
+    };
+  }
+
+  setCurrency(curr) {
+    this.state.currency = curr || "RWF";
+    this.saveState();
+    this.updateCurrencyControls();
+    this.render();
+    this.toast(`Display currency switched to ${this.state.currency}`, "info");
+  }
+
+  updateCurrencyControls() {
+    const curr = this.getCurrency();
+    ["currencySelect", "settingsCurrency"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = curr;
+    });
+  }
+
+  formatMoney(amt, opts = {}) {
+    amt = Number(amt) || 0;
+    const curr = this.getCurrency();
+    if (curr === "RWF") {
+      return `${amt.toLocaleString()} RWF`;
+    }
+    const rates = this.getCurrencyRates();
+    const cfg = rates[curr] || rates.RWF;
+    const converted = (amt * cfg.rate).toFixed(cfg.decimals);
+    const val = Number(converted).toLocaleString(undefined, { minimumFractionDigits: cfg.decimals, maximumFractionDigits: cfg.decimals });
+    const primary = cfg.prefix ? `${cfg.symbol}${val} ${curr}` : `${val} ${cfg.symbol}`;
+    if (opts.compact) return cfg.prefix ? `${cfg.symbol}${val}` : `${val} ${cfg.symbol}`;
+    return `${primary} (${amt.toLocaleString()} RWF)`;
+  }
+
+  formatMoneyCompact(amt) {
+    return this.formatMoney(amt, { compact: true });
+  }
+
+  // =========================================================================
+  // UNIVERSAL DOM TRANSLATION ENGINE
+  // =========================================================================
+  applyDomTranslations() {
+    const lang = this.state.lang || "en";
+    if (document.documentElement) document.documentElement.lang = lang;
+
+    // 1. All elements marked with data-i18n
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      const translation = this.t(key);
+      if (translation && translation !== key) {
+        el.textContent = translation;
+      }
+    });
+
+    // 2. Sidebar and shell elements
+    const railMenu = document.getElementById("railMenuLabel") || document.querySelector(".rail-section-label");
+    if (railMenu) railMenu.textContent = this.t("menuLabel", "MENU");
+
+    const brandSmalls = document.querySelectorAll(".brand-lockup small, .rail-brand small");
+    brandSmalls.forEach(sm => sm.textContent = this.t("brandSubtitle", "Ikiraro cya VUP · NISR 2026"));
+
+    const railToggle = document.getElementById("railRw");
+    if (railToggle) {
+      const exp = railToggle.getAttribute("aria-expanded") === "true";
+      const txt = this.t(exp ? "closeMenu" : "openMenu", exp ? "Close menu" : "Open menu");
+      railToggle.title = txt;
+      railToggle.setAttribute("aria-label", txt);
+    }
+
+    const themeToggle = document.getElementById("themeToggle");
+    const themeLabel = document.getElementById("themeToggleLabel");
+    if (themeToggle && themeLabel) {
+      const isDark = this.state.theme === "dark";
+      themeLabel.textContent = this.t(isDark ? "themeLight" : "themeDark", isDark ? "Light mode" : "Dark mode");
+    }
+
+    // 3. Modals: Phone Pay Modal
+    const p2H1 = document.querySelector("#p2_v2 h1");
+    if (p2H1) p2H1.textContent = this.t("checkoutConfirmTitle", "Confirm order");
+    const p2Sub = document.querySelector("#p2_v2 .sub-v2");
+    if (p2Sub) p2Sub.textContent = this.t("checkoutConfirmSub", "Review your fresh harvest produce before paying.");
+    const p2Agaseke = document.getElementById("p2AgasekeLabel");
+    if (p2Agaseke) p2Agaseke.textContent = this.t("checkoutAgaseke", "Ubudehe Agaseke Fund");
+    const payBtnT = document.querySelector("#payBtnV2 .t");
+    if (payBtnT) payBtnT.textContent = this.t("checkoutChoosePayBtn", "Choose how to pay");
+
+    const p6H1 = document.querySelector("#p6_v2 h1");
+    if (p6H1) p6H1.textContent = this.t("checkoutPayWithTitle", "Pay with");
+    const p6Sub = document.querySelector("#p6_v2 .sub-v2");
+    if (p6Sub) p6Sub.textContent = this.t("checkoutPayWithSub", "Choose one way to pay. Each option shows whether it is real or simulated.");
+    const ppV2 = document.getElementById("ppV2");
+    if (ppV2) ppV2.textContent = this.t("checkoutPayBtn", "Pay");
+
+    const t3V2 = document.getElementById("t3V2");
+    if (t3V2) t3V2.textContent = this.t("checkoutProcessingTitle", "Processing…");
+    const t3sV2 = document.getElementById("t3sV2");
+    if (t3sV2) t3sV2.textContent = this.t("checkoutProcessingSub", "Check your phone. Approve with your PIN (*182#)");
+
+    const p4H1 = document.querySelector("#p4_v2 h1");
+    if (p4H1) p4H1.textContent = this.t("checkoutOrderPlacedTitle", "Order placed");
+    const p4Sub = document.querySelector("#p4_v2 .sub-v2");
+    if (p4Sub) p4Sub.textContent = this.t("checkoutOrderPlacedSub", "Your harvest food is being packed at the nearest hub. We will notify you upon dispatch.");
+
+    // 4. Modals: Export Format & Donate Modal
+    const expTitle = document.getElementById("exportFormatTitle");
+    if (expTitle) expTitle.textContent = this.t("exportFormatTitle", "Choose a file type");
+    const donTitle = document.getElementById("donateModalTitle");
+    if (donTitle) donTitle.textContent = this.t("donateModalTitle", "Ubudehe Agaseke Solidarity Relief");
+    const donSub = document.getElementById("donateModalSub");
+    if (donSub) donSub.textContent = this.t("donateModalSub", "Support vulnerable Ubudehe 1 households facing payment delays. 100% of contributions fund emergency food baskets.");
+  }
+
+  // =========================================================================
+  // UBUDEHE AGASEKE DONATION & RELIEF METHODS
+  // =========================================================================
+  openDonateModal() {
+    const modal = document.getElementById("donateModal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  closeDonateModal() {
+    const modal = document.getElementById("donateModal");
+    if (modal) modal.style.display = "none";
+  }
+
+  selectDonateAmount(amt) {
+    const input = document.getElementById("customDonateInput");
+    if (input) input.value = amt;
+    const chips = document.querySelectorAll("#directDonateChips .agaseke-chip");
+    chips.forEach(c => {
+      const match = c.textContent.replace(/[^0-9]/g, "");
+      c.classList.toggle("active", Number(match) === amt);
+    });
+  }
+
+  processAgasekeDonation() {
+    const input = document.getElementById("customDonateInput");
+    const amount = Math.max(100, Math.round(Number(input?.value) || 1000));
+    const channelEl = document.querySelector('input[name="donateChannel"]:checked');
+    const channel = channelEl ? channelEl.value : "MTN Mobile Money";
+    const donorName = this.state.currentUser?.name || "Community Supporter";
+
+    this.state.agasekePool = (this.state.agasekePool || 155210) + amount;
+    const newTx = {
+      id: `TX-AG-${Date.now().toString().slice(-4)}`,
+      type: "inflow",
+      channel: channel,
+      source: "Direct Donation",
+      contributor: donorName,
+      amount: amount,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      status: "Confirmed"
+    };
+    this.state.agasekeTransactions = [newTx, ...(this.state.agasekeTransactions || [])];
+    this.saveState();
+    this.updateHeaderTicker();
+    this.closeDonateModal();
+    this.render();
+    const formatted = this.formatMoney(amount);
+    this.toast(`Murakoze cyane! Successfully donated ${formatted} to Ubudehe Agaseke via ${channel}!`, "success");
+  }
+
+  approveVupMember(email) {
+    const members = this.state.users?.member || [];
+    const found = members.find(u => u.email === email);
+    if (found) {
+      found.status = "credit-ready";
+      found.confirmedBy = this.state.currentUser?.name || "Sector Planner";
+      this.saveState();
+      this.render();
+      this.toast(`VUP Member ${found.name} approved and verified for emergency credit!`, "success");
+    }
   }
 
   updateLanguageSelector() {
@@ -1382,6 +1642,328 @@ class IsokoApp {
     }
   }
 
+
+  // =========================================================================
+  // TOP PROMOTIONAL BANNER & COMMUNITY HARVEST SHOWCASE (58 USER PHOTOS)
+  // =========================================================================
+  shouldShowTopBanner() {
+    const role = (this.state.role || "").toLowerCase();
+    const pick = (this.state.pickRole || "").toLowerCase();
+    if (role === "admin" || role === "planner" || pick === "admin" || pick === "planner") {
+      return false;
+    }
+    if (this.state.activeSubView === "settings") {
+      return false;
+    }
+    return true;
+  }
+
+  setBannerSlide(idx) {
+    this.state.activeBannerSlide = (idx + 4) % 4;
+    const track = document.getElementById("ibBannerTrack");
+    if (track) {
+      track.style.transform = `translateX(-${this.state.activeBannerSlide * 100}%)`;
+    }
+    const dots = document.querySelectorAll(".ib-banner-dot");
+    dots.forEach((d, i) => {
+      if (d && d.classList) {
+        if (i === this.state.activeBannerSlide) d.classList.add("active");
+        else d.classList.remove("active");
+      }
+    });
+  }
+
+  nextBannerSlide() {
+    this.setBannerSlide((this.state.activeBannerSlide || 0) + 1);
+  }
+
+  prevBannerSlide() {
+    this.setBannerSlide((this.state.activeBannerSlide || 0) - 1);
+  }
+
+  startBannerTimer() {
+    if (this._bannerInterval) clearInterval(this._bannerInterval);
+    if (typeof setInterval !== "undefined") {
+      this._bannerInterval = setInterval(() => {
+        if (!this._bannerPaused && this.shouldShowTopBanner()) {
+          this.nextBannerSlide();
+        }
+      }, 6000);
+    }
+  }
+
+  pauseBannerTimer() {
+    this._bannerPaused = true;
+  }
+
+  resumeBannerTimer() {
+    this._bannerPaused = false;
+  }
+
+  renderTopPromotionalBanner() {
+    const curSlide = this.state.activeBannerSlide || 0;
+    const agasekeTotal = (this.state.agasekePool || 155210);
+
+    return `
+      <section class="ib-top-banner-container" id="ibTopPromoBanner" 
+               onmouseenter="window.app.pauseBannerTimer()" 
+               onmouseleave="window.app.resumeBannerTimer()"
+               aria-label="Isoko Bridge Highlights">
+        <div class="ib-top-banner-carousel">
+          <div class="ib-banner-track" id="ibBannerTrack" style="transform:translateX(-${curSlide * 100}%);">
+            
+            <!-- SLIDE 1: Fresh Vegetables & Organic Harvest -->
+            <article class="ib-banner-slide ib-slide-theme-veg">
+              <div class="ib-hanging-tag">
+                <span class="ib-hanging-rope"></span>
+                <div class="ib-hanging-body">
+                  <small>${this.t("bannerStartingAt", "STARTING AT")}</small>
+                  <b>${this.formatMoney(450)}</b>
+                </div>
+              </div>
+              <div class="ib-banner-content">
+                <span class="ib-banner-pre">
+                  <i class="bi bi-patch-check-fill" aria-hidden="true"></i> 
+                  ${this.t("banner1Pre", "🌿 100% FRESH & ORGANIC · DIRECT COOPERATIVES")}
+                </span>
+                <h2 class="ib-banner-title">${this.t("banner1Title", "FRESH VEGETABLES")}</h2>
+                <p class="ib-banner-desc">
+                  ${this.t("banner1Desc", "Love your health and love your local vegetables. Crisp spinach, vine tomatoes, carrots and cabbages harvested daily by smallholder cooperatives across 30 districts in Rwanda.")}
+                </p>
+                <div class="ib-banner-tags">
+                  <span><i class="bi bi-bicycle"></i> 15–25m Express Moto</span>
+                  <span><i class="bi bi-shield-check"></i> 100% Natural Harvest</span>
+                  <span><i class="bi bi-cash-stack"></i> Direct Farm-Gate</span>
+                </div>
+                <div class="ib-banner-actions">
+                  <button type="button" class="btn-banner-primary" onclick="window.app.scrollToProduce()">
+                    ${this.t("banner1Cta", "Order Fresh Harvest")} <i class="bi bi-cart-fill" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn-banner-secondary" onclick="window.app.filterProduceByCategory('Vegetables')">
+                    ${this.t("banner1Sec", "View Vegetables")} →
+                  </button>
+                </div>
+              </div>
+              <div class="ib-banner-visual">
+                <img src="assets/banners/fresh_vegetables_hero.jpg" alt="Fresh Organic Vegetables" loading="lazy">
+                <div class="ib-hero-circle-badge">
+                  <span>UP TO</span>
+                  <b>25% OFF</b>
+                  <small>FARM-GATE</small>
+                </div>
+              </div>
+              <div class="ib-banner-wood-deck"></div>
+            </article>
+
+            <!-- SLIDE 2: 0% VUP Food Bridge Credit -->
+            <article class="ib-banner-slide ib-slide-theme-bridge">
+              <div class="ib-banner-content">
+                <span class="ib-banner-pre" style="color:#fde047;">
+                  <i class="bi bi-shield-lock-fill" aria-hidden="true"></i> 
+                  ${this.t("banner2Pre", "🌾 VUP BRIDGE CREDIT · 0% INTEREST")}
+                </span>
+                <h2 class="ib-banner-title">${this.t("banner2Title", "EAT TODAY, CLEAR ON PAYDAY")}</h2>
+                <p class="ib-banner-desc">
+                  ${this.t("banner2Desc", "Facing a VUP disbursement delay? Pre-approved zero-interest credit allows your family to purchase nutritious staple foods today from registered cooperatives, automatically cleared via SACCO.")}
+                </p>
+                <div class="ib-banner-tags">
+                  <span><i class="bi bi-check2-circle"></i> 0% Interest Guaranteed</span>
+                  <span><i class="bi bi-bank"></i> SACCO Auto-Clearance</span>
+                  <span><i class="bi bi-people"></i> Ubudehe 1 & 2 Support</span>
+                </div>
+                <div class="ib-banner-actions">
+                  <button type="button" class="btn-banner-primary btn-banner-amber" onclick="window.app.goToVupCredit()">
+                    ${this.t("banner2Cta", "Claim Food Credit")} <i class="bi bi-arrow-right-circle" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn-banner-secondary" onclick="window.app.setPublicTab('roles')">
+                    ${this.t("banner2Sec", "Check Eligibility")} →
+                  </button>
+                </div>
+              </div>
+              <div class="ib-banner-visual">
+                <img src="assets/banners/staples_harvest_hero.jpg" alt="Rwandan Harvest Staples" loading="lazy">
+                <div class="ib-hero-circle-badge" style="background:#0e635e; color:#fde047; border-color:#fde047;">
+                  <span>0%</span>
+                  <b>CREDIT</b>
+                  <small>SACCO</small>
+                </div>
+              </div>
+              <div class="ib-banner-wood-deck"></div>
+            </article>
+
+            <!-- SLIDE 3: Ubudehe Agaseke Solidarity -->
+            <article class="ib-banner-slide ib-slide-theme-agaseke">
+              <div class="ib-banner-content">
+                <span class="ib-banner-pre" style="color:#fed7aa;">
+                  <i class="bi bi-heart-pulse-fill" aria-hidden="true"></i> 
+                  ${this.t("banner3Pre", "❤️ 100 RWF SOLIDARITY LEVY")}
+                </span>
+                <h2 class="ib-banner-title">${this.t("banner3Title", "ONE BASKET FEEDS A COMMUNITY")}</h2>
+                <p class="ib-banner-desc">
+                  ${this.t("banner3Desc", "Every market checkout contributes 100 RWF into the Ubudehe Agaseke pool, creating a citizen-funded relief reserve for vulnerable Ubudehe Category 1 families.")}
+                </p>
+                <div class="ib-banner-tags">
+                  <span><i class="bi bi-wallet2"></i> ${this.formatMoney(agasekeTotal)} Relief Reserves</span>
+                  <span><i class="bi bi-phone"></i> MTN MoMo, Airtel & BK</span>
+                  <span><i class="bi bi-coin"></i> 100 RWF per Checkout</span>
+                </div>
+                <div class="ib-banner-actions">
+                  <button type="button" class="btn-banner-primary btn-banner-heart" onclick="window.app.openDonateModal()">
+                    ${this.t("banner3Cta", "Donate to Agaseke")} <i class="bi bi-heart-fill" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn-banner-secondary" onclick="window.app.goToAgasekeTab()">
+                    ${this.t("banner3Sec", "View Live Ledger")} →
+                  </button>
+                </div>
+              </div>
+              <div class="ib-banner-visual">
+                <img src="assets/produce/user_photo_58_random.jpg" alt="Ubudehe Agaseke Community Basket" loading="lazy">
+                <div class="ib-hero-circle-badge" style="background:#b45309; color:#fff; border-color:#fed7aa;">
+                  <span>100</span>
+                  <b>RWF</b>
+                  <small>AGASEKE</small>
+                </div>
+              </div>
+              <div class="ib-banner-wood-deck"></div>
+            </article>
+
+            <!-- SLIDE 4: Super Grocery Cooperative Direct -->
+            <article class="ib-banner-slide ib-slide-theme-super">
+              <div class="ib-banner-content">
+                <span class="ib-banner-pre" style="color:#86efac;">
+                  <i class="bi bi-stars" aria-hidden="true"></i> 
+                  ${this.t("banner4Pre", "⭐ DIRECT FROM 30 DISTRICTS")}
+                </span>
+                <h2 class="ib-banner-title">${this.t("banner4Title", "SUPER GROCERY & STAPLES")}</h2>
+                <p class="ib-banner-desc">
+                  ${this.t("banner4Desc", "Cut out predatory brokers. Smallholder farmers earn up to 30% more, while urban households enjoy freshly harvested produce at unmatched farm-gate prices.")}
+                </p>
+                <div class="ib-banner-tags">
+                  <span><i class="bi bi-geo-alt"></i> 30 Districts Nationwide</span>
+                  <span><i class="bi bi-shield-check"></i> 58 Verified Crop Listings</span>
+                  <span><i class="bi bi-bag-check"></i> Fresh Everyday</span>
+                </div>
+                <div class="ib-banner-actions">
+                  <button type="button" class="btn-banner-primary" onclick="window.app.scrollToProduce()">
+                    ${this.t("banner4Cta", "Browse Grocery Deals")} <i class="bi bi-cart4" aria-hidden="true"></i>
+                  </button>
+                  <button type="button" class="btn-banner-secondary" onclick="window.app.filterProduceByCategory('All')">
+                    ${this.t("banner4Sec", "All 58 Staples")} →
+                  </button>
+                </div>
+              </div>
+              <div class="ib-banner-visual">
+                <img src="assets/produce/user_photo_54_photography_by_knn_linku.jpg" alt="Rwandan Agricultural Harvest" loading="lazy">
+                <div class="ib-hero-circle-badge" style="background:#14532d; color:#86efac; border-color:#86efac;">
+                  <span>SAVE</span>
+                  <b>50%</b>
+                  <small>DIRECT</small>
+                </div>
+              </div>
+              <div class="ib-banner-wood-deck"></div>
+            </article>
+
+          </div>
+
+          <!-- Controls -->
+          <button type="button" class="ib-banner-arrow ib-banner-prev" onclick="window.app.prevBannerSlide()" aria-label="Previous slide">‹</button>
+          <button type="button" class="ib-banner-arrow ib-banner-next" onclick="window.app.nextBannerSlide()" aria-label="Next slide">›</button>
+
+          <!-- Dots Indicator -->
+          <div class="ib-banner-dots">
+            ${[0, 1, 2, 3].map(i => `
+              <button type="button" class="ib-banner-dot ${i === curSlide ? "active" : ""}" 
+                      onclick="window.app.setBannerSlide(${i})" 
+                      aria-label="Go to slide ${i + 1}"></button>
+            `).join("")}
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  renderCommunityHarvestGallery() {
+    const list = this.state.listings || [];
+    return `
+      <section class="harvest-gallery-section" aria-label="Community Harvest Photo Showcase">
+        <div class="harvest-gallery-header">
+          <div>
+            <span class="tag g" style="font-size:11px; font-weight:700;">
+              <i class="bi bi-camera-fill" aria-hidden="true"></i> ${this.t("galleryBadge", "58 Verified Farmer Uploads")}
+            </span>
+            <h3 style="font-size:16px; font-weight:800; margin:4px 0 2px; color:var(--ink);">
+              ${this.t("galleryTitle", "Local Farm Harvest Gallery")}
+            </h3>
+            <p style="font-size:11.5px; color:var(--mute); margin:0;">
+              ${this.t("gallerySub", "58 verified authentic crop photos uploaded directly from smallholder farms across all 30 Rwandan districts.")}
+            </p>
+          </div>
+          <span class="harvest-gallery-badge">58 Harvest Photos</span>
+        </div>
+        <div class="harvest-gallery-scroller" id="harvestGalleryTrack">
+          ${list.map((l, idx) => `
+            <div class="harvest-gallery-card" onclick="window.app.quickViewProduce(${l.id})" title="${this.escapeHtml(l.food)} · ${this.escapeHtml(l.district)}">
+              <div class="harvest-gallery-img-wrap">
+                <img src="${this.escapeHtml(l.photo)}" alt="${this.escapeHtml(l.food)}" loading="lazy">
+                <span class="harvest-gallery-num">#${idx + 1}</span>
+              </div>
+              <div class="harvest-gallery-info">
+                <b>${this.escapeHtml(l.food)}</b>
+                <small>📍 ${this.escapeHtml(l.district)} · ${this.formatMoney(l.price)}</small>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  quickViewProduce(id) {
+    const item = (this.state.listings || []).find(l => l.id === id);
+    if (!item) return;
+    this.openItemModal(item);
+  }
+
+  scrollToProduce() {
+    if (typeof document === "undefined") return;
+    const el = document.getElementById("produceGridContainer") || document.querySelector(".market-produce-grid") || document.querySelector(".vm-produce-list") || document.querySelector(".vm-categories-row");
+    if (el && el.scrollIntoView) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      this.state.activeSubView = "dashboard";
+      this.render();
+      setTimeout(() => {
+        const target = document.getElementById("produceGridContainer") || document.querySelector(".market-produce-grid") || document.querySelector(".vm-produce-list");
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }
+
+  filterProduceByCategory(cat) {
+    this.state.activeCategory = cat;
+    this.state.activeSubView = "dashboard";
+    this.render();
+    this.scrollToProduce();
+  }
+
+  goToVupCredit() {
+    if (this.state.user && this.state.role === "Family") {
+      this.state.activeSubView = "credit";
+      this.render();
+    } else {
+      this.pickRole("member");
+    }
+  }
+
+  goToAgasekeTab() {
+    if (this.state.user) {
+      this.state.activeSubView = "agaseke";
+      this.render();
+    } else {
+      this.openDonateModal();
+    }
+  }
+
   // =========================================================================
   // 6. MAIN APPLICATION RENDER ROUTER
   // =========================================================================
@@ -1392,21 +1974,23 @@ class IsokoApp {
     const mainEl = document.getElementById("appView");
     if (!mainEl) return;
 
+    const bannerHtml = this.shouldShowTopBanner() ? this.renderTopPromotionalBanner() : "";
+
     if (this.state.user) {
       // User is logged in to a specific role screen
       if (this.state.activeSubView === "settings") {
         mainEl.innerHTML = this.renderSettingsView();
       } else if (this.state.activeSubView === "cart") {
-        mainEl.innerHTML = this.renderCartView();
+        mainEl.innerHTML = bannerHtml + this.renderCartView();
       } else if (this.state.activeSubView === "activity") {
-        mainEl.innerHTML = this.renderActivityView();
+        mainEl.innerHTML = bannerHtml + this.renderActivityView();
       } else if (this.state.activeSubView === "notifications") {
-        mainEl.innerHTML = this.renderNotificationsView();
+        mainEl.innerHTML = bannerHtml + this.renderNotificationsView();
       } else if (this.state.activeSubView === "analysis") {
         mainEl.innerHTML = this.renderDashboardTopbar() + this.renderAnalysisView();
         this.initPlannerVisuals();
       } else {
-        mainEl.innerHTML = this.renderDashboardTopbar() + this.renderRoleScreen();
+        mainEl.innerHTML = bannerHtml + this.renderDashboardTopbar() + this.renderRoleScreen();
         if (this.state.role === "Planner" || this.state.role === "Admin") {
           this.initPlannerVisuals();
         } else if (this.state.role === "Farmer") {
@@ -1418,7 +2002,7 @@ class IsokoApp {
       mainEl.innerHTML = this.renderLoginView();
     } else {
       // First Page: "Who are you?" with 5 big buttons, VUP calendar, proximity, harvest
-      mainEl.innerHTML = this.renderWhoAreYouView();
+      mainEl.innerHTML = bannerHtml + this.renderWhoAreYouView();
     }
   }
 
@@ -1469,9 +2053,9 @@ class IsokoApp {
     if (this.state.user) {
       if (role === "Planner") items = [item("dashboard", "Overview"), item("architecture", "Architecture & Flow"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("cases", "Disputes"), item("reports", "Reports"), item("settings", "Settings")];
       else if (role === "Admin") items = [item("dashboard", "Overview"), item("architecture", "Architecture & Flow"), item("payroll", "VUP Payroll"), item("agaseke", "Agaseke Relief"), item("creditdesk", "Credit desk"), item("nisr_facts", "NISR facts"), item("analysis", "NISR analysis"), item("activity", "Activity"), item("users", "Users"), item("cases", "Disputes"), item("ledger", "Ledger"), item("settings", "Settings")];
-      else if (role === "Family") items = [item("dashboard", "Food basket"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
-      else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("architecture", "Architecture & Flow"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
-      else items = [item("dashboard", "Shop & Agaseke"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
+      else if (role === "Family") items = [item("dashboard", "Food basket"), item("architecture", "Architecture & Flow"), item("agaseke", "Ubudehe Agaseke"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
+      else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("architecture", "Architecture & Flow"), item("agaseke", "Ubudehe Agaseke"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
+      else items = [item("dashboard", "Shop & Agaseke"), item("architecture", "Architecture & Flow"), item("agaseke", "Ubudehe Agaseke"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
       nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
@@ -1575,26 +2159,8 @@ class IsokoApp {
         </button>
       </div>
 
-      <!-- @uxui_faran Hero Promotional Card -->
-      <div class="card" style="background:linear-gradient(135deg, rgba(22,163,74,0.12), rgba(14,99,94,0.18)); border:1px solid rgba(22,163,74,0.25); border-radius:24px; padding:18px 22px; margin-bottom:18px; position:relative; overflow:hidden;">
-        <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
-          <div style="flex:1;">
-            <span class="tag g" style="margin-bottom:6px;">Fresh food from local sellers</span>
-            <h2 style="font-size:22px; font-weight:800; line-height:1.15; margin:4px 0 6px; color:var(--ink);">
-              Good food, closer to home
-            </h2>
-            <p style="font-size:12px; color:var(--mute); margin-bottom:12px; line-height:1.4;">
-              Browse local produce, compare prices, and choose what works for your family.
-            </p>
-            <button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')">
-              Enter as VUP Member →
-            </button>
-          </div>
-          <div style="width:110px; height:100px; flex:none; border-radius:18px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.12);">
-            <img src="assets/produce/dry_beans.jpg" alt="Fresh Harvest" style="width:100%; height:100%; object-fit:cover;">
-          </div>
-        </div>
-      </div>
+      <!-- 58 Verified Cooperative Harvest Photos Gallery -->
+      ${this.renderCommunityHarvestGallery()}
 
       <!-- @uxui_faran Category Pills Row -->
       <div class="vm-categories-row" style="margin-bottom:16px;">
@@ -1641,11 +2207,11 @@ class IsokoApp {
 
   renderPublicRolesView() {
     const marketRoles = [
-      { code: "member", key: "Family", icon: "bi-people", title: "VUP Member", line: "I receive VUP support and want to shop for food." },
-      { code: "planner", key: "Planner", icon: "bi-bar-chart-line", title: "Sector Planner", line: "I review payment trends, credit activity, and open cases." },
-      { code: "seller", key: "Farmer", icon: "bi-shop", title: "Cooperative Farmer (Seller)", line: "I list food for families to buy." },
-      { code: "trader", key: "Trader", icon: "bi-shop-window", title: "Market trader", line: "I sell food bought from local markets and suppliers." },
-      { code: "shopper", key: "Shopper", icon: "bi-cart3", title: "Ethical Shopper", line: "I buy food for my household." }
+      { code: "member", key: "Family", icon: "bi-people", title: this.t("roleMemberTitle", "VUP Member"), line: this.t("roleMemberLine", "Access 0% food bridge credit during delayed payments, track Ejo Heza savings, and order staple harvests.") },
+      { code: "planner", key: "Planner", icon: "bi-bar-chart-line", title: this.t("rolePlannerTitle", "Sector Planner"), line: this.t("rolePlannerLine", "30-district geospatial heatmaps, delay hotspot analysis, priority rankings, and liquidity monitoring.") },
+      { code: "seller", key: "Farmer", icon: "bi-shop", title: this.t("roleFarmerTitle", "Cooperative Farmer"), line: this.t("roleFarmerLine", "List harvests with certified camera photos, check NISR market median benchmarks, and get instant MoMo payouts.") },
+      { code: "trader", key: "Trader", icon: "bi-shop-window", title: this.t("roleTraderTitle", "Market trader"), line: this.t("roleTraderLine", "Aggregate rural cooperative harvests, manage transport, and distribute to urban markets.") },
+      { code: "shopper", key: "Shopper", icon: "bi-cart3", title: this.t("roleShopperTitle", "Ethical Shopper"), line: this.t("roleShopperLine", "Buy farm-fresh produce with MTN MoMo, Airtel, or BK. Contribute to the Agaseke Solidarity Relief pool with every order.") }
     ];
 
     return `
@@ -1653,8 +2219,8 @@ class IsokoApp {
         <!-- Hero Header with Agritech Produce Canopy Art -->
         <header class="role-portal-hero">
           <div class="role-portal-hero-copy">
-            <h1>Choose Your Role Portal</h1>
-            <p>Select a portal to explore interactive demo dashboards with real NISR microdata.</p>
+            <h1>${this.t("rolePortalHeroTitle", "Choose Your Role Portal")}</h1>
+            <p>${this.t("rolePortalHeroSub", "Select a portal to explore interactive demo dashboards with real NISR microdata.")}</p>
           </div>
           <div class="role-portal-hero-art" aria-hidden="true">
             <svg viewBox="0 0 220 95" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%;">
@@ -1692,8 +2258,8 @@ class IsokoApp {
           <div class="role-portal-sec-header">
             <span class="role-portal-sec-icon marketplace"><i class="bi bi-shop" aria-hidden="true"></i></span>
             <div class="role-portal-sec-title">
-              <b id="secMarketTitle">Marketplace Participants</b>
-              <small>Portals for users who buy, sell, or plan within the food marketplace.</small>
+              <b id="secMarketTitle">${this.t("secMarketTitle", "Marketplace Participants")}</b>
+              <small>${this.t("secMarketSub", "Portals for users who buy, sell, or plan within the food marketplace.")}</small>
             </div>
           </div>
           <div class="role-portal-market-grid">
@@ -1707,7 +2273,7 @@ class IsokoApp {
                 <p class="role-portal-card-desc">${r.line}</p>
                 <div class="role-portal-card-action">
                   <button type="button" class="role-portal-card-btn">
-                    Enter ${r.title} Portal &rarr;
+                    ${this.t("enterPortalBtn", "Enter Portal →")}
                   </button>
                 </div>
               </article>
@@ -1720,8 +2286,8 @@ class IsokoApp {
           <div class="role-portal-sec-header">
             <span class="role-portal-sec-icon admin"><i class="bi bi-shield-shaded" aria-hidden="true"></i></span>
             <div class="role-portal-sec-title">
-              <b id="secAdminTitle">Administration</b>
-              <small>Portals for system oversight, user management, and reporting.</small>
+              <b id="secAdminTitle">${this.t("secAdminTitle", "Administration")}</b>
+              <small>${this.t("secAdminSub", "Portals for system oversight, user management, and reporting.")}</small>
             </div>
           </div>
           <div class="role-portal-admin-grid">
@@ -1731,11 +2297,11 @@ class IsokoApp {
                 <span class="role-portal-card-icon admin"><i class="bi bi-shield-lock" aria-hidden="true"></i></span>
                 <span class="role-portal-badge admin">Admin</span>
               </div>
-              <h3 class="role-portal-card-title">Administrator</h3>
-              <p class="role-portal-card-desc">I review users, payments, reports, and system activity.</p>
+              <h3 class="role-portal-card-title">${this.t("roleAdminTitle", "Administrator")}</h3>
+              <p class="role-portal-card-desc">${this.t("roleAdminLine", "Full audit logs, role-based access control, dispute arbitration, treasury liquidity controls, and security management.")}</p>
               <div class="role-portal-card-action">
                 <button type="button" class="role-portal-card-btn admin">
-                  Enter Administrator Portal &rarr;
+                  ${this.t("enterPortalBtn", "Enter Portal →")}
                 </button>
               </div>
             </article>
@@ -1751,24 +2317,24 @@ class IsokoApp {
               </div>
               <div class="role-portal-trust-pillars">
                 <div class="role-portal-pillar">
-                  <i class="bi bi-person-badge" aria-hidden="true"></i>
+                  <i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i>
                   <div>
-                    <b>Role-based access</b>
-                    <p>See only what's relevant to your responsibilities.</p>
+                    <b>${this.t("trust1Title", "NISR Evidence-Based")}</b>
+                    <p>${this.t("trust1Desc", "Built directly on 3,399 household microdata survey records from the National Institute of Statistics of Rwanda.")}</p>
                   </div>
                 </div>
                 <div class="role-portal-pillar">
-                  <i class="bi bi-database-check" aria-hidden="true"></i>
+                  <i class="bi bi-shield-heart" aria-hidden="true"></i>
                   <div>
-                    <b>Data you can trust</b>
-                    <p>Explore real NISR microdata in a secure environment.</p>
+                    <b>${this.t("trust2Title", "Zero-Interest Food Bridge")}</b>
+                    <p>${this.t("trust2Desc", "Emergency consumption protection ensuring vulnerable households maintain nutrition during disbursement delays without predatory loans.")}</p>
                   </div>
                 </div>
                 <div class="role-portal-pillar">
-                  <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+                  <i class="bi bi-bank" aria-hidden="true"></i>
                   <div>
-                    <b>Actionable insights</b>
-                    <p>Make informed decisions with confidence.</p>
+                    <b>${this.t("trust3Title", "Direct SACCO Settlement")}</b>
+                    <p>${this.t("trust3Desc", "Automated clearing between Umurenge SACCO branches, mobile network operators (MTN/Airtel), and the national treasury.")}</p>
                   </div>
                 </div>
               </div>
@@ -2402,6 +2968,7 @@ class IsokoApp {
 
   renderRoleScreen() {
     if (this.state.activeSubView === "architecture") return this.renderPublicArchitectureView();
+    if (this.state.activeSubView === "agaseke") return this.renderAgasekeManagementTab();
     if (this.state.role === "Family" || this.state.roleCode === "member") return this.renderFamilyView();
     if (this.state.role === "Planner" || this.state.roleCode === "planner") return this.renderPlannerView();
     if (this.state.role === "Farmer" || this.state.roleCode === "seller") return this.renderFarmerView();
@@ -2424,6 +2991,18 @@ class IsokoApp {
         <section class="card settings-card">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-translate" aria-hidden="true"></i></span><div><h3>Language</h3><p>Choose the language used in the app.</p></div></div>
           <label class="settings-language-select" for="settingsLanguage">App language<select id="settingsLanguage" onchange="window.app.setLanguage(this.value)">${languageOptions.map(([value, label]) => `<option value="${value}" ${language === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+        </section>
+        <section class="card settings-card">
+          <div class="settings-title"><span class="settings-icon"><i class="bi bi-cash-coin" aria-hidden="true"></i></span><div><h3>Display Currency</h3><p>Choose the currency used for product pricing across the app (RWF default).</p></div></div>
+          <label class="settings-language-select" for="settingsCurrency">Active currency
+            <select id="settingsCurrency" onchange="window.app.setCurrency(this.value)">
+              <option value="RWF" ${this.getCurrency() === "RWF" ? "selected" : ""}>RWF (Default · Rwandan Franc)</option>
+              <option value="USD" ${this.getCurrency() === "USD" ? "selected" : ""}>USD ($ · US Dollar)</option>
+              <option value="EUR" ${this.getCurrency() === "EUR" ? "selected" : ""}>EUR (€ · Euro)</option>
+              <option value="KES" ${this.getCurrency() === "KES" ? "selected" : ""}>KES (KSh · Kenyan Shilling)</option>
+              <option value="UGX" ${this.getCurrency() === "UGX" ? "selected" : ""}>UGX (USh · Ugandan Shilling)</option>
+            </select>
+          </label>
         </section>
         <section class="card settings-card">
           <div class="settings-title"><span class="settings-icon"><i class="bi bi-palette" aria-hidden="true"></i></span><div><h3>Appearance</h3><p>Pick a light or dark screen.</p></div></div>
@@ -3754,48 +4333,194 @@ class IsokoApp {
   }
 
   renderAgasekeManagementTab() {
-    const pool = this.state.agasekePool || 145210;
+    const pool = this.state.agasekePool || 155210;
     const disbursed = this.state.agasekeDisbursed || 35000;
     const assisted = this.state.agasekeAssistedCount || 7;
     const members = this.state.users?.member || [];
+    const transactions = this.state.agasekeTransactions || [];
+    const currentUser = this.state.currentUser || {};
+    const roleCode = this.state.roleCode || "member";
+    const canManage = ["planner", "admin"].includes(roleCode);
+    const lang = this.state.lang || "en";
+
+    // Compute channel breakdown
+    const mtnTotal = transactions.filter(t => t.channel && t.channel.toLowerCase().includes("mtn")).reduce((sum, t) => sum + Math.max(0, t.amount), 0) || 98400;
+    const airtelTotal = transactions.filter(t => t.channel && t.channel.toLowerCase().includes("airtel")).reduce((sum, t) => sum + Math.max(0, t.amount), 0) || 42300;
+    const bkTotal = transactions.filter(t => t.channel && (t.channel.toLowerCase().includes("kigali") || t.channel.toLowerCase().includes("bank"))).reduce((sum, t) => sum + Math.max(0, t.amount), 0) || 31500;
+    const saccoFeeTotal = transactions.filter(t => t.channel && (t.channel.toLowerCase().includes("sacco") || t.source.toLowerCase().includes("fee"))).reduce((sum, t) => sum + Math.max(0, t.amount), 0) || 18010;
+    const totalGains = mtnTotal + airtelTotal + bkTotal + saccoFeeTotal || 1;
+
+    const mtnPct = Math.round((mtnTotal / totalGains) * 100);
+    const airtelPct = Math.round((airtelTotal / totalGains) * 100);
+    const bkPct = Math.round((bkTotal / totalGains) * 100);
+    const saccoPct = Math.max(0, 100 - mtnPct - airtelPct - bkPct);
 
     return `
-      <div class="head">
+      <div class="head" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
         <div>
-          <h1>🇷🇼 Agaseke k'Ubumwe Social Relief Fund (Ikigega cy'Agaseke)</h1>
-          <p class="sub">Citizen & civil servant micro-solidarity pool (10 RWF default contribution per order), providing emergency relief baskets for Ubudehe 1 households.</p>
+          <h1>${this.t("agasekeTitle", "🇷🇼 Ubudehe Agaseke Social Relief Fund (Ikigega cy'Agaseke)")}</h1>
+          <p class="sub">${this.t("agasekeSub", "Every transaction on Isoko Bridge channels 100 RWF into Ubudehe Agaseke, funding emergency food vouchers for Ubudehe 1 households.")}</p>
         </div>
-        <button class="btn btn-sm btn-primary" onclick="window.app.transferAgasekeToBridgePool(50000)">
-          <i class="bi bi-arrow-repeat"></i> Transfer 50,000 RWF to Revolving Bridge Pool
-        </button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-sm btn-primary" onclick="window.app.openDonateModal()" style="display:inline-flex; align-items:center; gap:6px;">
+            <i class="bi bi-heart-fill" style="color:#f43f5e;"></i> ${this.t("donateTopBtn", "Ubudehe Agaseke")} · ${this.t("donateBadge", "Donate")}
+          </button>
+          ${canManage ? `
+            <button class="btn btn-sm btn-outline" onclick="window.app.transferAgasekeToBridgePool(50000)">
+              <i class="bi bi-arrow-repeat"></i> ${this.t("agasekeTransferBtn", "Transfer 50,000 RWF to Revolving Bridge Pool")}
+            </button>
+          ` : ""}
+        </div>
       </div>
+
+      <!-- Member Specific Status Banner -->
+      ${roleCode === "member" ? `
+        <div class="card" style="margin-bottom:18px; padding:16px 20px; border-radius:18px; background:linear-gradient(135deg, rgba(14,99,94,0.08), rgba(16,185,129,0.12)); border:1.5px solid rgba(16,185,129,0.35); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="display:grid; place-items:center; width:44px; height:44px; border-radius:50%; background:#10b981; color:#fff; font-size:20px;">
+              <i class="bi bi-shield-check"></i>
+            </span>
+            <div>
+              <b style="font-size:15px; display:block; color:var(--text-main);">Your Ubudehe Agaseke Safety Net Status</b>
+              <small style="color:var(--text-muted); font-size:12px;">
+                ${currentUser.status === "credit-ready" || currentUser.status === "verified" ? `✅ Verified & Approved by ${this.escapeHtml(currentUser.confirmedBy || "Sector Planner")} · Active food security emergency coverage` : `⏳ Registration submitted · Awaiting Sector Social Affairs verification`}
+              </small>
+            </div>
+          </div>
+          <span class="tag ${currentUser.status === "credit-ready" || currentUser.status === "verified" ? "g" : "y"}" style="font-size:12px; padding:4px 10px;">
+            ${currentUser.status === "credit-ready" || currentUser.status === "verified" ? this.t("agasekeApprovedBadge", "Approved") : this.t("agasekePendingBadge", "Pending Approval")}
+          </span>
+        </div>
+      ` : ""}
 
       <!-- Agaseke Metrics -->
       <div class="stats" style="margin-bottom:20px;">
         <div class="stat">
-          <b style="color:var(--success); font-size:24px;">${pool.toLocaleString()} RWF</b>
-          <span>Current Agaseke Reserve</span>
+          <b style="color:var(--success); font-size:24px;">${this.formatMoney(pool)}</b>
+          <span>${this.t("agasekeReserve", "Current Agaseke Reserve")}</span>
         </div>
         <div class="stat">
-          <b style="color:var(--accent); font-size:24px;">${disbursed.toLocaleString()} RWF</b>
-          <span>Emergency Food Vouchers Disbursed</span>
+          <b style="color:var(--accent); font-size:24px;">${this.formatMoney(disbursed)}</b>
+          <span>${this.t("agasekeDisbursed", "Emergency Food Vouchers Disbursed")}</span>
         </div>
         <div class="stat">
           <b style="font-size:24px;">${assisted} households</b>
-          <span>Vulnerable Families Assisted</span>
+          <span>${this.t("agasekeAssisted", "Vulnerable Families Assisted")}</span>
         </div>
         <div class="stat">
-          <b style="color:var(--primary); font-size:24px;">10 RWF / order</b>
-          <span>Citizen Micro-Solidarity Inflow</span>
+          <b style="color:var(--primary); font-size:24px;">100 RWF / order</b>
+          <span>${this.t("agasekeFeeDesc", "Automatic Agaseke Fee per Order")}</span>
         </div>
       </div>
 
+      <!-- Income Gains by Channel Section -->
+      <section class="card" style="border-radius:20px; padding:20px; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="margin:0 0 4px;"><i class="bi bi-pie-chart"></i> ${this.t("agasekeChannelTitle", "Agaseke Income Gains by Payment Channel")}</h3>
+            <p class="sub" style="margin:0;">Channel sources contributing to the citizen micro-solidarity reserve (MTN MoMo, Airtel, BK, SACCO & 100 RWF transaction fees).</p>
+          </div>
+          <span class="tag g" style="font-weight:700;">Total Inflows: ${this.formatMoney(totalGains)}</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+          <!-- MTN MoMo -->
+          <div style="padding:14px; border-radius:14px; border:1px solid rgba(234,179,8,0.3); background:rgba(234,179,8,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <b style="font-size:13px; color:#ca8a04;">🟡 MTN Mobile Money</b>
+              <span class="badge" style="background:#ca8a04; color:#fff; font-size:10.5px;">${mtnPct}%</span>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${this.formatMoney(mtnTotal)}</div>
+            <small style="color:var(--text-muted); font-size:11px;">Direct donations + checkout fees</small>
+          </div>
+
+          <!-- Airtel Money -->
+          <div style="padding:14px; border-radius:14px; border:1px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <b style="font-size:13px; color:#dc2626;">🔴 Airtel Money</b>
+              <span class="badge" style="background:#dc2626; color:#fff; font-size:10.5px;">${airtelPct}%</span>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${this.formatMoney(airtelTotal)}</div>
+            <small style="color:var(--text-muted); font-size:11px;">Mobile wallet inflows</small>
+          </div>
+
+          <!-- Bank of Kigali -->
+          <div style="padding:14px; border-radius:14px; border:1px solid rgba(14,99,94,0.3); background:rgba(14,99,94,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <b style="font-size:13px; color:var(--primary);">🏦 Bank of Kigali (BK)</b>
+              <span class="badge" style="background:var(--primary); color:#fff; font-size:10.5px;">${bkPct}%</span>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${this.formatMoney(bkTotal)}</div>
+            <small style="color:var(--text-muted); font-size:11px;">Institutional & civil servant donors</small>
+          </div>
+
+          <!-- Umurenge SACCO & Fees -->
+          <div style="padding:14px; border-radius:14px; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.06);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <b style="font-size:13px; color:#0e8555;">🏛️ SACCO & 100 RWF Fees</b>
+              <span class="badge" style="background:#0e8555; color:#fff; font-size:10.5px;">${saccoPct}%</span>
+            </div>
+            <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;">${this.formatMoney(saccoFeeTotal)}</div>
+            <small style="color:var(--text-muted); font-size:11px;">100 RWF per checkout transaction</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Ubudehe Agaseke Transaction Ledger -->
+      <section class="card admin-list-card" style="border-radius:20px; padding:20px; margin-bottom:20px;">
+        <div class="ch" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="margin:0 0 4px;"><i class="bi bi-journal-text"></i> ${this.t("agasekeTxTitle", "Live Ubudehe Agaseke Transaction Ledger")}</h3>
+            <p class="sub" style="margin:0;">Full audit log of incoming mobile donations, 100 RWF checkout micro-fees, and emergency voucher disbursements.</p>
+          </div>
+          <span class="tag g">${transactions.length} Verified Records</span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tx Reference</th>
+                <th>Date & Time</th>
+                <th>Channel / Provider</th>
+                <th>Source & Purpose</th>
+                <th>Contributor / Beneficiary</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${transactions.map(tx => {
+                const isInflow = tx.type === "inflow" || tx.amount > 0;
+                const formattedAmt = isInflow ? `+${this.formatMoney(tx.amount)}` : `-${this.formatMoney(Math.abs(tx.amount))}`;
+                const badgeClass = isInflow ? "g" : "r";
+                return `
+                  <tr>
+                    <td><code>${this.escapeHtml(tx.id || "TX-AG")}</code></td>
+                    <td><small style="color:var(--mute);">${this.escapeHtml(tx.date || "—")}</small></td>
+                    <td><b>${this.escapeHtml(tx.channel || "MTN Mobile Money")}</b></td>
+                    <td>${this.escapeHtml(tx.source || "Transaction Fee")}</td>
+                    <td><b>${this.escapeHtml(tx.contributor || tx.beneficiary || "Anonymous")}</b></td>
+                    <td>
+                      <b style="color:${isInflow ? 'var(--ok, #16a34a)' : 'var(--bad, #dc2626)'}; font-variant-numeric:tabular-nums;">
+                        ${formattedAmt}
+                      </b>
+                    </td>
+                    <td><span class="tag ${badgeClass}">${this.escapeHtml(tx.status || "Confirmed")}</span></td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- Vulnerable Families Relief Allocation Table -->
       <section class="card admin-list-card" style="border-radius:20px; padding:20px;">
-        <div class="ch" style="margin-bottom:14px;">
+        <div class="ch" style="margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
           <div>
-            <h3 style="margin:0 0 4px;">Sector Social Affairs Relief Desk</h3>
-            <p class="sub" style="margin:0;">Select a vulnerable family to grant an emergency food basket voucher directly from the Agaseke fund.</p>
+            <h3 style="margin:0 0 4px;"><i class="bi bi-shield-check"></i> ${this.t("agasekeDeskTitle", "Sector Social Affairs Relief Desk")}</h3>
+            <p class="sub" style="margin:0;">${this.t("agasekeDeskSub", "Select a vulnerable family to grant an emergency food basket voucher directly from the Agaseke fund.")}</p>
           </div>
           <span class="tag g">Ubudehe Category 1 Priorities</span>
         </div>
@@ -3807,14 +4532,15 @@ class IsokoApp {
                 <th>Vulnerable Household</th>
                 <th>Sector & District</th>
                 <th>Vulnerability & Delay</th>
-                <th>Urgent Food Debt</th>
+                <th>Verification Status</th>
                 <th>Agaseke Aid Actions</th>
               </tr>
             </thead>
             <tbody>
               ${members.map(user => {
-                const openCredit = this.getOutstandingCredit(user.email);
                 const isUrgent = Number(user.daysLate) >= 7;
+                const isPending = user.status === "pending" || user.status === "not_submitted";
+                const isApproved = user.status === "credit-ready" || user.status === "verified";
 
                 return `
                   <tr>
@@ -3831,18 +4557,33 @@ class IsokoApp {
                       <small style="color:var(--mute);">${this.escapeHtml(user.programme || "VUP Public Works")}</small>
                     </td>
                     <td>
-                      <b style="color:${openCredit ? 'var(--bad)' : 'var(--ok)'};">${openCredit.toLocaleString()} RWF</b><br>
-                      <small style="color:var(--mute);">${openCredit ? 'Food credit balance' : 'Clean balance'}</small>
+                      ${isApproved ? `
+                        <span class="tag g"><i class="bi bi-check-circle"></i> ${this.t("agasekeApprovedBadge", "Approved")}</span><br>
+                        <small style="color:var(--mute);">By ${this.escapeHtml(user.confirmedBy || "Sector Planner")}</small>
+                      ` : `
+                        <span class="tag y"><i class="bi bi-clock"></i> ${this.t("agasekePendingBadge", "Pending Approval")}</span>
+                        ${canManage ? `
+                          <div style="margin-top:4px;">
+                            <button class="btn btn-sm btn-outline" style="padding:2px 8px; font-size:10.5px;" onclick="window.app.approveVupMember('${this.escapeHtml(user.email)}')">
+                              <i class="bi bi-patch-check"></i> ${this.t("agasekeApproveMember", "Approve VUP Member")}
+                            </button>
+                          </div>
+                        ` : ''}
+                      `}
                     </td>
                     <td>
-                      <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                        <button class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 5000)">
-                          Grant 5,000 RWF Food Basket
-                        </button>
-                        <button class="btn btn-sm btn-outline" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 10000)">
-                          Grant 10,000 RWF Full Month Aid
-                        </button>
-                      </div>
+                      ${canManage ? `
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                          <button class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 5000)">
+                            ${this.t("agasekeGrant5k", "Grant 5,000 RWF Food Basket")}
+                          </button>
+                          <button class="btn btn-sm btn-outline" style="padding:4px 10px; font-size:11px;" onclick="window.app.grantAgasekeAid('${this.escapeHtml(user.email)}', 10000)">
+                            ${this.t("agasekeGrant10k", "Grant 10,000 RWF Full Month Aid")}
+                          </button>
+                        </div>
+                      ` : `
+                        <span style="font-size:11.5px; color:var(--mute);">Emergency safety net active</span>
+                      `}
                     </td>
                   </tr>
                 `;
@@ -3906,6 +4647,18 @@ class IsokoApp {
       title: "Agaseke Food Relief Granted",
       body: `You received ${amount.toLocaleString()} RWF emergency food relief from Agaseke k'Ubumwe. Your food security is protected.`
     });
+
+    const newTx = {
+      id: `TX-AG-${Date.now().toString().slice(-4)}`,
+      type: "outflow",
+      channel: "Umurenge SACCO",
+      source: "Emergency Relief Voucher",
+      beneficiary: `${user.name} (${user.district || 'Sector Hub'})`,
+      amount: -amount,
+      date: new Date().toISOString().replace("T", " ").slice(0, 16),
+      status: "Disbursed"
+    };
+    this.state.agasekeTransactions = [newTx, ...(this.state.agasekeTransactions || [])];
 
     this.saveState();
     this.render();
@@ -4275,7 +5028,7 @@ class IsokoApp {
       return Math.max(0, Math.round(Number(this.state.shopperAgasekeAmount) || 0));
     }
     const amount = Number(this.state.currentUser?.agasekeContribution);
-    return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 10;
+    return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 100;
   }
   setShopperAgasekeAmount(amount) {
     const value = Math.max(0, Math.round(Number(amount) || 0));
@@ -4961,7 +5714,7 @@ class IsokoApp {
 
                   <div class="vm-product-bottom">
                     <div class="vm-price-wrap">
-                      <b>${l.price.toLocaleString()}</b> <small>RWF/${l.unit || "kg"}</small>
+                      <b>${this.formatMoneyCompact(l.price)}</b> <small>/${l.unit || "kg"}</small>
                     </div>
                     <button class="vm-add-btn" onclick="window.app.${mode === 'credit' ? `startBuyProduce(${l.id}, 'credit')` : `addToCart(${l.id})`}" title="${mode === 'credit' ? 'Order with food credit' : 'Add to cart'}" aria-label="${mode === 'credit' ? 'Order' : 'Add'} ${this.escapeHtml(displayName)} ${mode === 'credit' ? 'with food credit' : 'to cart'}">
                       <i class="bi bi-cart-plus" aria-hidden="true"></i>
@@ -5243,7 +5996,22 @@ class IsokoApp {
       assignedGift += itemGift;
       return this.executeOrder(line.listing, line.qty, itemTotal, isCredit ? "credit" : "cash", paidBy, itemGift, deliveryType, index === 0 ? deliveryFee : 0);
     });
-    if (gift && !isCash) { this.state.pool.balance += gift; this.state.pool.totalGiftsIn += gift; }
+    if (gift && !isCash) {
+      this.state.pool.balance += gift;
+      this.state.pool.totalGiftsIn += gift;
+      this.state.agasekePool = (this.state.agasekePool || 155210) + gift;
+      const newTx = {
+        id: `TX-AG-${Date.now().toString().slice(-4)}`,
+        type: "inflow",
+        channel: acc.name || acc.by || "MTN Mobile Money",
+        source: gift >= 100 ? "100 RWF Transaction Fee + Solidarity" : "Transaction Fee",
+        contributor: this.state.currentUser?.name || "Marketplace Shopper",
+        amount: gift,
+        date: new Date().toISOString().replace("T", " ").slice(0, 16),
+        status: "Confirmed"
+      };
+      this.state.agasekeTransactions = [newTx, ...(this.state.agasekeTransactions || [])];
+    }
     const newOrder = createdOrders[0];
     this.state.cart = [];
     this.state.pendingCheckoutOrder = null;
