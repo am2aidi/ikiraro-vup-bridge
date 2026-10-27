@@ -5081,8 +5081,19 @@ class IsokoApp {
     const payButton = document.getElementById("goBtnV2");
     const payLabel = document.getElementById("ppV2");
     if (payLabel) payLabel.textContent = selected ? (selected.credit ? `Use ${total.toLocaleString()} RWF credit` : selected.cash ? `Place cash order · ${total.toLocaleString()} RWF` : `Pay ${total.toLocaleString()} RWF`) : "Choose a payment method";
-    if (payButton) payButton.disabled = !selected;
-    flist.innerHTML = `<p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p><div id="payErrorV2" role="status" aria-live="polite"></div>`;
+    flist.innerHTML = `
+      <div class="bal-v2" style="font-weight:700; font-size:11px; margin-top:4px;">
+        ${this.state.lang === 'rw' ? "Ongeraho amafaranga y'igerageza / Demo top-up:" : "Add demo money to selected account:"}
+      </div>
+      <div class="chips-v2">
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(1500)">+ RWF 1,500</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(10000)">+ RWF 10,000</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(50000)">+ RWF 50,000</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(100000)">+ RWF 100,000</button>
+      </div>
+      <p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p>
+      <div id="payErrorV2" role="status" aria-live="polite"></div>
+    `;
 
     if (p) {
       const giftEl = document.getElementById("rgV2");
@@ -5096,10 +5107,11 @@ class IsokoApp {
 
   getAvailablePaymentAccounts() {
     const pickup = this.state.nearby?.deliveryOption === "pickup";
+    const custom = this.state.demoCustomBalances || {};
     const accounts = [
-      { n: "MTN MoMo", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#ffcb05;color:#111", l: "MTN", by: "MTN MoMo (demo)", demo: true },
-      { n: "Airtel Money", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#e40000;color:#fff", l: "Airtel", by: "Airtel Money (demo)", demo: true },
-      { n: "Bank or SACCO", s: "Account payment · simulated", icon: "bi-bank", color: "background:#137653;color:#fff", l: "BANK", by: "Bank / SACCO (demo)", demo: true },
+      { n: "MTN MoMo", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#ffcb05;color:#111", l: "MTN", by: "MTN MoMo (demo)", demo: true, available: 500000 + (Number(custom["MTN MoMo"]) || 0) },
+      { n: "Airtel Money", s: "Mobile money · simulated", icon: "bi-phone", color: "background:#e40000;color:#fff", l: "Airtel", by: "Airtel Money (demo)", demo: true, available: 150000 + (Number(custom["Airtel Money"]) || 0) },
+      { n: "Bank or SACCO", s: "Account payment · simulated", icon: "bi-bank", color: "background:#137653;color:#fff", l: "BANK", by: "Bank / SACCO (demo)", demo: true, available: 320000 + (Number(custom["Bank or SACCO"]) || 0) },
       { n: pickup ? "Cash at SACCO pickup" : "Cash on delivery", s: pickup ? "Pay when you collect your food" : "Pay when your food arrives", icon: pickup ? "bi-shop" : "bi-cash", color: "background:#e9f5ed;color:#176b48", l: "CASH", by: pickup ? "Cash at pickup" : "Cash at delivery", cash: true }
     ];
     if (this.state.roleCode === "member") {
@@ -5109,6 +5121,24 @@ class IsokoApp {
       if (wallet > 0) accounts.unshift({ n: "My VUP food wallet", s: "Use money left from a recorded VUP payment", icon: "bi-wallet", color: "background:#e2f2ec;color:#176b48", l: "VUP", by: "VUP food wallet", wallet: true, available: wallet });
     }
     return accounts;
+  }
+
+  addDemoMoney(amount) {
+    if (!amount || amount <= 0) return;
+    if (!this.state.demoCustomBalances) this.state.demoCustomBalances = {};
+    const accounts = this.getAvailablePaymentAccounts();
+    const selIdx = this.state.selectedAccountIdx >= 0 ? this.state.selectedAccountIdx : 0;
+    const acc = accounts[selIdx] || accounts[0];
+
+    if (acc.wallet || (this.state.roleCode === "member" && this.state.currentUser)) {
+      this.state.currentUser.vupWalletBalance = (Number(this.state.currentUser.vupWalletBalance) || 0) + amount;
+      const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
+      if (family) family.vupWalletBalance = this.state.currentUser.vupWalletBalance;
+    } else {
+      this.state.demoCustomBalances[acc.n] = (Number(this.state.demoCustomBalances[acc.n]) || 0) + amount;
+    }
+    this.toast(`Added +${amount.toLocaleString()} RWF to ${acc.n} demo balance`, "success");
+    this.renderPaymentAccountsList();
   }
 
   selectPaymentAccount(i) {
@@ -5168,39 +5198,62 @@ class IsokoApp {
     this.saveState();
     this.renderHeaderNavActions();
 
-    document.getElementById("vtV2").textContent = acc.l || 'PAY';
-    this.goPhonePage(3);
-
-    const t3 = document.getElementById("t3V2");
-    const t3s = document.getElementById("t3sV2");
-    t3.textContent = isCash ? "Order placed" : isCredit ? "Food credit used" : "Demo payment recorded";
-    t3s.textContent = isCash ? "Pay when your food arrives or when you collect it." : "This is a prototype. No real money was moved.";
+    const payBtn = document.getElementById("goBtnV2");
+    if (payBtn) payBtn.classList.add("busy");
 
     setTimeout(() => {
-      t3.textContent = isCash ? "Payment due at delivery" : isCredit ? "Credit issued" : "Demo payment recorded";
-      t3s.textContent = "";
-    }, 450);
+      if (payBtn) payBtn.classList.remove("busy");
+      const vtEl = document.getElementById("vtV2");
+      if (vtEl) vtEl.textContent = acc.l || 'PAY';
+      this.goPhonePage(3);
 
-    setTimeout(() => {
-      document.getElementById("pdV2").textContent = `${grandTotal.toLocaleString()} RWF`;
-      document.getElementById("pdLabelV2").textContent = isCash ? "Pay when you get your food" : isCredit ? "Paid with VUP food credit" : "Demo payment recorded";
-      document.getElementById("pdFulV2").textContent = deliveryType;
-      this.goPhonePage(4);
+      const t3 = document.getElementById("t3V2");
+      const t3s = document.getElementById("t3sV2");
+      if (t3) t3.textContent = isCash ? "Order placed" : isCredit ? "Food credit used" : "Demo payment recorded";
+      if (t3s) t3s.textContent = isCash ? "Pay when your food arrives or when you collect it." : "This is a prototype. No real money was moved.";
 
-      document.getElementById("recNumV2").textContent = `#IB-2026-${newOrder.id}`;
-      document.getElementById("recDateV2").textContent = `${new Date().toLocaleDateString('en-GB')} ${newOrder.date}`;
-      document.getElementById("recCustV2").textContent = newOrder.buyerName.toUpperCase();
-      document.getElementById("recSellerV2").textContent = newOrder.farmer.toUpperCase();
-      document.getElementById("recHubV2").textContent = newOrder.hub.toUpperCase();
-      document.getElementById("recItemV2").textContent = items.length > 1 ? `${items.length} food products · ${items.map(line => `${line.listing.food} (${line.qty} ${line.listing.unit || "kg"})`).join(", ")}` : `${newOrder.food} (${newOrder.kg} ${newOrder.unit || "kg"})`;
-      document.getElementById("recItemCostV2").textContent = `${p.total.toLocaleString()} RWF`;
-      document.getElementById("recDelV2").textContent = deliveryFee ? "300 RWF (Moto)" : "FREE (SACCO)";
-      document.getElementById("recGiftV2").textContent = gift ? `+${gift.toLocaleString()} RWF` : "None";
-      document.getElementById("recTotV2").textContent = `${grandTotal.toLocaleString()} RWF`;
-      document.getElementById("recPayByV2").textContent = isCash ? `PAY BY ${paidBy}` : isCredit ? "VUP FOOD CREDIT · 0%" : `DEMO PAID BY ${acc.by}`;
-      document.getElementById("recApprovalV2").textContent = isCash ? "PAYMENT DUE" : isCredit ? "AUTO ISSUED" : "DEMO ONLY";
-      document.getElementById("recStampV2").innerHTML = isCash ? "ORDER<small>PAY AT DELIVERY</small>" : isCredit ? "CREDIT<small>AUTO ISSUED</small>" : "DEMO<small>NO REAL MONEY</small>";
-    }, 900);
+      setTimeout(() => {
+        if (t3) t3.textContent = isCash ? "Payment due at delivery" : isCredit ? "Credit issued" : "Demo payment recorded";
+        if (t3s) t3s.textContent = "";
+      }, 450);
+
+      setTimeout(() => {
+        const pdV2 = document.getElementById("pdV2");
+        const pdLabelV2 = document.getElementById("pdLabelV2");
+        const pdFulV2 = document.getElementById("pdFulV2");
+        if (pdV2) pdV2.textContent = `${grandTotal.toLocaleString()} RWF`;
+        if (pdLabelV2) pdLabelV2.textContent = isCash ? "Pay when you get your food" : isCredit ? "Paid with VUP food credit" : "Demo payment recorded";
+        if (pdFulV2) pdFulV2.textContent = deliveryType;
+        this.goPhonePage(4);
+
+        const recNum = document.getElementById("recNumV2");
+        if (recNum) recNum.textContent = `#IB-2026-${newOrder.id}`;
+        const recDate = document.getElementById("recDateV2");
+        if (recDate) recDate.textContent = `${new Date().toLocaleDateString('en-GB')} ${newOrder.date}`;
+        const recCust = document.getElementById("recCustV2");
+        if (recCust) recCust.textContent = newOrder.buyerName.toUpperCase();
+        const recSeller = document.getElementById("recSellerV2");
+        if (recSeller) recSeller.textContent = newOrder.farmer.toUpperCase();
+        const recHub = document.getElementById("recHubV2");
+        if (recHub) recHub.textContent = newOrder.hub.toUpperCase();
+        const recItem = document.getElementById("recItemV2");
+        if (recItem) recItem.textContent = items.length > 1 ? `${items.length} food products · ${items.map(line => `${line.listing.food} (${line.qty} ${line.listing.unit || "kg"})`).join(", ")}` : `${newOrder.food} (${newOrder.kg} ${newOrder.unit || "kg"})`;
+        const recCost = document.getElementById("recItemCostV2");
+        if (recCost) recCost.textContent = `${p.total.toLocaleString()} RWF`;
+        const recDel = document.getElementById("recDelV2");
+        if (recDel) recDel.textContent = deliveryFee ? "300 RWF (Moto)" : "FREE (SACCO)";
+        const recGift = document.getElementById("recGiftV2");
+        if (recGift) recGift.textContent = gift ? `+${gift.toLocaleString()} RWF` : "None";
+        const recTot = document.getElementById("recTotV2");
+        if (recTot) recTot.textContent = `${grandTotal.toLocaleString()} RWF`;
+        const recPayBy = document.getElementById("recPayByV2");
+        if (recPayBy) recPayBy.textContent = isCash ? `PAY BY ${paidBy}` : isCredit ? "VUP FOOD CREDIT · 0%" : `DEMO PAID BY ${acc.by}`;
+        const recApproval = document.getElementById("recApprovalV2");
+        if (recApproval) recApproval.textContent = isCash ? "PAYMENT DUE" : isCredit ? "AUTO ISSUED" : "DEMO ONLY";
+        const recStamp = document.getElementById("recStampV2");
+        if (recStamp) recStamp.innerHTML = isCash ? "ORDER<small>PAY AT DELIVERY</small>" : isCredit ? "CREDIT<small>AUTO ISSUED</small>" : "DEMO<small>NO REAL MONEY</small>";
+      }, 900);
+    }, 550);
   }
 
   triggerReceiptPrinter() {
