@@ -448,8 +448,8 @@ class IsokoApp {
     if (toggle) {
       toggle.setAttribute("aria-expanded", String(expanded));
       toggle.title = expanded ? "Close menu" : "Open menu";
-      const label = document.getElementById("menuToggleLabel");
-      if (label) label.textContent = expanded ? "Close menu" : "Open menu";
+      toggle.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+      toggle.classList.toggle("collapsed", !expanded);
     }
   }
 
@@ -1465,14 +1465,14 @@ class IsokoApp {
       const initials = (user.name || this.state.user).slice(0, 2).toUpperCase();
       const roleCode = this.state.roleCode || "member";
       const roleShortcut = ["member", "shopper"].includes(roleCode)
-        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartCount()} items"><i class="bi bi-basket2" aria-hidden="true"></i><span>Cart</span>${this.cartCount() ? `<b class="header-count">${this.cartCount()}</b>` : ""}</button>`
+        ? `<button class="header-action header-cart" onclick="window.app.setNavTab('cart')" title="Open your cart" aria-label="Cart, ${this.cartCount()} items"><i class="bi bi-cart3" aria-hidden="true"></i>${this.cartCount() ? `<b class="header-count">${this.cartCount()}</b>` : ""}</button>`
         : ["seller", "trader"].includes(roleCode)
-          ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing"><i class="bi bi-plus-circle" aria-hidden="true"></i><span>Add food</span></button>`
+          ? `<button class="header-action" onclick="window.app.setNavTab('add_produce')" title="Add a food listing" aria-label="Add food"><i class="bi bi-plus-circle" aria-hidden="true"></i></button>`
           : ["planner", "admin"].includes(roleCode)
-            ? `<button class="header-action" onclick="window.app.setNavTab('analysis')" title="Open NISR analysis"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i><span>Analysis</span></button>`
+            ? `<button class="header-action" onclick="window.app.setNavTab('analysis')" title="Open NISR analysis" aria-label="NISR analysis"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></button>`
             : "";
       const unread = this.getUnreadNotifications().length;
-      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span><span class="user-copy"><b>${this.escapeHtml(user.name || this.state.user.split("@")[0])}</b><small>${this.escapeHtml(this.getRoleTitleByCode(roleCode))}</small></span><i class="bi bi-gear" aria-hidden="true"></i></button>`;
+      slot.innerHTML = `${roleShortcut}<button class="icon-action notification-button" onclick="window.app.openNotifications()" title="Notifications" aria-label="Notifications${unread ? `, ${unread} unread` : ""}"><i class="bi bi-bell" aria-hidden="true"></i>${unread ? `<span class="notification-count">${Math.min(99, unread)}</span>` : ""}</button><button class="icon-action" onclick="window.app.downloadUserStatement()" title="Download my activity" aria-label="Download my activity"><i class="bi bi-download" aria-hidden="true"></i></button><button class="header-profile" type="button" onclick="window.app.setNavTab('settings')" title="Profile and settings" aria-label="Profile and settings for ${this.escapeHtml(user.name || this.state.user.split("@")[0])}"><span class="av ${user.profilePhoto ? "has-photo" : ""}" aria-hidden="true">${user.profilePhoto ? `<img src="${user.profilePhoto}" alt="">` : this.escapeHtml(initials)}</span></button>`;
     } else {
       slot.innerHTML = `<button class="btn btn-sm btn-primary" onclick="window.app.setPublicTab('roles')"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${lang === "rw" ? "Injira" : lang === "fr" ? "Se connecter" : "Log in"}</button>`;
     }
