@@ -179,6 +179,49 @@
   .auth-form-heading { margin-bottom: 14px; }
   .auth-mobile-switch { display: none; }
 }
+
+/* Match the reference sign-in flow: the welcome panel slides across the card. */
+@media (min-width: 761px) {
+  .auth-card {
+    display: block;
+    position: relative;
+    min-height: 520px;
+    overflow: hidden;
+  }
+  .auth-welcome {
+    position: absolute;
+    z-index: 2;
+    inset: 0 auto 0 0;
+    box-sizing: border-box;
+    width: 50%;
+    min-height: 0;
+    border-radius: 28px 0 0 28px;
+    transition: transform .68s cubic-bezier(.7,0,.2,1), border-radius .68s cubic-bezier(.7,0,.2,1);
+    will-change: transform;
+  }
+  .auth-form-panel {
+    box-sizing: border-box;
+    width: 50%;
+    min-height: 520px;
+    margin-left: 50%;
+    transition: margin-left .68s cubic-bezier(.7,0,.2,1);
+  }
+  .auth-card[data-mode="signup"] .auth-welcome {
+    transform: translateX(100%);
+    border-radius: 0 28px 28px 0;
+  }
+  .auth-card[data-mode="signup"] .auth-form-panel { margin-left: 0; }
+}
+
+@media (max-width: 760px) {
+  .auth-card { display: flex; position: relative; min-height: 0; overflow: visible; }
+  .auth-welcome { position: relative; inset: auto; z-index: auto; width: 100%; transform: none !important; border-radius: 22px 22px 0 0; }
+  .auth-form-panel { width: 100%; min-height: 0; margin: 0 !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-welcome, .auth-form-panel { transition-duration: .01ms !important; }
+}
 @media (max-width: 480px) {
   .auth-overlay-backdrop { padding: 0; align-items: stretch; }
   .phone-modal-wrapper { width: 100%; height: 100dvh; max-height: none; padding: max(6px, env(safe-area-inset-top)) 6px max(6px, env(safe-area-inset-bottom)); border-radius: 0; border: 0; }
