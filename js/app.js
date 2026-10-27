@@ -439,7 +439,6 @@ class IsokoApp {
   syncSidebar() {
     const sidebar = document.getElementById("appRail");
     const toggle = document.getElementById("railRw");
-    const edgeToggle = document.getElementById("railEdgeToggle");
     if (!sidebar) return;
     const stored = localStorage.getItem("isoko_sidebar_expanded");
     const expanded = stored === null ? true : stored === "true";
@@ -452,14 +451,6 @@ class IsokoApp {
       const label = document.getElementById("menuToggleLabel");
       if (label) label.textContent = expanded ? "Close menu" : "Open menu";
     }
-    if (edgeToggle) {
-      edgeToggle.setAttribute("aria-expanded", String(expanded));
-      edgeToggle.title = expanded ? "Collapse sidebar" : "Expand sidebar";
-      edgeToggle.classList.toggle("collapsed", !expanded);
-    }
-    if (typeof this.initRailHighlight === "function") {
-      setTimeout(() => this.initRailHighlight(), 460);
-    }
   }
 
   toggleSidebar() {
@@ -469,32 +460,6 @@ class IsokoApp {
     sidebar.classList.toggle("wide", expanded);
     localStorage.setItem("isoko_sidebar_expanded", String(expanded));
     this.syncSidebar();
-  }
-
-  initRailHighlight() {
-    const nav = document.getElementById("topNavPill");
-    const hl = document.getElementById("railHl");
-    if (!nav || !hl) return;
-    const links = nav.querySelectorAll(".sidebar-link");
-    const move = (el) => {
-      if (!el || typeof el.offsetTop !== "number") return;
-      hl.style.transform = `translateY(${el.offsetTop}px)`;
-      hl.style.height = `${el.offsetHeight || 38}px`;
-      hl.style.opacity = "1";
-    };
-    const settle = () => {
-      const active = nav.querySelector(".sidebar-link.on");
-      if (active) {
-        move(active);
-      } else {
-        hl.style.opacity = "0";
-      }
-    };
-    links.forEach(link => {
-      link.onmouseenter = () => move(link);
-    });
-    nav.onmouseleave = settle;
-    settle();
   }
 
   updateThemeControl() {
@@ -571,14 +536,6 @@ class IsokoApp {
       return;
     }
     this.state.authMode = mode;
-    const authCard = document.querySelector(".auth-card");
-    if (authCard && !window.matchMedia("(max-width: 760px)").matches) {
-      authCard.dataset.mode = mode;
-      window.setTimeout(() => {
-        if (this.state.authMode === mode && authCard.isConnected) this.render();
-      }, 680);
-      return;
-    }
     this.render();
   }
 
@@ -1485,7 +1442,7 @@ class IsokoApp {
       else if (role === "Family") items = [item("dashboard", "Food basket"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("credit", "Bridge credit & Ejo Heza"), item("orders", "Orders"), item("activity", "Activity"), item("settings", "Settings")];
       else if (role === "Farmer") items = [item("dashboard", this.state.roleCode === "trader" ? "Market orders" : "Orders"), item("architecture", "Architecture & Flow"), item("add_produce", "Add produce"), item("listings", "My listings"), item("activity", "Activity"), item("settings", "Settings")];
       else items = [item("dashboard", "Shop & Agaseke"), item("architecture", "Architecture & Flow"), item("cart", "My cart"), item("pool", "Pool impact"), item("activity", "Activity"), item("settings", "Settings")];
-      nav.innerHTML = '<span class="rail-hl" id="railHl" aria-hidden="true"></span>' + items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
+      nav.innerHTML = items.map(entry => { const label = entry.id === "cart" && this.cartCount() ? `${entry.label} (${this.cartCount()})` : entry.label; return `<button class="sidebar-link ${activeSub === entry.id ? "on" : ""}" onclick="window.app.setNavTab('${entry.id}')" title="${label}" data-tip="${label}" aria-label="${label}" ${activeSub === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${label}</span></button>`; }).join("");
     } else {
       const publicTab = this.state.publicTab || "market";
       items = [
@@ -1494,7 +1451,7 @@ class IsokoApp {
         { id: "roles", label: copy.roles, icon: "bi-person-vcard" },
         { id: "schedule", label: copy.schedule, icon: "bi-calendar3" }
       ];
-      nav.innerHTML = '<span class="rail-hl" id="railHl" aria-hidden="true"></span>' + items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
+      nav.innerHTML = items.map(entry => `<button class="sidebar-link ${publicTab === entry.id ? "on" : ""}" onclick="window.app.setPublicTab('${entry.id}')" title="${entry.label}" data-tip="${entry.label}" aria-label="${entry.label}" ${publicTab === entry.id ? 'aria-current="page"' : ""}><i class="bi ${entry.icon}" aria-hidden="true"></i><span class="rail-label">${entry.label}</span></button>`).join("");
     }
     const accountSlot = document.getElementById("railAccountSlot");
     const footerSlot = document.getElementById("railFooterSlot");
@@ -1508,7 +1465,6 @@ class IsokoApp {
     if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
     this.updateThemeControl();
     this.syncSidebar();
-    this.initRailHighlight();
     if (!slot) return;
     if (this.state.user) {
       const user = this.state.currentUser || {};
@@ -2253,87 +2209,45 @@ class IsokoApp {
     const text = key => copy[key] || ({ en: { welcome: "Welcome back", create: "Create your account", loginSub: "Log in to continue to your Isoko Bridge account." } }["en"][key] || key);
     return `
       <section class="auth-scene" aria-labelledby="authTitle">
-        <!-- Glowing Circuit SVG Background (login-form-v5.html) -->
-        <svg class="auth-bg-circuit" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-          <path d="M0 220H140L180 260H300"/>
-          <path d="M0 560H220L260 520H340"/>
-          <path d="M1200 180H1040L1000 220H900"/>
-          <path d="M1200 600H980L940 560H860"/>
-          <path d="M300 0V90L340 130"/>
-          <path d="M900 800V700L860 660"/>
-          <circle cx="300" cy="260" r="5"/>
-          <circle cx="340" cy="520" r="5" style="animation-delay:.8s"/>
-          <circle cx="900" cy="220" r="5" style="animation-delay:1.4s"/>
-          <circle cx="860" cy="560" r="5" style="animation-delay:.4s"/>
-          <circle cx="340" cy="130" r="4" style="animation-delay:1s"/>
-          <circle cx="860" cy="660" r="4" style="animation-delay:1.8s"/>
-        </svg>
-
-        <div class="auth-card" id="authCard" data-mode="${mode}">
-          <!-- Left Panel: Login Form (login-form-v5.html) -->
-          <div class="auth-form-panel auth-panel-login" id="protoLoginPanel">
-            <div class="auth-form-heading">
-              <div><span class="auth-eyebrow">${text("account")}</span><h2>${text("logIn")}</h2></div>
-              <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
-            </div>
-            <form class="auth-form" onsubmit="window.app.handlePrototypeLogin(event)" autocomplete="on">
-              <label for="demoUserSelect">${text("sample")}</label>
-              <select id="demoUserSelect" class="auth-select" onchange="window.app.onRoleLoginUserSelected(this.value)">
-                ${userList.map(user => `<option value="${this.escapeHtml(user.email)}" ${user.email === firstUser.email ? "selected" : ""}>${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}
-              </select>
-              <p class="auth-help" id="protoUserStateDesc">${this.escapeHtml(firstUser.stateDesc || firstUser.notes || text("chooseDemo"))}</p>
-              <label for="protoEmail">${text("email")}</label>
-              <div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="protoEmail" name="email" type="email" autocomplete="username" value="${this.escapeHtml(firstUser.email || "")}" placeholder="name@example.com" required></div>
-              <label for="protoPassword">${text("password")}</label>
-              <div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="protoPassword" name="password" type="password" autocomplete="current-password" value="${this.escapeHtml(firstUser.password || "")}" placeholder="Your password" required></div>
-              <p class="auth-help">${text("note")}</p>
-              <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${text("logIn")}</button>
-            </form>
-            ${canSignUp ? `<p class="auth-mobile-switch">${text("needAccount")} <button type="button" onclick="window.app.setAuthMode('signup')">${text("signUp")}</button></p>` : ""}
-          </div>
-
-          <!-- Right Panel: Sign Up Form (login-form-v5.html) -->
-          <div class="auth-form-panel auth-panel-signup" id="protoSignupPanel">
-            <div class="auth-form-heading">
-              <div><span class="auth-eyebrow">${text("newAccount")}</span><h2>${text("signUp")}</h2></div>
-              <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
-            </div>
-            <form class="auth-form" onsubmit="window.app.handlePrototypeSignup(event)" autocomplete="on">
-              <label for="signupName">${text("fullName")}</label>
-              <div class="auth-field"><i class="bi bi-person" aria-hidden="true"></i><input id="signupName" name="name" autocomplete="name" placeholder="${text("fullName")}" required></div>
-              <label for="signupEmail">${text("email")}</label>
-              <div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
-              <label for="signupPassword">${text("password")}</label>
-              <div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
-              <p class="auth-help">${text("safe")}</p>
-              <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> ${text("signUp")}</button>
-            </form>
-            <p class="auth-mobile-switch">${text("haveAccount")} <button type="button" onclick="window.app.setAuthMode('login')">${text("logIn")}</button></p>
-          </div>
-
-          <!-- Sliding Diagonal Overlay (login-form-v5.html) -->
-          <aside class="auth-welcome auth-diagonal-overlay" aria-hidden="true">
-            <div class="auth-overlay-msg m-signup">
-              <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
-              <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
-              <h1>${text("create")}</h1>
-              <p>${text("signupSub")}</p>
-              <div class="auth-switch">
-                <span>${text("already")}</span>
-                <button type="button" onclick="window.app.setAuthMode('login')">${text("logIn")}</button>
-              </div>
-            </div>
-            <div class="auth-overlay-msg m-login">
-              <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
-              <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
-              <h1>${text("welcome")}</h1>
-              <p>${text("loginSub")}</p>
-              <div class="auth-switch">
-                <span>${text("newHere")}</span>
-                ${canSignUp ? `<button type="button" onclick="window.app.setAuthMode('signup')">${text("create")}</button>` : `<small>Organization demo account.</small>`}
-              </div>
+        <div class="auth-card" data-mode="${isSignup ? "signup" : "login"}">
+          <aside class="auth-welcome">
+            <span class="auth-mark"><img src="assets/isoko-bridge-icon.svg" alt=""></span>
+            <span class="auth-eyebrow">Isoko Bridge · ${this.escapeHtml(roleTitle)}</span>
+            <h1 id="authTitle">${isSignup ? text("create") : text("welcome")}</h1>
+            <p>${isSignup ? text("signupSub") : text("loginSub")}</p>
+            <div class="auth-switch">
+              <span>${isSignup ? text("already") : text("newHere")}</span>
+              ${canSignUp ? `<button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("create")}</button>` : `<small>Use the organization demo account.</small>`}
             </div>
           </aside>
+          <div class="auth-form-panel">
+            <div class="auth-form-heading">
+              <div><span class="auth-eyebrow">${isSignup ? text("newAccount") : text("account")}</span><h2>${isSignup ? text("signUp") : text("logIn")}</h2></div>
+              <button class="auth-back" type="button" onclick="window.app.cancelPickRole()"><i class="bi bi-arrow-left" aria-hidden="true"></i> ${text("back")}</button>
+            </div>
+            ${isSignup ? `
+              <form class="auth-form" onsubmit="window.app.handlePrototypeSignup(event)" autocomplete="on">
+                <label for="signupName">${text("fullName")}</label><div class="auth-field"><i class="bi bi-person" aria-hidden="true"></i><input id="signupName" name="name" autocomplete="name" placeholder="${text("fullName")}" required></div>
+                <label for="signupEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="signupEmail" name="email" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+                <label for="signupPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters" required></div>
+                <p class="auth-help">${text("safe")}</p>
+                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-person-plus" aria-hidden="true"></i> ${text("signUp")}</button>
+              </form>
+            ` : `
+              <form class="auth-form" onsubmit="window.app.handlePrototypeLogin(event)" autocomplete="on">
+                <label for="demoUserSelect">${text("sample")}</label>
+                <select id="demoUserSelect" class="auth-select" onchange="window.app.onRoleLoginUserSelected(this.value)">
+                  ${userList.map(user => `<option value="${this.escapeHtml(user.email)}" ${user.email === firstUser.email ? "selected" : ""}>${this.escapeHtml(user.name)} · ${this.escapeHtml(user.email)}</option>`).join("")}
+                </select>
+                <p class="auth-help" id="protoUserStateDesc">${this.escapeHtml(firstUser.stateDesc || firstUser.notes || text("chooseDemo"))}</p>
+                <label for="protoEmail">${text("email")}</label><div class="auth-field"><i class="bi bi-envelope" aria-hidden="true"></i><input id="protoEmail" name="email" type="email" autocomplete="username" value="${this.escapeHtml(firstUser.email || "")}" placeholder="name@example.com" required></div>
+                <label for="protoPassword">${text("password")}</label><div class="auth-field"><i class="bi bi-lock" aria-hidden="true"></i><input id="protoPassword" name="password" type="password" autocomplete="current-password" value="${this.escapeHtml(firstUser.password || "")}" placeholder="Your password" required></div>
+                <p class="auth-help">${text("note")}</p>
+                <button class="btn btn-primary auth-submit" type="submit"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> ${text("logIn")}</button>
+              </form>
+            `}
+            ${canSignUp ? `<p class="auth-mobile-switch">${isSignup ? text("haveAccount") : text("needAccount")} <button type="button" onclick="window.app.setAuthMode('${isSignup ? "login" : "signup"}')">${isSignup ? text("logIn") : text("signUp")}</button></p>` : ""}
+          </div>
         </div>
       </section>
     `;
