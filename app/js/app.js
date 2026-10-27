@@ -3134,6 +3134,11 @@ class IsokoApp {
 
   cartCount() { return (this.state.cart || []).length; }
   cartQuantityCount() { return (this.state.cart || []).reduce((sum, line) => sum + (Number(line.qty) || 0), 0); }
+  getAgasekeContributionAmount() {
+    if (this.state.roleCode !== "shopper") return 0;
+    const amount = Number(this.state.currentUser?.agasekeContribution);
+    return Number.isFinite(amount) ? Math.max(0, Math.round(amount)) : 10;
+  }
   addToCart(listingId) {
     const listing = this.state.listings.find(item => Number(item.id) === Number(listingId));
     if (!listing) return;
@@ -3156,10 +3161,9 @@ class IsokoApp {
   renderCartView() {
     const lines = (this.state.cart || []).map(line => ({ ...line, listing: this.state.listings.find(item => Number(item.id) === Number(line.listingId)) })).filter(line => line.listing);
     const subtotal = lines.reduce((sum,line)=>sum+line.qty*line.listing.price,0);
-    const giftPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser?.giftShare || 2) : 0;
-    const gift = Math.round(subtotal*giftPct/100), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
+    const gift = this.getAgasekeContributionAmount(), fee = this.state.nearby?.deliveryOption === "pickup" ? 0 : 300;
     const count = this.cartCount(), qtyCount = this.cartQuantityCount();
-    return `<div class="head"><div><h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1><p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>${count} ${count === 1 ? "product" : "products"}</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div>${giftPct ? `<div><span>Pool gift · ${giftPct}%</span><b>${gift.toLocaleString()} RWF</b></div>` : `<div><span>Pool gift</span><b>Not added</b></div>`}<div class="cart-grand-total"><span>Food total</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div>${this.state.roleCode === "member" ? `<p><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}<p class="sub">Choose cash, a demo payment method, your VUP wallet, or available VUP credit at the next step.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Choose how to pay</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
+    return `<div class="head"><div><h1>Your cart <span class="tag g" aria-label="${count} products in cart">${count} ${count === 1 ? "product" : "products"}</span></h1><p class="sub">${qtyCount} total units · check your food and quantity before you pay.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('dashboard')"><i class="bi bi-arrow-left" aria-hidden="true"></i> Continue shopping</button></div>${lines.length ? `<div class="cart-layout"><section class="card cart-items">${lines.map(line=>`<article class="cart-line"><img src="${this.escapeHtml(line.listing.photo || "assets/produce/dry_beans.jpg")}" alt=""><div class="cart-line-main"><b>${this.escapeHtml(line.listing.food)}</b><small>${this.escapeHtml(line.listing.farmer)} · ${line.listing.price.toLocaleString()} RWF per ${this.escapeHtml(line.listing.unit || "kg")}</small><label>Quantity <input class="form-control" type="number" min="1" max="${line.listing.quantity}" value="${line.qty}" onchange="window.app.updateCartQuantity(${line.listingId},Number(this.value))"> ${this.escapeHtml(line.listing.unit || "kg")}</label></div><strong>${(line.qty*line.listing.price).toLocaleString()} RWF</strong><button class="icon-action" onclick="window.app.updateCartQuantity(${line.listingId},0)" aria-label="Remove ${this.escapeHtml(line.listing.food)}" title="Remove"><i class="bi bi-trash3" aria-hidden="true"></i></button></article>`).join("")}</section><aside class="card cart-summary"><h2>Order total</h2><div><span>${count} ${count === 1 ? "product" : "products"}</span><b>${subtotal.toLocaleString()} RWF</b></div><div><span>Delivery</span><button class="btn btn-sm btn-ghost" onclick="window.app.toggleCheckoutDelivery()">${fee ? "Moto · 300 RWF" : "SACCO pickup · Free"}</button></div>${gift ? `<div><span>Agaseke Relief</span><b>${gift.toLocaleString()} RWF</b></div>` : `<div><span>Agaseke Relief</span><b>Not added</b></div>`}<div class="cart-grand-total"><span>Food total</span><b>${(subtotal+gift+fee).toLocaleString()} RWF</b></div>${this.state.roleCode === "member" ? `<p><b>${this.getRemainingCredit().toLocaleString()} RWF</b> VUP food credit available. Choose it at payment if you want to use it.</p>` : ""}<p class="sub">Choose cash, a demo payment method, your VUP wallet, or available VUP credit at the next step.</p><button class="btn btn-primary" onclick="window.app.checkoutCart()"><i class="bi bi-lock" aria-hidden="true"></i> Choose how to pay</button></aside></div>` : `<section class="card empty-state"><i class="bi bi-basket" aria-hidden="true"></i><b>Your cart is empty</b><span>Add fresh food from the market to start an order.</span><button class="btn btn-primary" onclick="window.app.setNavTab('dashboard')">Browse food</button></section>`}`;
   }
   checkoutCart() {
     const items = (this.state.cart || []).map(line => ({ listing: this.state.listings.find(item=>Number(item.id)===Number(line.listingId)), qty: Number(line.qty) })).filter(line=>line.listing);
@@ -3819,8 +3823,7 @@ class IsokoApp {
     const modal = document.getElementById("payModal");
     if (!modal) return;
 
-    const donationPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser.giftShare || 2) : 0;
-    const gift = Math.round(total * (donationPct / 100));
+    const gift = this.getAgasekeContributionAmount();
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const deliveryFee = isPickup ? 0 : 300;
     const grandTotal = total + gift + deliveryFee;
@@ -3836,7 +3839,7 @@ class IsokoApp {
     document.getElementById("rdModeV2").innerHTML = isPickup 
       ? this.t('checkoutDeliveryPickup') 
       : this.t('checkoutDeliveryMoto');
-    document.getElementById("rgV2").textContent = `+${gift.toLocaleString()} RWF (${donationPct}%)`;
+    document.getElementById("rgV2").textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
     document.getElementById("rtV2").textContent = `${grandTotal.toLocaleString()} RWF`;
 
     this.goPhonePage(2);
@@ -3897,9 +3900,9 @@ class IsokoApp {
     const p = this.state.pendingCheckoutOrder;
     const isPickup = this.state.nearby?.deliveryOption === "pickup";
     const isCredit = selected?.credit;
-    const donationPct = this.state.roleCode === "shopper" ? Number(this.state.currentUser.giftShare || 2) : 0;
+    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
     const deliveryFee = isCredit || isPickup ? 0 : 300;
-    const total = (Number(p?.total) || 0) + Math.round((Number(p?.total) || 0) * donationPct / 100) + deliveryFee;
+    const total = (Number(p?.total) || 0) + gift + deliveryFee;
     const payButton = document.getElementById("goBtnV2");
     const payLabel = document.getElementById("ppV2");
     if (payLabel) payLabel.textContent = selected ? (selected.credit ? `Use ${total.toLocaleString()} RWF credit` : selected.cash ? `Place cash order · ${total.toLocaleString()} RWF` : `Pay ${total.toLocaleString()} RWF`) : "Choose a payment method";
@@ -3907,11 +3910,10 @@ class IsokoApp {
     flist.innerHTML = `<p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p><div id="payErrorV2" role="status" aria-live="polite"></div>`;
 
     if (p) {
-      const gift = Math.round(p.total * donationPct / 100);
       const giftEl = document.getElementById("rgV2");
       const deliveryEl = document.getElementById("rdModeV2");
       const totalEl = document.getElementById("rtV2");
-      if (giftEl) giftEl.textContent = gift ? `+${gift.toLocaleString()} RWF (${donationPct}%)` : "No pool gift";
+      if (giftEl) giftEl.textContent = gift ? `+${gift.toLocaleString()} RWF (Agaseke Relief)` : "0 RWF (Exempt)";
       if (deliveryEl) deliveryEl.textContent = selected?.credit ? "SACCO pickup · Free" : isPickup ? "SACCO pickup · Free" : "Moto delivery · 300 RWF";
       if (totalEl) totalEl.textContent = `${total.toLocaleString()} RWF`;
     }
@@ -3949,8 +3951,7 @@ class IsokoApp {
     const isPickup = this.state.nearby && this.state.nearby.deliveryOption === "pickup";
     const isCredit = Boolean(acc.credit), isCash = Boolean(acc.cash);
     const deliveryFee = isCredit || isPickup ? 0 : 300;
-    const donationPct = this.state.roleCode === "shopper" && !isCredit ? Number(this.state.currentUser.giftShare || 2) : 0;
-    const gift = Math.round(p.total * (donationPct / 100));
+    const gift = this.state.roleCode === "shopper" && !isCredit ? this.getAgasekeContributionAmount() : 0;
     const grandTotal = p.total + gift + deliveryFee;
     const items = p.items || [{ listing: p.listing, qty: p.qty }];
     if (items.some(line => !line.listing || line.qty <= 0 || line.qty > line.listing.quantity)) { this.toast("An item is no longer available in that quantity. Review your cart.", "warning"); this.closePayFlow(); return; }
