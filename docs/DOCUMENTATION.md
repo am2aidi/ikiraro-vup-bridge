@@ -202,7 +202,9 @@ In this demonstration prototype, credit top-up, work-day recording, and SACCO pa
 1. **LODA MEIS Biometric Attendance Sync:** Automated API integration with village public works muster roll tablets to sync daily work attendance and update food credit limits without paperwork.
 2. **Umurenge SACCO & BNR Core Banking Clearing:** Real-time direct debit instructions triggered the moment MINECOFIN treasury funds arrive, automatically settling outstanding food credit advances to refill the revolving pool.
 3. **RSSB Ejo Heza Real-Time API:** Automated 5% payroll statutory deduction and programmatic 100% government matching grant allocation under Law N° 29/2017.
-4. **Zero-Rated USSD (*182#) & IVR for Analog Phones:** Telco integration with MTN and Airtel Rwanda enabling rural citizens without smartphones to check credit and authorize food pickups in Kinyarwanda.
+4. **Zero-Rated USSD (*182#) for Basic Feature Phones (Planned Integration · Not Live Yet):**
+   - *Current Status:* Planned production architecture (not working yet as a live telecom shortcode in this static prototype; simulated in web UI).
+   - *Workflow:* Once enrolled as a VUP member, rural workers without smartphones or mobile data dial `*182*8*4#` on basic phones. They view their available 0% food credit in Kinyarwanda (`1. Reba inguzanyo y'ibiribwa`), select `2. Gura ibiribwa ku ideni`, enter the local cooperative's merchant code and amount, and authorize payment with their Mobile Money secret PIN. The farmer cooperative provides the food immediately. When government wages arrive at the Umurenge SACCO on payday, the SACCO automatically recovers the exact credit amount and pays the worker their remaining cash.
 5. **IoT Solar Scales & Digital Receipts at Cooperatives:** Equipping rural cooperative granaries with smart scales to automatically sync fresh harvest stocks to the platform in real time.
 6. **Machine Learning Early-Warning Delay Prediction:** Predictive models tracking paperwork progress to forecast payment delay hotspots 2 weeks in advance and inject pre-emptive liquidity.
 

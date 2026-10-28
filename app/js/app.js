@@ -3934,6 +3934,10 @@ class IsokoApp {
               ` : ''}
               <button type="button" class="btn btn-sm btn-ghost" style="font-size:11px; padding:4px 8px; color:var(--mute);" onclick="window.app.manualResetMemberCredit()" title="Reset demo credit"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
             </div>
+            <div style="width:100%; font-size:11px; color:var(--mute); display:flex; align-items:center; gap:6px; border-top:1px dashed rgba(14,99,94,0.15); padding-top:8px; margin-top:4px;">
+              <i class="bi bi-phone"></i>
+              <span><b>Planned USSD Rail (*182*8*4#):</b> In future production, VUP members without smartphones will dial *182# to pay with 0% credit on basic phones, and the SACCO will automatically settle their credit after on payday.</span>
+            </div>
           </div>
         </section>
         ${this.renderMarketplaceTools()}

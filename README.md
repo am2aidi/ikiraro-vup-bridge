@@ -472,10 +472,35 @@ The project keeps a root copy and an `app/` copy of the website for hosting comp
 - **Future Production:** Direct connection to the Rwanda Social Security Board (RSSB) *Ejo Heza* digital gateway.
 - **How it will work:** Every payday payroll cycle will push statutory contributions programmatically to RSSB servers, instantly unlocking the Ministry of Finance's 100% matching grant for Ubudehe 1 & 2 citizens under Law N° 29/2017. Beneficiaries will receive an official SMS notification from RSSB confirming their retirement balance.
 
-### 4. Phase 4: USSD (*182#) & Basic Phone IVR in Kinyarwanda
-- **Today in Prototype:** A high-performance responsive web application running smoothly on mobile and desktop browsers.
-- **Future Production:** Partnering with MTN Rwanda and Airtel Rwanda to deploy a zero-rated USSD short code (e.g. `*182*8*4#`) and interactive voice response (IVR) in Kinyarwanda.
-- **How it will work:** In remote hillside sectors where beneficiaries have basic analog phones (feature phones without internet), workers can dial USSD to check their food credit balance, view nearby participating cooperatives, and authorize staple food collection using their secret PIN.
+### 4. Phase 4: Zero-Rated USSD (*182#) for Basic Analog Phones (Planned Future Integration)
+- **Current Status (Prototype):** This feature is planned production architecture (**not working yet as a live telecom shortcode in this static prototype**, though simulated within the web UI). The current app runs smoothly across all mobile browsers.
+- **Future Telecom Partnership (MTN & Airtel):** Deploying a zero-rated USSD short code (e.g., `*182*8*4#` or `*182#`) and basic interactive voice response (IVR) in Kinyarwanda so rural workers without smartphones or mobile data can access the platform for free with zero airtime cost.
+- **How it will work for a VUP member (Step-by-Step):**
+  1. **Automatic Registration:** Once enrolled as a VUP public works member, the citizen's national ID and phone number are linked to their confirmed work attendance.
+  2. **Dial on Any Basic Phone:** The worker dials `*182*8*4#` on any simple analog feature phone (*ikigorigori / agashami*). No internet connection or smartphone is needed.
+  3. **Simple Kinyarwanda Menu:**
+     ```
+     ┌─────────────────────────────────────────────────────────┐
+     │                    IKIRARO CYA VUP                      │
+     │  1. Reba inguzanyo y'ibiribwa (Check food credit)       │
+     │  2. Gura ibiribwa ku ideni (Pay with 0% credit)         │
+     │  3. Ejo Heza Ubwizigame (View pension balance)          │
+     │  4. Agaseke k'Ubumwe (Community relief pool)            │
+     │  5. Hitamo ururimi (Language: Kinyarwanda / French)     │
+     └─────────────────────────────────────────────────────────┘
+     ```
+  4. **Pay for Food with Credit via USSD:**
+     - The member walks to their local cooperative granary or village partner shop.
+     - They choose menu option `2. Gura ibiribwa ku ideni` (Buy food with 0% credit).
+     - They enter the **Cooperative Merchant Code** (e.g. `201`) and the amount (e.g. `6,000 RWF`).
+     - They approve the purchase by entering their **Mobile Money secret PIN**.
+     - The cooperative receives an immediate SMS receipt and hands over the fresh food basket (beans, maize flour, sweet potatoes, rice) right on the spot.
+  5. **They Get Paid After (Payday SACCO Settlement):**
+     - The family gets fresh food today without paying cash upfront and without borrowing from predatory loan sharks.
+     - Later, when government VUP payroll funds settle at the Umurenge SACCO on payday:
+       - The SACCO automatically deducts the exact food advance (**strictly 0% interest and 0 penalty fees**), replenishing the revolving liquidity pool.
+       - The SACCO routes 5% into the worker's *Ejo Heza* pension account (which the Government doubles with a 100% matching grant).
+       - The remaining cash is disbursed directly to the worker!
 
 ### 5. Phase 5: Smart Solar Scales & IoT Inventory at Farmer Cooperatives
 - **Today in Prototype:** Cooperatives update harvest crop stock numbers through the web portal.
