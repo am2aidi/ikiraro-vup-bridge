@@ -10,12 +10,35 @@
 
 The idea connects to Rwanda's [NST2 2024–2029 social transformation priorities](https://www.minecofin.gov.rw/fileadmin/user_upload/Minecofin/Publications/STRATEGIES/NST_2/NST2_2024-2029_Abridged.pdf), including poverty graduation and access to social security and income support. This is a student concept that may support discussion of those priorities; it is not an official government programme or partnership.
 
-## 📺 Demonstration Video (3 Minutes)
+## ⚡ Quick Start: How to Open the App & Watch the Video (In 30 Seconds)
 
-The prototype walkthrough is available for review through both streaming and direct download:
-- 🌐 **Watch Online (Screencastify HD):** [app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj)
-- 💾 **Repository Local MP4 File:** [`docs/demo_video.mp4`](docs/demo_video.mp4) (H.264 / AAC, 39.6 MB, standard Git download)
-- 📝 **Walkthrough Plan & Narration Script:** [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md)
+### 1. How to Open & Run the App (Choose any way)
+- 🌐 **Option A: Live Online Link (Fastest · No installation needed):**  
+  Open **[https://ikiraro-vup-bridge.vercel.app/](https://ikiraro-vup-bridge.vercel.app/)** in any browser on your phone, tablet, or computer.
+- 💻 **Option B: One-Click on Windows:**  
+  Double-click [`start_local.bat`](start_local.bat) in the project folder. It launches the local server and opens your browser automatically!
+- ⌨️ **Option C: Command Line / Terminal:**  
+  Run:
+  ```bash
+  python -m http.server 8085
+  ```
+  Then open [http://localhost:8085](http://localhost:8085) in your browser. (You can also use Node: `npx serve .`).
+- 📁 **Option D: Zero Server (Direct File Open):**  
+  You can simply double-click [`index.html`](index.html) to open the application directly in Google Chrome, Microsoft Edge, Safari, or Firefox.
+- 🧪 **To Run Automated Acceptance Tests:**  
+  Run `node scripts/test_runtime.js` in terminal to execute all 10 unit and runtime validation suites.
+
+---
+
+### 2. How to Watch the Demonstration Video (3 Minutes)
+- 🌐 **Option A: Watch Online in HD (Instant Streaming · No download):**  
+  **[👉 Click here to watch on Screencastify (HD)](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj)**
+- 💾 **Option B: Open the Repository Video File Directly:**  
+  The compressed video file is located at **[`docs/demo_video.mp4`](docs/demo_video.mp4)** (H.264 / AAC, 16.7 MB).
+  - **In VS Code / Editor:** If your editor shows *"File exceeds the 20MB display limit"*, simply click the yellow **"📁 Show in File Explorer"** button and double-click the file to play it in Windows Media Player, VLC, QuickTime, or Movies & TV!
+  - **In File Explorer / Finder:** Double-click [`docs/demo_video.mp4`](docs/demo_video.mp4) or drag it into any web browser.
+- 📝 **Option C: Read the Narration Script & Scene Guide:**  
+  [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md) contains the complete 3:00 minute time-coded voiceover script.
 
 ---
 
