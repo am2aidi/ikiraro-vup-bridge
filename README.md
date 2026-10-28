@@ -6,9 +6,16 @@
 
 **NISR 2026 Big Data Hackathon · Track 3: Open Innovation (Alternate: Track 2: Financial Inclusion)**  
 **Live Prototype:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/) · **Source Code:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
-**Demo Video:** [Watch 3-Minute Walkthrough on Screencastify](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj) · **Full Technical Documentation:** [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) · **Declaration:** [DECLARATION.md](DECLARATION.md)
+**Demo Video:** [Watch Online (Screencastify)](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj) · [Local Repository File (MP4)](docs/demo_video.mp4) · **Technical Documentation:** [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) · **Declaration:** [DECLARATION.md](DECLARATION.md)
 
 The idea connects to Rwanda's [NST2 2024–2029 social transformation priorities](https://www.minecofin.gov.rw/fileadmin/user_upload/Minecofin/Publications/STRATEGIES/NST_2/NST2_2024-2029_Abridged.pdf), including poverty graduation and access to social security and income support. This is a student concept that may support discussion of those priorities; it is not an official government programme or partnership.
+
+## 📺 Demonstration Video (3 Minutes)
+
+The prototype walkthrough is available for review through both streaming and direct download:
+- 🌐 **Watch Online (Screencastify HD):** [app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj)
+- 💾 **Repository Local MP4 File:** [`docs/demo_video.mp4`](docs/demo_video.mp4) (H.264 / AAC, 39.6 MB, standard Git download)
+- 📝 **Walkthrough Plan & Narration Script:** [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md)
 
 ## Market sellers, civil servants & nationwide produce directory
 

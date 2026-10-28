@@ -5,7 +5,7 @@
 **Co-Participant:** KAYUMBA TETA Aela Greta (UR-CST)  
 **Live Application:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/)  
 **Source Code Repository:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
-**Official Video Walkthrough:** [Watch 3-Minute Demo Video on Screencastify](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj)  
+**Official Video Walkthrough:** [Watch Online (Screencastify HD)](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj) · [Local Repository File (MP4)](demo_video.mp4)  
 
 ---
 
