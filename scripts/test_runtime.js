@@ -116,11 +116,27 @@ if (global.app) {
   global.app.handlePrototypeLogin({ preventDefault: () => {} });
   console.log('Logged in as:', global.app.state.currentUser.name, '| Role:', global.app.state.role);
   console.log('Initial credit ready:', global.app.getRemainingCredit());
+  assert(global.app.getRemainingCredit() >= 20000, `Initial credit ready must be >= 20,000 RWF (got ${global.app.getRemainingCredit()})`);
+
+  const accounts = global.app.getAvailablePaymentAccounts();
+  const vupCredit = accounts.find(a => a.credit);
+  assert(vupCredit, 'VUP food credit must exist for member');
+  assert(!vupCredit.disabled, 'VUP food credit must NOT be disabled');
+  assert(vupCredit.available >= 20000, `VUP food credit must have >= 20,000 RWF available (got ${vupCredit.available})`);
+  console.log('VUP food credit available in checkout:', vupCredit.available, 'RWF | Disabled:', vupCredit.disabled);
+
+  const prevCredit = global.app.getRemainingCredit();
+  global.app.state.selectedAccountIdx = accounts.findIndex(a => a.credit);
+  global.app.addDemoMoney(15000);
+  assert.strictEqual(global.app.getRemainingCredit(), prevCredit + 15000, 'addDemoMoney(+15000) should increase credit by 15000');
+  console.log('Credit ready after addDemoMoney(+15000 RWF):', global.app.getRemainingCredit());
+
   global.app.manualAddMemberCredit(5, 7500);
   console.log('Credit ready after manual +5 days:', global.app.getRemainingCredit());
   assert(global.app.getRemainingCredit() > 0, 'Remaining credit should increase');
   global.app.manualResetMemberCredit();
   console.log('Credit ready after manual reset:', global.app.getRemainingCredit());
+  assert(global.app.getRemainingCredit() >= 20000, 'Credit ready after manual reset should be >= 20,000 RWF');
 
   console.log('\n--- TEST 2: Timeframe switching ---');
   global.app.setTimeframe('month');

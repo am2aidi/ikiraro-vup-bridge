@@ -263,11 +263,14 @@ class IsokoApp {
         state.users.member ||= [];
         state.users.member = state.users.member.map(user => {
           const seeded = seededMembers.get(user.email) || {};
+          const minOwed = Number(seeded.governmentAmountOwed) || 45000;
+          const minDays = Number(seeded.daysWorked) || 30;
           return {
             ...seeded,
             ...user,
-            daysWorked: Number.isFinite(Number(user.daysWorked)) ? Number(user.daysWorked) : Number(seeded.daysWorked || 0),
-            governmentAmountOwed: Number.isFinite(Number(user.governmentAmountOwed)) ? Number(user.governmentAmountOwed) : Number(seeded.governmentAmountOwed || 0)
+            daysWorked: Math.max(Number(user.daysWorked || 0), minDays),
+            governmentAmountOwed: Math.max(Number(user.governmentAmountOwed || 0), minOwed),
+            vupWalletBalance: Math.max(Number(user.vupWalletBalance || 0), Number(seeded.vupWalletBalance || 5000))
           };
         });
         this.ensureTraderListings(state);
@@ -277,7 +280,26 @@ class IsokoApp {
         });
         if (state.currentUser?.email) {
           const savedUser = state.users.member.find(user => user.email === state.currentUser.email);
-          if (savedUser) state.currentUser = { ...savedUser };
+          if (savedUser) {
+            state.currentUser = { ...savedUser };
+          } else if (state.roleCode === "member") {
+            state.currentUser.governmentAmountOwed = Math.max(Number(state.currentUser.governmentAmountOwed || 0), 45000);
+            state.currentUser.daysWorked = Math.max(Number(state.currentUser.daysWorked || 0), 30);
+            state.currentUser.vupWalletBalance = Math.max(Number(state.currentUser.vupWalletBalance || 0), 5000);
+          }
+        }
+        if (state.roleCode === "member" && state.currentUser) {
+          const openOrders = (state.orders || []).filter(o => o.buyerEmail === state.currentUser.email && o.mode === "credit" && !o.repaid);
+          const committed = openOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+          if ((Number(state.currentUser.governmentAmountOwed) || 0) - committed < 20000) {
+            state.currentUser.governmentAmountOwed = committed + 26250;
+            state.currentUser.daysWorked = Math.max(Number(state.currentUser.daysWorked || 0), Math.round(state.currentUser.governmentAmountOwed / 1500));
+            const memberObj = (state.users?.member || []).find(u => u.email === state.currentUser.email);
+            if (memberObj) {
+              memberObj.governmentAmountOwed = state.currentUser.governmentAmountOwed;
+              memberObj.daysWorked = state.currentUser.daysWorked;
+            }
+          }
         }
         return state;
       }
@@ -344,8 +366,9 @@ class IsokoApp {
         sector: "Gatore",
         programme: "Direct Support",
         householdSize: 5,
-      daysWorked: 0,
-      governmentAmountOwed: 14400,
+      daysWorked: 30,
+      governmentAmountOwed: 45000,
+      vupWalletBalance: 5000,
         usualPaymentDay: 15,
         daysLate: 8,
         status: "credit-ready",
@@ -6738,7 +6761,13 @@ class IsokoApp {
   }
 
   goToPaymentMethods() {
-    this.state.selectedAccountIdx = -1;
+    const methods = this.getAvailablePaymentAccounts();
+    if (this.state.roleCode === "member") {
+      const vupIdx = methods.findIndex(m => m.credit);
+      this.state.selectedAccountIdx = vupIdx >= 0 ? vupIdx : 0;
+    } else {
+      this.state.selectedAccountIdx = 0;
+    }
     this.renderPaymentAccountsList();
     this.goPhonePage(6);
   }
@@ -6749,12 +6778,14 @@ class IsokoApp {
     if (!mlist || !flist) return;
 
     const methods = this.getAvailablePaymentAccounts();
-    if (this.state.selectedAccountIdx >= methods.length) this.state.selectedAccountIdx = -1;
+    if (this.state.selectedAccountIdx >= methods.length || this.state.selectedAccountIdx < 0) {
+      this.state.selectedAccountIdx = this.state.roleCode === "member" ? Math.max(0, methods.findIndex(m => m.credit)) : 0;
+    }
     mlist.innerHTML = methods.map((a, i) => `
       <button type="button" class="m-v2 ${i === this.state.selectedAccountIdx ? 'on' : ''} ${a.disabled ? 'disabled' : ''}" onclick="window.app.selectPaymentAccount(${i})" ${a.disabled ? 'disabled' : ''} aria-pressed="${i === this.state.selectedAccountIdx}">
         <span class="lg-v2" style="${a.color}"><i class="bi ${a.icon}" aria-hidden="true"></i></span>
         <span><b>${a.n}</b><small>${a.s}</small></span>
-        <span class="am-v2">${a.credit ? `${a.available.toLocaleString()} RWF<small>available credit</small>` : a.wallet ? `${a.available.toLocaleString()} RWF<small>wallet balance</small>` : `<small>${a.demo ? 'Demo payment' : 'Pay in person'}</small>`}</span>
+        <span class="am-v2">${a.credit ? (a.available > 0 ? `${a.available.toLocaleString()} RWF<small>available credit</small>` : `<span style="color:#e11d48;font-weight:700;">0 RWF</span><small style="color:var(--primary);font-weight:600;">+ Tap to top up</small>`) : a.wallet ? `${a.available.toLocaleString()} RWF<small>wallet balance</small>` : `<small>${a.demo ? 'Demo payment' : 'Pay in person'}</small>`}</span>
         <span class="r-v2" aria-hidden="true"></span>
       </button>
     `).join("");
@@ -6770,16 +6801,17 @@ class IsokoApp {
     const payLabel = document.getElementById("ppV2");
     if (payLabel) payLabel.textContent = selected ? (selected.credit ? `Use ${total.toLocaleString()} RWF credit` : selected.cash ? `Place cash order · ${total.toLocaleString()} RWF` : `Pay ${total.toLocaleString()} RWF`) : "Choose a payment method";
     flist.innerHTML = `
-      <div class="bal-v2" style="font-weight:700; font-size:11px; margin-top:4px;">
-        ${this.state.lang === 'rw' ? "Ongeraho amafaranga y'igerageza / Demo top-up:" : "Add demo money to selected account:"}
+      <div class="bal-v2" style="font-weight:700; font-size:11px; margin-top:4px; display:flex; align-items:center; justify-content:space-between;">
+        <span>${selected?.credit ? "Add sample food credit:" : this.state.lang === 'rw' ? "Ongeraho amafaranga y'igerageza / Demo top-up:" : "Add demo money to selected account:"}</span>
+        ${selected?.credit ? `<span style="color:var(--primary); font-size:10.5px; font-weight:600;">Balance: ${selected.available.toLocaleString()} RWF</span>` : ""}
       </div>
       <div class="chips-v2">
-        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(1500)">+ RWF 1,500</button>
-        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(10000)">+ RWF 10,000</button>
-        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(50000)">+ RWF 50,000</button>
-        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(100000)">+ RWF 100,000</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(5000)">+ 5,000 RWF</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(15000)">+ 15,000 RWF (10d)</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(30000)">+ 30,000 RWF (20d)</button>
+        <button type="button" class="chip-v2" onclick="window.app.addDemoMoney(50000)">+ 50,000 RWF</button>
       </div>
-      <p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p>
+      <p class="payment-demo-note"><i class="bi bi-info-circle" aria-hidden="true"></i> ${selected?.cash ? "Pay the seller when your food arrives or when you collect it." : selected?.credit ? "Zero-interest credit backed by unpaid government VUP work. Settled automatically when SACCO receives treasury payroll." : "Digital payments are simulated here. The app is not connected to MoMo, Airtel Money, SACCO, or a bank."}</p>
       <div id="payErrorV2" role="status" aria-live="polite"></div>
     `;
 
@@ -6804,7 +6836,7 @@ class IsokoApp {
     ];
     if (this.state.roleCode === "member") {
       const available = this.getRemainingCredit();
-      accounts.unshift({ n: "VUP food credit", s: "Use the unpaid VUP amount recorded for you · 0% interest", icon: "bi-wallet2", color: "background:#0e635e;color:#fff", l: "VUP", by: "VUP amount owed", credit: true, available, disabled: available <= 0 });
+      accounts.unshift({ n: "VUP food credit", s: "Use the unpaid VUP amount recorded for you · 0% interest", icon: "bi-wallet2", color: "background:#0e635e;color:#fff", l: "VUP", by: "VUP amount owed", credit: true, available, disabled: false });
       const wallet = Number(this.state.currentUser?.vupWalletBalance || 0);
       if (wallet > 0) accounts.unshift({ n: "My VUP food wallet", s: "Use money left from a recorded VUP payment", icon: "bi-wallet", color: "background:#e2f2ec;color:#176b48", l: "VUP", by: "VUP food wallet", wallet: true, available: wallet });
     }
@@ -6818,7 +6850,7 @@ class IsokoApp {
     const selIdx = this.state.selectedAccountIdx >= 0 ? this.state.selectedAccountIdx : 0;
     const acc = accounts[selIdx] || accounts[0];
 
-    if (acc.credit) {
+    if (acc && acc.credit) {
       const addedDays = Math.max(1, Math.round(amount / 1500));
       if (this.state.currentUser) {
         this.state.currentUser.governmentAmountOwed = (Number(this.state.currentUser.governmentAmountOwed) || 0) + amount;
@@ -6830,12 +6862,12 @@ class IsokoApp {
         }
       }
       this.toast(`Added +${amount.toLocaleString()} RWF credit (${addedDays} work days) to VUP food credit!`, "success");
-    } else if (acc.wallet || (this.state.roleCode === "member" && this.state.currentUser && !acc.credit)) {
+    } else if (acc && acc.wallet) {
       this.state.currentUser.vupWalletBalance = (Number(this.state.currentUser.vupWalletBalance) || 0) + amount;
       const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
       if (family) family.vupWalletBalance = this.state.currentUser.vupWalletBalance;
       this.toast(`Added +${amount.toLocaleString()} RWF to VUP wallet balance`, "success");
-    } else {
+    } else if (acc) {
       this.state.demoCustomBalances[acc.n] = (Number(this.state.demoCustomBalances[acc.n]) || 0) + amount;
       this.toast(`Added +${amount.toLocaleString()} RWF to ${acc.n} demo balance`, "success");
     }
@@ -6911,22 +6943,31 @@ class IsokoApp {
   manualResetMemberCredit() {
     const u = this.state.currentUser;
     if (!u) return;
-    u.governmentAmountOwed = 15000;
-    u.daysWorked = 10;
+    u.governmentAmountOwed = 45000;
+    u.daysWorked = 30;
     u.daysLate = 8;
+    u.vupWalletBalance = 5000;
     const family = (this.state.users?.member || []).find(user => user.email === u.email);
     if (family) {
-      family.governmentAmountOwed = 15000;
-      family.daysWorked = 10;
+      family.governmentAmountOwed = 45000;
+      family.daysWorked = 30;
       family.daysLate = 8;
+      family.vupWalletBalance = 5000;
     }
     this.saveState();
     this.render();
-    this.toast("Reset member credit to standard demo baseline (10 days / 15,000 RWF).", "info");
+    this.toast("Reset member credit to standard demo baseline (30 days / 45,000 RWF).", "info");
   }
 
   selectPaymentAccount(i) {
-    if (this.getAvailablePaymentAccounts()[i]?.disabled) return;
+    const accounts = this.getAvailablePaymentAccounts();
+    const acc = accounts[i];
+    if (!acc) return;
+    if (acc.credit && acc.available <= 0) {
+      this.addDemoMoney(20000);
+      this.toast("Added +20,000 RWF sample food credit for testing!", "success");
+    }
+    if (acc.disabled) return;
     this.state.selectedAccountIdx = i;
     this.renderPaymentAccountsList();
   }
@@ -6948,7 +6989,18 @@ class IsokoApp {
     const availableCredit = this.getRemainingCredit();
     if (isCredit && grandTotal > availableCredit) {
       const errEl = document.getElementById("payErrorV2");
-      if (errEl) errEl.textContent = `You have ${availableCredit.toLocaleString()} RWF of VUP food credit left. Remove some food or choose another payment method.`;
+      if (errEl) {
+        const shortfall = grandTotal - availableCredit;
+        const topUpAmt = Math.ceil((shortfall + 2000) / 5000) * 5000;
+        errEl.innerHTML = `
+          <div style="background:#fee2e2; color:#991b1b; padding:8px 10px; border-radius:8px; margin-top:8px; font-size:11.5px; line-height:1.4;">
+            <b>Insufficient VUP credit:</b> ${availableCredit.toLocaleString()} RWF available vs ${grandTotal.toLocaleString()} RWF needed.<br>
+            <button type="button" class="btn btn-sm btn-primary" style="margin-top:6px; font-size:11px; padding:3px 10px;" onclick="window.app.addDemoMoney(${topUpAmt})">
+              + Add ${topUpAmt.toLocaleString()} RWF Sample Credit Now
+            </button>
+          </div>
+        `;
+      }
       return;
     }
     const availableBalance = Number(this.state.currentUser?.vupWalletBalance || 0);
