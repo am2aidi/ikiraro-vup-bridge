@@ -48,7 +48,12 @@
 
     <!-- Vertix Body: Left Rail + Main Dynamic View -->
     <div class="body">
+      <!-- Mobile Backdrop for off-canvas drawer -->
+      <div class="mobile-rail-backdrop" id="mobileRailBackdrop" onclick="window.app.closeMobileSidebar()"></div>
       <aside class="rail wide" id="appRail" aria-label="Main menu">
+        <button class="mobile-drawer-close-btn" type="button" onclick="window.app.closeMobileSidebar()" aria-label="Close menu">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
         <a class="rail-brand" href="#" onclick="window.app.goHome(); return false;" aria-label="Isoko Bridge home">
           <img src="assets/isoko-bridge-icon.svg" alt="">
           <span><b>Isoko Bridge</b><small>Ikiraro cya VUP · NISR 2026</small></span>
