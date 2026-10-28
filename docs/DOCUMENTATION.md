@@ -178,7 +178,8 @@ Isoko Bridge is fully responsive and optimized for mobile phones (iOS Safari, An
 - **Universal Zero-Overflow Guarantee:** Strict `overflow-x: hidden` and touch-optimized containers prevent horizontal page clipping.
 - **Off-Canvas Mobile Drawer:** Replaces desktop sidebars on screens `<= 768px` with a sliding drawer, frosted backdrop, and auto-close navigation.
 - **Compact Mobile Hero Banner:** Replaces bulky promotional headers with a sleek 140px banner card on phones, preserving immediate vertical visibility for the community harvest ribbon and produce listings.
-- **Touch-Scrollable Analytics:** All advanced SVG charts feature touch-scrollable horizontal wrappers (`overflow-x: auto; min-width: 540px;`) with interactive visual swipe cues, ensuring high-resolution legibility without microscopic text scaling.
+- **Touch-Scrollable Analytics & Tables:** All advanced SVG charts and enterprise data tables (e.g., 10-column payroll register, credit transparency ledger) feature touch-scrollable horizontal wrappers (`class="table-wrap"`) with smooth horizontal scrollbars and `white-space: nowrap` cells.
+- **⚠️ Hackathon Design Notice & Recommended Evaluation Display:** Due to the short hackathon timeframe, dense multi-column enterprise planning tables and geospatial overlays are best experienced on a **Desktop or Laptop display (>=1280px or Full HD)**. On mobile phones, tables scroll horizontally to preserve readability without microscopic font shrinkage.
 
 ---
 

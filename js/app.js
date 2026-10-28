@@ -2430,17 +2430,17 @@ class IsokoApp {
           <span class="tag g" style="font-weight:700;">${creditOrders.length} Credit Records</span>
         </div>
 
-        <div style="overflow-x:auto;">
-          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+        <div class="table-wrap">
+          <table class="table-credit-ledger" style="width:100%; min-width:860px; border-collapse:collapse; font-size:12px;">
             <thead>
               <tr style="border-bottom:2px solid #e2e8f0; text-align:left; color:#64748b;">
-                <th style="padding:8px;">Order #</th>
-                <th style="padding:8px;">Beneficiary (On Credit)</th>
-                <th style="padding:8px;">Seller (Who got Paid)</th>
-                <th style="padding:8px;">Produce & Amount</th>
-                <th style="padding:8px;">Farmer Payout</th>
-                <th style="padding:8px;">VUP Repayment</th>
-                <th style="padding:8px;">Status</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Order #</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Beneficiary (On Credit)</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Seller (Who got Paid)</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Produce & Amount</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Farmer Payout</th>
+                <th style="padding:10px 12px; white-space:nowrap;">VUP Repayment</th>
+                <th style="padding:10px 12px; white-space:nowrap;">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -2449,30 +2449,30 @@ class IsokoApp {
                 const isRepaid = o.repaid === true;
                 return `
                   <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:8px; font-weight:700;">#${o.id}</td>
-                    <td style="padding:8px;">
-                      <b style="color:#1e293b;">${this.escapeHtml(o.buyerName || "Amina Uwase")}</b>
-                      <small style="display:block; color:#64748b;">📍 ${this.escapeHtml(o.district)} · VUP Member</small>
+                    <td style="padding:10px 12px; font-weight:700; white-space:nowrap;">#${o.id}</td>
+                    <td style="padding:10px 12px;">
+                      <b style="color:#1e293b; white-space:nowrap;">${this.escapeHtml(o.buyerName || "Amina Uwase")}</b>
+                      <small style="display:block; color:#64748b; white-space:nowrap;">📍 ${this.escapeHtml(o.district)} · VUP Member</small>
                     </td>
-                    <td style="padding:8px;">
-                      <b style="color:#047857;">${this.escapeHtml(o.farmer)}</b>
-                      <small style="display:block; color:#64748b;">Cooperative Seller</small>
+                    <td style="padding:10px 12px;">
+                      <b style="color:#047857; white-space:nowrap;">${this.escapeHtml(o.farmer)}</b>
+                      <small style="display:block; color:#64748b; white-space:nowrap;">Cooperative Seller</small>
                     </td>
-                    <td style="padding:8px;">
+                    <td style="padding:10px 12px; white-space:nowrap;">
                       <b>${this.escapeHtml(o.food)} (${o.kg} kg)</b>
                       <small style="display:block; color:#1e293b; font-weight:700;">${this.formatMoney(o.total)}</small>
                     </td>
-                    <td style="padding:8px;">
+                    <td style="padding:10px 12px; white-space:nowrap;">
                       ${isPaidToSeller 
                         ? '<span class="tag g" style="font-size:10px;"><i class="bi bi-check-circle"></i> Disbursed (MoMo)</span>'
                         : '<span class="tag y" style="font-size:10px;"><i class="bi bi-hourglass-split"></i> Pending Float</span>'}
                     </td>
-                    <td style="padding:8px;">
+                    <td style="padding:10px 12px; white-space:nowrap;">
                       ${isRepaid 
                         ? '<span class="tag g" style="font-size:10px;"><i class="bi bi-bank"></i> Repaid by SACCO</span>'
                         : '<span class="tag b" style="font-size:10px;"><i class="bi bi-clock-history"></i> Awaiting Payday</span>'}
                     </td>
-                    <td style="padding:8px;">
+                    <td style="padding:10px 12px; white-space:nowrap;">
                       <span class="tag" style="background:#f1f5f9; color:#334155; font-size:10px; font-weight:700;">
                         ${isRepaid ? 'Stage 3: Settled' : isPaidToSeller ? 'Stage 2: Farmer Paid' : 'Stage 1: In Progress'}
                       </span>
@@ -4643,20 +4643,28 @@ class IsokoApp {
         </div>
 
         <div class="table-wrap">
-          <table>
+          <table class="table-cases" style="width:100%; min-width:780px;">
             <thead>
-              <tr><th>Case ID</th><th>Reported By</th><th>Tx Link</th><th>Problem Type</th><th>Note</th><th>Status</th><th>Action</th></tr>
+              <tr>
+                <th style="white-space:nowrap;">Case ID</th>
+                <th style="white-space:nowrap;">Reported By</th>
+                <th style="white-space:nowrap;">Tx Link</th>
+                <th style="white-space:nowrap;">Problem Type</th>
+                <th>Note</th>
+                <th style="white-space:nowrap;">Status</th>
+                <th style="white-space:nowrap;">Action</th>
+              </tr>
             </thead>
             <tbody>
               ${cases.map(c => `
                 <tr>
-                  <td><b>#C-${c.id}</b></td>
-                  <td>${c.createdBy} (${c.role})</td>
-                  <td><b>${c.linkedTransaction}</b></td>
-                  <td><span class="pill pill-urgent">${c.type}</span></td>
-                  <td><small>${c.note}</small></td>
-                  <td><span class="pill ${c.status === 'resolved' ? 'pill-fair' : 'pill-high'}">${c.status}</span></td>
-                  <td>
+                  <td style="white-space:nowrap;"><b>#C-${c.id}</b></td>
+                  <td style="white-space:nowrap;">${this.escapeHtml(c.createdBy)} (${this.escapeHtml(c.role || "User")})</td>
+                  <td style="white-space:nowrap;"><b>${this.escapeHtml(c.linkedTransaction)}</b></td>
+                  <td style="white-space:nowrap;"><span class="pill pill-urgent">${this.escapeHtml(c.type)}</span></td>
+                  <td style="min-width:180px;"><small>${this.escapeHtml(c.note)}</small></td>
+                  <td style="white-space:nowrap;"><span class="pill ${c.status === 'resolved' ? 'pill-fair' : 'pill-high'}">${this.escapeHtml(c.status)}</span></td>
+                  <td style="white-space:nowrap;">
                     ${!['resolved','rejected'].includes(String(c.status).toLowerCase()) ? `<button class="btn btn-sm btn-primary" style="padding:2px 8px; font-size:11px;" onclick="window.app.openCaseResolution(${c.id})">Review / solve</button>` : `<small>${this.escapeHtml(c.resolvedBy || "Reviewed")}<br>${this.escapeHtml(c.resolutionNote || c.outcome || "Case closed")}</small>`}
                   </td>
                 </tr>
@@ -5012,19 +5020,19 @@ class IsokoApp {
         </div>
 
         <div class="table-wrap">
-          <table>
+          <table class="table-payroll" style="width:100%; min-width:980px;">
             <thead>
               <tr>
-                <th>Beneficiary</th>
-                <th>Sector & District</th>
-                <th>Days Worked</th>
-                <th>Gross Allowance</th>
-                <th>Food Credit Settled</th>
-                <th>Ejo Heza (5%)</th>
-                <th>Net Cash Disbursed</th>
-                <th>Payment Channel</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th style="white-space:nowrap;">Beneficiary</th>
+                <th style="white-space:nowrap;">Sector & District</th>
+                <th style="white-space:nowrap;">Days Worked</th>
+                <th style="white-space:nowrap;">Gross Allowance</th>
+                <th style="white-space:nowrap;">Food Credit Settled</th>
+                <th style="white-space:nowrap;">Ejo Heza (5%)</th>
+                <th style="white-space:nowrap;">Net Cash Disbursed</th>
+                <th style="white-space:nowrap;">Payment Channel</th>
+                <th style="white-space:nowrap;">Status</th>
+                <th style="white-space:nowrap;">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -5037,29 +5045,29 @@ class IsokoApp {
 
                 return `
                   <tr>
-                    <td>
+                    <td style="white-space:nowrap;">
                       <b>${this.escapeHtml(user.name || "—")}</b><br>
                       <small style="color:var(--mute);">${this.escapeHtml(user.email || "")}</small>
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;">
                       ${this.escapeHtml(user.sector || "Sector Hub")}<br>
                       <small style="color:var(--mute);">${this.escapeHtml(user.district || "—")}</small>
                     </td>
-                    <td><b>${Number(user.daysWorked || 0)}</b> days</td>
-                    <td><b style="color:var(--ink);">${gross.toLocaleString()} RWF</b></td>
-                    <td><span style="color:${openCredit ? 'var(--bad)' : 'var(--mute)'}; font-weight:600;">−${openCredit.toLocaleString()} RWF</span></td>
-                    <td><span style="color:var(--accent); font-weight:600;">−${ejoHeza.toLocaleString()} RWF</span></td>
-                    <td><b style="color:var(--success); font-size:14px;">${netPay.toLocaleString()} RWF</b></td>
-                    <td>
+                    <td style="white-space:nowrap;"><b>${Number(user.daysWorked || 0)}</b> days</td>
+                    <td style="white-space:nowrap;"><b style="color:var(--ink);">${gross.toLocaleString()} RWF</b></td>
+                    <td style="white-space:nowrap;"><span style="color:${openCredit ? 'var(--bad)' : 'var(--mute)'}; font-weight:600;">−${openCredit.toLocaleString()} RWF</span></td>
+                    <td style="white-space:nowrap;"><span style="color:var(--accent); font-weight:600;">−${ejoHeza.toLocaleString()} RWF</span></td>
+                    <td style="white-space:nowrap;"><b style="color:var(--success); font-size:14px;">${netPay.toLocaleString()} RWF</b></td>
+                    <td style="white-space:nowrap;">
                       <small style="font-weight:600;">${this.escapeHtml(user.paymentMethod || "Umurenge SACCO")}</small><br>
                       <small style="color:var(--mute);">${this.escapeHtml(user.accountNumber || "SACCO-01")}</small>
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;">
                       <span class="tag ${isDisbursed ? 'g' : user.daysLate > 0 ? 'r' : 'y'}">
                         ${isDisbursed ? 'Disbursed' : `${user.daysLate || 0}d Late`}
                       </span>
                     </td>
-                    <td>
+                    <td style="white-space:nowrap;">
                       ${isDisbursed ? `
                         <button class="btn btn-sm btn-ghost" disabled style="opacity:0.6;">
                           <i class="bi bi-check2-all"></i> Paid
@@ -5375,7 +5383,7 @@ class IsokoApp {
         </div>
 
         <div class="table-wrap">
-          <table>
+          <table class="table-agaseke" style="width:100%; min-width:840px;">
             <thead>
               <tr>
                 <th>Tx Reference</th>
@@ -5424,7 +5432,7 @@ class IsokoApp {
         </div>
 
         <div class="table-wrap">
-          <table>
+          <table class="table-agaseke" style="width:100%; min-width:840px;">
             <thead>
               <tr>
                 <th>Vulnerable Household</th>
@@ -5600,16 +5608,16 @@ class IsokoApp {
       <div class="head"><div><h1>Users and VUP work records</h1><p class="sub">Admins keep work days and unpaid VUP amounts up to date. The member's food credit updates automatically.</p></div><button class="btn btn-sm btn-outline" onclick="window.app.openExportFormat('work')"><i class="bi bi-download" aria-hidden="true"></i> Download work records</button></div>
       <section class="card admin-list-card">
         <div class="ch"><div><h3>VUP amount owed</h3><p class="sub">Use the amount confirmed by a work or payment record. Work days apply to public works programmes. These accounts are demo data.</p></div><span class="tag g">${members.length} VUP members</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Member</th><th>Programme and district</th><th>Days worked</th><th>Government owes (demo)</th><th>Open food credit</th><th>Credit left</th><th>Record</th></tr></thead><tbody>
-          ${members.map(user => `<tr><td><b>${this.escapeHtml(user.name || "—")}</b><br><small>${this.escapeHtml(user.email || "")}</small></td><td>${this.escapeHtml(user.programme || "VUP")}<br><small>${this.escapeHtml(user.district || "—")}</small></td><td>${Number(user.daysWorked || 0)}</td><td><b>${Number(user.governmentAmountOwed || 0).toLocaleString()} RWF</b></td><td>${this.getOutstandingCredit(user.email).toLocaleString()} RWF</td><td>${this.getRemainingCredit(user).toLocaleString()} RWF</td><td><button class="btn btn-sm btn-outline" onclick="window.app.openVupWorkRecord('${this.escapeHtml(user.email)}')"><i class="bi bi-pencil-square" aria-hidden="true"></i> Update</button></td></tr>`).join("")}
+        <div class="table-wrap"><table class="table-users" style="width:100%; min-width:820px;"><thead><tr><th style="white-space:nowrap;">Member</th><th style="white-space:nowrap;">Programme and district</th><th style="white-space:nowrap;">Days worked</th><th style="white-space:nowrap;">Government owes (demo)</th><th style="white-space:nowrap;">Open food credit</th><th style="white-space:nowrap;">Credit left</th><th style="white-space:nowrap;">Record</th></tr></thead><tbody>
+          ${members.map(user => `<tr><td style="white-space:nowrap;"><b>${this.escapeHtml(user.name || "—")}</b><br><small style="color:var(--mute);">${this.escapeHtml(user.email || "")}</small></td><td style="white-space:nowrap;">${this.escapeHtml(user.programme || "VUP")}<br><small style="color:var(--mute);">${this.escapeHtml(user.district || "—")}</small></td><td style="white-space:nowrap;"><b>${Number(user.daysWorked || 0)}</b> days</td><td style="white-space:nowrap;"><b style="color:var(--ink);">${Number(user.governmentAmountOwed || 0).toLocaleString()} RWF</b></td><td style="white-space:nowrap;"><span style="color:var(--bad); font-weight:600;">${this.getOutstandingCredit(user.email).toLocaleString()} RWF</span></td><td style="white-space:nowrap;"><b style="color:var(--success);">${this.getRemainingCredit(user).toLocaleString()} RWF</b></td><td style="white-space:nowrap;"><button class="btn btn-sm btn-outline" onclick="window.app.openVupWorkRecord('${this.escapeHtml(user.email)}')"><i class="bi bi-pencil-square" aria-hidden="true"></i> Update</button></td></tr>`).join("")}
         </tbody></table></div>
         <p class="sub" style="margin-top:12px;">Food credit available = government amount owed − open food credit. Planners can help with cases, but cannot edit this record or grant credit.</p>
       </section>
       <div class="head" style="margin-top:26px;"><div><h2>All accounts</h2><p class="sub">Search accounts by name, email, or role.</p></div></div>
       <section class="card admin-list-card">
         <div class="admin-list-tools"><label class="admin-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input type="search" placeholder="Search name, email, or role" oninput="window.app.filterAdminUserRows(this.value)"></label><span class="tag g">${users.length} demo accounts</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>District</th></tr></thead><tbody>
-          ${users.map(user => { const search = `${user.name || ""} ${user.email || ""} ${user.role}`.toLowerCase(); return `<tr data-admin-user="${this.escapeHtml(search)}"><td><b>${this.escapeHtml(user.name || "—")}</b></td><td>${this.escapeHtml(user.role)}</td><td>${this.escapeHtml(user.email || "—")}</td><td><span class="tag ${user.status === 'pending' ? 'y' : 'g'}">${this.escapeHtml(user.status || 'active')}</span></td><td>${this.escapeHtml(user.district || "—")}</td></tr>`; }).join("")}
+        <div class="table-wrap"><table class="table-users" style="width:100%; min-width:700px;"><thead><tr><th style="white-space:nowrap;">Name</th><th style="white-space:nowrap;">Role</th><th style="white-space:nowrap;">Email</th><th style="white-space:nowrap;">Status</th><th style="white-space:nowrap;">District</th></tr></thead><tbody>
+          ${users.map(user => { const search = `${user.name || ""} ${user.email || ""} ${user.role}`.toLowerCase(); return `<tr data-admin-user="${this.escapeHtml(search)}"><td style="white-space:nowrap;"><b>${this.escapeHtml(user.name || "—")}</b></td><td style="white-space:nowrap;"><span class="tag">${this.escapeHtml(user.role)}</span></td><td style="white-space:nowrap;"><small style="color:var(--mute);">${this.escapeHtml(user.email || "—")}</small></td><td style="white-space:nowrap;"><span class="tag ${user.status === 'pending' ? 'y' : 'g'}">${this.escapeHtml(user.status || 'active')}</span></td><td style="white-space:nowrap;">${this.escapeHtml(user.district || "—")}</td></tr>`; }).join("")}
         </tbody></table></div>
       </section>`;
   }
@@ -5663,8 +5671,8 @@ class IsokoApp {
     const entries = this.state.ledger || [];
     return `
       <div class="head"><div><h1>Money record</h1><p class="sub">See money added to or paid from the bridge pool.</p></div><button class="btn btn-sm btn-primary" onclick="window.app.openExportFormat('ledger')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg> Download CSV</button></div>
-      <section class="card admin-list-card"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Order</th><th>Status</th></tr></thead><tbody>
-        ${entries.length ? entries.map(entry => `<tr><td>${this.escapeHtml(entry.date || "—")}</td><td>${this.escapeHtml(String(entry.type || "Record").replace(/_/g, " "))}</td><td>${this.escapeHtml(entry.from || "—")}</td><td>${this.escapeHtml(entry.to || "—")}</td><td>${(Number(entry.amount) || 0).toLocaleString()} RWF</td><td>${this.escapeHtml(entry.link || "—")}</td><td>${this.escapeHtml(entry.status || "Recorded")}</td></tr>`).join("") : '<tr><td colspan="7">No money records yet.</td></tr>'}
+      <section class="card admin-list-card"><div class="table-wrap"><table class="table-ledger" style="width:100%; min-width:760px;"><thead><tr><th style="white-space:nowrap;">Date</th><th style="white-space:nowrap;">Type</th><th style="white-space:nowrap;">From</th><th style="white-space:nowrap;">To</th><th style="white-space:nowrap;">Amount</th><th style="white-space:nowrap;">Order</th><th style="white-space:nowrap;">Status</th></tr></thead><tbody>
+        ${entries.length ? entries.map(entry => `<tr><td style="white-space:nowrap;"><small style="color:var(--mute);">${this.escapeHtml(entry.date || "—")}</small></td><td style="white-space:nowrap;"><span class="tag">${this.escapeHtml(String(entry.type || "Record").replace(/_/g, " "))}</span></td><td style="white-space:nowrap;">${this.escapeHtml(entry.from || "—")}</td><td style="white-space:nowrap;">${this.escapeHtml(entry.to || "—")}</td><td style="white-space:nowrap;"><b style="font-variant-numeric:tabular-nums;">${(Number(entry.amount) || 0).toLocaleString()} RWF</b></td><td style="white-space:nowrap;"><code>${this.escapeHtml(entry.link || "—")}</code></td><td style="white-space:nowrap;"><span class="tag g">${this.escapeHtml(entry.status || "Recorded")}</span></td></tr>`).join("") : '<tr><td colspan="7">No money records yet.</td></tr>'}
       </tbody></table></div></section>`;
   }
 
@@ -5760,33 +5768,36 @@ class IsokoApp {
         </div>
       </section>
 
-      <!-- Two-column grid -->
-      <div class="grid g2">
-        <div class="left">
-          ${this.renderCreditDesk()}
+      <!-- Full-Width Credit Desk Operations (Queue Cards & Lifecycle Flow) -->
+      ${this.renderCreditDesk()}
+
+      <!-- Admin Core Management Section: Problem Cases & Registered Users -->
+      <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px; margin-top: 20px; margin-bottom: 20px;">
+        <!-- Left: Problem Cases Queue -->
+        <div style="min-width: 0;">
           ${this.renderCasesQueue()}
-          <div class="card">
-            <div class="ch">
-              <h3>All System Orders (${this.state.orders.length})</h3>
-            </div>
-            ${this.renderOrdersTable(this.state.orders)}
-          </div>
         </div>
-        <div class="left">
-          <div class="card">
-            <div class="ch">
-              <h3>All Registered Users (${allUsers.length})</h3>
+
+        <!-- Right: All Registered Users -->
+        <div style="min-width: 0;">
+          <div class="card" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="ch" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div>
+                <h3 style="font-size:17px; font-weight:800; margin:0 0 2px;">👥 All Registered Users (${allUsers.length})</h3>
+                <div style="font-size:12px; color:var(--text-muted);">Platform accounts across all 6 ecosystem roles</div>
+              </div>
+              <button class="btn btn-sm btn-outline" onclick="window.app.setNavTab('users')">Manage Users →</button>
             </div>
-            <div class="table-wrap">
-              <table>
+            <div class="table-wrap" style="flex: 1;">
+              <table class="table-users">
                 <thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th></tr></thead>
                 <tbody>
-                  ${allUsers.map(u => `
+                  ${allUsers.slice(0, 10).map(u => `
                     <tr>
-                      <td><b>${u.name}</b></td>
-                      <td><span class="tag">${u.role}</span></td>
-                      <td><small>${u.email}</small></td>
-                      <td><span class="tag ${u.status === 'pending' ? 'y' : 'g'}">${u.status}</span></td>
+                      <td><b>${this.escapeHtml(u.name || "—")}</b></td>
+                      <td><span class="tag">${this.escapeHtml(u.role || "MEMBER")}</span></td>
+                      <td><small style="color:var(--mute);">${this.escapeHtml(u.email || "—")}</small></td>
+                      <td><span class="tag ${u.status === 'pending' ? 'y' : 'g'}">${this.escapeHtml(u.status || 'active')}</span></td>
                     </tr>
                   `).join("")}
                 </tbody>
@@ -5794,8 +5805,21 @@ class IsokoApp {
             </div>
           </div>
         </div>
-        ${this.renderCreditTransactionTransparencyTable()}
       </div>
+
+      <!-- Full-Width System Orders Register -->
+      <section class="card" style="margin-top: 20px; border-radius: 20px; padding: 22px;">
+        <div class="ch" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="margin:0 0 4px; font-size:17px; font-weight:800;">📦 All System Orders & Transactions (${this.state.orders.length})</h3>
+            <p class="sub" style="margin:0;">Audit trail of all produce purchases, food credit advances, and delivery dispatches.</p>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="window.app.openStatementModal('Admin')">
+            <i class="bi bi-download"></i> Export Orders
+          </button>
+        </div>
+        ${this.renderOrdersTable(this.state.orders)}
+      </section>
     `;
   }
 
@@ -7447,25 +7471,25 @@ class IsokoApp {
 
     return `
       <div class="table-wrap">
-        <table>
+        <table class="table-orders" style="width:100%; min-width:720px;">
           <thead>
             <tr>
-              <th>#Order</th>
-              <th>Produce</th>
-              <th>Quantity</th>
-              <th>Amount</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th style="white-space:nowrap;">#Order</th>
+              <th style="white-space:nowrap;">Produce</th>
+              <th style="white-space:nowrap;">Quantity</th>
+              <th style="white-space:nowrap;">Amount</th>
+              <th style="white-space:nowrap;">Payment</th>
+              <th style="white-space:nowrap;">Status</th>
+              <th style="white-space:nowrap;">Actions</th>
             </tr>
           </thead>
           <tbody>
             ${ordersList.map(o => `
               <tr>
-                <td><b>#${o.id}</b></td>
-                <td>${o.food}</td>
-                <td>${o.kg} kg</td>
-                <td><b>${o.total.toLocaleString()} RWF</b></td>
+                <td style="white-space:nowrap;"><b>#${o.id}</b></td>
+                <td style="white-space:nowrap;">${this.escapeHtml(o.food)}</td>
+                <td style="white-space:nowrap;">${o.kg} kg</td>
+                <td style="white-space:nowrap;"><b>${o.total.toLocaleString()} RWF</b></td>
                 <td>
                   <span class="pill ${o.mode === 'credit' ? 'pill-urgent' : 'pill-fair'}">
                     ${o.mode === 'credit' ? 'Bridge Credit' : o.paymentMethod || o.paidBy || 'Cash'}

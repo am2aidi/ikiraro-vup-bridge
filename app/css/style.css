@@ -4514,8 +4514,57 @@ html, body {
   max-width: 100% !important;
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch !important;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   box-sizing: border-box !important;
+  border-radius: 14px;
+  scrollbar-width: thin;
+}
+.table-wrap::-webkit-scrollbar {
+  height: 6px;
+}
+.table-wrap::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 999px;
+}
+.table-wrap::-webkit-scrollbar-thumb {
+  background: rgba(14, 99, 94, 0.28);
+  border-radius: 999px;
+}
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table-wrap table th,
+.table-wrap table td {
+  padding: 10px 14px;
+  vertical-align: middle;
+}
+.table-wrap table th {
+  white-space: nowrap;
+}
+.table-wrap table td b,
+.table-wrap table td .tag,
+.table-wrap table td .pill,
+.table-wrap table td .btn {
+  white-space: nowrap;
+}
+
+/* Specific table min-widths so multi-column data never squishes */
+.table-payroll { min-width: 980px !important; }
+.table-credit-ledger { min-width: 860px !important; }
+.table-orders { min-width: 760px !important; }
+.table-cases { min-width: 820px !important; }
+.table-users { min-width: 720px !important; }
+.table-agaseke { min-width: 840px !important; }
+.table-ledger { min-width: 760px !important; }
+
+/* Keep KPI values from line-breaking */
+.kp b {
+  font-size: clamp(19px, 2.1vw, 25px) !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Analytics Tabs swipeable on mobile */

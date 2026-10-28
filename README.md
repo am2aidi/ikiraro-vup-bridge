@@ -651,5 +651,44 @@ Below is the complete, transparent catalog of all NISR microdata and official in
 
 ---
 
+## 🤖 Generative AI Disclosure & Development Methodology
+
+In full alignment with academic integrity, competition guidelines, and NISR 2026 Big Data Hackathon regulations, the authors declare full transparency regarding the use of generative artificial intelligence tools during the development of Isoko Bridge (*Ikiraro cya VUP*):
+
+### 1. AI Tools Utilized
+- **Google Gemini & Advanced Agentic Coding Assistants (Google DeepMind):** Used for code scaffolding, automated DOM test authoring (`scripts/test_runtime.js`), CSS responsive grid optimization, and architectural refactoring.
+- **Client-Side Translation Engine (`js/gemini_engine.js`):** Engineered as an offline, rule-based and dictionary-driven bilingual translation helper supporting instantaneous, privacy-preserving switches between English, Kinyarwanda (*Ikinyarwanda*), and French (*Français*) without external API dependencies.
+- **GitHub Copilot & Anthropic Claude:** Consulted for boilerplate validation, TypeScript/JSDoc type annotations, and edge-case testing scenarios.
+
+### 2. Scope & Boundaries of AI Assistance
+- **Scaffolding & Layout Code:** Generative AI assisted in rapid prototyping of vanilla JavaScript SPA components, SVG chart primitives, and responsive layout wrappers under strict time constraints.
+- **Synthetic Test Personas:** Generated realistic Rwandan demo accounts (e.g., Amina Uwase, Mukamana Farm, Emmanuel Trader) strictly grounded in authentic NISR household survey statistics while ensuring zero exposure of actual citizen PII.
+- **Automated Verification:** AI tools assisted in synthesizing unit tests to stress-test financial balance equations, voucher deductibility rules, and multi-currency exchange rates.
+
+### 3. Human Authorship, Ownership & Intellectual Verification
+- **Original Concept & Economic Model:** The core thesis—bridging the 9.2-day VUP payment gap through 0% interest food advances against confirmed work days, real-time farmer float liquidation, SACCO auto-recovery, and citizen-funded Agaseke solidarity—was conceived, designed, and formulated 100% by the human student team.
+- **Data Science & NISR Microdata Modeling:** The statistical analysis of 3,399 records from the NISR EICV7 VUP survey baseline, the 30-district geospatial hotspot calculations, poverty-delay correlations ($R^2=0.68$), and muster roll formulas were conducted, analyzed, and interpreted directly by the human authors.
+- **Code Audit & Financial Safety:** Every line of code, financial ledger rule, and mathematical constraint (e.g., maximum 50% recovery cap, 5% Ejo Heza savings with 100% government match) was personally audited, tested, and verified by the authors. The human team assumes complete, unconditional responsibility for all submitted assets.
+
+---
+
+## 📱 Multi-Device & Evaluation Experience Notice
+
+### Hackathon Timeframe & Recommended Evaluation Environment
+> **Note to Judges & Evaluators:**  
+> This prototype was designed, built, and stress-tested during the rapid, high-intensity hackathon sprint for the **NISR 2026 Big Data Hackathon**.
+
+1. **Mobile Phone Experience (Smartphones & Tablets):**
+   - The application is engineered with responsive viewport configurations, touch-friendly tap targets, an off-canvas navigation drawer, and `.table-wrap` horizontal scrolling containers.
+   - Core citizen workflows—including browsing fresh harvests, testing 0% food credit checkout, toggling languages (EN/RW/FR), switching demo personas, and viewing the USSD feature-phone simulator—work smoothly on mobile screens.
+   - However, **due to the short hackathon timeframe**, multi-column enterprise data tables (such as the 10-column VUP Payroll Register) and complex data science visualizations may require horizontal scrolling on narrow smartphone viewports (under 640px).
+
+2. **Recommended Best Experience for Hackathon Evaluation:**
+   - For evaluating the comprehensive **Government Planner Cockpit**, **System Administrator Dashboard**, **10-Column Beneficiary Payroll & Ejo Heza Register**, **30-District Geospatial Leaflet Map**, and **Advanced Statistical Bell Curves / Box Plots**, we strongly recommend viewing the live application on a **Desktop Computer or Laptop display (minimum 1280×800 or Full HD 1920×1080)**, or a tablet in landscape mode.
+   - This ensures all data columns, statistical legends, audit logs, and spatial overlays render with optimal clarity without requiring horizontal scrolling.
+
+---
+
 *Built by the Isoko Bridge team for the NISR 2026 Big Data Hackathon. Designed to demonstrate practical financial inclusion and evidence-based social protection in Rwanda.*
+
 
