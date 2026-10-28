@@ -4,8 +4,9 @@
 >
 > Isoko Bridge (Ikiraro cya VUP) is a student-built prototype that connects VUP households to local food sellers while they wait for a social support payment. It also gives planners and administrators a simple way to explore prepared NISR survey findings and review demo activity.
 
-**NISR 2026 Big Data Hackathon · Track 3: Open Innovation**
-**Live prototype:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/) · **Source code:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)
+**NISR 2026 Big Data Hackathon · Track 3: Open Innovation (Alternate: Track 2: Financial Inclusion)**  
+**Live Prototype:** [ikiraro-vup-bridge.vercel.app](https://ikiraro-vup-bridge.vercel.app/) · **Source Code:** [github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)  
+**Demo Video:** [Watch 3-Minute Walkthrough on Screencastify](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj) · **Full Technical Documentation:** [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) · **Declaration:** [DECLARATION.md](DECLARATION.md)
 
 The idea connects to Rwanda's [NST2 2024–2029 social transformation priorities](https://www.minecofin.gov.rw/fileadmin/user_upload/Minecofin/Publications/STRATEGIES/NST_2/NST2_2024-2029_Abridged.pdf), including poverty graduation and access to social security and income support. This is a student concept that may support discussion of those priorities; it is not an official government programme or partnership.
 

@@ -1,6 +1,9 @@
-# Isoko Bridge demo video plan
+# Isoko Bridge Demo Video
 
-The NISR webinar asks for a screen recording that shows the app and its main features. Keep the finished video under 3 minutes. Record the app itself on a computer; do not film the screen with a phone. This guide is a plan, not a recorded video.
+> **Official Recording:** [Watch the Video Walkthrough on Screencastify](https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj)  
+> **Direct Link:** `https://app.screencastify.com/watch/XbVEMd8xZI2Vp0OJA5Fj`
+
+The NISR webinar asks for a screen recording that shows the app and its main features. Keep the finished video under 3 minutes. Record the app itself on a computer; do not film the screen with a phone. This guide outlines the walkthrough structure.
 
 ## Before recording
 
