@@ -2380,7 +2380,7 @@ class IsokoApp {
           <span class="tag b" style="font-weight:700;">3-Stage Transparent Float</span>
         </div>
 
-        <div class="credit-lifecycle-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:12px;">
+        <div class="credit-lifecycle-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; width:100%; box-sizing:border-box;">
           <!-- Stage 1 -->
           <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; border-top:4px solid #10b981;">
             <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#065f46; margin-bottom:4px;">
@@ -2932,7 +2932,7 @@ class IsokoApp {
     const accountSlot = document.getElementById("railAccountSlot");
     const footerSlot = document.getElementById("railFooterSlot");
     if (accountSlot) accountSlot.innerHTML = "";
-    if (footerSlot) footerSlot.innerHTML = this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "";
+    if (footerSlot) footerSlot.innerHTML = `<button class="rail-action" type="button" onclick="window.app.openAiDisclosureModal()" title="AI Disclosure & Methodology" data-tip="AI Disclosure" style="margin-bottom:6px;"><i class="bi bi-robot" aria-hidden="true"></i><span class="rail-label">AI Disclosure</span></button>` + (this.state.user ? `<button class="rail-delete-account" type="button" onclick="window.app.setNavTab('settings')" title="Account and privacy settings" data-tip="Account and privacy settings"><i class="bi bi-person-x" aria-hidden="true"></i><span class="rail-label">Account settings</span></button><button class="rail-logout" type="button" onclick="window.app.logout()" title="Log out" data-tip="Log out"><i class="bi bi-box-arrow-right" aria-hidden="true"></i><span class="rail-label">Log out</span></button>` : "");
     this.updateThemeControl();
     this.syncSidebar();
     if (!slot) return;
@@ -4513,47 +4513,47 @@ class IsokoApp {
     const deskTitle = lang === 'rw' ? "Gukurikirana inguzanyo n'ubwishyu" : lang === 'fr' ? "Suivi du crédit et des paiements" : "Credit and payment tracking";
 
     return `
-      <div class="credit-desk">
+      <div class="credit-desk" style="width:100%; max-width:100%; box-sizing:border-box;">
         ${this.renderCreditDeskLifecycleBanner()}
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <h3 style="font-size:18px; font-weight:800;">${deskTitle}</h3>
-          <button class="btn btn-ghost btn-sm" style="color:#7e22ce; font-weight:700; font-size:12px;" onclick="window.app.explainNumbersInEasyWords('queues')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:8px;">
+          <h3 style="font-size:18px; font-weight:800; margin:0;">${deskTitle}</h3>
+          <button class="btn btn-ghost btn-sm" style="color:#7e22ce; font-weight:700; font-size:12px; padding:4px 10px;" onclick="window.app.explainNumbersInEasyWords('queues')">
             ✨ Explain Queues in Easy Words
           </button>
         </div>
-        <p class="small" style="color:var(--text-muted); margin-bottom:12px;">Credit is given automatically from the member's recorded unpaid VUP amount. Admins manage money; planners can review records and help with cases.</p>
+        <p class="small" style="color:var(--text-muted); margin-bottom:12px; line-height:1.45;">Credit is given automatically from the member's recorded unpaid VUP amount. Admins manage money; planners can review records and help with cases.</p>
 
         <div class="queue-grid">
           <!-- Automatic credit: no planner approval -->
           <div class="queue-card">
-            <div class="queue-head">
+            <div class="queue-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
               <div>
                 <b style="font-size:14.5px;">Automatic food credit</b>
                 <div style="font-size:11px; color:var(--text-muted);">No planner approval needed</div>
               </div>
-              <span class="queue-badge" style="background:#e5f5ec; color:#176b48;">${this.state.orders.filter(o => o.mode === "credit" && o.approvedBy === "System (automatic)").length} issued</span>
+              <span class="queue-badge" style="background:#e5f5ec; color:#176b48; margin-left:auto;">${this.state.orders.filter(o => o.mode === "credit" && o.approvedBy === "System (automatic)").length} issued</span>
             </div>
-            <div class="queue-item"><b>How the amount is set</b><p class="small">Recorded VUP money owed minus the member's open food credit. The member can use the amount left at checkout.</p><p class="small">A planner cannot approve, reduce, or issue credit.</p></div>
+            <div class="queue-item"><b>How the amount is set</b><p class="small" style="margin:4px 0;">Recorded VUP money owed minus the member's open food credit. The member can use the amount left at checkout.</p><p class="small" style="margin:0;">A planner cannot approve, reduce, or issue credit.</p></div>
           </div>
 
           <!-- Queue 2: To Pay Sellers -->
           <div class="queue-card">
-            <div class="queue-head">
+            <div class="queue-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
               <div>
                 <b style="font-size:14.5px;">2. To Pay Sellers</b>
                 <div style="font-size:11px; color:var(--text-muted);">Disburse pool money to farmer</div>
               </div>
-              <span class="queue-badge" style="background:#fee2e2; color:#991b1b;">${q2.length} pending</span>
+              <span class="queue-badge" style="background:#fee2e2; color:#991b1b; margin-left:auto;">${q2.length} pending</span>
             </div>
             <div style="flex:1;">
               ${q2.length ? q2.map(o => `
                 <div class="queue-item">
-                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; flex-wrap:wrap; gap:6px;">
                     <span>#${o.id} ${o.food} (${o.kg} kg)</span>
                     <b style="color:var(--danger);">${o.total.toLocaleString()} RWF</b>
                   </div>
                   <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Seller: <b>${o.farmer}</b> · Delivered ✓</div>
-                  ${canManageFunds ? `<button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:4px; background:var(--ok); border-color:var(--ok);" onclick="window.app.disburseToSeller(${o.id})"><i class="bi bi-send" aria-hidden="true"></i> Record seller payment</button>` : '<small class="tag">Admin handles payments</small>'}
+                  ${canManageFunds ? `<button class="btn btn-sm btn-primary" style="width:100%; margin-top:6px; padding:6px 10px; background:var(--ok); border-color:var(--ok); white-space:normal; text-align:center;" onclick="window.app.disburseToSeller(${o.id})"><i class="bi bi-send" aria-hidden="true"></i> Record seller payment</button>` : '<small class="tag">Admin handles payments</small>'}
                 </div>
               `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ All delivered sellers paid</p>'}
             </div>
@@ -4561,23 +4561,23 @@ class IsokoApp {
 
           <!-- Queue 3: To Repay -->
           <div class="queue-card">
-            <div class="queue-head">
+            <div class="queue-head" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
               <div>
                 <b style="font-size:14.5px;">3. To Repay</b>
                 <div style="font-size:11px; color:var(--text-muted);">Awaiting VUP treasury wave</div>
               </div>
-              <span class="queue-badge" style="background:#e0e7ff; color:#3730a3;">${q3.length} open</span>
+              <span class="queue-badge" style="background:#e0e7ff; color:#3730a3; margin-left:auto;">${q3.length} open</span>
             </div>
             <div style="flex:1;">
               ${q3.length ? q3.map(o => `
                 <div class="queue-item">
-                  <div style="display:flex; justify-content:space-between; font-weight:700;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700; flex-wrap:wrap; gap:6px;">
                     <span>#${o.id} ${o.food}</span>
                     <b style="color:#4338ca;">${o.total.toLocaleString()} RWF</b>
                   </div>
                   <div style="font-size:11.5px; color:var(--text-muted); margin:3px 0;">Family: <b>${o.buyerName}</b> ${o.isOverdue ? '<span style="color:var(--danger); font-weight:700;">(Overdue)</span>' : ''}</div>
-                  <div style="display:flex; gap:6px; margin-top:6px;">
-                    ${canManageFunds ? `<button class="btn btn-sm btn-outline" style="flex:1; padding:4px;" onclick="window.app.settleFromVup(${o.id})">Record repayment</button><button class="btn btn-sm btn-ghost" style="padding:4px; font-size:11px; color:var(--mute);" onclick="window.app.writeOffCredit(${o.id})" title="Write off a balance after review">Write off</button>` : '<small class="tag">Admin handles repayment</small>'}
+                  <div style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
+                    ${canManageFunds ? `<button class="btn btn-sm btn-outline" style="flex:1; min-width:130px; padding:6px 8px; white-space:normal; text-align:center;" onclick="window.app.settleFromVup(${o.id})">Record repayment</button><button class="btn btn-sm btn-ghost" style="padding:6px 8px; font-size:11px; color:var(--mute); white-space:nowrap;" onclick="window.app.writeOffCredit(${o.id})" title="Write off a balance after review">Write off</button>` : '<small class="tag">Admin handles repayment</small>'}
                   </div>
                 </div>
               `).join("") : '<p class="small" style="color:var(--text-muted); text-align:center; padding:18px 0;">✓ No open credit awaiting repayment</p>'}
@@ -8213,6 +8213,11 @@ class IsokoApp {
         `)}
       </div>
     `;
+  }
+
+  openAiDisclosureModal() {
+    const modal = document.getElementById("aiDisclosureModal");
+    if (modal) modal.classList.add("open");
   }
 }
 

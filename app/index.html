@@ -481,6 +481,50 @@
     </div>
   </div>
 
+  <!-- AI Disclosure & Hackathon Declaration Modal -->
+  <div id="aiDisclosureModal" class="auth-overlay-backdrop" role="dialog" aria-modal="true" aria-labelledby="aiDisclosureTitle">
+    <div class="card" style="max-width:680px; width:94vw; max-height:88vh; overflow-y:auto; padding:24px; background:var(--card-bg); border-radius:24px; box-shadow:0 25px 60px rgba(0,0,0,0.35);">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:24px;">🤖</span>
+          <div>
+            <h2 id="aiDisclosureTitle" style="font-size:18px; margin:0; font-weight:800;">Generative AI Disclosure & Methodology</h2>
+            <p class="sub" style="margin:2px 0 0; font-size:11.5px;">NISR 2026 Big Data Hackathon · Academic Integrity & Authorship Declaration</p>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-ghost" type="button" onclick="document.getElementById('aiDisclosureModal').classList.remove('open')" aria-label="Close">✕</button>
+      </div>
+
+      <div style="font-size:13px; line-height:1.6; color:var(--text);">
+        <div style="background:var(--accsoft); border:1px solid rgba(14,99,94,0.3); padding:12px 14px; border-radius:14px; margin-bottom:14px;">
+          <b style="color:var(--acc); font-size:13.5px;">Transparency & Compliance Notice</b>
+          <p style="margin:4px 0 0; font-size:12px; color:var(--mute);">
+            In full compliance with NISR hackathon guidelines and academic ethics, the authors transparently declare the generative artificial intelligence tools utilized during the development of Isoko Bridge (<em>Ikiraro cya VUP</em>).
+          </p>
+        </div>
+
+        <h4 style="font-size:14px; font-weight:700; margin:14px 0 6px;">1. AI Tools Utilized</h4>
+        <ul style="padding-left:18px; margin:0 0 12px;">
+          <li><b>Google Gemini & Advanced Agentic Coding Assistants (Google DeepMind):</b> Code scaffolding, DOM acceptance testing automation (<code>scripts/test_runtime.js</code>), CSS responsive layout optimization, and architectural refactoring.</li>
+          <li><b>Client-Side Translation Engine (<code>js/gemini_engine.js</code>):</b> Offline dictionary-driven bilingual helper supporting real-time privacy-preserving switching between English, Kinyarwanda, and French.</li>
+          <li><b>GitHub Copilot & Claude:</b> Boilerplate validation and edge-case testing verification.</li>
+        </ul>
+
+        <h4 style="font-size:14px; font-weight:700; margin:14px 0 6px;">2. Human Authorship & Intellectual Ownership</h4>
+        <ul style="padding-left:18px; margin:0 0 12px;">
+          <li><b>Original Economic Concept:</b> Bridging the 9.2-day VUP payment gap through 0% food advances backed by confirmed work attendance, real-time farmer float liquidation, SACCO auto-recovery, and citizen Agaseke solidarity was conceived and formulated 100% by the human team.</li>
+          <li><b>NISR Big Data Science:</b> Statistical analysis of all 3,399 records from the NISR EICV7 VUP survey baseline, 30-district geospatial delay calculations, and poverty correlations (R²=0.68) were conducted and interpreted directly by the human authors.</li>
+          <li><b>Code Audit:</b> Every line of code, formula (50% deduction safety cap, 5% Ejo Heza match), and financial ledger constraint was audited, tested, and verified by the authors.</li>
+        </ul>
+
+        <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <small style="color:var(--mute);">UR-CST · Track 3: Open Innovation · October 2026</small>
+          <button class="btn btn-sm btn-primary" type="button" onclick="document.getElementById('aiDisclosureModal').classList.remove('open')">Close Declaration</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="container">
@@ -491,6 +535,11 @@
             Team: <b>Zaidi</b> & <b>KAYUMBA TETA Aela Greta</b> (Final Year, University of Rwanda - CST)
             <br>
             Track: Open Innovation / Financial Inclusion & Poverty Reduction
+          </div>
+          <div style="margin-top: 6px;">
+            <button class="btn btn-sm btn-outline" style="padding:3px 10px; font-size:11px; border-radius:999px; background:var(--card);" onclick="window.app.openAiDisclosureModal()">
+              🤖 View AI Disclosure & Ethics Declaration
+            </button>
           </div>
         </div>
         <div style="text-align: right; font-size: 12px;">

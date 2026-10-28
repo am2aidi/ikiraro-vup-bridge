@@ -4623,39 +4623,195 @@ html, body {
   #mapContainer {
     height: 300px !important;
   }
-}
-
-@media (max-width: 640px) {
-  body {
-    padding: 6px 6px 30px !important;
-  }
-  .shell {
-    padding: 10px 8px 18px !important;
-    border-radius: 16px !important;
-  }
-  .queue-grid {
-    grid-template-columns: 1fr !important;
+  .credit-desk {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
   }
   .credit-lifecycle-grid {
     grid-template-columns: 1fr !important;
   }
+  .queue-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .queue-card {
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .queue-item {
+    padding: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .credit-lifecycle-card,
+  .credit-transparency-table-card {
+    padding: 14px 12px !important;
+    border-radius: 16px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 4px 4px 24px !important;
+  }
+  .shell {
+    padding: 8px 6px 16px !important;
+    border-radius: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .card {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+    margin-bottom: 12px !important;
+  }
+  h1 { font-size: 20px !important; }
+  h2 { font-size: 17px !important; }
+  h3 { font-size: 15px !important; }
+  p.sub, .sub { font-size: 11.5px !important; line-height: 1.4 !important; }
+  .head { margin-bottom: 12px !important; }
+
+  /* Compact Credit Desk for phones */
+  .credit-desk {
+    margin: 8px 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .credit-desk h3 {
+    font-size: 15px !important;
+  }
+  .credit-lifecycle-card {
+    padding: 10px 8px !important;
+    border-radius: 12px !important;
+    margin-bottom: 12px !important;
+  }
+  .credit-lifecycle-card h3 {
+    font-size: 13.5px !important;
+  }
+  .credit-lifecycle-card p {
+    font-size: 10.5px !important;
+  }
+  .credit-lifecycle-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .credit-lifecycle-grid > div {
+    padding: 8px 10px !important;
+    border-radius: 10px !important;
+  }
+  .credit-lifecycle-grid b {
+    font-size: 11.5px !important;
+  }
+  .credit-lifecycle-grid p {
+    font-size: 10.5px !important;
+    margin-top: 2px !important;
+  }
+
+  .queue-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .queue-card {
+    padding: 10px 8px !important;
+    border-radius: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .queue-head {
+    margin-bottom: 8px !important;
+    padding-bottom: 6px !important;
+    flex-wrap: wrap !important;
+    gap: 4px !important;
+  }
+  .queue-head b {
+    font-size: 13px !important;
+  }
+  .queue-head div > div {
+    font-size: 10px !important;
+  }
+  .queue-badge {
+    font-size: 9.5px !important;
+    padding: 2px 6px !important;
+  }
+  .queue-item {
+    padding: 8px !important;
+    border-radius: 10px !important;
+    margin-bottom: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .queue-item b {
+    font-size: 12px !important;
+  }
+  .queue-item span {
+    font-size: 11.5px !important;
+  }
+  .queue-item .small {
+    font-size: 10.5px !important;
+    line-height: 1.35 !important;
+  }
+  .queue-item .btn {
+    font-size: 11px !important;
+    padding: 5px 8px !important;
+  }
+
+  /* Compact KPI cards */
+  .kpis {
+    gap: 8px !important;
+  }
+  .kp {
+    padding: 12px 10px !important;
+    border-radius: 14px !important;
+  }
+  .kp b {
+    font-size: 18px !important;
+  }
+  .kp small {
+    font-size: 10px !important;
+  }
+  .kp em {
+    font-size: 9.5px !important;
+  }
+  .ki {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
   .donut-chart-grid {
     grid-template-columns: 1fr !important;
   }
   .top-controls {
     flex-wrap: nowrap !important;
-    gap: 6px !important;
+    gap: 4px !important;
   }
   .agaseke-donate-header-btn {
-    padding: 5px 8px !important;
-    font-size: 11px !important;
+    padding: 4px 6px !important;
+    font-size: 10.5px !important;
   }
   .agaseke-top-btn-label {
     display: none !important;
   }
   .agaseke-badge-pill {
-    padding: 2px 6px !important;
-    font-size: 9.5px !important;
+    padding: 2px 5px !important;
+    font-size: 9px !important;
   }
   .brand-lockup small {
     display: none !important;
