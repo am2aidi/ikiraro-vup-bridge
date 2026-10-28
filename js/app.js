@@ -3920,6 +3920,21 @@ class IsokoApp {
         <section class="member-overview-card card" aria-label="Your VUP account summary">
           <div class="member-overview-profile"><span class="member-overview-avatar"><img src="assets/isoko-bridge-icon.svg" alt=""></span><div><div class="member-overview-name">${this.escapeHtml(u.name || "VUP member")} <span class="tag g">VUP member</span></div><p>${this.escapeHtml(u.district || "Kirehe")} District · ${Number(u.householdSize || 5)} family members</p><small class="${isLate ? "delay-note" : "good-note"}">${isLate ? `Payment is ${u.daysLate} days late` : "VUP payment is on schedule"}</small></div></div>
           <div class="member-overview-metrics"><article><span><i class="bi bi-wallet2" aria-hidden="true"></i> Food wallet</span><b>${Number(u.vupWalletBalance || 0).toLocaleString()} RWF</b></article><article><span>Government amount owed</span><b>${Number(u.governmentAmountOwed || 0).toLocaleString()} RWF</b></article><article><span>Work days recorded</span><b>${Number(u.daysWorked || 0)}</b><small>Where this applies</small></article><article><span>Food credit ready</span><b>${remaining.toLocaleString()} RWF</b><small>0% interest · no approval needed</small></article></div>
+          <!-- Manual Demo Credit Controls (for Pitch Walkthrough & Judge Testing) -->
+          <div class="member-demo-credit-bar" style="margin-top:14px; padding:12px 14px; background:rgba(14,99,94,0.06); border:1px dashed rgba(14,99,94,0.3); border-radius:10px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;">
+            <div style="font-size:12px; color:var(--ink);">
+              <span class="tag g" style="font-size:10px; font-weight:750; margin-right:6px;"><i class="bi bi-sliders"></i> Manual Pitch Controls</span>
+              <span>Test adding credit & payday settlement manually:</span>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+              <button type="button" class="btn btn-sm btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="window.app.manualAddMemberCredit(5, 7500)" title="Simulate 5 recorded work days">+5 Days (+7,500 RWF)</button>
+              <button type="button" class="btn btn-sm btn-outline" style="font-size:11.5px; padding:4px 10px;" onclick="window.app.manualAddMemberCredit(10, 15000)" title="Simulate 10 recorded work days">+10 Days (+15,000 RWF)</button>
+              ${this.getOutstandingCredit(u.email) > 0 ? `
+                <button type="button" class="btn btn-sm btn-primary" style="font-size:11.5px; padding:4px 10px; background:#0e635e; color:#fff;" onclick="window.app.manualSettleMemberCredit()" title="Simulate government payday at SACCO"><i class="bi bi-check-circle"></i> Settle via SACCO Payday</button>
+              ` : ''}
+              <button type="button" class="btn btn-sm btn-ghost" style="font-size:11px; padding:4px 8px; color:var(--mute);" onclick="window.app.manualResetMemberCredit()" title="Reset demo credit"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
+            </div>
+          </div>
         </section>
         ${this.renderMarketplaceTools()}
         <div class="market-products-heading"><div><h2>Fresh produce</h2><p>Food from nearby farmers and market sellers.</p></div><span class="market-list-count">${this.state.listings.length} listings</span></div>
@@ -6799,15 +6814,111 @@ class IsokoApp {
     const selIdx = this.state.selectedAccountIdx >= 0 ? this.state.selectedAccountIdx : 0;
     const acc = accounts[selIdx] || accounts[0];
 
-    if (acc.wallet || (this.state.roleCode === "member" && this.state.currentUser)) {
+    if (acc.credit) {
+      const addedDays = Math.max(1, Math.round(amount / 1500));
+      if (this.state.currentUser) {
+        this.state.currentUser.governmentAmountOwed = (Number(this.state.currentUser.governmentAmountOwed) || 0) + amount;
+        this.state.currentUser.daysWorked = (Number(this.state.currentUser.daysWorked) || 0) + addedDays;
+        const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
+        if (family) {
+          family.governmentAmountOwed = this.state.currentUser.governmentAmountOwed;
+          family.daysWorked = this.state.currentUser.daysWorked;
+        }
+      }
+      this.toast(`Added +${amount.toLocaleString()} RWF credit (${addedDays} work days) to VUP food credit!`, "success");
+    } else if (acc.wallet || (this.state.roleCode === "member" && this.state.currentUser && !acc.credit)) {
       this.state.currentUser.vupWalletBalance = (Number(this.state.currentUser.vupWalletBalance) || 0) + amount;
       const family = (this.state.users?.member || []).find(user => user.email === this.state.currentUser.email);
       if (family) family.vupWalletBalance = this.state.currentUser.vupWalletBalance;
+      this.toast(`Added +${amount.toLocaleString()} RWF to VUP wallet balance`, "success");
     } else {
       this.state.demoCustomBalances[acc.n] = (Number(this.state.demoCustomBalances[acc.n]) || 0) + amount;
+      this.toast(`Added +${amount.toLocaleString()} RWF to ${acc.n} demo balance`, "success");
     }
-    this.toast(`Added +${amount.toLocaleString()} RWF to ${acc.n} demo balance`, "success");
+    this.saveState();
     this.renderPaymentAccountsList();
+  }
+
+  manualAddMemberCredit(days = 5, amount = 7500) {
+    if (!this.state.currentUser) return;
+    this.state.currentUser.governmentAmountOwed = (Number(this.state.currentUser.governmentAmountOwed) || 0) + amount;
+    this.state.currentUser.daysWorked = (Number(this.state.currentUser.daysWorked) || 0) + days;
+    this.state.currentUser.daysLate = Math.max(1, (Number(this.state.currentUser.daysLate) || 0) + 2);
+    const family = (this.state.users?.member || []).find(u => u.email === this.state.currentUser.email);
+    if (family) {
+      family.governmentAmountOwed = this.state.currentUser.governmentAmountOwed;
+      family.daysWorked = this.state.currentUser.daysWorked;
+      family.daysLate = this.state.currentUser.daysLate;
+    }
+    this.saveState();
+    this.render();
+    this.toast(`Added +${amount.toLocaleString()} RWF (${days} work days) demo credit! Food credit ready increased.`, "success");
+  }
+
+  manualSettleMemberCredit() {
+    const u = this.state.currentUser;
+    if (!u) return;
+    const email = u.email;
+    const openCredit = this.getOutstandingCredit(email);
+    if (openCredit <= 0) {
+      this.toast("No open food credit advances to settle.", "info");
+      return;
+    }
+    const creditOrders = (this.state.orders || []).filter(o => o.mode === "credit" && !o.repaid && o.status !== "Cancelled" && o.creditStatus !== "written_off" && o.buyerEmail === email);
+    let totalSettled = 0;
+    creditOrders.forEach(o => {
+      const remainingOnOrder = Math.max(0, Number(o.total) - Number(o.repaidAmount || 0));
+      o.repaid = true;
+      o.repaidAmount = Number(o.total);
+      o.paymentStatus = "Settled (SACCO Payday)";
+      totalSettled += remainingOnOrder;
+    });
+
+    this.state.pool.balance = (Number(this.state.pool.balance) || 0) + totalSettled;
+    this.state.pool.totalRepaidByVup = (Number(this.state.pool.totalRepaidByVup) || 0) + totalSettled;
+
+    u.governmentAmountOwed = Math.max(0, (Number(u.governmentAmountOwed) || 0) - totalSettled);
+    const family = (this.state.users?.member || []).find(user => user.email === email);
+    if (family) family.governmentAmountOwed = u.governmentAmountOwed;
+
+    const wageBase = Math.max(totalSettled, 15000);
+    const ejoHezaAmt = Math.round(wageBase * 0.05);
+    const govMatch = ejoHezaAmt;
+    u.ejoHezaBalance = (Number(u.ejoHezaBalance) || 0) + ejoHezaAmt + govMatch;
+    if (family) family.ejoHezaBalance = u.ejoHezaBalance;
+
+    this.state.ledger.unshift({
+      id: `LG-${Date.now().toString().slice(-4)}`,
+      date: new Date().toISOString().slice(0, 10),
+      type: "revolving_repayment",
+      from: "Umurenge SACCO (Wage Release)",
+      to: "Revolving Bridge Float",
+      amount: totalSettled,
+      link: `Settled ${creditOrders.length} Credit Orders`,
+      status: "repaid",
+      paymentMethod: "SACCO Direct Transfer"
+    });
+
+    this.saveState();
+    this.render();
+    this.toast(`✅ Payday Settled! Recovered ${totalSettled.toLocaleString()} RWF food credit to float. Channeled ${ejoHezaAmt.toLocaleString()} RWF to Ejo Heza (doubled by Government).`, "success");
+  }
+
+  manualResetMemberCredit() {
+    const u = this.state.currentUser;
+    if (!u) return;
+    u.governmentAmountOwed = 15000;
+    u.daysWorked = 10;
+    u.daysLate = 8;
+    const family = (this.state.users?.member || []).find(user => user.email === u.email);
+    if (family) {
+      family.governmentAmountOwed = 15000;
+      family.daysWorked = 10;
+      family.daysLate = 8;
+    }
+    this.saveState();
+    this.render();
+    this.toast("Reset member credit to standard demo baseline (10 days / 15,000 RWF).", "info");
   }
 
   selectPaymentAccount(i) {

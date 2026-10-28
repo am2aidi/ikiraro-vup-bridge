@@ -1,4 +1,5 @@
 // Comprehensive runtime test for IsokoApp
+const assert = require('assert');
 global.window = global;
 global.__domListeners = [];
 const elementsMap = {
@@ -114,6 +115,12 @@ if (global.app) {
   elementsMap.protoPassword.value = 'demo1234';
   global.app.handlePrototypeLogin({ preventDefault: () => {} });
   console.log('Logged in as:', global.app.state.currentUser.name, '| Role:', global.app.state.role);
+  console.log('Initial credit ready:', global.app.getRemainingCredit());
+  global.app.manualAddMemberCredit(5, 7500);
+  console.log('Credit ready after manual +5 days:', global.app.getRemainingCredit());
+  assert(global.app.getRemainingCredit() > 0, 'Remaining credit should increase');
+  global.app.manualResetMemberCredit();
+  console.log('Credit ready after manual reset:', global.app.getRemainingCredit());
 
   console.log('\n--- TEST 2: Timeframe switching ---');
   global.app.setTimeframe('month');

@@ -17,13 +17,139 @@ The prototype walkthrough is available for review through both streaming and dir
 - 💾 **Repository Local MP4 File:** [`docs/demo_video.mp4`](docs/demo_video.mp4) (H.264 / AAC, 39.6 MB, standard Git download)
 - 📝 **Walkthrough Plan & Narration Script:** [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md)
 
+---
+
+## 📖 The Story of Isoko Bridge in Simple Words
+
+> **Quick Summary in Plain English:**  
+> In Rwanda, thousands of poor families work in the government's VUP public works programme. They earn **1,500 RWF a day** to feed their children. But when paper attendance sheets and bank transfers take time, wages arrive **9.2 days late on average**.  
+> **The crisis:** Children cannot wait 9 days to eat. With no cash at home, parents are forced to borrow from local moneylenders charging **30% monthly interest**, or skip meals. At the same time, nearby smallholder farmers have fresh beans, maize, and potatoes, but lose **30% to 45% of profits to middlemen**.  
+> **What we did:** We analyzed **3,399 real NISR household records across all 30 districts**, proved where and why these delays happen, and built **Isoko Bridge** (*Ikiraro cya VUP*). It lets workers get food from local farmers immediately with **0% interest**, pays the farmer right away with mobile money, and automatically settles the bill when wages arrive at the SACCO.
+
+---
+
+### 1. The Real-Life Problem (Why We Started)
+
+In rural Rwanda, families in Ubudehe Categories 1 and 2 work hard in the Vision 2020 Umurenge Programme (VUP). They dig anti-erosion trenches on hillsides, build village roads, and plant trees.
+- **The promise:** Every day of hard labor earns a worker **1,500 RWF** so they can buy food and send their children to school.
+- **The delay:** Before money can be paid out, attendance must be written on paper sheets, signed off by sector planners, sent to district offices, and transferred to local Umurenge SACCO bank branches. This paperwork process creates an administrative delay.
+- **The pain:** Hunger does not wait for paperwork. When wages are delayed:
+  - Parents are forced to borrow from informal moneylenders who charge cruel interest rates (**15% to 30% per month**).
+  - Village shops sell basic food on credit at high markup prices.
+  - Vulnerable families cut down to one meal a day, causing malnutrition and stress.
+- **The farmer's pain:** In the very same sector, smallholder farmers harvest beans, potatoes, and vegetables. But when they try to sell, predatory middlemen take **30% to 45% of the money**, keeping farmers poor while food stays expensive in towns.
+
+---
+
+### 2. What We Analyzed in NISR Big Data (What the Numbers Showed)
+
+Instead of guessing, our team explored real microdata from the **National Institute of Statistics of Rwanda (NISR)**. We analyzed the **EICV7 VUP survey baseline** covering **3,399 beneficiary families across all 30 districts of Rwanda**.
+
+Here is what the real data proved:
+
+| What We Analyzed | What the Numbers Revealed | What This Means in Real Life |
+| :--- | :--- | :--- |
+| **National Payment Delay** | Average wait time is **9.2 days** (median 7.5 days) | Payments due on the 15th arrive on the 24th or 25th on average. |
+| **Families Waiting Over a Week** | **52.3% of all households** wait longer than 7 days | More than half of all VUP families face food anxiety every single pay cycle. |
+| **Families Waiting Over Two Weeks** | **21.8% of all households** wait more than 14 days | More than 1 in 5 families survive half a month with zero wages in hand. |
+| **Hardest Hit Programme** | **Expanded Public Works (ePW) averages 11.0 days** | Year-round maintenance workers (often elderly, single mothers, or caring for sick relatives) wait the longest. |
+| **Hardest Hit Districts** | **Gisagara (14.6 days), Nyamagabe (13.8 days), Kirehe (12.4 days)** | Delays are severe in rural southern and eastern districts, while Kigali City averages only 5.3 days. |
+| **Payment Channels** | **64% SACCO, 24% MTN MoMo, 8% Airtel, 4% Bank** | Most rural workers rely on local Umurenge SACCOs, where physical cash transport and branch queues slow down payouts. |
+| **Middleman Price Gap** | **30% to 45% margin loss** in NISR agricultural price data | A farmer gets 400 RWF/kg for potatoes at the farm-gate, but shoppers in town pay 700 RWF/kg. Middlemen pocket the profit. |
+
+---
+
+### 3. What We Learned After the Analysis
+
+Looking closely at these findings taught us three critical lessons:
+
+1. **This is a timing problem, not an insolvency problem:**  
+   The government *does* pay the money, and the workers *did* do the work. The problem is simply the 9-day gap between the day work finishes and the day the bank transfer lands.
+2. **Workers have guaranteed collateral in their honest labor:**  
+   These families do not need charity handouts. A worker with 10 confirmed work days has 15,000 RWF of guaranteed government wages coming. They just need food *now* against those earned days.
+3. **The food is already in the village:**  
+   Local farmer cooperatives in the same sector have granaries full of beans and maize. If we connect them directly, the money stays in the local community instead of leaking to loan sharks and city middlemen.
+
+---
+
+### 4. How What We Did Solves the Problem (Step-by-Step in Simple Words)
+
+To solve both problems at once, we built **Isoko Bridge** (*Ikiraro cya VUP*). Here is how it works in 5 simple, transparent steps:
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                              HOW ISOKO BRIDGE WORKS                                    │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                        │
+│   [1. DELAY GAP]        [2. IMMEDIATE FOOD]      [3. FARMER PAID]      [4. PAYDAY]     │
+│   Wages are late    ──> Worker orders food   ──> Platform pays     ──> SACCO pays back │
+│   (9.2 days avg)        with 0% food credit      farmer instantly      food credit,    │
+│                         from local farmer        via Mobile Money      adds 5% EjoHeza │
+│                                                                        pension bonus!  │
+│                                                                                        │
+│   [5. COMMUNITY SOLIDARITY: AGASEKE K'UBUMWE]                                          │
+│   Every public shopper adds a tiny 10 RWF coin ──> Builds emergency food pool          │
+│   for elderly & disabled neighbors (Ubudehe 1) who cannot work.                        │
+│                                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### ① "Eat While You Wait" — Zero-Interest Emergency Food Credit
+- When government wages are delayed, a registered VUP worker opens the app or dials USSD on a basic phone.
+- The system checks their confirmed work days (for example, 8 days worked = 12,000 RWF available food credit).
+- The family orders staple food (beans, maize flour, sweet potatoes, rice) from local cooperatives up to their earned wage limit.
+- **Strict golden rule:** **0% interest and 0 hidden fees.** The family repays only the exact price of the food. No loan sharks, no debt traps.
+
+#### ② Farmers Get Paid on the Spot
+- Rural smallholders cannot afford to give food away on credit because they need cash to buy seeds and pay farmhands.
+- With Isoko Bridge, the moment an order is placed, our platform's **Revolving Bridge Fund** pays the farmer **instantly via Mobile Money (MTN MoMo or Airtel Money)**.
+- The farmer gets cash immediately; the hungry family gets food immediately. Nobody waits!
+
+#### ③ Automatic Settlement on Payday + Double Pension Savings
+- When government payroll finally arrives at the local Umurenge SACCO:
+  - The SACCO computer automatically deducts the exact food advance and returns it to the revolving pool, so the money is ready for the next family.
+  - The SACCO automatically routes **5% into the worker's RSSB *Ejo Heza* long-term pension account**.
+  - Because these are Ubudehe 1 and 2 families, the **Government of Rwanda doubles this savings with a 100% matching grant**! A worker who puts in 1,000 RWF now has 2,000 RWF in their retirement fund.
+  - The remaining net wages go directly into the worker's pocket or mobile phone.
+
+#### ④ Direct Farm Marketplace for Civil Servants & Public Shoppers
+- Teachers, healthcare workers, civil servants (*abakozi ba Leta*), and city families can open Isoko Bridge and buy fresh harvests directly from farmers in all 30 districts.
+- **Win-Win:** Shoppers pay up to 25% less than city supermarket prices, while smallholder farmers earn more than they would from middlemen.
+- Registered smallholder cooperatives can also check a **"Smallholder Tax-Exempt Status"** box to waive the 2% district market levy, keeping more money in rural pockets under official Rwandan cooperative incentives.
+
+#### ⑤ Agaseke k'Ubumwe — The 10 RWF Community Solidarity Jar
+- Every time a public shopper buys food, an automatic tiny **10 RWF micro-solidarity coin** is added to the order.
+- 10 RWF is so small that anyone can afford it, but across hundreds of orders, it adds up to a large community safety net.
+- **Who it helps:** Sector Planners review lists of vulnerable Ubudehe Category 1 households (such as elderly widows, people with severe disabilities, or child-headed households who cannot do physical public works).
+- The planner grants them **5,000 RWF or 10,000 RWF emergency food vouchers** funded by the Agaseke pot. This is **free emergency relief** that never has to be paid back.
+
+#### ⑥ Decision Map & Early Warning Cockpit for Sector Planners
+- Sector social protection planners have a 30-district interactive map and simple charts.
+- If Gisagara or Kirehe shows red (delays over 12 days), planners see the bottleneck immediately, coordinate with local SACCOs, and deploy bridge credit liquidity before any family misses a meal.
+
+---
+
+### 5. Why This Helps Rwanda (Real Human Impact)
+
+- **Protects Dignity:** Poor families do not have to beg or take humiliating high-interest loans. They eat with dignity backed by their honest labor.
+- **Improves Child Nutrition:** No gaps in meals means children can concentrate in school and avoid malnutrition stunting.
+- **Builds Long-Term Wealth:** Through the automatic Ejo Heza link, rural workers build a real pension nest egg doubled by the government.
+- **Fairer Incomes for Farmers:** Smallholders get paid cash on the spot at fair prices.
+- **100% Simple & Transparent:** No hidden tricks, no complicated jargon, and every Rwandan franc is tracked.
+
+> [!TIP]
+> **Manual Demo Mode for Pitch & Evaluation:**  
+> When demonstrating the app to evaluators or watching the video, you can manually click `+5 Days (+7,500 RWF)` on the member dashboard to simulate earned work days, order food with 0% credit at checkout, and click `Settle via SACCO Payday` to show the complete repayment and Ejo Heza pension doubling! See [Future Work & Production Roadmap](#-future-work--real-world-production-roadmap) below for how this will be 100% automated in production.
+
+---
+
 ## Market sellers, civil servants & nationwide produce directory
 
 The platform bridges agricultural producers directly with public consumers, civil servants, and institutional buyers across Rwanda:
 
 - **Nationwide Coverage Across All 30 Districts:** The catalogue features 46 authentic agricultural products mapped to their specific sectors in every district of Rwanda—from Kirehe and Nyagatare beans and maize, to Musanze and Nyabihu volcanic Irish potatoes, Rubavu and Rutsiro Lake Kivu sambaza, Gicumbi dairy, Rusizi Bugarama rice, and Gisagara sweet potatoes.
 - **Farmer & Trader Pathways:** **Farmers** list fresh harvests directly from their fields, and **market traders** list aggregated staples from local markets. Real-time filters allow searching by crop name, 30 districts, produce category, seller type, and sorting by distance, price, or stock availability.
-- **Civil Servants & Public Shoppers Direct Farm Linkage (*Gahunda y'Abakozi ba Leta n'Abaguzi*):** Civil servants (abakozi ba Leta), teachers, healthcare personnel, and urban households are encouraged to buy fresh food directly from rural smallholder cooperatives on Isoko Bridge. This disintermediates middlemen who historically extract 30–45% of margins, providing farmers with fair farm-gate prices and consumers with lower, farm-fresh prices.
+- **Civil Servants & Public Shoppers Direct Farm Linkage (*Gahunda y'Abakozi ba Leta n'Abaguzi*):** Civil servants (abakozi ba Leta), teachers, healthcare personnel, and urban households are encouraged to buy fresh food directly from rural smallholder cooperatives on Isoko Bridge. This cuts out greedy middlemen who take 30% to 45% of profits. Farmers get fair farm-gate prices, and consumers get fresh food for less money.
 
 ### Statutory tax transparency & smallholder exemption
 
@@ -318,6 +444,51 @@ The project keeps a root copy and an `app/` copy of the website for hosting comp
 | `scripts/` | Data preparation, local microdata audit, and development helper scripts. |
 | `api/`, `app.py` | Python static-file serving entry point; no live VUP or payment API. |
 
+---
+
+## 🚀 Future Work & Real-World Production Roadmap
+
+> [!NOTE]
+> **Manual Demo vs Automated Production:**  
+> In this hackathon demonstration prototype, adding work credit, requesting food advances, and settling SACCO payday payroll are triggered **manually with simple on-screen demo buttons** (such as `+5 Days (+7,500 RWF)` and `Settle via SACCO Payday`).  
+> This manual approach was chosen deliberately so that hackathon evaluators, government planners, and judges can test and observe every step of the transaction lifecycle at their own pace without waiting for monthly bank schedules.  
+> In the real-world national rollout, all of these steps will happen **100% automatically in the background**. Below is our production engineering roadmap:
+
+### 1. Phase 1: Direct Integration with LODA MEIS (Biometric Muster Rolls)
+- **Today in Prototype:** An admin or demonstrator clicks `+5 Days` or `+10 Days` to add earned work days and unlock food credit.
+- **Future Production:** Direct API integration with the Local Administrative Entities Development Agency (LODA) Monitoring & Evaluation Information System (MEIS).
+- **How it will work:** Rural public works site supervisors scan worker fingerprints or faces on rugged village tablets when community work concludes each evening. Verified attendance data will automatically sync via LODA's API to update each worker's 0% food credit limit daily—eliminating manual paperwork entirely.
+
+### 2. Phase 2: Automated Umurenge SACCO & BNR Core Banking Clearing
+- **Today in Prototype:** Demonstrators click `Settle via SACCO Payday` to simulate government wage disbursement and credit recovery.
+- **Future Production:** Core banking integration with Rwanda's 416 Umurenge SACCO branches through the National Bank of Rwanda (BNR) Rwanda Interbank Payment System (RIPS).
+- **How it will work:** The exact second MINECOFIN treasury funds credit a beneficiary's SACCO account, a smart direct-debit instruction will automatically:
+  1. Deduct the exact food credit taken during the delay and return it to the revolving liquidity pool.
+  2. Route 5% into the worker's Ejo Heza pension.
+  3. Release remaining cash to the worker's account or mobile wallet without human intervention.
+
+### 3. Phase 3: RSSB Ejo Heza Real-Time Pension API & Government Co-Matching
+- **Today in Prototype:** The app calculates the 5% statutory savings and 100% government match into a simulated passbook.
+- **Future Production:** Direct connection to the Rwanda Social Security Board (RSSB) *Ejo Heza* digital gateway.
+- **How it will work:** Every payday payroll cycle will push statutory contributions programmatically to RSSB servers, instantly unlocking the Ministry of Finance's 100% matching grant for Ubudehe 1 & 2 citizens under Law N° 29/2017. Beneficiaries will receive an official SMS notification from RSSB confirming their retirement balance.
+
+### 4. Phase 4: USSD (*182#) & Basic Phone IVR in Kinyarwanda
+- **Today in Prototype:** A high-performance responsive web application running smoothly on mobile and desktop browsers.
+- **Future Production:** Partnering with MTN Rwanda and Airtel Rwanda to deploy a zero-rated USSD short code (e.g. `*182*8*4#`) and interactive voice response (IVR) in Kinyarwanda.
+- **How it will work:** In remote hillside sectors where beneficiaries have basic analog phones (feature phones without internet), workers can dial USSD to check their food credit balance, view nearby participating cooperatives, and authorize staple food collection using their secret PIN.
+
+### 5. Phase 5: Smart Solar Scales & IoT Inventory at Farmer Cooperatives
+- **Today in Prototype:** Cooperatives update harvest crop stock numbers through the web portal.
+- **Future Production:** Equipping rural agricultural aggregation centers with solar-powered digital scales connected via 2G/4G IoT SIM cards.
+- **How it will work:** When smallholders deposit bags of beans or potatoes at their sector cooperative, the scale automatically records the kilograms, issues a digital warehouse receipt, and instantly updates available stock on Isoko Bridge in real time.
+
+### 6. Phase 6: Early-Warning Machine Learning for Delay Forecasting
+- **Today in Prototype:** Sector planners monitor historical delay hotspots using NISR EICV7 survey baselines and the 30-district interactive map.
+- **Future Production:** Training an automated predictive risk model that tracks monthly muster roll paperwork flow across all 416 sectors.
+- **How it will work:** The system will forecast payment delays up to two weeks before they happen, allowing district mayors and planners to proactively inject revolving bridge liquidity into vulnerable sectors *before* families face food stress.
+
+---
+
 ## Official Hackathon Submission Package · NISR 2026 Big Data Hackathon
 
 > [!IMPORTANT]
@@ -333,8 +504,8 @@ The project keeps a root copy and an `app/` copy of the website for hosting comp
 - **Public GitHub Repository:** [https://github.com/am2aidi/ikiraro-vup-bridge](https://github.com/am2aidi/ikiraro-vup-bridge)
 - **Time-Coded Video Pitch Script:** [`docs/DEMO_VIDEO_SCRIPT.md`](docs/DEMO_VIDEO_SCRIPT.md) (3:00 minute screen recording guide)
 
-### 2. Executive Summary (150 Words)
-Isoko Bridge (*Ikiraro cya VUP*) bridges the critical 9.2-day administrative delay gap faced by 52% of Vision 2020 Umurenge Programme (VUP) cash-transfer beneficiaries in Rwanda. Grounded in microdata from 3,399 surveyed households across all 30 districts, Isoko Bridge enables vulnerable families to purchase fresh staple harvests on zero-interest emergency bridge credit from local smallholder cooperatives, automatically cleared through Umurenge SACCOs upon treasury disbursement. Concurrently, public shoppers and civil servants buy farm-gate produce via MTN Mobile Money, Airtel, and Bank of Kigali. Every transaction contributes a 100 RWF micro-solidarity levy into the *Ubudehe Agaseke* Social Relief Pool to fund emergency food baskets. Sector planners leverage a 30-district geospatial cockpit to track payment delays and prioritize high-vulnerability hotspots.
+### 2. Executive Summary (Simple English · 150 Words)
+When government Vision 2020 Umurenge Programme (VUP) wages are delayed (taking 9.2 days on average according to real NISR survey data of 3,399 families), poor rural households cannot wait days to eat. Isoko Bridge (*Ikiraro cya VUP*) solves this by connecting these families directly to local farmers, allowing them to get essential food right away on zero-interest credit backed by their completed work days. The farmer is paid immediately by the platform's revolving fund. When government wages arrive at the local Umurenge SACCO, the food bill is automatically settled, 5% is saved in the worker's Ejo Heza pension (which the government doubles), and the remaining cash goes to the family. Everyday shoppers also buy fresh produce directly from farmers using Mobile Money, cutting out middlemen while chipping in a tiny 10 RWF solidarity coin to feed elderly neighbors.
 
 ### 3. Problem Statement & NISR Microdata Evidence
 - **Sample Size & Verification:** 3,399 Rwandan VUP beneficiary households surveyed across 30 districts.
@@ -360,8 +531,8 @@ Isoko Bridge (*Ikiraro cya VUP*) bridges the critical 9.2-day administrative del
 - **What it does:** Allows verified VUP beneficiary families to order essential staple foods (beans, maize flour, sweet potatoes, rice) on zero-interest credit during social cash transfer disbursement delays.
 - **Analytical Rationale:** Microdata proves that 52.3% of beneficiaries wait over a week, and 21.8% wait over two weeks past the scheduled transfer date. Because families cannot pause their caloric needs, they are forced into distress borrowing from informal moneylenders charging 15%–30% monthly interest. Pre-approved credit tied to recorded work attendance guarantees dignified food security with zero interest.
 
-#### ④ Ubudehe Agaseke Solidarity Pool & 100 RWF Micro-Levy
-- **What it does:** Every checkout transaction on Isoko Bridge automatically routes a 100 RWF solidarity contribution into *Ubudehe Agaseke*. Shoppers can also make voluntary direct donations (500 RWF to 10,000 RWF) via MTN MoMo, Airtel, or Bank of Kigali. Sector planners and admins disburse emergency relief food vouchers (5,000 RWF / 10,000 RWF) to Ubudehe 1 households.
+#### ④ Ubudehe Agaseke Solidarity Pool & 10 RWF Micro-Contribution
+- **What it does:** Every checkout transaction on Isoko Bridge automatically routes a default 10 RWF solidarity contribution into *Ubudehe Agaseke* (with one-click choices for 20, 50, 100 RWF, or 0 RWF exempt). Shoppers can also make voluntary direct donations (500 RWF to 10,000 RWF) via MTN MoMo, Airtel, or Bank of Kigali. Sector planners and admins disburse emergency relief food vouchers (5,000 RWF / 10,000 RWF) to Ubudehe 1 households.
 - **Analytical Rationale:** NISR data indicates that the poorest decile (Ubudehe 1 elderly and disabled households) cannot participate in Public Works and depend entirely on Direct Support. The Agaseke pool creates a citizen-funded, decentralized emergency safety net that refills continuously from the digital marketplace economy.
 
 #### ⑤ Credit Desk 3-Stage Transaction Lifecycle & Transparency
@@ -426,7 +597,7 @@ Below is the complete, transparent catalog of all NISR microdata and official in
 ### 7. 3-Minute Video Pitch Outline (Timestamps)
 - `0:00 – 0:30` **The Crisis**: 3,399 NISR household survey records prove 52% of VUP families face 9.2-day payment delays.
 - `0:30 – 1:15` **The Solution**: 0% food bridge credit on fresh harvests from local co-ops; direct MoMo payment.
-- `1:15 – 1:55` **Ubudehe Agaseke & Multi-Currency**: 100 RWF transaction fee & donations refilling emergency vouchers; live currency conversion.
+- `1:15 – 1:55` **Ubudehe Agaseke & Multi-Currency**: 10 RWF micro-solidarity coin & donations refilling emergency vouchers; live currency conversion.
 - `1:55 – 2:35` **Planner Cockpit**: 30-district geospatial delay heatmap & treasury liquidity stress test.
 - `2:35 – 3:00` **National Scale & Impact**: Alignment with Vision 2050, RSSB Ejo Heza, and cashless digital economy.
 

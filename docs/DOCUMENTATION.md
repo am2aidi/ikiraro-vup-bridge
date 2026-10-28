@@ -27,7 +27,7 @@ Caloric and nutritional needs cannot be postponed. While waiting for delayed soc
 1. **0% Emergency Food Bridge Credit:** Verified VUP workers draw essential staple food baskets (beans, maize flour, sweet potatoes, rice) on zero-interest, zero-fee credit backed by their verified work days.
 2. **Instant Farmer Liquidity:** Smallholder farmers and cooperatives receive **instant Mobile Money payouts** upon order confirmation from a revolving community float pool. Farmers never wait for government payroll.
 3. **Automated Payday Settlement:** When national treasury funds settle at Umurenge SACCOs, credit advances are automatically deducted at **strictly 0% interest**, restoring pool liquidity for the next cycle.
-4. **Ubudehe Agaseke Community Solidarity Pool:** Every commercial checkout transaction collects a transparent 100 RWF micro-solidarity contribution to fund emergency food grants for non-working Ubudehe 1 elderly/disabled citizens.
+4. **Ubudehe Agaseke Community Solidarity Pool:** Every commercial checkout transaction collects a transparent 10 RWF micro-solidarity contribution (with options for 20, 50, 100 RWF) to fund emergency food grants for non-working Ubudehe 1 elderly/disabled citizens.
 
 ---
 
@@ -55,14 +55,14 @@ Isoko Bridge integrates 5 authoritative NISR datasets and official national indi
 flowchart TD
   subgraph Grassroots["🌱 Grassroots Community Actors"]
     Farmer["🌾 Smallholder Farmers & Co-ops<br/>• 58 Crops Across 30 Districts<br/>• 2% Tax or Certified Exemption Toggle"]
-    Shopper["🛒 Civil Servants & Public Shoppers<br/>• Direct Farm-Gate Buying<br/>• 100 RWF Agaseke Solidarity"]
+    Shopper["🛒 Civil Servants & Public Shoppers<br/>• Direct Farm-Gate Buying<br/>• 10 RWF Agaseke Solidarity"]
     Member["🛡️ VUP Beneficiary Households<br/>• Ubudehe 1 & 2 Families<br/>• 1,500 RWF/day Wage Muster Roll"]
   end
 
   subgraph Core["⚡ Core Isoko Bridge Platform Engine"]
     Matcher["🌐 Decentralized Agricultural Matcher<br/>• Haversine Distance Ranking (30 Districts)<br/>• Web, USSD & SMS Multi-Channel Checkout"]
     Bridge["🔄 Revolving Food Bridge Float<br/>• Collateral-Free 0% Interest Food Advances<br/>• Instant Merchant Payouts During Delay (9.2d Avg)"]
-    Agaseke["🏺 Ubudehe Agaseke Relief Pool<br/>• Accumulated 100 RWF Micro-Levies<br/>• Community Hardship Food Relief"]
+    Agaseke["🏺 Ubudehe Agaseke Relief Pool<br/>• Accumulated 10 RWF Micro-Donations<br/>• Community Hardship Food Relief"]
   end
 
   subgraph National["🏛️ National Infrastructure & Policy Rails"]
@@ -76,7 +76,7 @@ flowchart TD
   Farmer -->|1. List Harvest| Matcher
   Shopper -->|2. MoMo / Cash Order| Matcher
   Matcher -->|3. Net Crop Payment| Farmer
-  Shopper -.->|4. 100 RWF Micro-Solidarity| Agaseke
+  Shopper -.->|4. 10 RWF Micro-Solidarity| Agaseke
 
   %% Flow 2: Zero-Interest Food Bridge Credit
   Member -->|5. 0% Food Advance Request| Bridge
@@ -192,3 +192,17 @@ Isoko Bridge is fully responsive and optimized for mobile phones (iOS Safari, An
 - [x] **Full Project Proposal Brief:** [`docs/VUP_Bridge_Full_Project.pdf`](VUP_Bridge_Full_Project.pdf)
 - [x] **Trilingual Localization:** Complete English (EN), Kinyarwanda (RW), and French (FR) interface.
 - [x] **Multi-Currency Engine:** RWF default, USD, EUR, KES, and UGX conversion.
+
+---
+
+## 9. Future Work & Production Roadmap
+
+In this demonstration prototype, credit top-up, work-day recording, and SACCO payday settlement are triggered **manually with simple on-screen controls** so evaluators and judges can test and observe every step of the transaction lifecycle. In production, these workflows will be **100% automated** across national infrastructure:
+
+1. **LODA MEIS Biometric Attendance Sync:** Automated API integration with village public works muster roll tablets to sync daily work attendance and update food credit limits without paperwork.
+2. **Umurenge SACCO & BNR Core Banking Clearing:** Real-time direct debit instructions triggered the moment MINECOFIN treasury funds arrive, automatically settling outstanding food credit advances to refill the revolving pool.
+3. **RSSB Ejo Heza Real-Time API:** Automated 5% payroll statutory deduction and programmatic 100% government matching grant allocation under Law N° 29/2017.
+4. **Zero-Rated USSD (*182#) & IVR for Analog Phones:** Telco integration with MTN and Airtel Rwanda enabling rural citizens without smartphones to check credit and authorize food pickups in Kinyarwanda.
+5. **IoT Solar Scales & Digital Receipts at Cooperatives:** Equipping rural cooperative granaries with smart scales to automatically sync fresh harvest stocks to the platform in real time.
+6. **Machine Learning Early-Warning Delay Prediction:** Predictive models tracking paperwork progress to forecast payment delay hotspots 2 weeks in advance and inject pre-emptive liquidity.
+
