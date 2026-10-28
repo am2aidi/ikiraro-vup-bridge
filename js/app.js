@@ -510,10 +510,16 @@ class IsokoApp {
   syncSidebar() {
     const sidebar = document.getElementById("appRail");
     const toggle = document.getElementById("railRw");
+    const backdrop = document.getElementById("mobileRailBackdrop");
     if (!sidebar) return;
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
     const stored = localStorage.getItem("isoko_sidebar_expanded");
-    const expanded = stored === null ? true : stored === "true";
+    // On mobile devices, default to collapsed/closed unless explicitly set by user
+    const expanded = stored === null ? (!isMobile) : stored === "true";
     sidebar.classList.toggle("wide", expanded);
+    if (backdrop) {
+      backdrop.classList.toggle("active", isMobile && expanded);
+    }
     const body = document.querySelector(".shell > .body");
     if (body) body.classList.toggle("menu-collapsed", !expanded);
     if (toggle) {
@@ -530,12 +536,24 @@ class IsokoApp {
     }
   }
 
+  closeMobileSidebar() {
+    const sidebar = document.getElementById("appRail");
+    const backdrop = document.getElementById("mobileRailBackdrop");
+    if (sidebar) sidebar.classList.remove("wide");
+    if (backdrop) backdrop.classList.remove("active");
+    localStorage.setItem("isoko_sidebar_expanded", "false");
+    this.syncSidebar();
+  }
+
   toggleSidebar() {
     const sidebar = document.getElementById("appRail");
     if (!sidebar) return;
     const expanded = !sidebar.classList.contains("wide");
     sidebar.classList.toggle("wide", expanded);
     localStorage.setItem("isoko_sidebar_expanded", String(expanded));
+    const backdrop = document.getElementById("mobileRailBackdrop");
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+    if (backdrop) backdrop.classList.toggle("active", isMobile && expanded);
     this.syncSidebar();
   }
 
@@ -1950,7 +1968,12 @@ class IsokoApp {
           <span class="tag g" style="font-weight:700;">Median: 9.2 Days · Mode: 8–14 Days</span>
         </div>
 
-        <svg viewBox="0 0 680 260" style="width:100%; height:auto; overflow:visible;">
+                <div class="mobile-chart-hint" style="align-items:center; justify-content:space-between; margin-bottom:8px; font-size:11px; color:var(--mute);">
+          <span style="display:inline-flex; align-items:center; gap:5px;"><i class="bi bi-arrows-expand"></i> Swipe chart horizontally to inspect bars</span>
+          <span class="tag g" style="font-size:9.5px;">Interactive SVG</span>
+        </div>
+        <div class="analytics-chart-scroll-wrap">
+        <svg viewBox="0 0 680 260" class="analytics-responsive-svg" style="min-width:540px; width:100%; height:auto; overflow:visible;">
           <defs>
             <linearGradient id="histGradGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#047857"/></linearGradient>
             <linearGradient id="histGradBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d4ed8"/></linearGradient>
@@ -1994,6 +2017,7 @@ class IsokoApp {
           <!-- Fitted Bell Curve -->
           <path d="M 127 195 Q 237 80 347 55 T 567 190" fill="none" stroke="#047857" stroke-width="2.5" stroke-dasharray="6,4"/>
         </svg>
+        </div>
 
         <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:11.5px; color:var(--mute); border-top:1px dashed var(--line); padding-top:8px;">
           <span>Source: NISR VUP Household Microdata (Sample $N=3,399$)</span>
@@ -2021,7 +2045,12 @@ class IsokoApp {
           <span class="tag b" style="font-weight:700;">Interquartile Range Analysis</span>
         </div>
 
-        <svg viewBox="0 0 680 230" style="width:100%; height:auto;">
+                <div class="mobile-chart-hint" style="align-items:center; justify-content:space-between; margin-bottom:8px; font-size:11px; color:var(--mute);">
+          <span style="display:inline-flex; align-items:center; gap:5px;"><i class="bi bi-arrows-expand"></i> Swipe horizontally to inspect quartiles</span>
+          <span class="tag g" style="font-size:9.5px;">IQR Box-and-Whisker</span>
+        </div>
+        <div class="analytics-chart-scroll-wrap">
+        <svg viewBox="0 0 680 230" class="analytics-responsive-svg" style="min-width:540px; width:100%; height:auto;">
           <!-- Axis X -->
           <line x1="180" y1="200" x2="640" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
           ${[0, 5, 10, 15, 20, 25].map(val => `
@@ -2085,7 +2114,12 @@ class IsokoApp {
           </div>
         </div>
 
-        <svg viewBox="0 0 680 230" style="width:100%; height:auto;">
+                <div class="mobile-chart-hint" style="align-items:center; justify-content:space-between; margin-bottom:8px; font-size:11px; color:var(--mute);">
+          <span style="display:inline-flex; align-items:center; gap:5px;"><i class="bi bi-arrows-expand"></i> Swipe horizontally to inspect 12-month curve</span>
+          <span class="tag b" style="font-size:9.5px;">Spline Area</span>
+        </div>
+        <div class="analytics-chart-scroll-wrap">
+        <svg viewBox="0 0 680 230" class="analytics-responsive-svg" style="min-width:540px; width:100%; height:auto;">
           <defs>
             <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#10b981" stop-opacity="0.45"/>
@@ -2119,6 +2153,7 @@ class IsokoApp {
             <text x="${p.x}" y="206" font-size="10" fill="#64748b" text-anchor="middle">${p.m}</text>
           `).join("")}
         </svg>
+        </div>
 
         <p style="font-size:11.5px; color:var(--mute); margin-top:8px;">Peak administrative muster roll audit delays occur in March/April during fiscal reconciliations.</p>
       </div>
@@ -2137,7 +2172,7 @@ class IsokoApp {
           <span class="tag g" style="font-weight:700;">Track 2 Financial Inclusion</span>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px; align-items:center;">
+        <div class="donut-chart-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:16px; align-items:center;">
           <!-- Donut 1: VUP Programmes -->
           <div style="display:flex; align-items:center; gap:16px; background:#fff; padding:16px; border-radius:14px; border:1px solid #e2e8f0;">
             <svg viewBox="0 0 160 160" style="width:120px; height:120px; flex-shrink:0;">
@@ -2213,7 +2248,12 @@ class IsokoApp {
           <span class="tag g" style="font-weight:700;">$R^2 = 0.68$ Strong Positive Correlation</span>
         </div>
 
-        <svg viewBox="0 0 680 240" style="width:100%; height:auto;">
+                <div class="mobile-chart-hint" style="align-items:center; justify-content:space-between; margin-bottom:8px; font-size:11px; color:var(--mute);">
+          <span style="display:inline-flex; align-items:center; gap:5px;"><i class="bi bi-arrows-expand"></i> Swipe horizontally to inspect 30 districts</span>
+          <span class="tag g" style="font-size:9.5px;">Scatter Correlation</span>
+        </div>
+        <div class="analytics-chart-scroll-wrap">
+        <svg viewBox="0 0 680 240" class="analytics-responsive-svg" style="min-width:540px; width:100%; height:auto;">
           <!-- Axes -->
           <line x1="60" y1="200" x2="640" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
           <line x1="60" y1="30" x2="60" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
@@ -2317,7 +2357,7 @@ class IsokoApp {
           <span class="tag b" style="font-weight:700;">3-Stage Transparent Float</span>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+        <div class="credit-lifecycle-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:12px;">
           <!-- Stage 1 -->
           <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #e2e8f0; border-top:4px solid #10b981;">
             <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:800; color:#065f46; margin-bottom:4px;">
@@ -2893,14 +2933,24 @@ class IsokoApp {
 
   setNavTab(tabId) {
     this.state.activeSubView = tabId;
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      this.closeMobileSidebar();
+    }
     this.render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined" && window.scrollTo) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   setPublicTab(tabId) {
     this.state.publicTab = tabId;
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      this.closeMobileSidebar();
+    }
     this.render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined" && window.scrollTo) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   // =========================================================================
@@ -5229,7 +5279,7 @@ class IsokoApp {
           <span class="tag g" style="font-weight:700;">Total Inflows: ${this.formatMoney(totalGains)}</span>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+        <div class="credit-lifecycle-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap:12px;">
           <!-- MTN MoMo -->
           <div style="padding:14px; border-radius:14px; border:1px solid rgba(234,179,8,0.3); background:rgba(234,179,8,0.06);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -6187,6 +6237,7 @@ class IsokoApp {
 
       <div class="card">
         <h3>💳 Financial Inclusion Channels & Disbursement Speed</h3>
+        <div class="table-wrap">
         <table>
           <thead>
             <tr><th>Disbursement Channel</th><th>Avg Delay</th><th>>7d Late (%)</th><th>Survey Records</th></tr>
@@ -6195,6 +6246,7 @@ class IsokoApp {
             ${paymentChannels.map((channel, index) => `<tr><td><b>${this.escapeHtml(channel.name)}</b></td><td ${index === 0 ? 'style="color:var(--danger); font-weight:700;"' : ''}>${Number(channel.delay).toFixed(1)} days</td><td>${Number(channel.latePct)}%</td><td>${Number(channel.records).toLocaleString()}</td></tr>`).join("")}
           </tbody>
         </table>
+        </div>
         <p class="small" style="margin-top:8px;">The survey shows an association between payment method and reported delay. It does not establish why the groups differ.</p>
       </div>
     `;
