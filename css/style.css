@@ -4471,3 +4471,144 @@ select, option, input, textarea {
   box-shadow: 0 0 0 4px var(--ok-soft);
 }
 
+
+
+/* =========================================================================
+   UNIVERSAL MOBILE OVERFLOW PREVENTION & ANALYTICS TOUCH RESPONSIVENESS
+   ========================================================================= */
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  -webkit-text-size-adjust: 100%;
+}
+
+.shell {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.body {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.main, #appView {
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.card, section, article {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.table-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  margin-bottom: 12px;
+  box-sizing: border-box !important;
+}
+
+/* Analytics Tabs swipeable on mobile */
+.analytics-tab-buttons {
+  display: flex !important;
+  gap: 6px !important;
+  overflow-x: auto !important;
+  flex-wrap: nowrap !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding-bottom: 6px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  scrollbar-width: thin;
+}
+.analytics-tab-buttons::-webkit-scrollbar {
+  height: 4px;
+}
+.analytics-tab-buttons::-webkit-scrollbar-thumb {
+  background: rgba(14, 99, 94, 0.25);
+  border-radius: 999px;
+}
+.analytics-tab-buttons .btn {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Analytics Chart Scroll Container */
+.analytics-chart-scroll-wrap {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  box-sizing: border-box !important;
+}
+.analytics-responsive-svg {
+  min-width: 540px !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.mobile-chart-hint {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-chart-hint {
+    display: flex !important;
+  }
+  .grid.grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+  .grid.grid-cols-3 > div[style*="grid-column: span 2"],
+  .grid.grid-cols-3 > div {
+    grid-column: 1 / -1 !important;
+  }
+  #mapContainer {
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 6px 6px 30px !important;
+  }
+  .shell {
+    padding: 10px 8px 18px !important;
+    border-radius: 16px !important;
+  }
+  .queue-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .credit-lifecycle-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .donut-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .top-controls {
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+  }
+  .agaseke-donate-header-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+  .agaseke-top-btn-label {
+    display: none !important;
+  }
+  .agaseke-badge-pill {
+    padding: 2px 6px !important;
+    font-size: 9.5px !important;
+  }
+  .brand-lockup small {
+    display: none !important;
+  }
+}
