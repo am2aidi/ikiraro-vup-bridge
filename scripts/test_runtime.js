@@ -249,10 +249,14 @@ if (global.app) {
   console.log('Agaseke Tab HTML generated, length:', agasekeHtml.length);
   console.log('Agaseke pool balance:', global.app.state.agasekePool, 'RWF');
 
+  if (global.app.stopBannerTimer) {
+    global.app.stopBannerTimer();
+  }
   global.app.logout();
   console.log('\n=========================================');
   console.log('✅ ALL ACCEPTANCE TESTS SUCCESSFULLY PASSED!');
   console.log('=========================================');
+  process.exit(0);
 } else {
   console.error('global.app is not defined!');
   process.exit(1);
